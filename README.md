@@ -4,7 +4,7 @@
 
 ## Overview
 
-**ShieldCraft AI** is a cloud-native, AWS-native cybersecurity platform designed for proactive, adaptive threat detection and response. Leveraging machine learning, generative AI, and advanced analytics, ShieldCraft AI empowers security teams to detect anomalies, automate incident response, and gain real-time, actionable insights—at enterprise scale.
+**ShieldCraft AI** is a cloud-native, AWS-native cybersecurity platform designed for proactive, adaptive threat detection and response. Leveraging machine learning, generative AI, and advanced analytics, ShieldCraft AI empowers security teams to detect anomalies, automate incident response, and gain real-time, actionable insights at enterprise scale.
 
 ---
 
