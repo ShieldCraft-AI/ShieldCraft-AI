@@ -1,5 +1,3 @@
-
-
 <div align="center">
   <img src="https://img.shields.io/badge/AI%20Security-Shieldcraft%20AI-blueviolet?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Shieldcraft AI" />
 </div>

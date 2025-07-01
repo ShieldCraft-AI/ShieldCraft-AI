@@ -1,0 +1,107 @@
+# Node
+/node_modules
+
+# Production
+/build
+
+# Generated files
+.docusaurus
+.cache-loader
+
+# Misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.hypothesis/
+.pylint.d/
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+*.egg
+*.pkl
+*.sqlite3
+*.db
+*.log
+logs/
+
+# Poetry
+poetry.lock
+
+# Docker
+*.tar
+docker-compose.override.yml
+.docker/
+Dockerfile.*.bak
+
+# VSCode
+.vscode/
+.history/
+
+# OS
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Data
+data/
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.sav
+*.dat
+*.tmp
+
+# AWS/Cloud
+aws/
+.aws/
+*.pem
+*.key
+
+# Project-specific
+infrastructure/
+analysis/
+scripts/*.bak
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/.cache-loader/
+
+# Test artifacts
+tests/__pycache__/
+tests/.pytest_cache/
+tests/.mypy_cache/
+
+# Ignore checklist progress artifacts
+docs/checklist_progress.json
