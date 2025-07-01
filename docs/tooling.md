@@ -8,7 +8,7 @@
   <span style="font-size:1.2em;">🛠️</span> Tooling & Libraries Applied to Generative AI Implementation Lifecycle for Shieldcraft
 </h2>
 <div style="border-left:4px solid #a5b4fc; padding-left:1em; margin-bottom:1em;">
-Here's a succinct list of the key tools and libraries, and how they apply to the various steps in the Generative AI implementation lifecycle for Shieldcraft.
+Key tools and libraries, and how they apply to the various steps in the Generative AI implementation lifecycle for Shieldcraft.
 </div>
 </section>
 
