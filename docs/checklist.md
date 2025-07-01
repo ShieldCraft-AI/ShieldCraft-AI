@@ -1,21 +1,17 @@
 <div style="margin-bottom:1.5em;">
   <a href="../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
-</div># 🛡️ ShieldCraft AI Implementation Checklist
-<br/>
-<div id="progress-bar" align="left">
-<br/>
-<strong>Project Progress:</strong>
-<br/>
-<progress id="shieldcraft-progress" value="0" max="100" style="width: 60%; height: 18px;"></progress>
-<div id="progress-label">0% Complete</div>
 </div>
 
-## Legend & Usage
-- 🟩 = Complete
-- 🟥 = Incomplete / To Do
-- ➕ = Optional / Nice-to-have
+<h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Implementation Checklist</h1>
+<div id="progress-bar" align="center" style="margin-bottom:1.5em;">
+  <strong>Project Progress</strong>
+  <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
+  <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">12% Complete</div>
+</div>
 
----
+<div id="progress-bar" align="left">
+<div id="progress-bar" align="left">
 
 ## 🧭 1. Foundation & Planning
 **Guiding Question:** Before moving to Data Prep, ask: *"Do we have clarity on what data is needed to solve the defined problem, and why?"*
@@ -167,14 +163,10 @@
 
 - 🟥 Infrastructure as Code (IaC) with AWS CDK for all cloud resources
 - 🟥 CI/CD pipelines (GitHub Actions) for automated build, test, and deployment
-- 🟥 Containerization (Docker) and orchestration (Kubernetes/AWS EKS)
-- 🟥 AWS SageMaker integration for model lifecycle management (training, deployment, monitoring)
-- 🟥 Centralized logging with AWS CloudWatch Logs and structured logging
-- 🟥 Metrics and dashboards (Prometheus/Grafana/CloudWatch) for system health
-- 🟥 Distributed tracing with AWS X-Ray for microservices
-- 🟥 Infrastructure drift detection and automated remediation
-- 🟥 Pre-commit and pre-push hooks for code quality checks
-- 🟥 Automated dependency and vulnerability patching
+- 🟩 Containerization (Docker)
+- 🟥 Orchestration (Kubernetes/AWS EKS)
+- 🟩 Pre-commit and pre-push hooks for code quality checks
+- 🟩 Automated dependency and vulnerability patching
 - 🟥 Secrets scanning in repositories and CI/CD pipelines
 - 🟥 Build artifact signing and verification
 - 🟥 Secure build environment (e.g., ephemeral runners)
@@ -185,9 +177,9 @@
 - 🟥 Secure authentication, authorization, and configuration management
 - 🟥 Secrets management (AWS Secrets Manager)
 - 🟥 IAM roles and fine-grained access control
-- 🟥 Multi-environment support (dev, staging, prod)
-- 🟥 Automated artifact management (models, data, embeddings)
-- 🟥 Robust error handling in automation scripts
+- 🟩 Multi-environment support (dev, staging, prod)
+- 🟩 Automated artifact management (models, data, embeddings)
+- 🟩 Robust error handling in automation scripts
 - 🟥 Automated smoke and integration tests, triggered after build/deploy
 - 🟥 Static type checks enforced in CI/CD using Mypy
 - 🟥 Code coverage tracked and reported via Pytest-cov

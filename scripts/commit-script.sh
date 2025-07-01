@@ -63,10 +63,32 @@ if ! compare_versions "$INSTALLED_POETRY_VERSION" "$MIN_POETRY_VERSION"; then
     fi
 fi
 
-# --- Python version check ---
+# --- Python version check (robust range check) ---
 REQUIRED_PYTHON_VERSION=$(grep requires-python pyproject.toml | head -1 | awk -F'"' '{print $2}')
 CURRENT_PYTHON_VERSION=$(python --version 2>&1 | awk '{print $2}')
-if [[ "$CURRENT_PYTHON_VERSION" != ${REQUIRED_PYTHON_VERSION#^}* ]]; then
+# Parse lower and upper bounds (e.g., ">=3.11,<4.0")
+PY_LOWER=$(echo "$REQUIRED_PYTHON_VERSION" | grep -oE '>=([0-9]+\.[0-9]+)' | grep -oE '[0-9]+\.[0-9]+')
+PY_UPPER=$(echo "$REQUIRED_PYTHON_VERSION" | grep -oE '<([0-9]+\.[0-9]+)' | grep -oE '[0-9]+\.[0-9]+')
+# Compare current version to bounds
+version_ge() {  # $1 >= $2
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=0; i<${#ver2[@]}; i++)); do
+        if ((10#${ver1[i]:-0} > 10#${ver2[i]:-0})); then return 0; fi
+        if ((10#${ver1[i]:-0} < 10#${ver2[i]:-0})); then return 1; fi
+    done
+    return 0
+}
+version_lt() {  # $1 < $2
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=0; i<${#ver2[@]}; i++)); do
+        if ((10#${ver1[i]:-0} < 10#${ver2[i]:-0})); then return 0; fi
+        if ((10#${ver1[i]:-0} > 10#${ver2[i]:-0})); then return 1; fi
+    done
+    return 1
+}
+if ! version_ge "$CURRENT_PYTHON_VERSION" "$PY_LOWER" || { [ -n "$PY_UPPER" ] && version_ge "$CURRENT_PYTHON_VERSION" "$PY_UPPER"; }; then
     echo "🟨 WARNING: Python $REQUIRED_PYTHON_VERSION required, found $CURRENT_PYTHON_VERSION."
 fi
 

@@ -2,9 +2,15 @@
   <img src="https://img.shields.io/badge/AI%20Security-Shieldcraft%20AI-blueviolet?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Shieldcraft AI" />
 </div>
 
-
 <h1 align="center">🛡️ ShieldCraft AI</h1>
 <p align="center"><em>Next-Gen Cybersecurity: Proactive, Adaptive, AI-Driven Defense</em></p>
+
+<div id="progress-bar" align="center" style="margin-bottom:1.5em;">
+  <strong>Project Progress</strong>
+  <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
+  <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">12% Complete</div>
+</div>
 
 
 
@@ -14,6 +20,7 @@
 </h2>
 <div style="border-left:4px solid #a5b4fc; padding-left:1em; margin-bottom:1em;">
 <b>ShieldCraft AI</b> is a modern, AWS-native cybersecurity platform that leverages advanced machine learning, Generative AI (Amazon Bedrock, LangChain), and behavioral analytics to deliver proactive, adaptive threat detection and automated response. Designed for enterprise scale, it empowers security teams to:
+<br/>
 <ul>
   <li><b>Detect and respond to novel, advanced threats</b> (zero-days, insider risks, AI-driven attacks) in real time</li>
   <li><b>Automate alert triage, investigation, and remediation</b> with GenAI-powered insights and recommendations</li>
@@ -74,9 +81,8 @@
 </h2>
 <ol style="margin-bottom:0.5em;">
   <li>Clone the repo: <code>git clone https://github.com/Dee66/shieldcraft-ai.git</code></li>
-  <li>Install dependencies: <code>poetry install</code> or <code>pip install -r requirements.txt</code></li>
+  <li>Install dependencies: <code>poetry install</code></li>
   <li>Deploy infrastructure: See <code>/infrastructure</code> for AWS CDK deployment scripts</li>
-  <li>Run the platform: See <code>/docs/Getting_Started.md</code> for local or cloud setup</li>
 </ol>
 </section>
 
