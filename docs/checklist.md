@@ -1,4 +1,6 @@
-# 🛡️ ShieldCraft AI Implementation Checklist
+<div style="margin-bottom:1.5em;">
+  <a href="../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+</div># 🛡️ ShieldCraft AI Implementation Checklist
 
 <div id="progress-bar" align="left">
 <strong>Project Progress:</strong>
