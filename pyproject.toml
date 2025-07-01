@@ -1,6 +1,6 @@
 [project]
 name = "shieldcraft-ai"
-version = "0.1.4"
+version = "0.1.5"
 description = "GenAI-driven cybersecurity platform"
 authors = [
     {name = "deon66@gmail.com"}
