@@ -152,7 +152,7 @@ fi
 echo "🟦 Updating checklist progress bar..."
 CHECKLIST_SCRIPT_PATH="$REPO_ROOT/.github/scripts/update_checklist_progress.py"
 if poetry run python "$CHECKLIST_SCRIPT_PATH" | grep -q 'updated'; then
-    git add "$REPO_ROOT/docs/checklist.md" "$REPO_ROOT/README.md"
+    git add "$REPO_ROOT/docs-site/docs/checklist.md" "$REPO_ROOT/README.md"
     echo "🟦 Auto-committing checklist progress bar update..."
     if ! poetry run git commit -m "chore: update checklist progress bar"; then
         echo "🟥 CRITICAL: Auto-commit of checklist progress bar failed."
@@ -166,20 +166,23 @@ if ! poetry run pre-commit run --all-files; then
     exit 1
 fi
 
-# --- Pull with rebase before push ---
-echo "🟦 Pulling latest changes with 'git pull --rebase' before push..."
-if ! git pull --rebase; then
-    echo "🟥 CRITICAL: Pull (rebase) failed. Resolve conflicts before pushing."
-    exit 1
+# --- Ask user if they want to push ---
+read -rp "🟦 All checks passed. Do you want to push to remote now? [Y/n]: " do_push
+do_push=${do_push:-Y}
+if [[ "$do_push" =~ ^[Yy]$ ]]; then
+    echo "🟦 Pulling latest changes with 'git pull --rebase' before push..."
+    if ! git pull --rebase; then
+        echo "🟥 CRITICAL: Pull (rebase) failed. Resolve conflicts before pushing."
+        exit 1
+    fi
+    echo "🟦 Pushing to remote..."
+    if ! poetry run git push; then
+        echo "🟥 CRITICAL: Push failed."
+        exit 1
+    fi
+    echo "🟩 GOOD: All changes committed, version bumped, checklist updated, and pushed successfully."
+    echo "🟦 See CI/CD status at: https://github.com/<your-org-or-user>/shieldcraft-ai/actions"
+    echo "🟦 For docs and next steps, see: $REPO_ROOT/README.md"
+else
+    echo "🟦 Push skipped. You can push manually with 'git push' when ready."
 fi
-
-# --- Push to remote ---
-echo "🟦 Pushing to remote..."
-if ! poetry run git push; then
-    echo "🟥 CRITICAL: Push failed."
-    exit 1
-fi
-
-echo "🟩 GOOD: All changes committed, version bumped, checklist updated, and pushed successfully."
-echo "🟦 See CI/CD status at: https://github.com/<your-org-or-user>/shieldcraft-ai/actions"
-echo "🟦 For docs and next steps, see: $REPO_ROOT/README.md"

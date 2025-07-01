@@ -8,8 +8,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs-site/docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
-  <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">12% Complete</div>
+  <progress id="shieldcraft-progress" value="9" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">9% Complete</div>
 </div>
 
 
@@ -87,25 +87,6 @@
   <li>Deploy infrastructure: See <code>/infrastructure</code> for AWS CDK deployment scripts</li>
 </ol>
 </section>
-
-
-
-
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🗺️</span> Roadmap
-</h2>
-<ul style="margin-bottom:0.5em;">
-  <li>[ ] Foundation: Business case, architecture, compliance (see <a href="./docs/spec.md" style="color:#a5b4fc;">spec.md</a>)</li>
-  <li>[ ] Core ML: UEBA, anomaly detection, model training</li>
-  <li>[ ] GenAI: Amazon Bedrock, LangChain, RAG pipelines (see <a href="./docs/poa.md" style="color:#a5b4fc;">poa.md</a>)</li>
-  <li>[ ] MLOps: CI/CD, monitoring, retraining</li>
-  <li>[ ] Security: IAM, secret management, compliance automation</li>
-  <li>[ ] Dashboards: Real-time monitoring and alerting</li>
-</ul>
-</section>
-
-
 
 
 
