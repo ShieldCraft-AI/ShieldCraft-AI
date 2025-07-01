@@ -1,0 +1,102 @@
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.hypothesis/
+.pylint.d/
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+*.egg
+*.pkl
+*.sqlite3
+*.db
+*.log
+logs/
+
+# Ignore Poetry and pip artifacts
+# (Do NOT ignore pyproject.toml or poetry.lock, needed for Docker builds)
+requirements.txt
+
+# Ignore Docker and Compose files (except main Dockerfiles)
+docker-compose.*
+Dockerfile.*.bak
+.docker/
+
+# Ignore VSCode and editor configs
+.vscode/
+.history/
+.idea/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Ignore Git and CI/CD
+.git/
+.gitignore
+.github/
+.gitattributes
+.gitmodules
+.gitlab/
+.circleci/
+.travis.yml
+.pre-commit-config.yaml
+.pre-commit-hooks.yaml
+
+# Ignore docs and site builds
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/.cache-loader/
+docs/
+spec.md
+tooling.md
+poa.md
+README.md
+
+# Ignore tests and test artifacts
+tests/
+test*/
+*.spec
+*.test
+
+# Ignore data and large files
+data/
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.sav
+*.dat
+*.tmp
+
+# Ignore AWS/Cloud
+aws/
+.aws/
+*.pem
+*.key
+
+# Project-specific
+infrastructure/
+analysis/
+
+
+# Ignore checklist progress artifacts
+docs/checklist_progress.json
