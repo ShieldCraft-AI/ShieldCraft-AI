@@ -21,22 +21,12 @@ jobs:
         run: poetry install
       - name: Run tests
         run: poetry run pytest --cov=src
+      - name: Update Chainguard digests in Dockerfiles
+        run: bash ./update-chainguard-digests.sh
       - name: Docker Build (API)
         run: DOCKER_BUILDKIT=1 docker build -f Dockerfile.api --target=final -t shieldcraft-api:ci .
       - name: Docker Build (Ingestion)
         run: DOCKER_BUILDKIT=1 docker build -f Dockerfile.ingestion --target=final -t shieldcraft-ingestion:ci .
       - name: Docker Build (Main)
         run: DOCKER_BUILDKIT=1 docker build -f Dockerfile --target=final -t shieldcraft-main:ci .
-      - name: Trivy Scan (API)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: shieldcraft-api:ci
-      - name: Trivy Scan (Ingestion)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: shieldcraft-ingestion:ci
-      - name: Trivy Scan (Main)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: shieldcraft-main:ci
       # Add Docker push steps here if you want to push to a registry

@@ -1,7 +1,7 @@
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <div style="margin-bottom:1.5em;">
-  <a href="../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
 </div>
-
 <h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Implementation Checklist</h1>
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
@@ -9,9 +9,9 @@
   <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
   <div id="progress-label">12% Complete</div>
 </div>
+</section>
 
-<div id="progress-bar" align="left">
-<div id="progress-bar" align="left">
+<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
 ## 🧭 1. Foundation & Planning
 **Guiding Question:** Before moving to Data Prep, ask: *"Do we have clarity on what data is needed to solve the defined problem, and why?"*
@@ -33,10 +33,11 @@
     - 🟥 Establish Security Architecture Review Board (see Section 7: Security & Governance)
 - 🟥 Technical, ethical, and operational risks identified with mitigation strategies
 - 🟥 Threat modeling and adversarial testing (e.g., red teaming GenAI outputs) (see Section 7: Security & Governance)
-- 🟥 Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.) (see Section 7: Security & Governance)
+- 🟥 Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)
 - 🟩 Set up project structure, version control, and Docusaurus documentation
 - 🟩 Modular system layers, MLOps flow, and security/data governance designed
 - 🟩 Deliverables: business case summary, MLOps diagram, risk log, cost model, and ADRs
+- 🟩 Automated checklist progress bar update
     - *Definition of Done: Business problem articulated, core architecture designed, and initial cost/risk assessments completed. Link to `foundation/` for documentation.*
 </details>
 
@@ -175,7 +176,7 @@
 - 🟥 Post-deployment validation checks (smoke tests, integration tests)
 - 🟥 Continuous monitoring for cost, performance, data/concept drift
 - 🟥 Secure authentication, authorization, and configuration management
-- 🟥 Secrets management (AWS Secrets Manager)
+- 🟩 [Secrets management](aws-secrets-management.md) (AWS Secrets Vault)
 - 🟥 IAM roles and fine-grained access control
 - 🟩 Multi-environment support (dev, staging, prod)
 - 🟩 Automated artifact management (models, data, embeddings)
@@ -185,7 +186,7 @@
 - 🟥 Code coverage tracked and reported via Pytest-cov
 - 🟥 Automated Jupyter notebook dependency management and validation (via Nox and Nbval)
 - 🟥 Automated SageMaker training jobs launched via Nox and parameterized config
-- 🟥 Streamlined local development (Makefile, Nox, Docker Compose)
+- 🟥 Streamlined local development (Nox, Docker Compose)
 - 🟥 Command Line Interface (CLI) tools for common operations
     - *Definition of Done: CI/CD fully automated, system stable in production, and monitoring active. Link to `mlops/` for pipeline definitions.*
 </details>
@@ -201,11 +202,9 @@
 - 🟥 Conduct regular Security Audits (internal and external)
 - 🟥 Implement Continuous compliance monitoring (GDPR, SOC2, etc.)
 - 🟥 Develop a Security Incident Response Plan and corresponding runbooks
-- 🟥 Conduct regular Threat modeling and adversarial testing (including red-teaming GenAI outputs)
 - 🟥 Implement Centralized audit logging and access reviews
 - 🟥 Document and enforce Security Policies and Procedures
 - 🟥 Proactive identification and mitigation of Technical, Ethical, and Operational risks
-- 🟥 Conduct Privacy Impact Assessments (PIAs) and ensure data privacy by design
 - 🟥 Leverage AWS security services (Security Hub, GuardDuty, Config) for enterprise posture
 - 🟥 Ensure data lineage and audit trails are established and maintained for all data flows and model decisions
 - 🟥 Implement Automated security scanning for code, containers, and dependencies (SAST, DAST, SBOM)
@@ -223,6 +222,7 @@
 <summary>Show checklist…</summary>
 
 - 🟩 Maintain up-to-date Docusaurus documentation for all major components
+- 🟩 Automated checklist progress bar update
 - 🟥 Architecture diagrams and sequence diagrams for all major flows
 - 🟥 Document onboarding, architecture, and usage for developers and analysts
 - 🟥 Add “How to contribute” and “Getting started” guides
