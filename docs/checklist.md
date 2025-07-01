@@ -1,12 +1,13 @@
 <div style="margin-bottom:1.5em;">
   <a href="../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
 </div># 🛡️ ShieldCraft AI Implementation Checklist
-
+<br/>
 <div id="progress-bar" align="left">
+<br/>
 <strong>Project Progress:</strong>
-<br>
+<br/>
 <progress id="shieldcraft-progress" value="0" max="100" style="width: 60%; height: 18px;"></progress>
-<span id="progress-label">0% Complete</span>
+<div id="progress-label">0% Complete</div>
 </div>
 
 ## Legend & Usage

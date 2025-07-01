@@ -1,0 +1,40 @@
+# --- Base image for ingestion/ETL service ---
+FROM python:3.11-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR /app
+
+# --- Dev stage ---
+FROM base AS dev
+RUN pip install --upgrade pip pipx && \
+    pipx install poetry && \
+    pipx ensurepath
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --with dev --no-interaction --no-ansi
+ARG SKIP_LARGE_DOWNLOADS=0
+RUN if [ "$SKIP_LARGE_DOWNLOADS" = "1" ]; then echo "Skipping large downloads in dev"; fi
+COPY . .
+
+# --- Production stage ---
+FROM base AS prod
+COPY pyproject.toml poetry.lock ./
+RUN pip install --upgrade pip && \
+    pip install poetry && \
+    poetry install --only main --no-interaction --no-ansi && \
+    poetry export -f requirements.txt --output requirements.txt --without-hashes && \
+    pip install --no-cache-dir -r requirements.txt && \
+    poetry env remove python || true
+COPY . .
+RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ || true
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
+
+# --- Ingestion Entrypoint ---
+FROM prod AS final
+ENV ENV=prod
+CMD ["poetry", "run", "python", "-m", "src.ingestion.main"]
+
+# --- Target selection ---
+# docker build -f Dockerfile.ingestion --target=dev --build-arg ENV=dev .
+# docker build -f Dockerfile.ingestion --target=final --build-arg ENV=prod .
