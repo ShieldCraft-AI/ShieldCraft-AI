@@ -82,22 +82,43 @@ if ! poetry run pre-commit run --all-files; then
     fi
 fi
 
+
 echo "🟦 Staged changes ready for commit."
-read -rp "🟦 Enter your commit message (conventional: feat:, fix:, chore:, etc.): " commit_msg
+echo "🟦 Select commit type:"
+echo "  1) feat (default)"
+echo "  2) fix"
+echo "  3) chore"
+echo "  4) docs"
+echo "  5) style"
+echo "  6) refactor"
+echo "  7) perf"
+echo "  8) test"
+echo "  9) ci"
+echo " 10) build"
+echo " 11) revert"
+read -rp "🟦 Enter the number for commit type [default: 1]: " commit_type_num
+commit_type_num=${commit_type_num:-1}
+case $commit_type_num in
+    1|feat) commit_type="feat" ;;
+    2|fix) commit_type="fix" ;;
+    3|chore) commit_type="chore" ;;
+    4|docs) commit_type="docs" ;;
+    5|style) commit_type="style" ;;
+    6|refactor) commit_type="refactor" ;;
+    7|perf) commit_type="perf" ;;
+    8|test) commit_type="test" ;;
+    9|ci) commit_type="ci" ;;
+    10|build) commit_type="build" ;;
+    11|revert) commit_type="revert" ;;
+    *) commit_type="feat" ;;
+esac
+
+read -rp "🟦 Enter your commit message: " commit_msg
 if [ -z "$commit_msg" ]; then
     echo "🟥 CRITICAL: Commit message cannot be empty."; exit 1
 fi
-# Enforce conventional commit style (basic check)
-if ! [[ "$commit_msg" =~ ^(feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert)(\(.+\))?: ]]; then
-    echo "🟨 WARNING: Commit message does not follow conventional style. (e.g., feat:, fix:, chore:). Continue? [y/N]: "
-    read -r continue_commit
-    continue_commit=${continue_commit:-N}
-    if [[ ! "$continue_commit" =~ ^[Yy]$ ]]; then
-        echo "🟥 Commit aborted. Please use a conventional commit message."
-        exit 1
-    fi
-fi
-if ! poetry run git commit -m "$commit_msg"; then
+full_commit_msg="$commit_type: $commit_msg"
+if ! poetry run git commit -m "$full_commit_msg"; then
     echo "🟥 CRITICAL: Commit failed."; exit 1
 fi
 
