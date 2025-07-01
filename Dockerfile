@@ -1,5 +1,6 @@
 # --- Base image for all environments ---
-FROM python:3.11.9-slim AS base
+# Using Chainguard Python (zero-known CVE, minimal, secure)
+FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -8,21 +9,21 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # --- OS security updates ---
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Chainguard images are continuously updated and minimal, so explicit OS update is not required
 
 # --- Dev stage ---
 FROM base AS dev
-# Install dev tools and dependencies
+# Install dev tools and dependencies, combine steps for smaller image
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.cache/pypoetry \
     pip install --upgrade pip pipx && \
     pipx install poetry && \
-    pipx ensurepath
+    pipx ensurepath && \
+    echo "[dev] Poetry and pipx installed"
 COPY pyproject.toml poetry.lock ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.cache/pypoetry \
     poetry install --with dev --no-interaction --no-ansi
-# Optionally skip large downloads in dev
 ARG SKIP_LARGE_DOWNLOADS=0
 RUN if [ "$SKIP_LARGE_DOWNLOADS" = "1" ]; then echo "Skipping large downloads in dev"; fi
 COPY . .
@@ -39,25 +40,29 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir -r requirements.txt && \
     poetry env remove python || true
 COPY . .
-# Remove dev files, tests, docs, etc.
-RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ || true
-# Use a non-root user for security
-RUN useradd -m appuser && chown -R appuser /app
+# Remove dev files, tests, docs, .env, and build artifacts
+RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__/ || true
+# Use a custom non-root user for security and explicit UID/GID
+RUN useradd -u 10001 -m appuser && chown -R appuser /app
 USER appuser
 
 # --- Production stage ---
 FROM staging AS prod
 
 
-# --- Distroless final image ---
-FROM gcr.io/distroless/python3-debian11 AS final
+FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS final
 WORKDIR /app
 COPY --from=prod /app /app
 COPY --from=prod /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=prod /usr/local/bin /usr/local/bin
-USER nonroot:nonroot
+# Use custom non-root user for security
+USER 10001
 ARG ENV=prod
 ENV ENV=${ENV}
+# Healthcheck for orchestrators
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD python -m src.main_healthcheck || exit 1
+# Entrypoint for flexibility
+ENTRYPOINT ["python"]
 CMD ["-m", "src.main"]
 
 # --- Target selection ---

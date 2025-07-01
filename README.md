@@ -7,7 +7,7 @@
 
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
-  <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
+  <a href="./docs-site/docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
   <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
   <div id="progress-label">12% Complete</div>
 </div>
@@ -51,10 +51,10 @@
   <span style="font-size:1.2em;">📚</span> Documentation & Deep Dives
 </h2>
 <ul style="margin-bottom:0.5em;">
-  <li><a href="./docs/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
-  <li><a href="./docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout and best practices</li>
-  <li><a href="./docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tooling & Libraries</b></a> Tools and libraries mapped to GenAI lifecycle phases</li>
-  <li><a href="./docs/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
+  <li><a href="./docs-site/docs/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
+  <li><a href="./docs-site/docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout and best practices</li>
+  <li><a href="./docs-site/docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tooling & Libraries</b></a> Tools and libraries mapped to GenAI lifecycle phases</li>
+  <li><a href="./docs-site/docs/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
 </ul>
 </section>
 
@@ -64,11 +64,13 @@
   <span style="font-size:1.2em;">🧰</span> Core Tech Stack
 </h2>
 <ul style="margin-bottom:0.5em;">
-  <li>AWS (SageMaker, EKS, ECS, Lambda, Glue, S3, CloudWatch, Secrets Manager, CDK)</li>
-  <li>ML/AI: PyTorch, Scikit-learn, XGBoost, Graph Neural Networks, Amazon Bedrock, LangChain</li>
-  <li>Data: Glue, S3, Apache Spark, Pandas, Kafka, Kinesis, Amazon Neptune</li>
-  <li>MLOps: GitHub Actions, Docker, MLflow, SageMaker Experiments, IaC (CDK)</li>
-  <li>Security: IAM, VPC, compliance automation, secret rotation, audit trails</li>
+  <li><b>AWS Cloud & Security:</b> EKS (Kubernetes), ECS, Lambda, S3, RDS, Aurora, VPC, IAM, KMS, Secrets Manager, GuardDuty, Security Hub, CloudWatch, Config, Audit Trails</li>
+  <li><b>GenAI & ML:</b> Amazon Bedrock, LangChain, OpenAI, HuggingFace, PyTorch, Scikit-learn, XGBoost, Graph Neural Networks, RAG pipelines, vector DBs (pgvector, Pinecone, Weaviate)</li>
+  <li><b>Data & Streaming:</b> Glue, S3, Apache Spark, Pandas, Kafka, Kinesis, Amazon Neptune</li>
+  <li><b>MLOps & Orchestration:</b> GitHub Actions (CI/CD, OIDC), Docker, Chainguard, SBOM/image signing, MLflow, SageMaker Experiments, IaC (CDK, Terraform), Nox</li>
+  <li><b>Observability & Monitoring:</b> Prometheus, Grafana, CloudWatch, Sentry, automated alerting</li>
+  <li><b>Compliance & Policy:</b> Policy as Code (Config, OPA), automated compliance checks, audit logging, secret rotation</li>
+  <li><b>Developer Experience:</b> Poetry, pre-commit, Docusaurus, Jupyter, robust onboarding scripts</li>
 </ul>
 </section>
 

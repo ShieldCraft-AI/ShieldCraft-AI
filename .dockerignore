@@ -48,6 +48,11 @@ Desktop.ini
 
 # Ignore Git and CI/CD
 .git/
+.env
+docs/
+tests/
+README.md
+.github/
 .gitignore
 .github/
 .gitattributes
