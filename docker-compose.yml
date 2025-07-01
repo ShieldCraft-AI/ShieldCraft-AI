@@ -1,0 +1,92 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: ${DOCKER_TARGET:-final}
+    environment:
+      - ENV=${ENV:-prod}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./src:/app/src:delegated # Live code reload in dev
+      - api_data:/app/data
+      - api_logs:/app/logs
+    depends_on:
+      ingestion:
+        condition: service_healthy
+      main:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+    command: ["poetry", "run", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8080"]
+  ingestion:
+    build:
+      context: .
+      dockerfile: Dockerfile.ingestion
+      target: ${DOCKER_TARGET:-final}
+    environment:
+      - ENV=${ENV:-prod}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "src.ingestion.healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./src:/app/src:delegated
+      - ingestion_data:/app/data
+      - ingestion_logs:/app/logs
+    depends_on:
+      main:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+    command: ["poetry", "run", "python", "-m", "src.ingestion.main"]
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${DOCKER_TARGET:-final}
+    environment:
+      - ENV=${ENV:-prod}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "src.main_healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./src:/app/src:delegated
+      - main_data:/app/data
+      - main_logs:/app/logs
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+    command: ["poetry", "run", "python", "-m", "src.main"]
+
+volumes:
+  api_data:
+  api_logs:
+  ingestion_data:
+  ingestion_logs:
+  main_data:
+  main_logs:
+
+# Enable BuildKit for better caching and parallelism
+x-buildkit:
+  enabled: true
