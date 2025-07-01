@@ -8,6 +8,8 @@ authors = [
 readme = "README.md"
 requires-python = "^3.11"
 dependencies = [
+    "pytest>=8.4.1,<9.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
     "torch>=2.2.0,<3.0.0",
     "scikit-learn>=1.4.0,<2.0.0",
     "xgboost>=2.0.0,<3.0.0",
@@ -33,3 +35,7 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+
