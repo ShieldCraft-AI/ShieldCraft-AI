@@ -49,7 +49,7 @@
   <li><a href="./docs/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
   <li><a href="./docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout and best practices</li>
   <li><a href="./docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tooling & Libraries</b></a> Tools and libraries mapped to GenAI lifecycle phases</li>
-  <!-- <li><a href="./Shieldcraft AI Checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li> -->
+  <li><a href="./docs/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
 </ul>
 </section>
 
