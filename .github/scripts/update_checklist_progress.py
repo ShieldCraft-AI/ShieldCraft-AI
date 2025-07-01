@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CHECKLIST_PATH = REPO_ROOT / "docs" / "checklist.md"
+CHECKLIST_PATH = REPO_ROOT / "docs-site" / "docs" / "checklist.md"
 README_PATH = REPO_ROOT / "README.md"
 
 PROGRESS_BAR_PATTERN = re.compile(
