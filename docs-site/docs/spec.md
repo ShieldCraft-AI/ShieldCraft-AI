@@ -14,7 +14,7 @@
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 <div style="border-left:4px solid #a5b4fc; padding-left:1em; margin-bottom:1em;">
-<strong>Overview:</strong> This document provides the authoritative business and technical specification for ShieldCraft AI. It details the platform’s business case, value proposition, and unique differentiators, then breaks down the architecture and implementation across all major layers. For GenAI implementation lifecycle and tooling specifics, see <a href="./poa.md" style="color:#a5b4fc;">poa.md</a> and <a href="./tooling.md" style="color:#a5b4fc;">tooling.md</a>.
+<strong>Overview:</strong> This document provides the authoritative business and technical specification for ShieldCraft AI. It details the platform’s business case, value proposition, and unique differentiators, then breaks down the architecture and implementation across all major layers. For GenAI implementation lifecycle and tooling specifics, see <a href="./poa.md" style="color:#a5b4fc;">the plan of action</a> and <a href="./tooling.md" style="color:#a5b4fc;">tooling</a>.
 </div>
 </section>
 
