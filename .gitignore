@@ -105,3 +105,4 @@ tests/.mypy_cache/
 
 # Ignore checklist progress artifacts
 docs/checklist_progress.json
+.env

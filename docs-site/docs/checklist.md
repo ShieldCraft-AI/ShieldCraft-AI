@@ -6,14 +6,16 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="9" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">9% Complete</div>
+  <progress id="shieldcraft-progress" value="28" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">28% Complete</div>
 </div>
 </section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
-## 🧭 1. Foundation & Planning
+## 🧭 Foundation & Planning
+**Definition of Done:** Business problem articulated, core architecture designed, and initial cost/risk assessments completed.**
+<br/>
 **Guiding Question:** Before moving to Data Prep, ask: *"Do we have clarity on what data is needed to solve the defined problem, and why?"*
 <details>
 <summary>Show checklist…</summary>
@@ -36,15 +38,20 @@
 - 🟥 Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)
 - 🟩 Set up project structure, version control, and Docusaurus documentation
 - 🟩 Modular system layers, MLOps flow, and security/data governance designed
+- 🟩 Dockerfiles and Compose hardened for security, reproducibility, and best practices
+- 🟩 Noxfile and developer workflow automation in place
+- 🟩 Commit script unified, automating checks, versioning, and progress
 - 🟩 Deliverables: business case summary, MLOps diagram, risk log, cost model, and ADRs
 - 🟩 Automated checklist progress bar update
-    - *Definition of Done: Business problem articulated, core architecture designed, and initial cost/risk assessments completed. Link to `foundation/` for documentation.*
+
 </details>
 
 ---
 
-## 💾 2. Data Preparation
-**Guiding Question:** Do we have the right data, in the right format, with clear lineage and privacy controls?
+## 💾 Data Preparation
+**Definition of Done:** Data pipelines are operational, data is clean and indexed for RAG. Link to `data_prep/` for schemas and pipelines.**
+<br/>
+**Guiding Question:** Do we have the right data, in the right format, with clear lineage and privacy controls?*
 <details>
 <summary>Show checklist…</summary>
 
@@ -68,13 +75,15 @@
     - 🟥 Implement ingestion pipeline for creating and storing embeddings
     - 🟥 Optimize vector indexing for retrieval speed
 - 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
-    - *Definition of Done: Data pipelines are operational, data is clean and indexed for RAG. Link to `data_prep/` for schemas and pipelines.*
+
 </details>
 
 ---
 
-## 🧠 3. AI Core Development & Experimentation
-**Guiding Question:** Are our models accurately solving the problem, and is the GenAI output reliable and safe?
+## 🧠 AI Core Development & Experimentation
+**Definition of Done:** Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to `ai_core/` for model code and experiments.**
+<br/>
+**Guiding Question:** Are our models accurately solving the problem, and is the GenAI output reliable and safe?*
 <details>
 <summary>Show checklist…</summary>
 
@@ -110,13 +119,15 @@
     - 🟥 Relevance to query
 - 🟥 Model and Prompt card generation for documentation
 - 🟥 Implement canary and shadow testing for new models/prompts
-    - *Definition of Done: Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to `ai_core/` for model code and experiments.*
+
 </details>
 
 ---
 
-## 🚀 4. Application Layer & Integration
-**Guiding Question:** Is the AI accessible, robust, and seamlessly integrated with existing systems?
+## 🚀 Application Layer & Integration
+**Definition of Done:** API functional, integrated with UI, and handles errors gracefully. Link to `application/` for API code and documentation.**
+<br/>
+**Guiding Question:** Is the AI accessible, robust, and seamlessly integrated with existing systems?*
 <details>
 <summary>Show checklist…</summary>
 
@@ -132,13 +143,15 @@
 - 🟥 Develop example clients/SDKs for API consumption
 - 🟥 Implement API Gateway (AWS API Gateway) for secure access
 - 🟥 Automated API documentation generation (e.g., OpenAPI/Swagger)
-    - *Definition of Done: API functional, integrated with UI, and handles errors gracefully. Link to `application/` for API code and documentation.*
+
 </details>
 
 ---
 
-## ✅ 5. Evaluation & Continuous Improvement
-**Guiding Question:** How do we continuously measure, learn, and improve the AI's effectiveness and reliability?
+## ✅ Evaluation & Continuous Improvement
+**Definition of Done:** Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to `evaluation/` for metrics and dashboards.**
+<br/>
+**Guiding Question:** How do we continuously measure, learn, and improve the AI's effectiveness and reliability?*
 <details>
 <summary>Show checklist…</summary>
 
@@ -152,13 +165,15 @@
 - 🟥 Continuous benchmarking and optimization for performance and cost
 - 🟥 Iterative prompt, model, and data retrieval refinement processes
 - 🟥 Regular stakeholder feedback sessions and roadmap alignment
-    - *Definition of Done: Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to `evaluation/` for metrics and dashboards.*
+
 </details>
 
 ---
 
-## ⚙️ 6. MLOps, Deployment & Monitoring
-**Guiding Question:** Is the system reliable, scalable, secure, and observable in production?
+## ⚙️ MLOps, Deployment & Monitoring
+**Definition of Done:** CI/CD fully automated, system stable in production, and monitoring active. Link to `mlops/` for pipeline definitions.**
+<br/>
+**Guiding Question:** Is the system reliable, scalable, secure, and observable in production?*
 <details>
 <summary>Show checklist…</summary>
 
@@ -176,7 +191,7 @@
 - 🟥 Post-deployment validation checks (smoke tests, integration tests)
 - 🟥 Continuous monitoring for cost, performance, data/concept drift
 - 🟥 Secure authentication, authorization, and configuration management
-- 🟩 [Secrets management](aws-secrets-management.md) (AWS Secrets Vault)
+- 🟩 [Secrets management](security/aws-secrets-management.md) (AWS Secrets Vault)
 - 🟥 IAM roles and fine-grained access control
 - 🟩 Multi-environment support (dev, staging, prod)
 - 🟩 Automated artifact management (models, data, embeddings)
@@ -186,14 +201,16 @@
 - 🟥 Code coverage tracked and reported via Pytest-cov
 - 🟥 Automated Jupyter notebook dependency management and validation (via Nox and Nbval)
 - 🟥 Automated SageMaker training jobs launched via Nox and parameterized config
-- 🟥 Streamlined local development (Nox, Docker Compose)
+- 🟩 Streamlined local development (Nox, Docker Compose)
 - 🟥 Command Line Interface (CLI) tools for common operations
-    - *Definition of Done: CI/CD fully automated, system stable in production, and monitoring active. Link to `mlops/` for pipeline definitions.*
+
 </details>
 
 ---
 
-## 🔒 7. Security & Governance (Overarching)
+## 🔒 Security & Governance (Overarching)
+**Definition of Done:** Comprehensive security posture established, audited, and monitored across all layers. Link to `security/` for policies and audit reports.**
+<br/>
 **Guiding Question:** Throughout, ask: *"Are we proactively managing risk, compliance, and security at every layer and continuously?"*
 <details>
 <summary>Show checklist…</summary>
@@ -211,12 +228,14 @@
 - 🟥 Secure authentication, authorization, and secrets management across all services
 - 🟥 Define and enforce IAM roles and fine-grained access controls
 - 🟥 Regularly monitor for Infrastructure drift and automated remediation for security configurations
-    - *Definition of Done: Comprehensive security posture established, audited, and monitored across all layers. Link to `security/` for policies and audit reports.*
+
 </details>
 
 ---
 
-## 📚 8. Documentation & Enablement
+## 📚 Documentation & Enablement
+**Definition of Done:** All docs up-to-date, onboarding tested, and diagrams published. Link to `docs-site/` for rendered docs.**
+<br/>
 **Guiding Question:** Before release, ask: *"Is documentation clear, actionable, and up-to-date for all stakeholders?"*
 <details>
 <summary>Show checklist…</summary>
@@ -225,7 +244,7 @@
 - 🟩 Automated checklist progress bar update
 - 🟥 Architecture diagrams and sequence diagrams for all major flows
 - 🟥 Document onboarding, architecture, and usage for developers and analysts
-- 🟥 Add “How to contribute” and “Getting started” guides
+- 🟩 Add “How to contribute” and “Getting started” guides
 - 🟥 Automated onboarding scripts (e.g., one-liner to set up local/dev environment)
 - 🟥 Pre-built Jupyter notebook templates for common workflows
 - 🟥 End-to-end usage walkthroughs (from data ingestion to GenAI output)
@@ -240,5 +259,5 @@
 - 🟥 Test coverage thresholds and enforcement
 - 🟥 End-to-end tests simulating real analyst workflows
 - 🟥 Fuzz testing for API and prompt inputs
-    - *Definition of Done: All docs up-to-date, onboarding tested, and diagrams published. Link to `docs-site/` for rendered docs.*
+
 </details>

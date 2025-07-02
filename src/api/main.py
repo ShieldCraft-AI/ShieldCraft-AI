@@ -7,6 +7,3 @@ app = FastAPI()
 @app.get("/health")
 def health():
     return JSONResponse(content={"status": "ok"})
-
-
-# ...existing API endpoints...
