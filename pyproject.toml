@@ -54,3 +54,6 @@ nox = "2023.4.22"
 line-length = 88
 target-version = ["py311"]
 skip-string-normalization = false
+
+[tool.ruff]
+ignore = ["E402"]
