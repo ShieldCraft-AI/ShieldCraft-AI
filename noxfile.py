@@ -25,8 +25,6 @@ __all__ = [
     "bump_version",
     "commit_flow",
 ]
-
-# --- Debug log file for Nox sessions ---
 DEBUG_LOG_FILE = os.path.join(project_root, "commit_nox_debug.log")
 try:
     with open(DEBUG_LOG_FILE, "a") as f:
