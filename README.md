@@ -76,16 +76,13 @@
 
 
 
-
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🚀</span> Getting Started
+  <span style="font-size:1.2em;">🛠️</span> Developer Workflow
 </h2>
-<ol style="margin-bottom:0.5em;">
-  <li>Clone the repo: <code>git clone https://github.com/Dee66/shieldcraft-ai.git</code></li>
-  <li>Install dependencies: <code>poetry install</code></li>
-  <li>Deploy infrastructure: See <code>/infrastructure</code> for AWS CDK deployment scripts</li>
-</ol>
+<div style="border-left:4px solid #a5b4fc; padding-left:1em; margin-bottom:1em;">
+See <a href="./docs-site/docs/developer-workflow.md" style="color:#a5b4fc;"><b>🛠️ Developer Workflow</b></a> for the full, automated, Nox-powered developer workflow, commit script, and CI/CD parity details.
+</div>
 </section>
 
 
