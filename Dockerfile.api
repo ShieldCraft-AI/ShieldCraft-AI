@@ -29,11 +29,11 @@ COPY . .
 # --- Staging stage ---
 FROM base AS staging
 COPY pyproject.toml poetry.lock ./
-RUN ["pip", "install", "--upgrade", "pip"]
-RUN ["pip", "install", "poetry"]
+RUN ["python", "-m", "pip", "install", "--upgrade", "pip"]
+RUN ["python", "-m", "pip", "install", "poetry"]
 RUN ["poetry", "install", "--only", "main", "--no-interaction", "--no-ansi"]
 RUN ["poetry", "export", "-f", "requirements.txt", "--output", "requirements.txt", "--without-hashes"]
-RUN ["pip", "install", "--no-cache-dir", "-r", "requirements.txt"]
+RUN ["python", "-m", "pip", "install", "--no-cache-dir", "-r", "requirements.txt"]
 RUN ["sh", "-c", "poetry env remove python || true"]
 COPY . .
 # Remove dev files, tests, docs, .env, build artifacts, and pip/poetry caches
