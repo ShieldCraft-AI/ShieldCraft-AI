@@ -6,45 +6,93 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">12% Complete</div>
+  <progress id="shieldcraft-progress" value="21" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">21% Complete</div>
 </div>
 </section>
 
+
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
-## 🧭 Foundation & Planning
-**Definition of Done:** Business problem articulated, core architecture designed, and initial cost/risk assessments completed.**
-<br/>
-**Guiding Question:** Before moving to Data Prep, ask: *"Do we have clarity on what data is needed to solve the defined problem, and why?"*
-<details>
+
+<div style="margin-bottom:1.2em;">
+  <strong style="font-size:1.25em; color:#a5b4fc;">🧭 Foundation & Planning</strong><br/>
+  <span style="color:#b3b3b3; font-size:1em;">Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.</span>
+</div>
+
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Before moving to Data Prep, ask: <em>"Do we have clarity on what data is needed to solve the defined problem, and why?"</em></span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Business problem articulated, core architecture designed, and initial cost/risk assessments completed.</span>
+</div>
+
+
+<details id="foundation-checklist">
 <summary>Show checklist…</summary>
 
-- 🟥 Finalize business case, value proposition, and unique differentiators
-- 🟥 User profiles, pain points, value proposition, and ROI articulated
-- 🟥 Define project scope, MVP features, and success metrics
-- 🟥 Clear, business-aligned project objective documented
-- 🟥 Data sources and expected outputs specified
-- 🟥 Baseline infrastructure and cloud usage estimated
-- 🟥 Address ethics, safety, and compliance requirements
-    - 🟥 Conduct initial bias audit
-    - 🟥 Draft hallucination mitigation strategy
-    - 🟥 Obtain legal review for data privacy plan
-    - 🟥 Document compliance requirements (GDPR, SOC2, etc.)
-    - 🟥 Schedule regular compliance reviews
-    - 🟥 Establish Security Architecture Review Board (see Section 7: Security & Governance)
-- 🟥 Technical, ethical, and operational risks identified with mitigation strategies
-- 🟥 Threat modeling and adversarial testing (e.g., red teaming GenAI outputs) (see Section 7: Security & Governance)
-- 🟥 Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)
-- 🟩 Set up project structure, version control, and Docusaurus documentation
-- 🟩 Modular system layers, MLOps flow, and security/data governance designed
-- 🟩 Dockerfiles and Compose hardened for security, reproducibility, and best practices
-- 🟩 Noxfile and developer workflow automation in place
-- 🟩 Commit script unified, automating checks, versioning, and progress
-- 🟩 Deliverables: business case summary, MLOps diagram, risk log, cost model, and ADRs
-- 🟩 Automated checklist progress bar update
+- 🟩 [Finalize business case, value proposition, and unique differentiators](./business_case.md)
+- 🟩 [User profiles, pain points, value proposition, and ROI articulated](./user_profiles.md)
+- 🟩 [Define project scope, MVP features, and success metrics](./project_scope.md)
+- 🟩 [Clear, business-aligned project objective documented](./project_objective.md)
+- 🟩 [Data sources and expected outputs specified](./data_sources.md)
+- 🟩 [Baseline infrastructure and cloud usage estimated](./infra_estimate.md)
+- 🟩 [Address ethics, safety, and compliance requirements](./ethics_compliance.md)
+    - 🟩 Conduct initial bias audit
+    - 🟩 Draft hallucination mitigation strategy
+    - 🟩 Obtain legal review for data privacy plan
+    - 🟩 Document compliance requirements (GDPR, SOC2, etc.)
+    - 🟩 Schedule regular compliance reviews
+    - 🟩 Establish Security Architecture Review Board (see [Security & Governance](./security_governance.md))
+- 🟩 [Technical, ethical, and operational risks identified with mitigation strategies](./risks_mitigation.md)
+- 🟩 [Threat modeling and adversarial testing (e.g., red teaming GenAI outputs)](./security_governance.md)
+- 🟩 [Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)](./privacy_impact_assessment.md)
+- 🟩 [Set up project structure, version control, and Docusaurus documentation](./project_structure.md)
+- 🟩 [Modular system layers, MLOps flow, and security/data governance designed](./modular_mlops_governance.md)
+- 🟩 [Dockerfiles and Compose hardened for security, reproducibility, and best practices](./docker_hardening.md)
+- 🟩 [Noxfile and developer workflow automation in place](./noxfile_workflow.md)
+- 🟩 [Commit script unified, automating checks, versioning, and progress](./commit_script.md)
+- 🟩 Deliverables: [business case summary](./business_case.md), [MLOps diagram](./modular_mlops_governance.md), [risk log](./risk_log.md), [cost model](./infra_estimate.md), and [ADRs](./adrs.md)
+
 
 </details>
+
+<script>
+// Auto-expand checklist and scroll to last clicked item if returning from a doc link
+document.addEventListener('DOMContentLoaded', function () {
+  const details = document.getElementById('foundation-checklist');
+  const hash = window.location.hash;
+  if (details) {
+    // Always open checklist if returning from a doc link (history navigation)
+    if (performance && performance.getEntriesByType) {
+      const navs = performance.getEntriesByType('navigation');
+      if (navs.length && navs[0].type === 'back_forward') {
+        details.open = true;
+      }
+    }
+    // Also open if a checklist link was clicked
+    if (sessionStorage.getItem('lastChecklistLink')) {
+      details.open = true;
+      const anchorId = sessionStorage.getItem('lastChecklistLink');
+      if (anchorId) {
+        const anchor = document.getElementById(anchorId);
+        if (anchor) {
+          anchor.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        sessionStorage.removeItem('lastChecklistLink');
+      }
+    }
+    // Add click listeners to checklist links
+    details.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function () {
+        if (this.id) sessionStorage.setItem('lastChecklistLink', this.id);
+        // Always open checklist on click
+        details.open = true;
+      });
+    });
+  }
+});
+</script>
 
 ---
 
