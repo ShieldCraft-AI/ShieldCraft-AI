@@ -8,8 +8,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs-site/docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
-  <progress id="shieldcraft-progress" value="12" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">12% Complete</div>
+  <progress id="shieldcraft-progress" value="21" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">21% Complete</div>
 </div>
 
 
@@ -52,8 +52,8 @@
 </h2>
 <ul style="margin-bottom:0.5em;">
   <li><a href="./docs-site/docs/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
-  <li><a href="./docs-site/docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout and best practices</li>
-  <li><a href="./docs-site/docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tooling & Libraries</b></a> Tools and libraries mapped to GenAI lifecycle phases</li>
+  <li><a href="./docs-site/docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout</li>
+  <li><a href="./docs-site/docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tech Stack and Utilities</b></a> Tech, tools and libraries used</li>
   <li><a href="./docs-site/docs/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
 </ul>
 </section>
