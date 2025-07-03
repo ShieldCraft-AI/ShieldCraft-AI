@@ -6,13 +6,13 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="21" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">21% Complete</div>
+  <progress id="shieldcraft-progress" value="35" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">35% Complete</div>
 </div>
 </section>
 
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 
 
 <div style="margin-bottom:1.2em;">
@@ -61,41 +61,58 @@
 ---
 
 ## 💾 Data Preparation
-**Definition of Done:** Data pipelines are operational, data is clean and indexed for RAG. Link to `data_prep/` for schemas and pipelines.**
-<br/>
-**Guiding Question:** Do we have the right data, in the right format, with clear lineage and privacy controls?*
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Data pipelines are operational, data is clean and indexed for RAG. Link to <code>data_prep/</code> for schemas and pipelines.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
-- 🟥 Identify and document all required data sources (logs, threat feeds, reports, configs)
-- 🟥 Data ingestion, cleaning, normalization, privacy, and versioning implemented
-    - 🟥 Build data ingestion pipelines (Kafka/Kinesis, Glue, etc.)
-    - 🟥 Implement data cleaning, normalization, and structuring
-    - 🟥 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
-    - 🟥 Establish data versioning for reproducibility
-    - 🟥 Design and implement data retention policies
+- 🟩 [Identify and document all required data sources (logs, threat feeds, reports, configs)](./data_sources_required.md)
+- 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
+    - 🟩 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md):
+        - 🟩 Set up Amazon MSK (Kafka) cluster and topics for streaming
+        - 🟩 Integrate Airbyte for connector-based data integration
+        - 🟩 Implement AWS Lambda for event-driven ingestion and pre-processing
+        - 🟩 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
+        - 🟩 Build AWS Glue jobs for batch ETL and normalization
+        - 🟩 Store raw and processed data in Amazon S3 data lake
+        - 🟩 Enforce governance and privacy with AWS Lake Formation
+        - 🟩 Add data quality checks (Great Expectations, Deequ)
+    - 🟩 Implement data cleaning, normalization, and structuring
+    - 🟩 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
+    - 🟩 Establish data versioning for reproducibility
+    - 🟩 Design and implement data retention policies
+    - 🟩 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
 - 🟥 Modular data flows and schemas for different data sources
 - 🟥 Data lineage and audit trails for all data flows and model decisions
-- 🟥 Text chunking strategy defined and implemented for RAG
-    - 🟥 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
-    - 🟥 Handle metadata preservation during chunking
-- 🟥 Embedding model selection and experimentation for relevant data types
-    - 🟥 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
-    - 🟥 Establish benchmarking for embedding quality
-- 🟥 Vector database (or `pgvector`) setup and population
-    - 🟥 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
-    - 🟥 Implement ingestion pipeline for creating and storing embeddings
-    - 🟥 Optimize vector indexing for retrieval speed
-- 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
+    - 🟩 Define and test disaster recovery, backup, and restore procedures for all critical data and services
+    - 🟥 Define and test disaster recovery, backup, and restore procedures for all critical data and services
+- 🟩 Text chunking strategy defined and implemented for RAG
+    - 🟩 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
+    - 🟩 Handle metadata preservation during chunking
+- 🟩 Embedding model selection and experimentation for relevant data types
+    - 🟩 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
+    - 🟩 Establish benchmarking for embedding quality
+- 🟩 Vector database (or `pgvector`) setup and population
+    - 🟩 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
+    - 🟩 Implement ingestion pipeline for creating and storing embeddings
+    - 🟩 Optimize vector indexing for retrieval speed
+    - 🟩 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 
 </details>
+ </section>
 
----
-
-## 🧠 AI Core Development & Experimentation
-**Definition of Done:** Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to `ai_core/` for model code and experiments.**
-<br/>
-**Guiding Question:** Are our models accurately solving the problem, and is the GenAI output reliable and safe?*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">🧠 AI Core Development & Experimentation</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Are our models accurately solving the problem, and is the GenAI output reliable and safe?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to <code>ai_core/</code> for model code and experiments.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -108,6 +125,7 @@
     - 🟥 Prompt experimentation framework
     - 🟥 Integration of human-in-the-loop (HITL) for continuous prompt refinement
     - 🟥 Guardrails and safety mechanisms for GenAI outputs:
+        - 🟥 Establish Responsible AI governance: bias monitoring, model risk management, and audit trails
         - 🟥 Implement content moderation APIs/filters
         - 🟥 Define toxicity thresholds and response strategies
         - 🟥 Establish mechanisms for red-teaming GenAI outputs (e.g., adversarial prompt generation and testing)
@@ -133,13 +151,16 @@
 - 🟥 Implement canary and shadow testing for new models/prompts
 
 </details>
+ </section>
 
----
-
-## 🚀 Application Layer & Integration
-**Definition of Done:** API functional, integrated with UI, and handles errors gracefully. Link to `application/` for API code and documentation.**
-<br/>
-**Guiding Question:** Is the AI accessible, robust, and seamlessly integrated with existing systems?*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">🚀 Application Layer & Integration</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the AI accessible, robust, and seamlessly integrated with existing systems?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">API functional, integrated with UI, and handles errors gracefully. Link to <code>application/</code> for API code and documentation.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -150,20 +171,24 @@
 - 🟥 Implement LangChain Chains and Agents for complex workflows
 - 🟥 LangChain Memory components for conversational context
 - 🟥 Robust error handling and graceful fallbacks for API and LLM responses
-- 🟥 API resilience and rate limiting mechanisms
+    - 🟥 API resilience and rate limiting mechanisms
+    - 🟥 Implement API abuse prevention (WAF, throttling, DDoS protection)
 - 🟥 Secure prompt handling and sensitive data redaction at the application layer
 - 🟥 Develop example clients/SDKs for API consumption
 - 🟥 Implement API Gateway (AWS API Gateway) for secure access
 - 🟥 Automated API documentation generation (e.g., OpenAPI/Swagger)
 
 </details>
+ </section>
 
----
-
-## ✅ Evaluation & Continuous Improvement
-**Definition of Done:** Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to `evaluation/` for metrics and dashboards.**
-<br/>
-**Guiding Question:** How do we continuously measure, learn, and improve the AI's effectiveness and reliability?*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">✅ Evaluation & Continuous Improvement</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">How do we continuously measure, learn, and improve the AI's effectiveness and reliability?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to <code>evaluation/</code> for metrics and dashboards.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -179,13 +204,16 @@
 - 🟥 Regular stakeholder feedback sessions and roadmap alignment
 
 </details>
+ </section>
 
----
-
-## ⚙️ MLOps, Deployment & Monitoring
-**Definition of Done:** CI/CD fully automated, system stable in production, and monitoring active. Link to `mlops/` for pipeline definitions.**
-<br/>
-**Guiding Question:** Is the system reliable, scalable, secure, and observable in production?*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">⚙️ MLOps, Deployment & Monitoring</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the system reliable, scalable, secure, and observable in production?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">CI/CD fully automated, system stable in production, and monitoring active. Link to <code>mlops/</code> for pipeline definitions.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -201,10 +229,12 @@
 - 🟥 Deployment approval gates and manual review processes
 - 🟥 Automated rollback and canary deployment strategies
 - 🟥 Post-deployment validation checks (smoke tests, integration tests)
-- 🟥 Continuous monitoring for cost, performance, data/concept drift
+    - 🟥 Continuous monitoring for cost, performance, data/concept drift
+    - 🟥 Implement cloud cost monitoring, alerting, and FinOps best practices (AWS Cost Explorer, budgets, tagging, reporting)
 - 🟥 Secure authentication, authorization, and configuration management
 - 🟩 [Secrets management](security/aws-secrets-management.md) (AWS Secrets Vault)
-- 🟥 IAM roles and fine-grained access control
+    - 🟥 IAM roles and fine-grained access control
+    - 🟥 Schedule regular IAM access reviews and user lifecycle management
 - 🟩 Multi-environment support (dev, staging, prod)
 - 🟩 Automated artifact management (models, data, embeddings)
 - 🟩 Robust error handling in automation scripts
@@ -214,16 +244,21 @@
 - 🟥 Automated Jupyter notebook dependency management and validation (via Nox and Nbval)
 - 🟥 Automated SageMaker training jobs launched via Nox and parameterized config
 - 🟩 Streamlined local development (Nox, Docker Compose)
-- 🟥 Command Line Interface (CLI) tools for common operations
+    - 🟥 Command Line Interface (CLI) tools for common operations
+    - 🟥 Automate SBOM generation and review third-party dependencies for supply chain risk
+    - 🟥 Define release management and versioning policies for all major components
 
 </details>
+ </section>
 
----
-
-## 🔒 Security & Governance (Overarching)
-**Definition of Done:** Comprehensive security posture established, audited, and monitored across all layers. Link to `security/` for policies and audit reports.**
-<br/>
-**Guiding Question:** Throughout, ask: *"Are we proactively managing risk, compliance, and security at every layer and continuously?"*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">🔒 Security & Governance (Overarching)</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Are we proactively managing risk, compliance, and security at every layer and continuously?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Comprehensive security posture established, audited, and monitored across all layers. Link to <code>security/</code> for policies and audit reports.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -231,7 +266,8 @@
 - 🟥 Conduct regular Security Audits (internal and external)
 - 🟥 Implement Continuous compliance monitoring (GDPR, SOC2, etc.)
 - 🟥 Develop a Security Incident Response Plan and corresponding runbooks
-- 🟥 Implement Centralized audit logging and access reviews
+    - 🟥 Implement Centralized audit logging and access reviews
+    - 🟥 Develop SRE runbooks, on-call rotation, and incident management for production support
 - 🟥 Document and enforce Security Policies and Procedures
 - 🟥 Proactive identification and mitigation of Technical, Ethical, and Operational risks
 - 🟥 Leverage AWS security services (Security Hub, GuardDuty, Config) for enterprise posture
@@ -242,13 +278,16 @@
 - 🟥 Regularly monitor for Infrastructure drift and automated remediation for security configurations
 
 </details>
+ </section>
 
----
-
-## 📚 Documentation & Enablement
-**Definition of Done:** All docs up-to-date, onboarding tested, and diagrams published. Link to `docs-site/` for rendered docs.**
-<br/>
-**Guiding Question:** Before release, ask: *"Is documentation clear, actionable, and up-to-date for all stakeholders?"*
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">📚 Documentation & Enablement</strong>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is documentation clear, actionable, and up-to-date for all stakeholders?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All docs up-to-date, onboarding tested, and diagrams published. Link to <code>docs-site/</code> for rendered docs.</span>
+</div>
 <details>
 <summary>Show checklist…</summary>
 
@@ -261,7 +300,8 @@
 - 🟥 Pre-built Jupyter notebook templates for common workflows
 - 🟥 End-to-end usage walkthroughs (from data ingestion to GenAI output)
 - 🟥 Troubleshooting and FAQ section
-- 🟥 Regularly update changelog and roadmap
+    - 🟥 Regularly update changelog and roadmap
+    - 🟥 Set up customer support/feedback channels and integrate feedback into roadmap
 - 🟥 Changelog automation and release notes
 - 🟥 Automated notebook dependency management and validation
 - 🟥 Automated notebook validation in CI/CD
@@ -273,3 +313,4 @@
 - 🟥 Fuzz testing for API and prompt inputs
 
 </details>
+ </section>

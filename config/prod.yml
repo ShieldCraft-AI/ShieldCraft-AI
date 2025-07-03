@@ -1,0 +1,98 @@
+app:
+  env: prod
+  region: af-south-1
+  resource_prefix: shieldcraft-prod
+
+  log_level: WARN
+  enable_feature_x: false
+
+  # Cost and governance controls
+  budget_limit_usd: 10000  # Monthly budget limit for prod environment
+  cost_alert_thresholds:
+    - 50
+    - 80
+    - 100
+  cost_tags:
+    project: shieldcraft-ai
+    environment: prod
+    owner: ai-solutions
+  enable_cost_explorer: true
+  enable_resource_tagging: true
+  enable_budget_alerts: true
+
+  buckets:
+    - id: RawDataBucket
+      name: shieldcraft-prod-raw
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: RETAIN
+    - id: ProcessedDataBucket
+      name: shieldcraft-prod-processed
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: RETAIN
+    - id: AnalyticsDataBucket
+      name: shieldcraft-prod-analytics
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: RETAIN
+  lifecycle_policy_days: 90
+  enable_access_logs: true
+
+glue:
+  database_name: shieldcraft_prod_db
+  crawler_schedule: cron(0 2 * * ? *)
+  enable_data_quality: true
+
+msk:
+  security_group:
+    id: MskSecurityGroup
+    description: Security group for MSK brokers
+    allow_all_outbound: true
+  cluster:
+    id: ShieldCraftMskCluster
+    name: shieldcraft-msk-cluster-prod
+    kafka_version: 3.5.1
+    number_of_broker_nodes: 6
+    instance_type: kafka.m5.large
+    enhanced_monitoring: PER_TOPIC_PER_BROKER
+
+lambda_:
+  functions: []
+
+opensearch:
+  security_group:
+    id: OpenSearchSecurityGroup
+    description: Security group for OpenSearch
+    allow_all_outbound: true
+  domain:
+    id: ShieldCraftOpenSearchDomain
+    name: shieldcraft-opensearch-prod
+    engine_version: OpenSearch_2.11
+    cluster_config:
+      instanceType: r6g.large.search
+      instanceCount: 3
+    node_to_node_encryption_options:
+      enabled: true
+    encryption_at_rest_options:
+      enabled: true
+    ebs_options:
+      ebsEnabled: true
+      volumeSize: 20
+      volumeType: gp3
+
+airbyte:
+  deployment_type: ecs
+  min_task_count: 2
+  max_task_count: 6
+
+data_quality:
+  dq_framework: deequ
+  dq_schedule: cron(0 3 * * ? *)
+
+lakeformation:
+  admin_role: ShieldCraftLakeAdmin
+  data_lake_location: s3://shieldcraft-prod-analytics

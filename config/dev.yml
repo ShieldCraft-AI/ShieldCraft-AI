@@ -1,0 +1,84 @@
+app:
+  env: dev
+  region: af-south-1
+  resource_prefix: shieldcraft-dev
+  log_level: DEBUG
+  enable_feature_x: true
+
+s3:
+  buckets:
+    - id: RawDataBucket
+      name: shieldcraft-dev-raw
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+    - id: ProcessedDataBucket
+      name: shieldcraft-dev-processed
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+    - id: AnalyticsDataBucket
+      name: shieldcraft-dev-analytics
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+  lifecycle_policy_days: 30
+  enable_access_logs: true
+
+glue:
+  database_name: shieldcraft_dev_db
+  crawler_schedule: cron(0 2 * * ? *)
+  enable_data_quality: true
+
+msk:
+  security_group:
+    id: MskSecurityGroup
+    description: Security group for MSK brokers
+    allow_all_outbound: true
+  cluster:
+    id: ShieldCraftMskCluster
+    name: shieldcraft-msk-cluster
+    kafka_version: 3.5.1
+    number_of_broker_nodes: 3
+    instance_type: kafka.m5.large
+    enhanced_monitoring: PER_TOPIC_PER_BROKER
+
+lambda_:
+  functions: []
+
+opensearch:
+  security_group:
+    id: OpenSearchSecurityGroup
+    description: Security group for OpenSearch
+    allow_all_outbound: true
+  domain:
+    id: ShieldCraftOpenSearchDomain
+    name: shieldcraft-opensearch-dev
+    engine_version: OpenSearch_2.11
+    cluster_config:
+      instanceType: m6g.large.search
+      instanceCount: 2
+    node_to_node_encryption_options:
+      enabled: true
+    encryption_at_rest_options:
+      enabled: true
+    ebs_options:
+      ebsEnabled: true
+      volumeSize: 20
+      volumeType: gp3
+
+airbyte:
+  deployment_type: ecs
+  min_task_count: 1
+  max_task_count: 3
+
+data_quality:
+  dq_framework: deequ
+  dq_schedule: cron(0 3 * * ? *)
+
+lakeformation:
+  admin_role: ShieldCraftLakeAdmin
+  data_lake_location: s3://shieldcraft-dev-analytics
