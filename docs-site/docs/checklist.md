@@ -57,42 +57,6 @@
 
 </details>
 
-<script>
-// Auto-expand checklist and scroll to last clicked item if returning from a doc link
-document.addEventListener('DOMContentLoaded', function () {
-  const details = document.getElementById('foundation-checklist');
-  const hash = window.location.hash;
-  if (details) {
-    // Always open checklist if returning from a doc link (history navigation)
-    if (performance && performance.getEntriesByType) {
-      const navs = performance.getEntriesByType('navigation');
-      if (navs.length && navs[0].type === 'back_forward') {
-        details.open = true;
-      }
-    }
-    // Also open if a checklist link was clicked
-    if (sessionStorage.getItem('lastChecklistLink')) {
-      details.open = true;
-      const anchorId = sessionStorage.getItem('lastChecklistLink');
-      if (anchorId) {
-        const anchor = document.getElementById(anchorId);
-        if (anchor) {
-          anchor.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }
-        sessionStorage.removeItem('lastChecklistLink');
-      }
-    }
-    // Add click listeners to checklist links
-    details.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', function () {
-        if (this.id) sessionStorage.setItem('lastChecklistLink', this.id);
-        // Always open checklist on click
-        details.open = true;
-      });
-    });
-  }
-});
-</script>
 
 ---
 
