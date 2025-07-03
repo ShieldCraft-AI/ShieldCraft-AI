@@ -5,6 +5,12 @@
 <h1 align="center">🛡️ ShieldCraft AI</h1>
 <p align="center"><em>Next-Gen Cybersecurity: Proactive, Adaptive, AI-Driven Defense</em></p>
 
+<div align="center" style="margin-bottom:2em;">
+  <a href="https://github.com/Dee66/CodeCraft-AI" style="color:#a5b4fc; font-size:0.98em;">
+    <b>✨ See also: CodeCraft AI – My first custom AI implementation</b>
+  </a>
+</div>
+
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs-site/docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
