@@ -1,0 +1,142 @@
+import pytest
+from aws_cdk import App, Stack, assertions
+from infra.stacks.lambda_stack import LambdaStack
+from aws_cdk import aws_ec2 as ec2
+
+class DummyVpc(ec2.Vpc):
+    def __init__(self, scope, id):
+        super().__init__(scope, id, max_azs=1)
+
+@pytest.fixture
+def lambda_config():
+    return {
+        "lambda_": {
+            "functions": [
+                {
+                    "name": "TestFunction",
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/test_function",
+                    "environment": {"ENV": "test"},
+                    "timeout": 30,
+                    "vpc": True
+                }
+            ],
+            "tags": {"Owner": "LambdaTeam"}
+        },
+        "app": {"env": "test"}
+    }
+
+# --- Happy path: Lambda function creation ---
+def test_lambda_stack_synthesizes(lambda_config):
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    stack = LambdaStack(app, "TestLambdaStack", vpc=vpc, config=lambda_config)
+    template = assertions.Template.from_stack(stack)
+    template.has_resource_properties("AWS::Lambda::Function", {
+        "Handler": "index.handler"
+    })
+    outputs = template.to_json().get("Outputs", {})
+    assert "TestLambdaStackLambdaTestFunctionName" in outputs
+    assert "TestLambdaStackLambdaTestFunctionArn" in outputs
+
+# --- Happy path: Tagging ---
+def test_lambda_stack_tags(lambda_config):
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    stack = LambdaStack(app, "TestLambdaStack", vpc=vpc, config=lambda_config)
+    tags = stack.tags.render_tags()
+    assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
+    assert any(tag.get("Key") == "Owner" and tag.get("Value") == "LambdaTeam" for tag in tags)
+
+# --- Unhappy path: Functions not a list ---
+def test_lambda_stack_functions_not_list():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {"lambda_": {"functions": "notalist"}, "app": {"env": "test"}}
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+
+# --- Unhappy path: Duplicate function names ---
+def test_lambda_stack_duplicate_names():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "lambda_": {
+            "functions": [
+                {"name": "dup", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/dup", "timeout": 30},
+                {"name": "dup", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/dup2", "timeout": 30}
+            ]
+        },
+        "app": {"env": "test"}
+    }
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+
+# --- Unhappy path: Invalid runtime ---
+def test_lambda_stack_invalid_runtime():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "lambda_": {
+            "functions": [
+                {"name": "bad", "runtime": "NOT_A_RUNTIME", "handler": "index.handler", "code_path": "lambda/bad", "timeout": 30}
+            ]
+        },
+        "app": {"env": "test"}
+    }
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+
+# --- Unhappy path: Environment not a dict ---
+def test_lambda_stack_env_not_dict():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "lambda_": {
+            "functions": [
+                {"name": "badenv", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/badenv", "timeout": 30, "environment": "notadict"}
+            ]
+        },
+        "app": {"env": "test"}
+    }
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+
+# --- Unhappy path: Timeout not int ---
+def test_lambda_stack_timeout_not_int():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "lambda_": {
+            "functions": [
+                {"name": "badtimeout", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/badtimeout", "timeout": "notanint"}
+            ]
+        },
+        "app": {"env": "test"}
+    }
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+
+# --- Unhappy path: Missing required fields ---
+def test_lambda_stack_missing_required_fields():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "lambda_": {
+            "functions": [
+                {"runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/missing"}
+            ]
+        },
+        "app": {"env": "test"}
+    }
+    with pytest.raises(ValueError):
+        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)

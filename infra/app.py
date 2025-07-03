@@ -1,0 +1,29 @@
+import aws_cdk as cdk
+from stacks.networking_stack import NetworkingStack
+from stacks.msk_stack import MskStack
+from stacks.s3_stack import S3Stack
+# from stacks.glue_stack import GlueStack
+# from stacks.lambda_stack import LambdaStack
+# from stacks.airbyte_stack import AirbyteStack
+# from stacks.lakeformation_stack import LakeFormationStack
+# from stacks.opensearch_stack import OpenSearchStack
+# from stacks.dataquality_stack import DataQualityStack
+
+app = cdk.App()
+
+# Networking (VPC, subnets, security groups)
+networking = NetworkingStack(app, "NetworkingStack")
+
+# MSK (Kafka) cluster, depends on networking
+msk = MskStack(app, "MskStack", vpc=networking.vpc)
+
+# Add more stacks as needed, passing references as required
+s3 = S3Stack(app, "S3Stack")
+# glue = GlueStack(app, "GlueStack", vpc=networking.vpc)
+# lambda_stack = LambdaStack(app, "LambdaStack", vpc=networking.vpc)
+# airbyte = AirbyteStack(app, "AirbyteStack", vpc=networking.vpc)
+# lakeformation = LakeFormationStack(app, "LakeFormationStack", vpc=networking.vpc)
+# opensearch = OpenSearchStack(app, "OpenSearchStack", vpc=networking.vpc)
+# dataquality = DataQualityStack(app, "DataQualityStack", vpc=networking.vpc)
+
+app.synth()
