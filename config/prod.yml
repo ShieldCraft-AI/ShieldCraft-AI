@@ -2,10 +2,8 @@ app:
   env: prod
   region: af-south-1
   resource_prefix: shieldcraft-prod
-
   log_level: WARN
   enable_feature_x: false
-
   # Cost and governance controls
   budget_limit_usd: 10000  # Monthly budget limit for prod environment
   cost_alert_thresholds:
@@ -19,6 +17,7 @@ app:
   enable_cost_explorer: true
   enable_resource_tagging: true
   enable_budget_alerts: true
+
 
   buckets:
     - id: RawDataBucket
@@ -41,7 +40,6 @@ app:
       removal_policy: RETAIN
   lifecycle_policy_days: 90
   enable_access_logs: true
-
 glue:
   database_name: shieldcraft_prod_db
   crawler_schedule: cron(0 2 * * ? *)
@@ -59,9 +57,41 @@ msk:
     number_of_broker_nodes: 6
     instance_type: kafka.m5.large
     enhanced_monitoring: PER_TOPIC_PER_BROKER
+    client_authentication:
+      sasl_scram: false
+      tls: true
+    encryption_in_transit:
+      client_broker: TLS
+      in_cluster: true
+    public_access: false
+    vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
+    security_group_ids: []  # Fill with actual security group IDs if needed
 
 lambda_:
-  functions: []
+  functions:
+    - id: MskTopicCreator
+      description: Lambda to create Kafka topics after MSK cluster is ready
+      handler: msk_topic_creator.lambda_handler
+      runtime: python3.11
+      memory_size: 512
+      timeout: 120
+      environment:
+        MSK_CLUSTER_NAME: shieldcraft-msk-cluster-prod
+        TOPICS:
+          - name: events-ingest
+            partitions: 6
+            replication_factor: 3
+          - name: audit-log
+            partitions: 3
+            replication_factor: 3
+      vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
+      security_group_ids: []  # Fill with actual security group IDs if needed
+      policies:
+        - kafka:DescribeCluster
+        - kafka:GetBootstrapBrokers
+        - kafka:CreateTopic
+        - kafka:ListTopics
+        - kafka:DescribeTopic
 
 opensearch:
   security_group:
@@ -96,3 +126,16 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-prod-analytics
+
+sagemaker:
+  training_instance_type: ml.m5.2xlarge
+  inference_instance_type: ml.m5.xlarge
+  endpoint_auto_scaling: true
+  model_registry: shieldcraft-model-registry-prod
+
+cloud_native_hardening:
+  enable_cloudwatch_alarms: true
+  alarm_email: ops@shieldcraft.ai
+  config_rules:
+    - s3-bucket-public-read-prohibited
+    - iam-user-no-policies-check

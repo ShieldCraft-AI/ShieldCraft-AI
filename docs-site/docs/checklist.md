@@ -6,8 +6,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="29" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">29% Complete</div>
+  <progress id="shieldcraft-progress" value="31" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">31% Complete</div>
 </div>
 </section>
 
@@ -15,15 +15,15 @@
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 
 
-<div style="margin-bottom:1.2em;">
-  <strong style="font-size:1.25em; color:#a5b4fc;">🧭 Foundation & Planning</strong><br/>
+<div style="margin-bottom:1em;">
+  <strong style="font-size:1.25em; color:#a5b4fc;">🧭 Foundation & Planning</strong><br/><br/>
   <span style="color:#b3b3b3; font-size:1em;">Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.</span>
 </div>
 
-<div style="margin-bottom:1em;">
+<div>
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Before moving to Data Prep, ask: <em>"Do we have clarity on what data is needed to solve the defined problem, and why?"</em></span>
 </div>
-<div style="margin-bottom:1em;">
+<div style="margin-bottom: 1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Business problem articulated, core architecture designed, and initial cost/risk assessments completed.</span>
 </div>
 
@@ -62,16 +62,13 @@
     - 🟩 150+ automated tests covering happy/unhappy paths, config validation, and outputs
     - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
-</details>
-
-
----
+ </details>
 
 ## 💾 Data Preparation
-<div style="margin-bottom:1em;">
+<div>
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
 </div>
-<div style="margin-bottom:1em;">
+<div style="margin-bottom: 1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Data pipelines are operational, data is clean and indexed for RAG. Link to <code>data_prep/</code> for schemas and pipelines.</span>
 </div>
 <details>
@@ -111,9 +108,60 @@
 </details>
  </section>
 
+ <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">☁️ AWS Cloud Foundation & Architecture</strong>
+<div style="margin-top: 1em">
+  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the AWS environment production-grade, modular, secure, and cost-optimized for MLOps and GenAI workloads?</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls.</span>
+</div>
+<div style="margin-bottom:1em;">
+  <span style="color:#a5b4fc; font-weight:bold;">Tech Stack:</span>
+  <span style="color:#e0e0e0;">
+    <a href="https://aws.amazon.com/" target="_blank" style="color:#a5b4fc;">AWS</a> |
+    <a href="https://docs.aws.amazon.com/cdk/latest/guide/home.html" target="_blank" style="color:#a5b4fc;">AWS CDK</a> |
+    <a href="https://www.python.org/" target="_blank" style="color:#a5b4fc;">Python</a> |
+    <a href="https://docs.pydantic.dev/" target="_blank" style="color:#a5b4fc;">Pydantic</a> |
+    <a href="https://airbyte.com/" target="_blank" style="color:#a5b4fc;">Airbyte</a> |
+    <a href="https://opensearch.org/" target="_blank" style="color:#a5b4fc;">OpenSearch</a> |
+    <a href="https://aws.amazon.com/msk/" target="_blank" style="color:#a5b4fc;">Amazon MSK</a> |
+    <a href="https://aws.amazon.com/glue/" target="_blank" style="color:#a5b4fc;">AWS Glue</a> |
+    <a href="https://aws.amazon.com/sagemaker/" target="_blank" style="color:#a5b4fc;">SageMaker</a> |
+    <a href="https://aws.amazon.com/lake-formation/" target="_blank" style="color:#a5b4fc;">Lake Formation</a> |
+    <a href="https://aws.amazon.com/cloudwatch/" target="_blank" style="color:#a5b4fc;">CloudWatch</a>
+  </span>
+</div>
+<details>
+
+
+<summary>Show AWS checklist…</summary>
+
+- 🟩 <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html" style="color:#a5b4fc;">Multi-account, multi-environment AWS Organization structure</a>
+- 🟩 <a href="https://docs.aws.amazon.com/vpc/latest/userguide/" style="color:#a5b4fc;">VPC</a>, subnets, and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html" style="color:#a5b4fc;">security groups</a> for all workloads
+- 🟩 <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3 data lake</a> (raw, processed, analytics buckets) with lifecycle, encryption, and access controls
+- 🟩 <a href="https://docs.aws.amazon.com/glue/latest/dg/" style="color:#a5b4fc;">AWS Glue Data Catalog</a> and crawlers for metadata management
+- 🟩 <a href="https://docs.aws.amazon.com/msk/latest/developerguide/" style="color:#a5b4fc;">Amazon MSK (Kafka)</a> cluster with automated topic creation (CDK + <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda</a>)
+- 🟩 <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda stack</a> for event-driven data prep and orchestration
+- 🟩 <a href="https://docs.airbyte.com/" style="color:#a5b4fc;">Airbyte stack</a> for managed connector-based ingestion
+- 🟩 <a href="https://opensearch.org/docs/latest/" style="color:#a5b4fc;">OpenSearch stack</a> for log/metric/trace indexing and analytics
+- 🟩 <a href="https://docs.aws.amazon.com/lake-formation/latest/dg/" style="color:#a5b4fc;">Lake Formation</a> for data governance and fine-grained access
+- 🟩 <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/" style="color:#a5b4fc;">SageMaker stack</a> for model training, tuning, and deployment
+- 🟩 <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, SNS, and Config for monitoring, alerting, and compliance
+- 🟩 Advanced <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-what-is.html" style="color:#a5b4fc;">tagging</a>, cost controls, and budget alarms
+- 🟩 Automated config management (YAML, S3, SSM) and <a href="https://docs.pydantic.dev/" style="color:#a5b4fc;">Pydantic</a> schema validation
+- 🟩 <a href="https://docs.aws.amazon.com/cdk/latest/guide/resources.html" style="color:#a5b4fc;">Cross-stack resource sharing</a> and dependency injection
+- 🟩 Hardened <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM roles</a>, policies, and boundary enforcement
+- 🟩 Cloud-native hardening stack (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>, etc.)
+- 🟩 Automated <a href="https://docs.aws.amazon.com/cdk/latest/guide/testing.html" style="color:#a5b4fc;">integration tests</a> for all critical AWS resources
+- 🟩 Comprehensive documentation for AWS stack architecture and outputs (<a href="./aws_stack_architecture.md" style="color:#a5b4fc;">see details</a>)
+
+</details>
+</section>
+
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🧠 AI Core Development & Experimentation</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Are our models accurately solving the problem, and is the GenAI output reliable and safe?</span>
 </div>
 <div style="margin-bottom:1em;">
@@ -161,7 +209,7 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🚀 Application Layer & Integration</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the AI accessible, robust, and seamlessly integrated with existing systems?</span>
 </div>
 <div style="margin-bottom:1em;">
@@ -189,7 +237,7 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">✅ Evaluation & Continuous Improvement</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">How do we continuously measure, learn, and improve the AI's effectiveness and reliability?</span>
 </div>
 <div style="margin-bottom:1em;">
@@ -214,7 +262,7 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">⚙️ MLOps, Deployment & Monitoring</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the system reliable, scalable, secure, and observable in production?</span>
 </div>
 <div style="margin-bottom:1em;">
@@ -259,7 +307,7 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🔒 Security & Governance (Overarching)</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Are we proactively managing risk, compliance, and security at every layer and continuously?</span>
 </div>
 <div style="margin-bottom:1em;">
@@ -288,7 +336,7 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">📚 Documentation & Enablement</strong>
-<div style="margin-bottom:1em;">
+<div style="margin-top:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is documentation clear, actionable, and up-to-date for all stakeholders?</span>
 </div>
 <div style="margin-bottom:1em;">

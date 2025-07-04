@@ -45,9 +45,41 @@ msk:
     number_of_broker_nodes: 3
     instance_type: kafka.m5.large
     enhanced_monitoring: PER_TOPIC_PER_BROKER
+    client_authentication:
+      sasl_scram: false
+      tls: true
+    encryption_in_transit:
+      client_broker: TLS
+      in_cluster: true
+    public_access: false
+    vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
+    security_group_ids: []  # Fill with actual security group IDs if needed
 
 lambda_:
-  functions: []
+  functions:
+    - id: MskTopicCreator
+      description: Lambda to create Kafka topics after MSK cluster is ready
+      handler: msk_topic_creator.lambda_handler
+      runtime: python3.11
+      memory_size: 256
+      timeout: 60
+      environment:
+        MSK_CLUSTER_NAME: shieldcraft-msk-cluster
+        TOPICS:
+          - name: events-ingest
+            partitions: 3
+            replication_factor: 2
+          - name: audit-log
+            partitions: 2
+            replication_factor: 2
+      vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
+      security_group_ids: []  # Fill with actual security group IDs if needed
+      policies:
+        - kafka:DescribeCluster
+        - kafka:GetBootstrapBrokers
+        - kafka:CreateTopic
+        - kafka:ListTopics
+        - kafka:DescribeTopic
 
 opensearch:
   security_group:
@@ -82,3 +114,16 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-dev-analytics
+
+sagemaker:
+  training_instance_type: ml.m5.xlarge
+  inference_instance_type: ml.m5.large
+  endpoint_auto_scaling: true
+  model_registry: shieldcraft-model-registry-dev
+
+cloud_native_hardening:
+  enable_cloudwatch_alarms: true
+  alarm_email: devops@shieldcraft.ai
+  config_rules:
+    - s3-bucket-public-read-prohibited
+    - iam-user-no-policies-check
