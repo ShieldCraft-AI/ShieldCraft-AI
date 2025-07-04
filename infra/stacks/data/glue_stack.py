@@ -1,14 +1,26 @@
 from aws_cdk import (
     Stack,
     aws_glue as glue,
-    aws_s3 as s3
+    aws_s3 as s3,
+    aws_iam as iam
 )
 from constructs import Construct
+from typing import Optional
 
 class GlueStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict, s3_buckets: dict = None, **kwargs):
-        super().__init__(scope, construct_id, **kwargs)
+    """
+    ShieldCraftAI GlueStack
 
+    Parameters:
+        vpc: The shared VPC for Glue jobs (required for network isolation).
+        data_bucket: The main S3 bucket for Glue crawlers/jobs.
+        default_sg: Default security group for Glue resources (optional).
+        glue_role: IAM role for Glue jobs/crawlers (optional, can be shared across stacks).
+        config: Project configuration dictionary.
+    """
+    def __init__(self, scope: Construct, construct_id: str, vpc, data_bucket, default_sg=None, glue_role: Optional[iam.IRole]=None, config: dict = None, **kwargs):
+        super().__init__(scope, construct_id, **kwargs)
+        config = config or {}
         glue_cfg = config.get('glue', {})
         env = config.get('app', {}).get('env', 'dev')
 
@@ -17,6 +29,17 @@ class GlueStack(Stack):
         self.tags.set_tag("Environment", env)
         for k, v in glue_cfg.get('tags', {}).items():
             self.tags.set_tag(k, v)
+
+        # --- IAM Role (shared or created here) ---
+        if glue_role is None:
+            glue_role = iam.Role(
+                self, f"{construct_id}GlueRole",
+                assumed_by=iam.ServicePrincipal("glue.amazonaws.com"),
+                managed_policies=[
+                    iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
+                ]
+            )
+        self.glue_role = glue_role
 
         # --- Glue Database ---
         db_name = glue_cfg.get('database_name')
@@ -50,20 +73,31 @@ class GlueStack(Stack):
             name = crawler_cfg.get('name')
             role_arn = crawler_cfg.get('role_arn')
             s3_path = crawler_cfg.get('s3_path')
-            if not name or not role_arn or not s3_path:
-                raise ValueError(f"Crawler config must include name, role_arn, and s3_path. Got: {crawler_cfg}")
+            if not name or not s3_path:
+                raise ValueError(f"Crawler config must include name and s3_path. Got: {crawler_cfg}")
             if name in crawler_names:
                 raise ValueError(f"Duplicate crawler name: {name}")
             crawler_names.add(name)
-            if not arn_regex.match(role_arn):
+            # Only validate ARN format if it's a real string and not a CDK Token
+            if role_arn and isinstance(role_arn, str) and not role_arn.startswith("${Token") and not arn_regex.match(role_arn):
                 raise ValueError(f"Invalid role_arn format for crawler {name}: {role_arn}")
-            if not s3_regex.match(s3_path):
+            # Only validate S3 path format if it's a real string and not a CDK Token or contains a Token pattern
+            is_token = False
+            if isinstance(s3_path, str):
+                # CDK Tokens can appear as ${Token[...]}, Token[...] or contain unresolved tokens
+                if s3_path.startswith("${Token[") or s3_path.startswith("Token[") or "${Token[" in s3_path or "Token[" in s3_path:
+                    is_token = True
+            if isinstance(s3_path, str) and not is_token and not s3_regex.match(s3_path):
                 raise ValueError(f"Invalid s3_path format for crawler {name}: {s3_path}")
+            # Validate that s3_path is under the shared data_bucket
+            bucket_name = data_bucket.bucket_name if hasattr(data_bucket, 'bucket_name') else str(data_bucket)
+            if not s3_path.startswith(f"s3://{bucket_name}/") and not s3_path == f"s3://{bucket_name}":
+                raise ValueError(f"Crawler s3_path {s3_path} must be under the shared data_bucket {bucket_name}")
             crawler_removal_policy = crawler_cfg.get('removal_policy', removal_policy).upper()
             crawler_removal_enum = RemovalPolicy.DESTROY if crawler_removal_policy == 'DESTROY' or env == 'dev' else RemovalPolicy.RETAIN
             crawler = glue.CfnCrawler(
                 self, f"{construct_id}{name}",
-                role=role_arn,
+                role=role_arn if role_arn else glue_role.role_arn,
                 database_name=db_name,
                 targets={"s3Targets": [{"path": s3_path}]},
                 schedule=crawler_cfg.get('schedule'),
@@ -75,3 +109,8 @@ class GlueStack(Stack):
             # Manually construct the ARN for the crawler
             crawler_arn = f"arn:aws:glue:{self.region}:{self.account}:crawler/{name}"
             CfnOutput(self, f"{construct_id}GlueCrawler{name}Arn", value=crawler_arn, export_name=f"{construct_id}-glue-crawler-{name}-arn")
+        self.database_arn = db_arn
+        self.crawler_arns = [f"arn:aws:glue:{self.region}:{self.account}:crawler/{c.name}" for c in self.crawlers]
+        self.data_bucket = data_bucket
+        self.vpc = vpc
+        self.default_sg = default_sg

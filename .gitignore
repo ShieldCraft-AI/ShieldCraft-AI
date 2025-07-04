@@ -72,7 +72,6 @@ Desktop.ini
 notebooks/.ipynb_checkpoints/
 
 # Data
-data/
 *.csv
 *.tsv
 *.parquet

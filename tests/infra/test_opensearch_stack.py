@@ -1,6 +1,6 @@
 import pytest
 from aws_cdk import App, Stack, assertions
-from infra.stacks.opensearch_stack import OpenSearchStack
+from infra.stacks.compute.opensearch_stack import OpenSearchStack
 from aws_cdk import aws_ec2 as ec2
 
 class DummyVpc(ec2.Vpc):
@@ -45,6 +45,20 @@ def test_opensearch_stack_synthesizes(opensearch_config):
     assert "TestOpenSearchStackOpenSearchDomainName" in outputs
     assert "TestOpenSearchStackOpenSearchDomainArn" in outputs
     assert "TestOpenSearchStackOpenSearchSecurityGroupId" in outputs
+    # Shared resources dict exposes domain and security group
+    assert hasattr(stack, "shared_resources")
+    sr = stack.shared_resources
+    assert "domain" in sr and sr["domain"] is not None
+    assert "security_group" in sr and sr["security_group"] is not None
+    # Monitoring: If CloudWatch alarms are added, check for their outputs and shared_resources
+    assert "TestOpenSearchStackOpenSearchClusterStatusRedAlarmArn" in outputs
+    assert "TestOpenSearchStackOpenSearchClusterIndexWritesBlockedAlarmArn" in outputs
+    assert "TestOpenSearchStackOpenSearchFreeStorageSpaceAlarmArn" in outputs
+    assert "TestOpenSearchStackOpenSearchCPUUtilizationAlarmArn" in outputs
+    assert "cluster_status_red_alarm" in sr and sr["cluster_status_red_alarm"] is not None
+    assert "index_writes_blocked_alarm" in sr and sr["index_writes_blocked_alarm"] is not None
+    assert "free_storage_space_alarm" in sr and sr["free_storage_space_alarm"] is not None
+    assert "cpu_utilization_alarm" in sr and sr["cpu_utilization_alarm"] is not None
 
 # --- Happy path: Tagging ---
 def test_opensearch_stack_tags(opensearch_config):

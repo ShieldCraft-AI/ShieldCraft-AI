@@ -1,6 +1,6 @@
 import pytest
 from aws_cdk import App, Stack, assertions
-from infra.stacks.dataquality_stack import DataQualityStack
+from infra.stacks.data.dataquality_stack import DataQualityStack
 from aws_cdk import aws_ec2 as ec2
 
 @pytest.fixture
@@ -27,6 +27,10 @@ def test_dataquality_stack_synthesizes(dq_config):
     stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::Glue::Job", 1)
+    # Shared resources dict exposes glue job
+    assert hasattr(stack, "shared_resources")
+    assert "dq_glue_job" in stack.shared_resources
+    assert stack.shared_resources["dq_glue_job"] == stack.dq_glue_job
 
 # --- Happy path: Lambda creation ---
 def test_dataquality_stack_lambda_creation():
@@ -48,6 +52,12 @@ def test_dataquality_stack_lambda_creation():
     }
     stack = DataQualityStack(test_stack, "TestDataQualityStack", config=config)
     assert hasattr(stack, "dq_lambda")
+    # Shared resources dict exposes lambda
+    assert "dq_lambda" in stack.shared_resources
+    assert stack.shared_resources["dq_lambda"] == stack.dq_lambda
+    # Lambda error alarm present
+    assert hasattr(stack, "lambda_error_alarm")
+    assert stack.lambda_error_alarm.alarm_arn is not None
 
 # --- Happy path: Outputs ---
 def test_dataquality_stack_outputs(dq_config):
@@ -56,8 +66,11 @@ def test_dataquality_stack_outputs(dq_config):
     stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
-    # The output key is f"TestDataQualityStackDataQualityGlueJobName" if using default test stack/construct id
-    assert "TestDataQualityStackDataQualityGlueJobName" in outputs, f"Outputs: {outputs.keys()}"
+    assert "TestDataQualityStackDataQualityGlueJobName" in outputs
+    # Glue job failure alarm output (if present)
+    alarm_key = "TestDataQualityStackDataQualityGlueJobFailureAlarmArn"
+    if alarm_key in outputs:
+        assert outputs[alarm_key]
 
 # --- Happy path: Tagging ---
 def test_dataquality_stack_tags(dq_config):
@@ -66,6 +79,29 @@ def test_dataquality_stack_tags(dq_config):
     stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
+
+# --- Happy path: Lambda error alarm output ---
+def test_dataquality_stack_lambda_alarm_output():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    config = {
+        "data_quality": {
+            "lambda": {
+                "enabled": True,
+                "handler": "index.handler",
+                "code_path": "lambda/dataquality",
+                "environment": {"FOO": "BAR"},
+                "timeout": 30,
+                "memory": 256,
+                "log_retention": 3
+            }
+        },
+        "app": {"env": "test"}
+    }
+    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=config)
+    template = assertions.Template.from_stack(stack)
+    outputs = template.to_json().get("Outputs", {})
+    assert "TestDataQualityStackDataQualityLambdaErrorAlarmArn" in outputs
 
 # --- Unhappy path: Missing required Glue Job config ---
 @pytest.mark.parametrize("bad_config", [

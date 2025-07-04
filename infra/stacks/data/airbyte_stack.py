@@ -3,19 +3,34 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_ssm as ssm,
     aws_secretsmanager as secretsmanager,
-    aws_ecs as ecs
+    aws_ecs as ecs,
+    Duration
 )
 from constructs import Construct
 
 class AirbyteStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, shared_resources: dict = None, shared_tags: dict = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
-
-        # --- Config Validation ---
         airbyte_cfg = config.get('airbyte', {})
         env = config.get('app', {}).get('env', 'dev')
+        # Tagging for traceability and custom tags
+        self.tags.set_tag("Project", "ShieldCraftAI")
+        self.tags.set_tag("Environment", env)
+        for k, v in airbyte_cfg.get('tags', {}).items():
+            self.tags.set_tag(k, v)
+        if shared_tags:
+            for k, v in shared_tags.items():
+                self.tags.set_tag(k, v)
 
-        # Provide sensible defaults, but validate if present
+        from aws_cdk import RemovalPolicy, CfnOutput
+        # Removal policy
+        removal_policy = airbyte_cfg.get('removal_policy', None)
+        if isinstance(removal_policy, str):
+            removal_policy = getattr(RemovalPolicy, removal_policy.upper(), None)
+        if removal_policy is None:
+            removal_policy = RemovalPolicy.DESTROY if env == 'dev' else RemovalPolicy.RETAIN
+
+        # --- Config Validation ---
         instance_type = airbyte_cfg.get('instance_type', 't3.medium')
         desired_count = airbyte_cfg.get('desired_count', 1)
         cpu = airbyte_cfg.get('cpu', 1024)
@@ -26,9 +41,6 @@ class AirbyteStack(Stack):
             raise ValueError("Airbyte cpu must be an integer >= 256")
         if memory and (not isinstance(memory, int) or memory < 512):
             raise ValueError("Airbyte memory must be an integer >= 512")
-
-        # Add a default tag for traceability and cost allocation
-        self.tags.set_tag("Project", "ShieldCraftAI")
 
         secret_arn = airbyte_cfg.get('db_secret_arn')
         db_secret = None
@@ -70,12 +82,11 @@ class AirbyteStack(Stack):
             ))
 
         from aws_cdk import aws_logs as logs
-        from aws_cdk import RemovalPolicy
         log_group_name = airbyte_cfg.get('log_group', f"/aws/ecs/airbyte-{env}")
         log_group = logs.LogGroup(
             self, f"{construct_id}AirbyteLogGroup",
             log_group_name=log_group_name,
-            removal_policy=RemovalPolicy.DESTROY if env == 'dev' else RemovalPolicy.RETAIN
+            removal_policy=removal_policy
         )
 
         task_def = ecs.FargateTaskDefinition(
@@ -149,8 +160,54 @@ class AirbyteStack(Stack):
 
         self.alb = alb
 
+        # --- Monitoring: CloudWatch alarms for ECS service and ALB ---
+        from aws_cdk import aws_cloudwatch as cloudwatch
+        # ECS Service Task Failures metric (ServiceTaskFailures)
+        ecs_task_failures_metric = cloudwatch.Metric(
+            namespace="AWS/ECS",
+            metric_name="ServiceTaskFailures",
+            dimensions_map={
+                "ClusterName": self.cluster.cluster_name,
+                "ServiceName": self.service.service_name
+            },
+            statistic="Sum",
+            period=Duration.minutes(5)
+        )
+        self.ecs_task_alarm = cloudwatch.Alarm(
+            self, f"{construct_id}AirbyteTaskFailureAlarm",
+            metric=ecs_task_failures_metric,
+            threshold=1,
+            evaluation_periods=1,
+            alarm_description="ECS task failures detected",
+            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+        )
+        CfnOutput(self, f"{construct_id}AirbyteTaskFailureAlarmArn", value=self.ecs_task_alarm.alarm_arn, export_name=f"{construct_id}-task-failure-alarm-arn")
+        self.alb_5xx_alarm = cloudwatch.Alarm(
+            self, f"{construct_id}AirbyteAlb5xxAlarm",
+            metric=cloudwatch.Metric(
+                namespace="AWS/ApplicationELB",
+                metric_name="HTTPCode_Target_5XX_Count",
+                dimensions_map={"LoadBalancer": alb.load_balancer_full_name},
+                statistic="Sum",
+                period=Duration.minutes(5)
+            ),
+            threshold=1,
+            evaluation_periods=1,
+            alarm_description="ALB 5XX errors detected",
+            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+        )
+        CfnOutput(self, f"{construct_id}AirbyteAlb5xxAlarmArn", value=self.alb_5xx_alarm.alarm_arn, export_name=f"{construct_id}-alb-5xx-alarm-arn")
+
         # --- Outputs: ALB DNS, ECS Service Name, Log Group Name ---
-        from aws_cdk import CfnOutput
         CfnOutput(self, f"{construct_id}AirbyteALBDns", value=alb.load_balancer_dns_name, export_name=f"{construct_id}-alb-dns")
         CfnOutput(self, f"{construct_id}AirbyteServiceName", value=self.service.service_name, export_name=f"{construct_id}-service-name")
         CfnOutput(self, f"{construct_id}AirbyteLogGroupName", value=log_group.log_group_name, export_name=f"{construct_id}-log-group")
+        # Expose for downstream stacks
+        self.shared_resources = {
+            "cluster": self.cluster,
+            "service": self.service,
+            "alb": self.alb,
+            "log_group": log_group,
+            "task_alarm": self.ecs_task_alarm,
+            "alb_5xx_alarm": self.alb_5xx_alarm
+        }

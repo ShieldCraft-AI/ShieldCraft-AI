@@ -1,6 +1,6 @@
 import pytest
 from aws_cdk import App, Stack, assertions
-from infra.stacks.lambda_stack import LambdaStack
+from infra.stacks.compute.lambda_stack import LambdaStack
 from aws_cdk import aws_ec2 as ec2
 
 class DummyVpc(ec2.Vpc):
@@ -38,8 +38,20 @@ def test_lambda_stack_synthesizes(lambda_config):
         "Handler": "index.handler"
     })
     outputs = template.to_json().get("Outputs", {})
+    # Check for all expected outputs (function name, arn, and alarms)
     assert "TestLambdaStackLambdaTestFunctionName" in outputs
     assert "TestLambdaStackLambdaTestFunctionArn" in outputs
+    assert "TestLambdaStackLambdaTestFunctionErrorAlarmArn" in outputs
+    assert "TestLambdaStackLambdaTestFunctionThrottleAlarmArn" in outputs
+    assert "TestLambdaStackLambdaTestFunctionDurationAlarmArn" in outputs
+    # Shared resources dict exposes all key constructs
+    assert hasattr(stack, "shared_resources")
+    sr = stack.shared_resources["TestFunction"]
+    assert "function" in sr and sr["function"] is not None
+    assert "role" in sr and sr["role"] is not None
+    assert "error_alarm" in sr and sr["error_alarm"] is not None
+    assert "throttle_alarm" in sr and sr["throttle_alarm"] is not None
+    assert "duration_alarm" in sr and sr["duration_alarm"] is not None
 
 # --- Happy path: Tagging ---
 def test_lambda_stack_tags(lambda_config):
