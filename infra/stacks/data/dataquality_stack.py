@@ -7,15 +7,26 @@ from aws_cdk import (
 from constructs import Construct
 
 class DataQualityStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, config: dict, shared_resources: dict = None, shared_tags: dict = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
-
         dq_cfg = config.get('data_quality', {})
         env = config.get('app', {}).get('env', 'dev')
-
-        # Tagging for traceability
+        # Tagging for traceability and custom tags
         self.tags.set_tag("Project", "ShieldCraftAI")
         self.tags.set_tag("Environment", env)
+        for k, v in dq_cfg.get('tags', {}).items():
+            self.tags.set_tag(k, v)
+        if shared_tags:
+            for k, v in shared_tags.items():
+                self.tags.set_tag(k, v)
+
+        from aws_cdk import RemovalPolicy, CfnOutput, Duration
+        # Removal policy
+        removal_policy = dq_cfg.get('removal_policy', None)
+        if isinstance(removal_policy, str):
+            removal_policy = getattr(RemovalPolicy, removal_policy.upper(), None)
+        if removal_policy is None:
+            removal_policy = RemovalPolicy.DESTROY if env == 'dev' else RemovalPolicy.RETAIN
 
         # --- Lambda Data Quality Function ---
         dq_lambda_cfg = dq_cfg.get('lambda', {})
@@ -27,6 +38,11 @@ class DataQualityStack(Stack):
             lambda_timeout = dq_lambda_cfg.get('timeout', 60)
             lambda_memory = dq_lambda_cfg.get('memory', 256)
             lambda_log_retention = dq_lambda_cfg.get('log_retention', 7)
+            lambda_vpc = None
+            lambda_security_groups = None
+            if shared_resources:
+                lambda_vpc = shared_resources.get('vpc')
+                lambda_security_groups = [shared_resources.get('default_sg')] if shared_resources.get('default_sg') else None
             # Optional: secret injection as environment variables
             lambda_secrets = dq_lambda_cfg.get('secrets', {})
             environment_vars = lambda_env.copy()
@@ -65,9 +81,7 @@ class DataQualityStack(Stack):
                 raise ValueError("Lambda timeout must be a positive integer.")
             if not isinstance(lambda_memory, int) or lambda_memory < 128:
                 raise ValueError("Lambda memory must be >= 128 MB.")
-            from aws_cdk import Duration
-            self.dq_lambda = _lambda.Function(
-                self, f"{construct_id}DataQualityLambda",
+            lambda_kwargs = dict(
                 runtime=_lambda.Runtime.PYTHON_3_11,
                 handler=lambda_handler,
                 code=_lambda.Code.from_asset(lambda_code_path),
@@ -76,8 +90,27 @@ class DataQualityStack(Stack):
                 memory_size=lambda_memory,
                 log_retention=log_retention_enum
             )
-            from aws_cdk import CfnOutput
+            if lambda_vpc:
+                lambda_kwargs['vpc'] = lambda_vpc
+            if lambda_security_groups:
+                lambda_kwargs['security_groups'] = lambda_security_groups
+            self.dq_lambda = _lambda.Function(
+                self, f"{construct_id}DataQualityLambda",
+                **lambda_kwargs
+            )
+            self.dq_lambda.apply_removal_policy(removal_policy)
             CfnOutput(self, f"{construct_id}DataQualityLambdaArn", value=self.dq_lambda.function_arn, export_name=f"{construct_id}-dq-lambda-arn")
+            # Monitoring: Lambda error alarm
+            from aws_cdk import aws_cloudwatch as cloudwatch
+            self.lambda_error_alarm = cloudwatch.Alarm(
+                self, f"{construct_id}DataQualityLambdaErrorAlarm",
+                metric=self.dq_lambda.metric_errors(),
+                threshold=1,
+                evaluation_periods=1,
+                alarm_description="Lambda function errors detected",
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+            )
+            CfnOutput(self, f"{construct_id}DataQualityLambdaErrorAlarmArn", value=self.lambda_error_alarm.alarm_arn, export_name=f"{construct_id}-dq-lambda-error-alarm-arn")
 
         # --- Glue Data Quality Job ---
         dq_glue_cfg = dq_cfg.get('glue_job', {})
@@ -110,5 +143,30 @@ class DataQualityStack(Stack):
                 command=glue_command,
                 default_arguments=glue_default_args
             )
-            from aws_cdk import CfnOutput
             CfnOutput(self, f"{construct_id}DataQualityGlueJobName", value=glue_job_name, export_name=f"{construct_id}-dq-glue-job-name")
+            # Monitoring: Glue job failure alarm (optional, best effort)
+            try:
+                from aws_cdk import aws_cloudwatch as cloudwatch
+                self.glue_failure_alarm = cloudwatch.Alarm(
+                    self, f"{construct_id}DataQualityGlueJobFailureAlarm",
+                    metric=cloudwatch.Metric(
+                        namespace="AWS/Glue",
+                        metric_name="FailedJobs",
+                        dimensions_map={"JobName": glue_job_name},
+                        statistic="Sum",
+                        period=Duration.minutes(5)
+                    ),
+                    threshold=1,
+                    evaluation_periods=1,
+                    alarm_description="Glue job failures detected",
+                    comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD
+                )
+                CfnOutput(self, f"{construct_id}DataQualityGlueJobFailureAlarmArn", value=self.glue_failure_alarm.alarm_arn, export_name=f"{construct_id}-dq-glue-failure-alarm-arn")
+            except ImportError:
+                pass
+        # Expose for downstream stacks
+        self.shared_resources = {}
+        if dq_lambda_enabled:
+            self.shared_resources['dq_lambda'] = self.dq_lambda
+        if dq_glue_enabled:
+            self.shared_resources['dq_glue_job'] = self.dq_glue_job

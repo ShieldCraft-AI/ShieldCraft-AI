@@ -6,8 +6,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="20" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">20% Complete</div>
+  <progress id="shieldcraft-progress" value="29" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">29% Complete</div>
 </div>
 </section>
 
@@ -53,7 +53,14 @@
 - 🟩 [Noxfile and developer workflow automation in place](./noxfile_workflow.md)
 - 🟩 [Commit script unified, automating checks, versioning, and progress](./commit_script.md)
 - 🟩 Deliverables: [business case summary](./business_case.md), [MLOps diagram](./modular_mlops_governance.md), [risk log](./risk_log.md), [cost model](./infra_estimate.md), and [ADRs](./adrs.md)
-
+- 🟩 <strong>Production-grade AWS MLOps stack architecture implemented and tested</strong> ([architecture & dependency map](./aws_stack_architecture.md))
+    - 🟩 All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
+    - 🟩 Pydantic config validation, advanced tagging, and parameterization enforced
+    - 🟩 Cross-stack resource sharing and dependency injection established
+    - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
+    - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
+    - 🟩 150+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
 </details>
 
@@ -72,35 +79,34 @@
 
 - 🟩 [Identify and document all required data sources (logs, threat feeds, reports, configs)](./data_sources_required.md)
 - 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
-    - 🟩 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md):
-        - 🟩 Set up Amazon MSK (Kafka) cluster and topics for streaming
-        - 🟩 Integrate Airbyte for connector-based data integration
-        - 🟩 Implement AWS Lambda for event-driven ingestion and pre-processing
-        - 🟩 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
-        - 🟩 Build AWS Glue jobs for batch ETL and normalization
-        - 🟩 Store raw and processed data in Amazon S3 data lake
-        - 🟩 Enforce governance and privacy with AWS Lake Formation
-        - 🟩 Add data quality checks (Great Expectations, Deequ)
-    - 🟩 Implement data cleaning, normalization, and structuring
-    - 🟩 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
-    - 🟩 Establish data versioning for reproducibility
-    - 🟩 Design and implement data retention policies
-    - 🟩 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
-- 🟥 Modular data flows and schemas for different data sources
+    - 🟥 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md):
+        - 🟨 Set up Amazon MSK (Kafka) cluster with topic creation
+        - 🟥 Integrate Airbyte for connector-based data integration (pending code/config confirmation)
+        - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing (pending code/config confirmation)
+        - 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces (pending code/config confirmation)
+        - 🟥 Build AWS Glue jobs for batch ETL and normalization (pending code/config confirmation)
+        - 🟥 Store raw and processed data in Amazon S3 data lake (pending code/config confirmation)
+        - 🟥 Enforce governance and privacy with AWS Lake Formation (pending code/config confirmation)
+        - 🟥 Add data quality checks (Great Expectations, Deequ) (pending code/config confirmation)
+    - 🟥 Implement data cleaning, normalization, and structuring
+    - 🟥 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
+    - 🟥 Establish data versioning for reproducibility
+    - 🟥 Design and implement data retention policies
+    - 🟥 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
+    - 🟩 [Modular data flows and schemas for different data sources](./data_prep/data_inputs_overview.md)
 - 🟥 Data lineage and audit trails for all data flows and model decisions
-    - 🟩 Define and test disaster recovery, backup, and restore procedures for all critical data and services
     - 🟥 Define and test disaster recovery, backup, and restore procedures for all critical data and services
-- 🟩 Text chunking strategy defined and implemented for RAG
-    - 🟩 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
-    - 🟩 Handle metadata preservation during chunking
-- 🟩 Embedding model selection and experimentation for relevant data types
-    - 🟩 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
-    - 🟩 Establish benchmarking for embedding quality
-- 🟩 Vector database (or `pgvector`) setup and population
-    - 🟩 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
-    - 🟩 Implement ingestion pipeline for creating and storing embeddings
-    - 🟩 Optimize vector indexing for retrieval speed
-    - 🟩 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
+- 🟥 Text chunking strategy defined and implemented for RAG
+    - 🟥 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
+    - 🟥 Handle metadata preservation during chunking
+- 🟥 Embedding model selection and experimentation for relevant data types
+    - 🟥 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
+    - 🟥 Establish benchmarking for embedding quality
+- 🟥 Vector database (or `pgvector`) setup and population
+    - 🟥 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
+    - 🟥 Implement ingestion pipeline for creating and storing embeddings
+    - 🟥 Optimize vector indexing for retrieval speed
+    - 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 
 </details>
  </section>
@@ -187,7 +193,7 @@
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">How do we continuously measure, learn, and improve the AI's effectiveness and reliability?</span>
 </div>
 <div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to <code>evaluation/</code> for metrics and dashboards.</span>
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Evaluation framework established, feedback loops active, and continuous improvement process in place. Link to <code>evaluation</code> for metrics and dashboards.</span>
 </div>
 <details>
 <summary>Show checklist…</summary>

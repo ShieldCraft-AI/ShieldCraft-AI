@@ -1,6 +1,6 @@
 import pytest
 from aws_cdk import App, Stack, assertions
-from infra.stacks.msk_stack import MskStack
+from infra.stacks.compute.msk_stack import MskStack
 from aws_cdk import aws_ec2 as ec2
 
 class DummyVpc(ec2.Vpc):
@@ -38,9 +38,23 @@ def test_msk_stack_synthesizes(msk_config):
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::MSK::Cluster", 1)
     outputs = template.to_json().get("Outputs", {})
+    # Check for all expected outputs (cluster, SG, and alarms)
     assert "TestMskStackMskClusterName" in outputs
     assert "TestMskStackMskClusterArn" in outputs
     assert "TestMskStackMskSecurityGroupId" in outputs
+    assert "TestMskStackMskBrokerCountAlarmArn" in outputs
+    assert "TestMskStackMskUnderReplicatedPartitionsAlarmArn" in outputs
+    assert "TestMskStackMskActiveControllerCountAlarmArn" in outputs
+    assert "TestMskStackMskDiskUsedAlarmArn" in outputs
+    # Shared resources dict exposes cluster, SG, and alarms
+    assert hasattr(stack, "shared_resources")
+    sr = stack.shared_resources
+    assert "cluster" in sr and sr["cluster"] is not None
+    assert "security_group" in sr and sr["security_group"] is not None
+    assert "broker_count_alarm" in sr and sr["broker_count_alarm"] is not None
+    assert "under_replicated_alarm" in sr and sr["under_replicated_alarm"] is not None
+    assert "active_controller_alarm" in sr and sr["active_controller_alarm"] is not None
+    assert "disk_used_alarm" in sr and sr["disk_used_alarm"] is not None
 
 # --- Happy path: Tagging ---
 def test_msk_stack_tags(msk_config):
