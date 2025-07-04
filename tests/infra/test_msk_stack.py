@@ -34,7 +34,15 @@ def test_msk_stack_synthesizes(msk_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = MskStack(app, "TestMskStack", vpc=vpc, config=msk_config)
+    stack = MskStack(
+        app,
+        "TestMskStack",
+        vpc=vpc,
+        config=msk_config,
+        msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::MSK::Cluster", 1)
     outputs = template.to_json().get("Outputs", {})
@@ -61,7 +69,15 @@ def test_msk_stack_tags(msk_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = MskStack(app, "TestMskStack", vpc=vpc, config=msk_config)
+    stack = MskStack(
+        app,
+        "TestMskStack",
+        vpc=vpc,
+        config=msk_config,
+        msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
     assert any(tag.get("Key") == "Owner" and tag.get("Value") == "KafkaTeam" for tag in tags)
@@ -79,7 +95,15 @@ def test_msk_stack_missing_required_fields():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )
 
 # --- Unhappy path: number_of_broker_nodes not int or < 1 ---
 def test_msk_stack_invalid_broker_count():
@@ -96,7 +120,15 @@ def test_msk_stack_invalid_broker_count():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )
 
 # --- Unhappy path: client_subnets not a list or empty ---
 def test_msk_stack_invalid_client_subnets_notalist():
@@ -113,7 +145,15 @@ def test_msk_stack_invalid_client_subnets_notalist():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )
 
 def test_msk_stack_invalid_client_subnets_empty():
     app = App()
@@ -129,7 +169,15 @@ def test_msk_stack_invalid_client_subnets_empty():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )
 
 # --- Unhappy path: security_groups not a list or empty ---
 def test_msk_stack_invalid_security_groups_notalist():
@@ -146,7 +194,15 @@ def test_msk_stack_invalid_security_groups_notalist():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )
 
 def test_msk_stack_invalid_security_groups_empty():
     app = App()
@@ -162,4 +218,12 @@ def test_msk_stack_invalid_security_groups_empty():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        MskStack(app, "TestMskStack", vpc=vpc, config=config)
+        MskStack(
+            app,
+            "TestMskStack",
+            vpc=vpc,
+            config=config,
+            msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        )

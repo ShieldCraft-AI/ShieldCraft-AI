@@ -18,7 +18,7 @@ class GlueStack(Stack):
         glue_role: IAM role for Glue jobs/crawlers (optional, can be shared across stacks).
         config: Project configuration dictionary.
     """
-    def __init__(self, scope: Construct, construct_id: str, vpc, data_bucket, default_sg=None, glue_role: Optional[iam.IRole]=None, config: dict = None, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, vpc, data_bucket, default_sg=None, glue_role_arn: Optional[str]=None, glue_role: Optional[iam.IRole]=None, config: dict = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         config = config or {}
         glue_cfg = config.get('glue', {})
@@ -30,16 +30,19 @@ class GlueStack(Stack):
         for k, v in glue_cfg.get('tags', {}).items():
             self.tags.set_tag(k, v)
 
-        # --- IAM Role (shared or created here) ---
-        if glue_role is None:
-            glue_role = iam.Role(
+        # --- IAM Role (shared, from ARN, or created here) ---
+        if glue_role is not None:
+            self.glue_role = glue_role
+        elif glue_role_arn is not None:
+            self.glue_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedGlueRole", glue_role_arn)
+        else:
+            self.glue_role = iam.Role(
                 self, f"{construct_id}GlueRole",
                 assumed_by=iam.ServicePrincipal("glue.amazonaws.com"),
                 managed_policies=[
                     iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole")
                 ]
             )
-        self.glue_role = glue_role
 
         # --- Glue Database ---
         db_name = glue_cfg.get('database_name')

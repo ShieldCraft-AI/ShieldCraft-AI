@@ -5,7 +5,7 @@ from aws_cdk import (
 from constructs import Construct
 
 class LakeFormationStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict, s3_buckets: dict = None, shared_tags: dict = None, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, config: dict, s3_buckets: dict = None, shared_tags: dict = None, lakeformation_admin_role_arn: str = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
         lf_cfg = config.get('lakeformation', {})
@@ -114,6 +114,9 @@ class LakeFormationStack(Stack):
             principal = perm_cfg.get('principal')
             resource = perm_cfg.get('resource')
             perms = perm_cfg.get('permissions')
+            # If principal is a placeholder for admin, use the provided role ARN
+            if principal == 'LAKEFORMATION_ADMIN_ROLE_ARN' and lakeformation_admin_role_arn:
+                principal = lakeformation_admin_role_arn
             if not principal or not resource or not perms:
                 raise ValueError(f"LakeFormation permission config must include principal, resource, and permissions. Got: {perm_cfg}")
             key = (principal, str(resource))
@@ -121,13 +124,13 @@ class LakeFormationStack(Stack):
                 raise ValueError(f"Duplicate LakeFormation permission for principal/resource: {principal}/{resource}")
             perm_keys.add(key)
             perm = lakeformation.CfnPermissions(
-                self, f"{construct_id}LakeFormationPerm{principal}{hash(str(resource))}",
+                self, f"{construct_id}LakeFormationPerm{sanitize_export_name(str(principal))}{hash(str(resource))}",
                 data_lake_principal={"dataLakePrincipalIdentifier": principal},
                 resource=resource,
                 permissions=perms
             )
             # Output principal/resource for traceability, sanitize export name
-            sanitized_principal = sanitize_export_name(principal)
+            sanitized_principal = sanitize_export_name(str(principal))
             CfnOutput(
                 self,
                 f"{construct_id}LakeFormationPerm{sanitized_principal}{hash(str(resource))}Principal",

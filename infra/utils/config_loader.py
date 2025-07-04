@@ -7,9 +7,9 @@ from threading import Lock
 from pydantic import BaseModel, ValidationError
 from .config_backends import ConfigBackend, LocalYamlBackend, S3Backend, SSMBackend
 
-
-
-CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config")
+import pathlib
+# Use project root /config directory, not infra/config
+CONFIG_DIR = str(pathlib.Path(__file__).parent.parent.parent / "config")
 _VALID_ENVS = {"dev", "staging", "prod"}
 _DEFAULT_ENV = "dev"
 _SECRET_PATTERN = re.compile(r"^aws-vault:(.+)$")
@@ -26,8 +26,6 @@ class ConfigSchema(BaseModel):
     airbyte: Optional[dict] = None
     data_quality: Optional[dict] = None
     lakeformation: Optional[dict] = None
-
-
 class ConfigLoader:
     _instance = None
     _lock = Lock()
@@ -146,10 +144,6 @@ class ConfigLoader:
                 return "[REDACTED]"
             return obj
         return redact(self.config) if redact_secrets else self.config.copy()
-
-    # (Removed: duplicate legacy _load_config method that accessed the file system directly)
-
-    # (Removed duplicate get and get_section methods that bypassed advanced logic)
 
 def get_logger(name: str = "shieldcraft") -> logging.Logger:
     logger = logging.getLogger(name)

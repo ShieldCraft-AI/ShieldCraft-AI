@@ -12,7 +12,7 @@ from constructs import Construct
 
 class MskStack(Stack):
     def __init__(
-        self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, **kwargs
+        self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, msk_client_role_arn: str = None, msk_producer_role_arn: str = None, msk_consumer_role_arn: str = None, **kwargs
     ):
         super().__init__(scope, construct_id, **kwargs)
 
@@ -24,6 +24,14 @@ class MskStack(Stack):
         self.tags.set_tag("Environment", env)
         for k, v in msk_cfg.get("tags", {}).items():
             self.tags.set_tag(k, v)
+
+        # Validate required MSK IAM role ARNs (if needed for custom resources)
+        if msk_client_role_arn is None:
+            pass  # Not required for cluster creation, but can be validated if used downstream
+        if msk_producer_role_arn is None:
+            pass
+        if msk_consumer_role_arn is None:
+            pass
 
         # --- Security Group ---
         sg_cfg = msk_cfg.get("security_group", {})
@@ -46,6 +54,16 @@ class MskStack(Stack):
             value=msk_sg.security_group_id,
             export_name=f"{construct_id}-msk-sg-id",
         )
+
+        # If you need to wire MSK client/producer/consumer roles to custom resources, import them here:
+        # Example usage (not required for cluster creation):
+        # from aws_cdk import aws_iam as iam
+        # if msk_client_role_arn:
+        #     msk_client_role = iam.Role.from_role_arn(self, f"{construct_id}MskClientRole", msk_client_role_arn, mutable=False)
+        # if msk_producer_role_arn:
+        #     msk_producer_role = iam.Role.from_role_arn(self, f"{construct_id}MskProducerRole", msk_producer_role_arn, mutable=False)
+        # if msk_consumer_role_arn:
+        #     msk_consumer_role = iam.Role.from_role_arn(self, f"{construct_id}MskConsumerRole", msk_consumer_role_arn, mutable=False)
 
         # --- MSK Cluster ---
         cluster_cfg = msk_cfg.get("cluster", {})

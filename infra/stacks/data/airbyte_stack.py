@@ -9,7 +9,7 @@ from aws_cdk import (
 from constructs import Construct
 
 class AirbyteStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, shared_resources: dict = None, shared_tags: dict = None, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, airbyte_role_arn: str, shared_resources: dict = None, shared_tags: dict = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         airbyte_cfg = config.get('airbyte', {})
         env = config.get('app', {}).get('env', 'dev')
@@ -64,22 +64,10 @@ class AirbyteStack(Stack):
         container_port = airbyte_cfg.get('container_port', 8000)
 
         from aws_cdk import aws_iam as iam
-        task_role = iam.Role(
-            self, f"{construct_id}AirbyteTaskRole",
-            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com")
+        # Import the Airbyte execution role from the provided ARN
+        task_role = iam.Role.from_role_arn(
+            self, f"{construct_id}AirbyteImportedTaskRole", airbyte_role_arn, mutable=False
         )
-        task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonECSTaskExecutionRolePolicy"))
-        if secret_arn:
-            task_role.add_to_policy(iam.PolicyStatement(
-                actions=["secretsmanager:GetSecretValue"],
-                resources=[secret_arn]
-            ))
-        s3_arns = airbyte_cfg.get('s3_arns', [])
-        if s3_arns:
-            task_role.add_to_policy(iam.PolicyStatement(
-                actions=["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
-                resources=s3_arns
-            ))
 
         from aws_cdk import aws_logs as logs
         log_group_name = airbyte_cfg.get('log_group', f"/aws/ecs/airbyte-{env}")

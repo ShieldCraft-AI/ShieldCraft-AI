@@ -24,7 +24,12 @@ def dq_config():
 def test_dataquality_stack_synthesizes(dq_config):
     app = App()
     test_stack = Stack(app, "TestStack")
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=dq_config,
+        dq_glue_role_arn="arn:aws:iam::123456789012:role/MockGlueRole"
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::Glue::Job", 1)
     # Shared resources dict exposes glue job
@@ -50,7 +55,12 @@ def test_dataquality_stack_lambda_creation():
         },
         "app": {"env": "test"}
     }
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=config,
+        dq_lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole"
+    )
     assert hasattr(stack, "dq_lambda")
     # Shared resources dict exposes lambda
     assert "dq_lambda" in stack.shared_resources
@@ -63,7 +73,12 @@ def test_dataquality_stack_lambda_creation():
 def test_dataquality_stack_outputs(dq_config):
     app = App()
     test_stack = Stack(app, "TestStack")
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=dq_config,
+        dq_glue_role_arn="arn:aws:iam::123456789012:role/MockGlueRole"
+    )
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
     assert "TestDataQualityStackDataQualityGlueJobName" in outputs
@@ -76,7 +91,12 @@ def test_dataquality_stack_outputs(dq_config):
 def test_dataquality_stack_tags(dq_config):
     app = App()
     test_stack = Stack(app, "TestStack")
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=dq_config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=dq_config,
+        dq_glue_role_arn="arn:aws:iam::123456789012:role/MockGlueRole"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
 
@@ -98,7 +118,12 @@ def test_dataquality_stack_lambda_alarm_output():
         },
         "app": {"env": "test"}
     }
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=config,
+        dq_lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole"
+    )
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
     assert "TestDataQualityStackDataQualityLambdaErrorAlarmArn" in outputs
@@ -112,7 +137,12 @@ def test_dataquality_stack_invalid_glue_config(bad_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     with pytest.raises(Exception):
-        DataQualityStack(test_stack, "TestDataQualityStack", config=bad_config)
+        DataQualityStack(
+            test_stack,
+            "TestDataQualityStack",
+            config=bad_config,
+            dq_glue_role_arn="arn:aws:iam::123456789012:role/MockGlueRole"
+        )
 
 # --- Unhappy path: Invalid Lambda config ---
 @pytest.mark.parametrize("bad_config", [
@@ -123,14 +153,24 @@ def test_dataquality_stack_invalid_lambda_config(bad_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     with pytest.raises(Exception):
-        DataQualityStack(test_stack, "TestDataQualityStack", config=bad_config)
+        DataQualityStack(
+            test_stack,
+            "TestDataQualityStack",
+            config=bad_config,
+            dq_lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole"
+        )
 
 # --- Happy path: Unknown config keys (should not raise) ---
 def test_dataquality_stack_unknown_config_keys():
     app = App()
     test_stack = Stack(app, "TestStack")
     config = {"app": {"env": "test"}, "data_quality": {"lambda": {"enabled": True, "unknown_key": 123}}}
-    stack = DataQualityStack(test_stack, "TestDataQualityStack", config=config)
+    stack = DataQualityStack(
+        test_stack,
+        "TestDataQualityStack",
+        config=config,
+        dq_lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole"
+    )
     assert hasattr(stack, "tags")
 
 # --- Happy path: Minimal config (no resources) ---
