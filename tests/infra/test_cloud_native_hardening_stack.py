@@ -20,7 +20,16 @@ def test_lambda_cloudwatch_alarms_and_shared_resources():
         }
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestCloudNativeHardeningStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestCloudNativeHardeningStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     # Check shared_resources for alarm ARNs
     sr = stack.shared_resources
     assert 'my-test-lambda_error_alarm_arn' in sr
@@ -43,7 +52,16 @@ def test_msk_cloudwatch_alarms_and_shared_resources():
         'app': {'env': 'test', 'sns_topic_arn': 'arn:aws:sns:us-east-1:123456789012:MyTopic'}
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestMSKCloudNativeHardeningStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestMSKCloudNativeHardeningStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     sr = stack.shared_resources
     assert 'my-msk-cluster_under_replicated_alarm_arn' in sr
     assert 'my-msk-cluster_broker_count_alarm_arn' in sr
@@ -61,7 +79,16 @@ def test_opensearch_cloudwatch_alarms_and_shared_resources():
         'app': {'env': 'test', 'sns_topic_arn': 'arn:aws:sns:us-east-1:123456789012:MyTopic'}
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestOSCloudNativeHardeningStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestOSCloudNativeHardeningStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     sr = stack.shared_resources
     assert 'my-os-domain_status_red_alarm_arn' in sr
     assert 'my-os-domain_cpu_util_alarm_arn' in sr
@@ -79,7 +106,16 @@ def test_invalid_config_raises():
     }
     app = App()
     with pytest.raises(Exception):
-        define_cloud_native_hardening_stack(app, "TestInvalidConfigStack", config)
+        define_cloud_native_hardening_stack(
+            app,
+            "TestInvalidConfigStack",
+            config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+            msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+            msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+            opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+        )
 
 
 def test_tagging_consistency():
@@ -92,7 +128,16 @@ def test_tagging_consistency():
         }
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestTaggingStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestTaggingStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
     assert any(tag.get("Key") == "Environment" and tag.get("Value") == "prod" for tag in tags)
@@ -116,7 +161,16 @@ def test_lambda_alarm_has_sns_action():
         }
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestSNSAlarmStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestSNSAlarmStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     # Find the error alarm resource
     template = app.synth().get_stack_by_name("TestSNSAlarmStack").template
     alarm_resources = [r for r in template['Resources'].values() if r['Type'] == 'AWS::CloudWatch::Alarm']
@@ -140,7 +194,16 @@ def test_config_rule_outputs():
         'app': {'env': 'test'}
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestConfigRuleStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestConfigRuleStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     assert 's3-bucket-versioning' in stack.config_rules
     assert stack.config_rules['s3-bucket-versioning']
 
@@ -160,7 +223,16 @@ def test_shared_resources_keys_mixed():
         'app': {'env': 'test', 'sns_topic_arn': 'arn:aws:sns:us-east-1:123456789012:MyTopic'}
     }
     app = App()
-    stack = define_cloud_native_hardening_stack(app, "TestSharedResourcesStack", config)
+    stack = define_cloud_native_hardening_stack(
+        app,
+        "TestSharedResourcesStack",
+        config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/MockLambdaRole",
+        msk_client_role_arn="arn:aws:iam::123456789012:role/MockMSKClientRole",
+        msk_producer_role_arn="arn:aws:iam::123456789012:role/MockMSKProducerRole",
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/MockMSKConsumerRole",
+        opensearch_role_arn="arn:aws:iam::123456789012:role/MockOpenSearchRole"
+    )
     sr = stack.shared_resources
     expected_keys = [
         'l1_error_alarm_arn', 'l1_duration_alarm_arn',

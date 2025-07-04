@@ -5,7 +5,7 @@ app:
   log_level: INFO
   enable_feature_x: false
   # Cost and governance controls
-  budget_limit_usd: 3000  # Monthly budget limit for staging environment
+  budget_limit_usd: 1000  # Monthly budget limit for staging environment
   cost_alert_thresholds:
     - 50
     - 80
@@ -64,8 +64,11 @@ msk:
       client_broker: TLS
       in_cluster: true
     public_access: false
-    vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
-    security_group_ids: []  # Fill with actual security group IDs if needed
+    vpc_subnet_ids:
+      - subnet-priv-a
+      - subnet-priv-b
+    security_group_ids:
+      - sg-msk
 
 lambda_:
   functions:
@@ -84,8 +87,11 @@ lambda_:
           - name: audit-log
             partitions: 2
             replication_factor: 2
-      vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
-      security_group_ids: []  # Fill with actual security group IDs if needed
+      vpc_subnet_ids:
+        - subnet-priv-a
+        - subnet-priv-b
+      security_group_ids:
+        - sg-lambda
       policies:
         - kafka:DescribeCluster
         - kafka:GetBootstrapBrokers
@@ -126,6 +132,11 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-staging-analytics
+  permissions:
+    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource:
+        database: { name: shieldcraft_staging_db }
+      permissions: ["ALL"]
 
 sagemaker:
   training_instance_type: ml.m5.xlarge

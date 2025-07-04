@@ -1,15 +1,16 @@
 # 🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map
+
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <div style="margin-bottom:1.5em;">
   <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
-</div><div style="margin-bottom:1.5em;">
+</div>
+<div style="margin-bottom:1.5em;">
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h1 style="color:#a5b4fc; margin-top:0; text-align:center; font-size:2em;">AWS Stack Architecture & Dependency Map</h1>
+<h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
 <div style="color:#b3b3b3; text-align:center; font-size:1.1em; margin-bottom:1em;">
-  This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities, and how they interact to deliver a secure, modular, and production-grade MLOps platform.<br>
-  All relationships are defined in code for full reproducibility and auditability.
+  This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities, <br>and how they interact to deliver a secure, modular, and production-grade MLOps platform.
+  All relationships <br>are defined in code for full reproducibility and auditability.
 </div>
 </section>
 
@@ -125,4 +126,23 @@ sagemaker_stack
   <li>All relationships are defined in code for full reproducibility and auditability.</li>
 </ul>
 <p style="color:#b3b3b3;">For a graphical version, consider using Mermaid or PlantUML with this structure as a base.</p>
+</section>
+
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<h2 style="color:#a5b4fc; margin-top:0;">IAM Role Management & Config-Driven Permissions</h2>
+<ul style="color:#b3b3b3;">
+  <li>All IAM roles are created centrally in <b>IamRoleStack</b> and passed to consuming stacks via cross-stack references, ensuring least-privilege, auditable, and environment-specific permissions.</li>
+  <li>Stacks no longer create their own roles; instead, they accept role ARNs as constructor arguments, supporting modularity and security best practices.</li>
+  <li>Permissions and resource wiring are fully config-driven, enabling rapid environment changes and consistent policy enforcement across dev, staging, and prod.</li>
+  <li>Tests validate that all stacks receive the correct role ARNs and that no stack creates ad hoc roles, supporting compliance and traceability.</li>
+</ul>
+</section>
+
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<h2 style="color:#a5b4fc; margin-top:0;">Compliance Stack Extensibility</h2>
+<ul style="color:#b3b3b3;">
+  <li>The <b>compliance</b> stack is designed for extensibility: it accepts a config dict and a Lambda role ARN, enabling both managed and Lambda-backed AWS Config rules.</li>
+  <li>Required tag rules and other compliance controls are parameterized via config, supporting organization-wide policy enforcement.</li>
+  <li>Future compliance rules can be added by updating the config and wiring in new Lambda-backed rules using the provided role, without changing stack wiring or permissions.</li>
+</ul>
 </section>

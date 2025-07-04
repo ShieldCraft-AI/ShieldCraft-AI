@@ -7,7 +7,7 @@ from aws_cdk import (
 from constructs import Construct
 
 class DataQualityStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict, shared_resources: dict = None, shared_tags: dict = None, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, config: dict, shared_resources: dict = None, shared_tags: dict = None, dq_lambda_role_arn: str = None, dq_glue_role_arn: str = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         dq_cfg = config.get('data_quality', {})
         env = config.get('app', {}).get('env', 'dev')
@@ -94,6 +94,11 @@ class DataQualityStack(Stack):
                 lambda_kwargs['vpc'] = lambda_vpc
             if lambda_security_groups:
                 lambda_kwargs['security_groups'] = lambda_security_groups
+            from aws_cdk import aws_iam as iam
+            if not dq_lambda_role_arn:
+                raise ValueError("dq_lambda_role_arn must be provided for Data Quality Lambda")
+            lambda_role = iam.Role.from_role_arn(self, f"{construct_id}DQImportedLambdaRole", dq_lambda_role_arn, mutable=False)
+            lambda_kwargs['role'] = lambda_role
             self.dq_lambda = _lambda.Function(
                 self, f"{construct_id}DataQualityLambda",
                 **lambda_kwargs
@@ -117,20 +122,14 @@ class DataQualityStack(Stack):
         dq_glue_enabled = dq_glue_cfg.get('enabled', False)
         if dq_glue_enabled:
             glue_job_name = dq_glue_cfg.get('name')
-            glue_role_arn = dq_glue_cfg.get('role_arn')
+            glue_role_arn = dq_glue_role_arn
             glue_command_name = dq_glue_cfg.get('command_name')
             glue_script_location = dq_glue_cfg.get('script_location')
             # Validate required fields: must be explicitly set if enabled
             if not glue_job_name or not glue_command_name or not glue_script_location:
                 raise ValueError("Glue job 'name', 'command_name', and 'script_location' are required if glue_job is enabled.")
             if not glue_role_arn:
-                # Create a least-privilege role if not provided
-                glue_role = iam.Role(
-                    self, f"{construct_id}DQGlueJobRole",
-                    assumed_by=iam.ServicePrincipal("glue.amazonaws.com")
-                )
-                glue_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole"))
-                glue_role_arn = glue_role.role_arn
+                raise ValueError("dq_glue_role_arn must be provided for Data Quality Glue job")
             glue_command = {
                 "name": glue_command_name,
                 "scriptLocation": glue_script_location

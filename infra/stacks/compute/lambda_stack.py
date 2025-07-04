@@ -11,8 +11,6 @@ from aws_cdk import (
 )
 from constructs import Construct
 import json
-
-
 class LambdaStack(Stack):
     def __init__(
         self,
@@ -20,6 +18,7 @@ class LambdaStack(Stack):
         construct_id: str,
         vpc: ec2.IVpc,
         config: dict,
+        lambda_role_arn: str = None,
         shared_resources: dict = None,
         shared_tags: dict = None,
         **kwargs,
@@ -45,6 +44,9 @@ class LambdaStack(Stack):
         self.functions = []
         self.shared_resources = {}
         for fn_cfg in lambda_cfgs:
+            # If no explicit role_arn in function config, use the stack-provided lambda_role_arn
+            if not fn_cfg.get("role_arn") and lambda_role_arn:
+                fn_cfg["role_arn"] = lambda_role_arn
             name = fn_cfg.get("name")
             runtime = fn_cfg.get("runtime", "PYTHON_3_11")
             handler = fn_cfg.get("handler", "index.handler")
@@ -215,16 +217,22 @@ class LambdaStack(Stack):
                 }
             )
 
-            # Create the Lambda function as usual (already handled in your loop)
-            # Grant permissions for MSK DescribeCluster, etc.
+            # Grant least-privilege permissions for MSK topic management
             fn = self.shared_resources["msk_topic_creator"]["function"]
+            msk_arn = msk_cluster_arn
             fn.add_to_role_policy(
                 iam.PolicyStatement(
-                    actions=["kafka:DescribeCluster", "kafka:GetBootstrapBrokers"],
-                    resources=["*"],
+                    actions=[
+                        "kafka:DescribeCluster",
+                        "kafka:GetBootstrapBrokers",
+                        "kafka:CreateTopic",
+                        "kafka:ListTopics",
+                        "kafka:DescribeTopic",
+                    ],
+                    resources=[msk_arn],
                 )
             )
-            # Networking is handled by vpc/vpc_sg as in your stack
+            # Networking is handled by vpc/vpc_sg
 
             # --- Custom Resource to trigger topic creation ---
             provider = cr.Provider(self, "MskTopicCreatorProvider", on_event_handler=fn)

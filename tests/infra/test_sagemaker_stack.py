@@ -37,7 +37,12 @@ def sagemaker_config():
 def test_sagemaker_stack_synthesizes(sagemaker_config):
     app = App()
     test_stack = Stack(app, "TestStack")
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     # Resource counts
     template.resource_count_is("AWS::SageMaker::Model", 1)
@@ -62,7 +67,12 @@ def test_sagemaker_stack_synthesizes(sagemaker_config):
 
 def test_sagemaker_stack_outputs_are_correct(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
     # Check that ARNs are well-formed (handle dict or string or Fn::Sub)
@@ -87,7 +97,12 @@ def test_sagemaker_stack_outputs_are_correct(sagemaker_config):
 # --- Happy path: Tagging ---
 def test_sagemaker_stack_tags(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
     assert any(tag.get("Key") == "Environment" and tag.get("Value") == "test" for tag in tags)
@@ -103,7 +118,12 @@ def test_sagemaker_stack_missing_required_fields():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        SageMakerStack(app, "TestSageMakerStack", config=config)
+        SageMakerStack(
+            app,
+            "TestSageMakerStack",
+            config=config,
+            sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+        )
 
 # --- Unhappy path: Invalid instance type ---
 def test_sagemaker_stack_invalid_instance_type():
@@ -120,7 +140,12 @@ def test_sagemaker_stack_invalid_instance_type():
         "app": {"env": "test"}
     }
     # Should not raise at synth time, but will fail at deploy. We check resource is created.
-    stack = SageMakerStack(app, "TestSageMakerStack", config=config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::SageMaker::EndpointConfig", 1)
 
@@ -129,12 +154,22 @@ def test_sagemaker_stack_missing_sagemaker_section():
     app = App()
     config = {"app": {"env": "test"}}
     with pytest.raises(ValueError):
-        SageMakerStack(app, "TestSageMakerStack", config=config)
+        SageMakerStack(
+            app,
+            "TestSageMakerStack",
+            config=config,
+            sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+        )
 
 # --- Happy path: Shared resources dict contains all expected keys ---
 def test_sagemaker_stack_shared_resources_keys(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     sr = stack.shared_resources
     expected = {
         "model", "endpoint_config", "endpoint",
@@ -146,7 +181,12 @@ def test_sagemaker_stack_shared_resources_keys(sagemaker_config):
 # --- Happy path: S3 lifecycle and cost alarm outputs ---
 def test_sagemaker_stack_lifecycle_and_cost_alarm_outputs(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
     # S3 lifecycle is not directly output, but cost alarm should be
@@ -155,7 +195,12 @@ def test_sagemaker_stack_lifecycle_and_cost_alarm_outputs(sagemaker_config):
 # --- Happy path: VPC config is set on model ---
 def test_sagemaker_stack_vpc_config_on_model(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     resources = template.to_json().get("Resources", {})
     model_resource = next((r for r in resources.values() if r["Type"] == "AWS::SageMaker::Model"), None)
@@ -167,7 +212,12 @@ def test_sagemaker_stack_vpc_config_on_model(sagemaker_config):
 # --- Happy path: Advanced tags are present ---
 def test_sagemaker_stack_advanced_tags(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Owner" and tag.get("Value") == "alice" for tag in tags)
     assert any(tag.get("Key") == "DataClassification" and tag.get("Value") == "internal" for tag in tags)
@@ -176,7 +226,12 @@ def test_sagemaker_stack_advanced_tags(sagemaker_config):
 # --- Edge case: Alarm threshold and description ---
 def test_sagemaker_stack_alarm_properties(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     resources = template.to_json().get("Resources", {})
     # Find alarm resources and check their properties
@@ -231,7 +286,12 @@ def test_sagemaker_stack_model_name_special_chars():
         },
         "app": {"env": "test"}
     }
-    stack = SageMakerStack(app, "TestSageMakerStack", config=config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     template = assertions.Template.from_stack(stack)
     outputs = template.to_json().get("Outputs", {})
     # Output keys will have special chars removed in logical IDs
@@ -240,7 +300,12 @@ def test_sagemaker_stack_model_name_special_chars():
 # --- Edge case: Alarm ARNs are strings or tokens ---
 def test_sagemaker_stack_alarm_arns_are_strings(sagemaker_config):
     app = App()
-    stack = SageMakerStack(app, "TestSageMakerStack", config=sagemaker_config)
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=sagemaker_config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role"
+    )
     sr = stack.shared_resources
     for alarm in ["endpoint_status_failed_alarm", "invocation_4xx_errors_alarm", "model_latency_alarm"]:
         arn = getattr(sr[alarm], "alarm_arn", None)

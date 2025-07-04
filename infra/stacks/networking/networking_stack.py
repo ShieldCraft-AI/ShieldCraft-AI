@@ -6,7 +6,7 @@ from aws_cdk import (
 from constructs import Construct
 
 class NetworkingStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict = None, shared_tags: dict = None, flow_logs_bucket=None, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, config: dict = None, shared_tags: dict = None, flow_logs_bucket=None, vpc_flow_logs_role_arn: str = None, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         config = config or {}
         net_cfg = config.get('networking', {})
@@ -96,6 +96,16 @@ class NetworkingStack(Stack):
                 enforce_ssl=True
             )
         self.flow_logs_bucket = flow_logs_bucket
+        # Restrict S3 bucket policy to allow only the VPC Flow Logs role to write logs
+        if vpc_flow_logs_role_arn:
+            flow_logs_bucket.add_to_resource_policy(
+                s3.PolicyStatement(
+                    actions=["s3:PutObject"],
+                    resources=[f"{flow_logs_bucket.bucket_arn}/*"],
+                    principals=[s3.ArnPrincipal(vpc_flow_logs_role_arn)]
+                )
+            )
+        # The 'role' argument is not valid for ec2.FlowLog; must use IAM role in destination if needed
         self.flow_log = ec2.FlowLog(
             self, f"{construct_id}VpcFlowLog",
             resource_type=ec2.FlowLogResourceType.from_vpc(self.vpc),
@@ -125,15 +135,20 @@ class NetworkingStack(Stack):
                     self.nat_alarms.append(alarm)
         # Outputs for cross-stack reference
         CfnOutput(self, f"{construct_id}VpcId", value=self.vpc.vpc_id, export_name=f"{construct_id}-vpc-id")
-        for idx, subnet in enumerate(self.vpc.public_subnets + self.vpc.private_subnets + self.vpc.isolated_subnets):
-            CfnOutput(self, f"{construct_id}Subnet{idx+1}Id", value=subnet.subnet_id, export_name=f"{construct_id}-subnet-{idx+1}-id")
+        # Output all subnet IDs (public and private) for downstream use
+        all_subnets = self.vpc.public_subnets + self.vpc.private_subnets
+        for idx, subnet in enumerate(all_subnets):
+            CfnOutput(self, f"{construct_id}Subnet{idx+1}Id", value=subnet.subnet_id, export_name=f"{construct_id}-subnet{idx+1}-id")
+        # Output default SG (for Lambda)
         CfnOutput(self, f"{construct_id}DefaultSGId", value=self.default_sg.security_group_id, export_name=f"{construct_id}-default-sg-id")
+        # Output flow logs bucket
         CfnOutput(self, f"{construct_id}FlowLogsBucketArn", value=self.flow_logs_bucket.bucket_arn, export_name=f"{construct_id}-flowlogs-bucket-arn")
         # Expose for downstream stacks
         self.shared_resources = {
             "vpc": self.vpc,
             "default_sg": self.default_sg,
             "flow_logs_bucket": self.flow_logs_bucket,
-            "subnets": self.vpc.public_subnets + self.vpc.private_subnets + self.vpc.isolated_subnets,
-            "nat_alarms": self.nat_alarms
+            "private_subnets": self.vpc.private_subnets,
+            "nat_alarms": self.nat_alarms,
+            "subnets": all_subnets
         }

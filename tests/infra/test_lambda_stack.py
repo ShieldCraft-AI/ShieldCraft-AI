@@ -32,7 +32,13 @@ def test_lambda_stack_synthesizes(lambda_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = LambdaStack(app, "TestLambdaStack", vpc=vpc, config=lambda_config)
+    stack = LambdaStack(
+        app,
+        "TestLambdaStack",
+        vpc=vpc,
+        config=lambda_config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+    )
     template = assertions.Template.from_stack(stack)
     template.has_resource_properties("AWS::Lambda::Function", {
         "Handler": "index.handler"
@@ -58,7 +64,13 @@ def test_lambda_stack_tags(lambda_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = LambdaStack(app, "TestLambdaStack", vpc=vpc, config=lambda_config)
+    stack = LambdaStack(
+        app,
+        "TestLambdaStack",
+        vpc=vpc,
+        config=lambda_config,
+        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
     assert any(tag.get("Key") == "Owner" and tag.get("Value") == "LambdaTeam" for tag in tags)
@@ -70,7 +82,13 @@ def test_lambda_stack_functions_not_list():
     vpc = DummyVpc(test_stack, "DummyVpc")
     config = {"lambda_": {"functions": "notalist"}, "app": {"env": "test"}}
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )
 
 # --- Unhappy path: Duplicate function names ---
 def test_lambda_stack_duplicate_names():
@@ -87,7 +105,13 @@ def test_lambda_stack_duplicate_names():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )
 
 # --- Unhappy path: Invalid runtime ---
 def test_lambda_stack_invalid_runtime():
@@ -103,7 +127,13 @@ def test_lambda_stack_invalid_runtime():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )
 
 # --- Unhappy path: Environment not a dict ---
 def test_lambda_stack_env_not_dict():
@@ -119,7 +149,13 @@ def test_lambda_stack_env_not_dict():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )
 
 # --- Unhappy path: Timeout not int ---
 def test_lambda_stack_timeout_not_int():
@@ -135,7 +171,13 @@ def test_lambda_stack_timeout_not_int():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )
 
 # --- Unhappy path: Missing required fields ---
 def test_lambda_stack_missing_required_fields():
@@ -151,4 +193,10 @@ def test_lambda_stack_missing_required_fields():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        LambdaStack(app, "TestLambdaStack", vpc=vpc, config=config)
+        LambdaStack(
+            app,
+            "TestLambdaStack",
+            vpc=vpc,
+            config=config,
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        )

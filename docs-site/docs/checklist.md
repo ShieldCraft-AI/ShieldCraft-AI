@@ -6,14 +6,11 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="31" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">31% Complete</div>
+  <progress id="shieldcraft-progress" value="29" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">29% Complete</div>
 </div>
 </section>
-
-
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-
 
 <div style="margin-bottom:1em;">
   <strong style="font-size:1.25em; color:#a5b4fc;">🧭 Foundation & Planning</strong><br/><br/>
@@ -26,7 +23,6 @@
 <div style="margin-bottom: 1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Business problem articulated, core architecture designed, and initial cost/risk assessments completed.</span>
 </div>
-
 
 <details id="foundation-checklist">
 <summary>Show checklist…</summary>
@@ -54,13 +50,26 @@
 - 🟩 [Commit script unified, automating checks, versioning, and progress](./commit_script.md)
 - 🟩 Deliverables: [business case summary](./business_case.md), [MLOps diagram](./modular_mlops_governance.md), [risk log](./risk_log.md), [cost model](./infra_estimate.md), and [ADRs](./adrs.md)
 - 🟩 <strong>Production-grade AWS MLOps stack architecture implemented and tested</strong> ([architecture & dependency map](./aws_stack_architecture.md))
-    - 🟩 All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
-    - 🟩 Pydantic config validation, advanced tagging, and parameterization enforced
-    - 🟩 Cross-stack resource sharing and dependency injection established
-    - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
-    - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
-    - 🟩 150+ automated tests covering happy/unhappy paths, config validation, and outputs
-    - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
+    - All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
+    - Pydantic config validation, advanced tagging, and parameterization enforced
+    - Cross-stack resource sharing and dependency injection established
+    - Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
+    - S3 lifecycle, cost controls, and budget alarms implemented
+    - 150+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
+
+---
+
+### MSK + Lambda Integration To-Do List
+
+- [ ] Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
+- [ ] Deploy Lambda in private subnets with correct security group(s)
+- [ ] Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
+- [ ] Set up CloudWatch alarms for Lambda errors, throttles, and duration
+- [ ] Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
+- [ ] Route alarm notifications to the correct email/SNS topic
+- [ ] Implement and test the end-to-end MSK + Lambda topic creation flow
+- [ ] Update documentation for MSK + Lambda integration, including troubleshooting steps
 
  </details>
 
@@ -76,8 +85,8 @@
 
 - 🟩 [Identify and document all required data sources (logs, threat feeds, reports, configs)](./data_sources_required.md)
 - 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
-    - 🟥 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md):
-        - 🟨 Set up Amazon MSK (Kafka) cluster with topic creation
+    - 🟥 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
+        - 🟩 Set up Amazon MSK (Kafka) cluster with topic creation
         - 🟥 Integrate Airbyte for connector-based data integration (pending code/config confirmation)
         - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing (pending code/config confirmation)
         - 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces (pending code/config confirmation)
@@ -116,24 +125,7 @@
 <div style="margin-bottom:1em;">
   <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls.</span>
 </div>
-<div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Tech Stack:</span>
-  <span style="color:#e0e0e0;">
-    <a href="https://aws.amazon.com/" target="_blank" style="color:#a5b4fc;">AWS</a> |
-    <a href="https://docs.aws.amazon.com/cdk/latest/guide/home.html" target="_blank" style="color:#a5b4fc;">AWS CDK</a> |
-    <a href="https://www.python.org/" target="_blank" style="color:#a5b4fc;">Python</a> |
-    <a href="https://docs.pydantic.dev/" target="_blank" style="color:#a5b4fc;">Pydantic</a> |
-    <a href="https://airbyte.com/" target="_blank" style="color:#a5b4fc;">Airbyte</a> |
-    <a href="https://opensearch.org/" target="_blank" style="color:#a5b4fc;">OpenSearch</a> |
-    <a href="https://aws.amazon.com/msk/" target="_blank" style="color:#a5b4fc;">Amazon MSK</a> |
-    <a href="https://aws.amazon.com/glue/" target="_blank" style="color:#a5b4fc;">AWS Glue</a> |
-    <a href="https://aws.amazon.com/sagemaker/" target="_blank" style="color:#a5b4fc;">SageMaker</a> |
-    <a href="https://aws.amazon.com/lake-formation/" target="_blank" style="color:#a5b4fc;">Lake Formation</a> |
-    <a href="https://aws.amazon.com/cloudwatch/" target="_blank" style="color:#a5b4fc;">CloudWatch</a>
-  </span>
-</div>
 <details>
-
 
 <summary>Show AWS checklist…</summary>
 
@@ -213,7 +205,7 @@
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the AI accessible, robust, and seamlessly integrated with existing systems?</span>
 </div>
 <div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">API functional, integrated with UI, and handles errors gracefully. Link to <code>application/</code> for API code and documentation.</span>
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">API functional, integrated with UI, and handles errors gracefully. Link to <code>application</code> for API code and documentation.</span>
 </div>
 <details>
 <summary>Show checklist…</summary>

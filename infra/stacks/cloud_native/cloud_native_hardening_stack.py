@@ -61,7 +61,13 @@ class CloudNativeHardeningConfig(BaseModel):
 
 
 class CloudNativeHardeningStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, config: dict, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, config: dict,
+                 lambda_role_arn: str = None,
+                 msk_client_role_arn: str = None,
+                 msk_producer_role_arn: str = None,
+                 msk_consumer_role_arn: str = None,
+                 opensearch_role_arn: str = None,
+                 **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         try:
             validated = CloudNativeHardeningConfig(**config)
@@ -70,6 +76,15 @@ class CloudNativeHardeningStack(Stack):
         self.config = validated
         self.alarms = {}
         self.shared_resources = {}
+
+        # Example: import roles for use in custom resources if needed
+        # from aws_cdk import aws_iam as iam
+        # if lambda_role_arn:
+        #     lambda_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedLambdaRole", lambda_role_arn, mutable=False)
+        # if msk_client_role_arn:
+        #     msk_client_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedMskClientRole", msk_client_role_arn, mutable=False)
+        # if opensearch_role_arn:
+        #     opensearch_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedOpenSearchRole", opensearch_role_arn, mutable=False)
 
         # --- Advanced Tagging ---
         app_cfg = self.config.app

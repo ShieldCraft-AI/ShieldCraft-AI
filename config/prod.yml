@@ -64,8 +64,12 @@ msk:
       client_broker: TLS
       in_cluster: true
     public_access: false
-    vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
-    security_group_ids: []  # Fill with actual security group IDs if needed
+    vpc_subnet_ids:
+      - subnet-priv-a
+      - subnet-priv-b
+      - subnet-priv-c
+    security_group_ids:
+      - sg-msk
 
 lambda_:
   functions:
@@ -84,8 +88,12 @@ lambda_:
           - name: audit-log
             partitions: 3
             replication_factor: 3
-      vpc_subnet_ids: []  # Fill with actual subnet IDs if needed
-      security_group_ids: []  # Fill with actual security group IDs if needed
+      vpc_subnet_ids:
+        - subnet-priv-a
+        - subnet-priv-b
+        - subnet-priv-c
+      security_group_ids:
+        - sg-lambda
       policies:
         - kafka:DescribeCluster
         - kafka:GetBootstrapBrokers
@@ -126,6 +134,11 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-prod-analytics
+  permissions:
+    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource:
+        database: { name: shieldcraft_prod_db }
+      permissions: ["ALL"]
 
 sagemaker:
   training_instance_type: ml.m5.2xlarge

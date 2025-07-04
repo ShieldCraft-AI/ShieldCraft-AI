@@ -45,12 +45,17 @@ def test_lakeformation_stack_permissions_creation():
                 {"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}
             ],
             "permissions": [
-                {"principal": "arn:aws:iam::123456789012:role/LakeAdmin", "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}}, "permissions": ["DATA_LOCATION_ACCESS"]}
+                {"principal": "LAKEFORMATION_ADMIN_ROLE_ARN", "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}}, "permissions": ["DATA_LOCATION_ACCESS"]}
             ]
         },
         "app": {"env": "test"}
     }
-    stack = LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)
+    stack = LakeFormationStack(
+        test_stack,
+        "TestLakeFormationStack",
+        config=config,
+        lakeformation_admin_role_arn="arn:aws:iam::123456789012:role/MockLakeFormationAdminRole"
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::LakeFormation::Permissions", 1)
     outputs = template.to_json().get("Outputs", {})

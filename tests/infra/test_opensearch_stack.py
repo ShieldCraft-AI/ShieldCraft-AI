@@ -38,7 +38,13 @@ def test_opensearch_stack_synthesizes(opensearch_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=opensearch_config)
+    stack = OpenSearchStack(
+        app,
+        "TestOpenSearchStack",
+        vpc=vpc,
+        config=opensearch_config,
+        opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::OpenSearchService::Domain", 1)
     outputs = template.to_json().get("Outputs", {})
@@ -65,7 +71,13 @@ def test_opensearch_stack_tags(opensearch_config):
     app = App()
     test_stack = Stack(app, "TestStack")
     vpc = DummyVpc(test_stack, "DummyVpc")
-    stack = OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=opensearch_config)
+    stack = OpenSearchStack(
+        app,
+        "TestOpenSearchStack",
+        vpc=vpc,
+        config=opensearch_config,
+        opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+    )
     tags = stack.tags.render_tags()
     assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
     assert any(tag.get("Key") == "Owner" and tag.get("Value") == "SearchTeam" for tag in tags)
@@ -83,7 +95,13 @@ def test_opensearch_stack_missing_required_fields():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=config)
+        OpenSearchStack(
+            app,
+            "TestOpenSearchStack",
+            vpc=vpc,
+            config=config,
+            opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+        )
 
 # --- Unhappy path: subnet_ids not a list or empty ---
 def test_opensearch_stack_invalid_subnet_ids_notalist():
@@ -100,7 +118,13 @@ def test_opensearch_stack_invalid_subnet_ids_notalist():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=config)
+        OpenSearchStack(
+            app,
+            "TestOpenSearchStack",
+            vpc=vpc,
+            config=config,
+            opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+        )
 
 def test_opensearch_stack_invalid_subnet_ids_empty():
     app = App()
@@ -116,7 +140,13 @@ def test_opensearch_stack_invalid_subnet_ids_empty():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=config)
+        OpenSearchStack(
+            app,
+            "TestOpenSearchStack",
+            vpc=vpc,
+            config=config,
+            opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+        )
 
 # --- Unhappy path: security_group_ids not a list or empty ---
 def test_opensearch_stack_invalid_security_group_ids_notalist():
@@ -133,7 +163,13 @@ def test_opensearch_stack_invalid_security_group_ids_notalist():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=config)
+        OpenSearchStack(
+            app,
+            "TestOpenSearchStack",
+            vpc=vpc,
+            config=config,
+            opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+        )
 
 def test_opensearch_stack_invalid_security_group_ids_empty():
     app = App()
@@ -149,4 +185,10 @@ def test_opensearch_stack_invalid_security_group_ids_empty():
         "app": {"env": "test"}
     }
     with pytest.raises(ValueError):
-        OpenSearchStack(app, "TestOpenSearchStack", vpc=vpc, config=config)
+        OpenSearchStack(
+            app,
+            "TestOpenSearchStack",
+            vpc=vpc,
+            config=config,
+            opensearch_role_arn="arn:aws:iam::123456789012:role/mock-opensearch-role"
+        )
