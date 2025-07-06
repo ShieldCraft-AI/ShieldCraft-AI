@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class ThreatFeedRecord(BaseModel):
     feed_id: str
     indicator: str

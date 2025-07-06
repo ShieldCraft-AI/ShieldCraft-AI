@@ -1,39 +1,30 @@
+⬅️ [Back to Checklist](./checklist.md)
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
-</div>
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
-</div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🛠️ Build Data Ingestion Pipelines Implementation Plan</h1>
-<div style="margin-bottom:1.2em;">
-  <strong style="font-size:1.25em; color:#a5b4fc;">Overview</strong><br/>
-  <span style="color:#b3b3b3; font-size:1em;">This document details the strategy, design, and implementation steps for the <b>Build data ingestion pipelines</b> section of the ShieldCraft AI checklist. The goal is to create a modular, cloud-native, and reproducible data ingestion architecture using AWS CDK and best-in-class open-source tools.</span>
-</div>
+# 🛠️ Build Data Ingestion Pipelines Implementation Plan
 
-<div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">How do we design ingestion pipelines that are modular, reproducible, secure, and ready for enterprise scale?</span>
-</div>
-<div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All ingestion infrastructure and code is defined as code, parameterized for environments, and supports secure, governed, and observable data flows from source to lake.</span>
-</div>
+## Overview
+This document details the strategy, design, and implementation steps for the **Build data ingestion pipelines** section of the ShieldCraft AI checklist. The goal is to create a modular, cloud-native, and reproducible data ingestion architecture using AWS CDK and best-in-class open-source tools.
 
+**Guiding Question:**
+> How do we design ingestion pipelines that are modular, reproducible, secure, and ready for enterprise scale?
 
-<ul style="margin-bottom:0.5em;">
-  <li><b>Amazon MSK (Kafka):</b> Streaming backbone</li>
-  <li><b>Airbyte:</b> Connector-based data integration</li>
-  <li><b>AWS Lambda:</b> Event-driven processing</li>
-  <li><b>Amazon OpenSearch Ingestion:</b> Log/metric streaming</li>
-  <li><b>AWS Glue:</b> ETL and normalization</li>
-  <li><b>Amazon S3:</b> Data lake</li>
-  <li><b>AWS Lake Formation:</b> Governance</li>
-  <li><b>Great Expectations/Deequ:</b> Data quality</li>
-</ul>
+**Definition of Done:**
+> All ingestion infrastructure and code is defined as code, parameterized for environments, and supports secure, governed, and observable data flows from source to lake.
 
+**Key Technologies:**
 
+- **Amazon MSK (Kafka):** Streaming backbone
+- **Airbyte:** Connector-based data integration
+- **AWS Lambda:** Event-driven processing
+- **Amazon OpenSearch Ingestion:** Log/metric streaming
+- **AWS Glue:** ETL and normalization
+- **Amazon S3:** Data lake
+- **AWS Lake Formation:** Governance
+- **Great Expectations/Deequ:** Data quality
 
-<strong style="font-size:1.25em; color:#a5b4fc;">Implementation Strategy</strong>
+---
+
+## Implementation Strategy
 
 ### 1. Infrastructure as Code (AWS CDK)
 - All resources (MSK, S3, Glue, Lambda, networking, IAM, etc.) are defined in AWS CDK for full reproducibility and automation.
@@ -73,17 +64,14 @@
 - Integrate Great Expectations/Deequ for automated data quality checks.
 - Enforce privacy, retention, and compliance policies via Lake Formation and Glue.
 
+---
 
+## Next Steps
 
-
-<strong style="font-size:1.25em; color:#a5b4fc;">Next Steps</strong>
-<ol style="color:#e0e0e0;">
-  <li>Scaffold the CDK stack for MSK, S3, networking, and IAM.</li>
-  <li>Implement Lambda-backed custom resource for Kafka topic creation.</li>
-  <li>Define standard topic names/configs and parameterize for environments.</li>
-  <li>Document integration patterns for Airbyte, Lambda, Glue, and OpenSearch.</li>
-  <li>Add governance, data quality, and compliance automation.</li>
-</ol>
-
+1. Scaffold the CDK stack for MSK, S3, networking, and IAM.
+2. Implement Lambda-backed custom resource for Kafka topic creation.
+3. Define standard topic names/configs and parameterize for environments.
+4. Document integration patterns for Airbyte, Lambda, Glue, and OpenSearch.
+5. Add governance, data quality, and compliance automation.
 
 </section>

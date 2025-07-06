@@ -1,13 +1,13 @@
 import os
-import yaml
 import logging
 import re
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 from threading import Lock
 from pydantic import BaseModel, ValidationError
 from .config_backends import ConfigBackend, LocalYamlBackend, S3Backend, SSMBackend
 
 import pathlib
+
 # Use project root /config directory, not infra/config
 CONFIG_DIR = str(pathlib.Path(__file__).parent.parent.parent / "config")
 _VALID_ENVS = {"dev", "staging", "prod"}
@@ -15,6 +15,7 @@ _DEFAULT_ENV = "dev"
 _SECRET_PATTERN = re.compile(r"^aws-vault:(.+)$")
 _CONFIG_LOADER_SINGLETON = None
 _CONFIG_LOADER_LOCK = Lock()
+
 
 class ConfigSchema(BaseModel):
     app: dict
@@ -26,13 +27,15 @@ class ConfigSchema(BaseModel):
     airbyte: Optional[dict] = None
     data_quality: Optional[dict] = None
     lakeformation: Optional[dict] = None
+
+
 class ConfigLoader:
     _instance = None
     _lock = Lock()
 
     def __new__(cls, *args, **kwargs):
         # If a backend is provided, always create a new instance (for testability)
-        backend = kwargs.get('backend')
+        backend = kwargs.get("backend")
         if backend is not None:
             return super().__new__(cls)
         with cls._lock:
@@ -40,8 +43,14 @@ class ConfigLoader:
                 cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, env: str = None, strict: bool = False, schema: Optional[BaseModel] = None, backend: Optional[ConfigBackend] = None):
-        if hasattr(self, '_initialized') and self._initialized:
+    def __init__(
+        self,
+        env: str = None,
+        strict: bool = False,
+        schema: Optional[BaseModel] = None,
+        backend: Optional[ConfigBackend] = None,
+    ):
+        if hasattr(self, "_initialized") and self._initialized:
             return
         self.backend = backend
         # If a backend is provided (e.g., for testing), skip env validation and backend selection
@@ -52,10 +61,14 @@ class ConfigLoader:
             self.config = self._load_config()
             self._initialized = True
             return
-        self.env = env or os.environ.get("ENV") or os.environ.get("APP_ENV") or _DEFAULT_ENV
+        self.env = (
+            env or os.environ.get("ENV") or os.environ.get("APP_ENV") or _DEFAULT_ENV
+        )
         self.env = self.env.lower()
         if self.env not in _VALID_ENVS:
-            raise ValueError(f"Invalid environment: {self.env}. Must be one of {_VALID_ENVS}.")
+            raise ValueError(
+                f"Invalid environment: {self.env}. Must be one of {_VALID_ENVS}."
+            )
         self.strict = strict
         self.schema = schema or ConfigSchema
         self.backend = self._select_backend()
@@ -83,7 +96,7 @@ class ConfigLoader:
             raise ValueError(f"Config for env {self.env} is empty or invalid.")
         # Validate schema
         try:
-            self.schema(**{k.replace('-', '_'): v for k, v in config.items()})
+            self.schema(**{k.replace("-", "_"): v for k, v in config.items()})
         except ValidationError as e:
             if self.strict:
                 raise ValueError(f"Config schema validation failed: {e}")
@@ -93,7 +106,7 @@ class ConfigLoader:
         self.config = self._load_config()
 
     def _resolve_env_override(self, key_path: str) -> Optional[Any]:
-        env_key = key_path.upper().replace('.', '_')
+        env_key = key_path.upper().replace(".", "_")
         return os.environ.get(env_key)
 
     def _resolve_secret(self, value: Any) -> Any:
@@ -108,7 +121,7 @@ class ConfigLoader:
 
     def get(self, key: str, default: Any = None, strict: Optional[bool] = None) -> Any:
         # Nested key access with dot notation
-        keys = key.split('.')
+        keys = key.split(".")
         value = self.config
         for k in keys:
             if isinstance(value, dict) and k in value:
@@ -127,7 +140,9 @@ class ConfigLoader:
             return env_override
         return self._resolve_secret(value)
 
-    def get_section(self, section: str, strict: Optional[bool] = None) -> Dict[str, Any]:
+    def get_section(
+        self, section: str, strict: Optional[bool] = None
+    ) -> Dict[str, Any]:
         if section in self.config:
             return self.config[section]
         if strict if strict is not None else self.strict:
@@ -143,7 +158,9 @@ class ConfigLoader:
             if isinstance(obj, str) and _SECRET_PATTERN.match(obj):
                 return "[REDACTED]"
             return obj
+
         return redact(self.config) if redact_secrets else self.config.copy()
+
 
 def get_logger(name: str = "shieldcraft") -> logging.Logger:
     logger = logging.getLogger(name)
@@ -163,6 +180,7 @@ def get_logger(name: str = "shieldcraft") -> logging.Logger:
             log_level = "INFO"
     logger.setLevel(log_level.upper())
     return logger
+
 
 # Singleton accessor for config loader
 def get_config_loader(env: Optional[str] = None, strict: bool = False) -> ConfigLoader:

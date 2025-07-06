@@ -12,7 +12,15 @@ from constructs import Construct
 
 class MskStack(Stack):
     def __init__(
-        self, scope: Construct, construct_id: str, vpc: ec2.IVpc, config: dict, msk_client_role_arn: str = None, msk_producer_role_arn: str = None, msk_consumer_role_arn: str = None, **kwargs
+        self,
+        scope: Construct,
+        construct_id: str,
+        vpc: ec2.IVpc,
+        config: dict,
+        msk_client_role_arn: str = None,
+        msk_producer_role_arn: str = None,
+        msk_consumer_role_arn: str = None,
+        **kwargs,
     ):
         super().__init__(scope, construct_id, **kwargs)
 

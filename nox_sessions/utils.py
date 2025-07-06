@@ -34,38 +34,9 @@ def nox_session_guard(func):
     return wrapper
 
 
-def _should_poetry_install(dev=False, force=False, skip=False):
-
-    marker = ".nox-poetry-installed-dev" if dev else ".nox-poetry-installed"
-    lock_hash = file_hash("poetry.lock") if os.path.exists("poetry.lock") else ""
-    py_hash = file_hash("pyproject.toml") if os.path.exists("pyproject.toml") else ""
-    if skip:
-        return False, marker, lock_hash, py_hash
-    if not os.path.exists(marker):
-        print(
-            "\033[91mERROR: Poetry environment not bootstrapped. Run 'nox -s bootstrap' first.\033[0m",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    try:
-        with open(marker) as f:
-            marker_hash = f.read().strip().split("|")
-            if (
-                len(marker_hash) == 2
-                and marker_hash[0] == lock_hash
-                and marker_hash[1] == py_hash
-            ):
-                return False, marker, lock_hash, py_hash
-    except Exception:
-        pass
-    print(
-        "\033[91mERROR: Poetry environment out of date. Run 'nox -s bootstrap' to update.\033[0m",
-        file=sys.stderr,
-    )
-    sys.exit(1)
-
-
 def _should_npm_install(force=False):
+    # Deprecated: All npm install logic should be handled in a centralized preflight script, not in session files.
+    # This function is retained for backward compatibility but should not be used in new code.
     marker = os.path.join("docs-site", ".nox-npm-installed")
     pkg_hash = (
         file_hash(os.path.join("docs-site", "package.json"))

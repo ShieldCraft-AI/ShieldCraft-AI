@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class EndpointTelemetryRecord(BaseModel):
     endpoint_id: str
     hostname: str

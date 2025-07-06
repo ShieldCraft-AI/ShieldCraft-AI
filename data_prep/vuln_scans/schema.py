@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class VulnScanRecord(BaseModel):
     scan_id: str
     asset_id: str

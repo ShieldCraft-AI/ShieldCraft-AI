@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class EmailSecurityRecord(BaseModel):
     event_id: str
     timestamp: str

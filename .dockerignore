@@ -1,4 +1,101 @@
+# .dockerignore for ShieldCraft AI
+# Exclude files and directories that should not be sent to the Docker build context
+# This will dramatically reduce build context size and speed up builds
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache
+
+# Jupyter Notebooks
+*.ipynb_checkpoints
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Node/npm
+node_modules/
+
+# Data, logs, and artifacts
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.sav
+*.dat
+*.tmp
+*.log
+*.pkl
+*.sqlite3
+*.db
+*.bak
+*.tar
+*.tar.gz
+*.zip
+*.gz
+*.7z
+*.rar
+*.pdf
+*.xls*
+*.doc*
+*.ppt*
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+
+# Secrets and credentials
+*.env
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# Git
+.git/
+.gitignore
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Build/test artifacts
+coverage*
+htmlcov/
+dist/
+build/
+.eggs/
+*.egg-info/
+*.egg
+
+# Misc
+.DS_Store
+*.bak
+*.orig
+
+# Project-specific
+notebooks/
+docs-site/__pycache__/
 *.py[cod]
 *.so
 .Python

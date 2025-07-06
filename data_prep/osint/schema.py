@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class OSINTRecord(BaseModel):
     record_id: str
     source: str

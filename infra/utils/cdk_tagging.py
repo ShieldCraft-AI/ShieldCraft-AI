@@ -1,6 +1,9 @@
 from aws_cdk import Tags
 
-def apply_standard_tags(scope, project: str, environment: str, owner: str, extra_tags: dict = None):
+
+def apply_standard_tags(
+    scope, project: str, environment: str, owner: str, extra_tags: dict = None
+):
     """
     Apply standard tags to all resources in the given CDK scope.
     Args:

@@ -69,7 +69,7 @@ import json
 def get_secret():
     env = os.environ.get("SHIELDCRAFT_ENV", "dev")
     secret_name = f"shieldcraft-{env}"
-    region = os.environ.get("AWS_REGION", "us-east-1")
+    region = os.environ.get("AWS_REGION", "af-south-1")
     session = boto3.session.Session()
     client = session.client(
         service_name='secretsmanager',
@@ -78,10 +78,6 @@ def get_secret():
     get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     secret = get_secret_value_response['SecretString']
     return json.loads(secret)
-
-# Usage:
-# secrets = get_secret()
-# db_url = secrets["DATABASE_URL"]
 ```
 
 ---
@@ -91,7 +87,7 @@ def get_secret():
   <span style="font-size:1.1em;">💻</span> Local Development: AWS Vault
 </h2>
 <ul>
-  <li>Use <a href="https://github.com/99designs/aws-vault" style="color:#a5b4fc;">aws-vault</a> to run your app with the correct profile:</li>
+  <li>Use <a href="https://github.com/99designs/aws-vault" style="color:#a5b4fc;">aws-vault</a> to run app with the correct profile:</li>
 </ul>
 <pre><code>aws-vault exec shieldcraft-dev -- poetry run python src/main.py
 </code></pre>

@@ -3,9 +3,11 @@ from aws_cdk import App, Stack, assertions
 from infra.stacks.compute.msk_stack import MskStack
 from aws_cdk import aws_ec2 as ec2
 
+
 class DummyVpc(ec2.Vpc):
     def __init__(self, scope, id):
         super().__init__(scope, id, max_azs=1)
+
 
 @pytest.fixture
 def msk_config():
@@ -14,7 +16,7 @@ def msk_config():
             "security_group": {
                 "id": "MskSecurityGroup",
                 "description": "Test SG",
-                "allow_all_outbound": True
+                "allow_all_outbound": True,
             },
             "cluster": {
                 "id": "TestMskCluster",
@@ -22,12 +24,13 @@ def msk_config():
                 "kafka_version": "3.5.1",
                 "number_of_broker_nodes": 1,
                 "instance_type": "kafka.m5.large",
-                "enhanced_monitoring": "PER_TOPIC_PER_BROKER"
+                "enhanced_monitoring": "PER_TOPIC_PER_BROKER",
             },
-            "tags": {"Owner": "KafkaTeam"}
+            "tags": {"Owner": "KafkaTeam"},
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
+
 
 # --- Happy path: MSK cluster creation ---
 def test_msk_stack_synthesizes(msk_config):
@@ -41,7 +44,7 @@ def test_msk_stack_synthesizes(msk_config):
         config=msk_config,
         msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
         msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
     )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::MSK::Cluster", 1)
@@ -64,6 +67,7 @@ def test_msk_stack_synthesizes(msk_config):
     assert "active_controller_alarm" in sr and sr["active_controller_alarm"] is not None
     assert "disk_used_alarm" in sr and sr["disk_used_alarm"] is not None
 
+
 # --- Happy path: Tagging ---
 def test_msk_stack_tags(msk_config):
     app = App()
@@ -76,11 +80,17 @@ def test_msk_stack_tags(msk_config):
         config=msk_config,
         msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
         msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+        msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
     )
     tags = stack.tags.render_tags()
-    assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
-    assert any(tag.get("Key") == "Owner" and tag.get("Value") == "KafkaTeam" for tag in tags)
+    assert any(
+        tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI"
+        for tag in tags
+    )
+    assert any(
+        tag.get("Key") == "Owner" and tag.get("Value") == "KafkaTeam" for tag in tags
+    )
+
 
 # --- Unhappy path: Missing required cluster fields ---
 def test_msk_stack_missing_required_fields():
@@ -90,9 +100,11 @@ def test_msk_stack_missing_required_fields():
     config = {
         "msk": {
             "security_group": {"id": "sg1"},
-            "cluster": {"id": "cid"}  # missing name, kafka_version, number_of_broker_nodes, instance_type
+            "cluster": {
+                "id": "cid"
+            },  # missing name, kafka_version, number_of_broker_nodes, instance_type
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -102,8 +114,9 @@ def test_msk_stack_missing_required_fields():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )
+
 
 # --- Unhappy path: number_of_broker_nodes not int or < 1 ---
 def test_msk_stack_invalid_broker_count():
@@ -114,10 +127,14 @@ def test_msk_stack_invalid_broker_count():
         "msk": {
             "security_group": {"id": "sg1"},
             "cluster": {
-                "id": "cid", "name": "n", "kafka_version": "3.5.1", "number_of_broker_nodes": 0, "instance_type": "kafka.m5.large"
-            }
+                "id": "cid",
+                "name": "n",
+                "kafka_version": "3.5.1",
+                "number_of_broker_nodes": 0,
+                "instance_type": "kafka.m5.large",
+            },
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -127,8 +144,9 @@ def test_msk_stack_invalid_broker_count():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )
+
 
 # --- Unhappy path: client_subnets not a list or empty ---
 def test_msk_stack_invalid_client_subnets_notalist():
@@ -139,10 +157,15 @@ def test_msk_stack_invalid_client_subnets_notalist():
         "msk": {
             "security_group": {"id": "sg1"},
             "cluster": {
-                "id": "cid", "name": "n", "kafka_version": "3.5.1", "number_of_broker_nodes": 1, "instance_type": "kafka.m5.large", "client_subnets": "notalist"
-            }
+                "id": "cid",
+                "name": "n",
+                "kafka_version": "3.5.1",
+                "number_of_broker_nodes": 1,
+                "instance_type": "kafka.m5.large",
+                "client_subnets": "notalist",
+            },
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -152,8 +175,9 @@ def test_msk_stack_invalid_client_subnets_notalist():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )
+
 
 def test_msk_stack_invalid_client_subnets_empty():
     app = App()
@@ -163,10 +187,15 @@ def test_msk_stack_invalid_client_subnets_empty():
         "msk": {
             "security_group": {"id": "sg1"},
             "cluster": {
-                "id": "cid", "name": "n", "kafka_version": "3.5.1", "number_of_broker_nodes": 1, "instance_type": "kafka.m5.large", "client_subnets": []
-            }
+                "id": "cid",
+                "name": "n",
+                "kafka_version": "3.5.1",
+                "number_of_broker_nodes": 1,
+                "instance_type": "kafka.m5.large",
+                "client_subnets": [],
+            },
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -176,8 +205,9 @@ def test_msk_stack_invalid_client_subnets_empty():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )
+
 
 # --- Unhappy path: security_groups not a list or empty ---
 def test_msk_stack_invalid_security_groups_notalist():
@@ -188,10 +218,15 @@ def test_msk_stack_invalid_security_groups_notalist():
         "msk": {
             "security_group": {"id": "sg1"},
             "cluster": {
-                "id": "cid", "name": "n", "kafka_version": "3.5.1", "number_of_broker_nodes": 1, "instance_type": "kafka.m5.large", "security_groups": "notalist"
-            }
+                "id": "cid",
+                "name": "n",
+                "kafka_version": "3.5.1",
+                "number_of_broker_nodes": 1,
+                "instance_type": "kafka.m5.large",
+                "security_groups": "notalist",
+            },
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -201,8 +236,9 @@ def test_msk_stack_invalid_security_groups_notalist():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )
+
 
 def test_msk_stack_invalid_security_groups_empty():
     app = App()
@@ -212,10 +248,15 @@ def test_msk_stack_invalid_security_groups_empty():
         "msk": {
             "security_group": {"id": "sg1"},
             "cluster": {
-                "id": "cid", "name": "n", "kafka_version": "3.5.1", "number_of_broker_nodes": 1, "instance_type": "kafka.m5.large", "security_groups": []
-            }
+                "id": "cid",
+                "name": "n",
+                "kafka_version": "3.5.1",
+                "number_of_broker_nodes": 1,
+                "instance_type": "kafka.m5.large",
+                "security_groups": [],
+            },
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         MskStack(
@@ -225,5 +266,5 @@ def test_msk_stack_invalid_security_groups_empty():
             config=config,
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
-            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role"
+            msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
         )

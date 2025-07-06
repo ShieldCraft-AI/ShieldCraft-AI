@@ -3,10 +3,8 @@ from diagrams.aws.analytics import Glue
 from diagrams.aws.management import Cloudwatch
 from diagrams.aws.security import SecretsManager
 from diagrams.aws.compute import EC2
-from diagrams.aws.devtools import Codebuild
 from diagrams.aws.integration import SSM
 from diagrams.aws.network import ELB
-from diagrams.generic.compute import Rack
 from diagrams.generic.monitoring import Monitor
 
 with Diagram("Data Processing & ETL Architecture", direction="TB", show=False):

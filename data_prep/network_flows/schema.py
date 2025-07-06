@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class NetworkFlowRecord(BaseModel):
     flow_id: str
     src_ip: str
