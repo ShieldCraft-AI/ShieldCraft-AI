@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class TicketRecord(BaseModel):
     ticket_id: str
     source: str

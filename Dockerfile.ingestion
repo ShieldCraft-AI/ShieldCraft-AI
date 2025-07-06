@@ -1,16 +1,17 @@
 # --- Base image for ingestion/ETL service ---
-# Using Chainguard Python (zero-known CVE, minimal, secure)
-FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS base
+# Using official Python slim image for compatibility and reliability
+FROM python:3.11-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # --- OS security updates ---
-# Chainguard images are continuously updated and minimal, so explicit OS update is not required
+# Official Python images are regularly updated; explicit OS update is not required
 
 # --- Dev stage ---
 FROM base AS dev
+ARG BUILDKIT_INLINE_CACHE=1
 # Install dev tools and dependencies, combine steps for smaller image
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.cache/pypoetry \
@@ -28,6 +29,7 @@ COPY . .
 
 # --- Staging stage ---
 FROM base AS staging
+ARG BUILDKIT_INLINE_CACHE=1
 COPY pyproject.toml poetry.lock ./
 RUN ["python", "-m", "pip", "install", "--upgrade", "pip"]
 RUN ["python", "-m", "pip", "install", "poetry"]
@@ -48,12 +50,10 @@ FROM staging AS prod
 
 
 
-# --- Chainguard final image (distroless, zero-known CVE, pinned digest) ---
-FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS final
+# --- Final image (production, official Python base) ---
+FROM python:3.11-slim AS final
 WORKDIR /app
 COPY --from=prod /app /app
-COPY --from=prod /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=prod /usr/local/bin /usr/local/bin
 # Use custom non-root user for security
 USER 10001
 ARG ENV=prod
@@ -68,3 +68,15 @@ CMD ["-m", "src.ingestion.main"]
 # docker build -f Dockerfile.ingestion --target=dev --build-arg ENV=dev .
 # docker build -f Dockerfile.ingestion --target=staging --build-arg ENV=staging .
 # docker build -f Dockerfile.ingestion --target=final --build-arg ENV=prod .
+
+# --- Build and push with BuildKit cache (Ingestion) ---
+# - name: Build and push with BuildKit cache (Ingestion)
+#   uses: docker/build-push-action@v5
+#   with:
+#     context: .
+#     file: Dockerfile.ingestion
+#     target: final
+#     push: true
+#     tags: ghcr.io/${{ github.repository_owner }}/shieldcraft-ingestion:latest
+#     cache-from: type=gha
+#     cache-to: type=gha,mode=max

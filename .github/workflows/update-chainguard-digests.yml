@@ -1,0 +1,40 @@
+name: Update Chainguard Base Image Digests
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-digests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Run digest update script
+        run: |
+          chmod +x ./scripts/update-chainguard-digests.sh
+          ./scripts/update-chainguard-digests.sh
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Dockerfile* */Dockerfile*
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update Chainguard python base image digest [automated]"
+          git push origin HEAD:update-chainguard-digest-$(date +%Y%m%d%H%M%S)
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: update-chainguard-digest-automated
+          title: "chore: update Chainguard python base image digest [automated]"
+          body: |
+            This PR was created automatically by the scheduled workflow to update the Chainguard python base image digest in all Dockerfiles.
+          commit-message: "chore: update Chainguard python base image digest [automated]"
+          delete-branch: true

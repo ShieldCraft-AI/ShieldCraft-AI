@@ -3,9 +3,11 @@ from aws_cdk import App, Stack, assertions
 from infra.stacks.compute.lambda_stack import LambdaStack
 from aws_cdk import aws_ec2 as ec2
 
+
 class DummyVpc(ec2.Vpc):
     def __init__(self, scope, id):
         super().__init__(scope, id, max_azs=1)
+
 
 @pytest.fixture
 def lambda_config():
@@ -19,13 +21,14 @@ def lambda_config():
                     "code_path": "lambda/test_function",
                     "environment": {"ENV": "test"},
                     "timeout": 30,
-                    "vpc": True
+                    "vpc": True,
                 }
             ],
-            "tags": {"Owner": "LambdaTeam"}
+            "tags": {"Owner": "LambdaTeam"},
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
+
 
 # --- Happy path: Lambda function creation ---
 def test_lambda_stack_synthesizes(lambda_config):
@@ -37,12 +40,12 @@ def test_lambda_stack_synthesizes(lambda_config):
         "TestLambdaStack",
         vpc=vpc,
         config=lambda_config,
-        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
     )
     template = assertions.Template.from_stack(stack)
-    template.has_resource_properties("AWS::Lambda::Function", {
-        "Handler": "index.handler"
-    })
+    template.has_resource_properties(
+        "AWS::Lambda::Function", {"Handler": "index.handler"}
+    )
     outputs = template.to_json().get("Outputs", {})
     # Check for all expected outputs (function name, arn, and alarms)
     assert "TestLambdaStackLambdaTestFunctionName" in outputs
@@ -59,6 +62,7 @@ def test_lambda_stack_synthesizes(lambda_config):
     assert "throttle_alarm" in sr and sr["throttle_alarm"] is not None
     assert "duration_alarm" in sr and sr["duration_alarm"] is not None
 
+
 # --- Happy path: Tagging ---
 def test_lambda_stack_tags(lambda_config):
     app = App()
@@ -69,11 +73,17 @@ def test_lambda_stack_tags(lambda_config):
         "TestLambdaStack",
         vpc=vpc,
         config=lambda_config,
-        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+        lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
     )
     tags = stack.tags.render_tags()
-    assert any(tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI" for tag in tags)
-    assert any(tag.get("Key") == "Owner" and tag.get("Value") == "LambdaTeam" for tag in tags)
+    assert any(
+        tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI"
+        for tag in tags
+    )
+    assert any(
+        tag.get("Key") == "Owner" and tag.get("Value") == "LambdaTeam" for tag in tags
+    )
+
 
 # --- Unhappy path: Functions not a list ---
 def test_lambda_stack_functions_not_list():
@@ -87,8 +97,9 @@ def test_lambda_stack_functions_not_list():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )
+
 
 # --- Unhappy path: Duplicate function names ---
 def test_lambda_stack_duplicate_names():
@@ -98,11 +109,23 @@ def test_lambda_stack_duplicate_names():
     config = {
         "lambda_": {
             "functions": [
-                {"name": "dup", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/dup", "timeout": 30},
-                {"name": "dup", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/dup2", "timeout": 30}
+                {
+                    "name": "dup",
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/dup",
+                    "timeout": 30,
+                },
+                {
+                    "name": "dup",
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/dup2",
+                    "timeout": 30,
+                },
             ]
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LambdaStack(
@@ -110,8 +133,9 @@ def test_lambda_stack_duplicate_names():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )
+
 
 # --- Unhappy path: Invalid runtime ---
 def test_lambda_stack_invalid_runtime():
@@ -121,10 +145,16 @@ def test_lambda_stack_invalid_runtime():
     config = {
         "lambda_": {
             "functions": [
-                {"name": "bad", "runtime": "NOT_A_RUNTIME", "handler": "index.handler", "code_path": "lambda/bad", "timeout": 30}
+                {
+                    "name": "bad",
+                    "runtime": "NOT_A_RUNTIME",
+                    "handler": "index.handler",
+                    "code_path": "lambda/bad",
+                    "timeout": 30,
+                }
             ]
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LambdaStack(
@@ -132,8 +162,9 @@ def test_lambda_stack_invalid_runtime():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )
+
 
 # --- Unhappy path: Environment not a dict ---
 def test_lambda_stack_env_not_dict():
@@ -143,10 +174,17 @@ def test_lambda_stack_env_not_dict():
     config = {
         "lambda_": {
             "functions": [
-                {"name": "badenv", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/badenv", "timeout": 30, "environment": "notadict"}
+                {
+                    "name": "badenv",
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/badenv",
+                    "timeout": 30,
+                    "environment": "notadict",
+                }
             ]
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LambdaStack(
@@ -154,8 +192,9 @@ def test_lambda_stack_env_not_dict():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )
+
 
 # --- Unhappy path: Timeout not int ---
 def test_lambda_stack_timeout_not_int():
@@ -165,10 +204,16 @@ def test_lambda_stack_timeout_not_int():
     config = {
         "lambda_": {
             "functions": [
-                {"name": "badtimeout", "runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/badtimeout", "timeout": "notanint"}
+                {
+                    "name": "badtimeout",
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/badtimeout",
+                    "timeout": "notanint",
+                }
             ]
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LambdaStack(
@@ -176,8 +221,9 @@ def test_lambda_stack_timeout_not_int():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )
+
 
 # --- Unhappy path: Missing required fields ---
 def test_lambda_stack_missing_required_fields():
@@ -187,10 +233,14 @@ def test_lambda_stack_missing_required_fields():
     config = {
         "lambda_": {
             "functions": [
-                {"runtime": "PYTHON_3_11", "handler": "index.handler", "code_path": "lambda/missing"}
+                {
+                    "runtime": "PYTHON_3_11",
+                    "handler": "index.handler",
+                    "code_path": "lambda/missing",
+                }
             ]
         },
-        "app": {"env": "test"}
+        "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LambdaStack(
@@ -198,5 +248,5 @@ def test_lambda_stack_missing_required_fields():
             "TestLambdaStack",
             vpc=vpc,
             config=config,
-            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role"
+            lambda_role_arn="arn:aws:iam::123456789012:role/mock-lambda-role",
         )

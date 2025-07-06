@@ -1,7 +1,7 @@
 import nox
 import os
 from datetime import datetime
-from nox_sessions.utils import _should_poetry_install, nox_session_guard
+from nox_sessions.utils import nox_session_guard
 
 DEBUG_LOG_FILE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "commit_nox_debug.log"
@@ -50,8 +50,6 @@ def meta(session):
         f.write(f"[META] Session started at {datetime.now()}\n")
     try:
         session.install("poetry")
-        skip = "--skip-poetry-install" in session.posargs
-        _should_poetry_install(dev=False, skip=skip)
         session.run("poetry", "check", external=True)
         session.run("poetry", "lock", external=True)
         with open(DEBUG_LOG_FILE, "a") as f:
@@ -106,8 +104,6 @@ def dev(session):
         f.write(f"[DEV] Session started at {datetime.now()}\n")
     try:
         session.install("poetry")
-        skip = "--skip-poetry-install" in session.posargs
-        _should_poetry_install(dev=True, skip=skip)
         session.run("poetry", "run", "python")
         with open(DEBUG_LOG_FILE, "a") as f:
             f.write("[DEV] Python REPL started.\n")

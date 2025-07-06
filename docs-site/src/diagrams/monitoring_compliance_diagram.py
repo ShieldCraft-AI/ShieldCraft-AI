@@ -3,10 +3,11 @@ from diagrams.aws.management import Cloudwatch, CloudwatchLogs, CloudwatchAlarm,
 from diagrams.aws.security import IAM
 from diagrams.aws.notifications import SNS
 from diagrams.aws.billing import Budgets, CostExplorer
-from diagrams.aws.devtools import Codebuild
 from diagrams.generic.monitoring import Dashboard
 
-with Diagram("Monitoring, Compliance & Hardening Architecture", direction="TB", show=False):
+with Diagram(
+    "Monitoring, Compliance & Hardening Architecture", direction="TB", show=False
+):
     with Cluster("CloudWatch Stack"):
         cw_logs = CloudwatchLogs("Logs")
         cw_metrics = Cloudwatch("Metrics")

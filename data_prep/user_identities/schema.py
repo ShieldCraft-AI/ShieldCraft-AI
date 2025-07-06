@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class UserIdentityRecord(BaseModel):
     user_id: str
     username: str

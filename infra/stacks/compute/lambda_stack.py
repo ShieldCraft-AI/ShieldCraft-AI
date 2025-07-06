@@ -11,6 +11,8 @@ from aws_cdk import (
 )
 from constructs import Construct
 import json
+
+
 class LambdaStack(Stack):
     def __init__(
         self,
@@ -246,7 +248,7 @@ class LambdaStack(Stack):
                 },
             )
 
-        from aws_cdk import aws_lambda, aws_iam, custom_resources as cr
+        from aws_cdk import aws_lambda, aws_iam
 
         class LambdaStack(Stack):
             def __init__(

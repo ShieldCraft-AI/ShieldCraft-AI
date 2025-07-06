@@ -152,4 +152,3 @@
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./project_structure.md" style="color:#a5b4fc;">Project Structure</a> | <a href="./noxfile_workflow.md" style="color:#a5b4fc;">Noxfile & Workflow</a> | <a href="./security_governance.md" style="color:#a5b4fc;">Security & Governance</a></em>
 </section>
-

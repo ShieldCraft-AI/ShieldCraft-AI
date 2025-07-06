@@ -1,5 +1,11 @@
 from diagrams import Cluster, Diagram
-from diagrams.aws.network import VPC, PrivateSubnet, PublicSubnet, NATGateway, InternetGateway
+from diagrams.aws.network import (
+    VPC,
+    PrivateSubnet,
+    PublicSubnet,
+    NATGateway,
+    InternetGateway,
+)
 from diagrams.generic.network import Firewall, Router
 from diagrams.aws.management import Cloudwatch
 from diagrams.custom import Custom
@@ -7,15 +13,15 @@ from diagrams.custom import Custom
 graph_attr = {
     "fontsize": "16",
     "fontname": "Helvetica",
-    "pad": "1.2",              # More breathing room
-    "dpi": "400",              # Sharper image
+    "pad": "1.2",  # More breathing room
+    "dpi": "400",  # Sharper image
     "margin": "0.75",
-    "splines": "spline",       # Smooth curved arrows
-    "ranksep": "1.8",          # Vertical spacing
-    "nodesep": "1.5",          # Horizontal spacing
+    "splines": "spline",  # Smooth curved arrows
+    "ranksep": "1.8",  # Vertical spacing
+    "nodesep": "1.5",  # Horizontal spacing
     "layout": "dot",
-    "labelloc": "t",           # Cluster labels on top
-    "bgcolor": "white",        # Clean background
+    "labelloc": "t",  # Cluster labels on top
+    "bgcolor": "white",  # Clean background
 }
 
 node_attr = {
@@ -30,10 +36,10 @@ node_attr = {
 
 with Diagram(
     "Networking & Security Architecture",
-    direction="LR",               # Horizontal layout is better for networking flows
+    direction="LR",  # Horizontal layout is better for networking flows
     show=False,
     filename="networking_architecture",
-    outformat="png",              # Or 'svg' for vector output
+    outformat="png",  # Or 'svg' for vector output
     graph_attr=graph_attr,
     node_attr=node_attr,
 ):

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class APIGatewayLogRecord(BaseModel):
     request_id: str
     api_id: str

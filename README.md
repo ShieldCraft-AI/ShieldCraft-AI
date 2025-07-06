@@ -1,5 +1,10 @@
-<div align="center">
+
+
+<div align="center" style="display: flex; align-items: center; justify-content: center; margin-bottom:2em">
   <img src="https://img.shields.io/badge/AI%20Security-Shieldcraft%20AI-blueviolet?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Shieldcraft AI" />
+  <a href="https://github.com/Dee66/shieldcraft-ai/actions/workflows/ci.yml" style="margin-left: 1.5em; float: right;">
+    <img src="https://github.com/Dee66/shieldcraft-ai/actions/workflows/ci.yml/badge.svg" alt="CI Status" style="vertical-align: middle;" />
+  </a>
 </div>
 
 <h1 align="center">🛡️ ShieldCraft AI</h1>
@@ -76,63 +81,63 @@
   <span style="font-size:1.2em;">🧰</span> Core Tech Stack
 </h2>
 <ul style="margin-bottom:0.5em;">
-  <li><b>Data Ingestion & Streaming:</b> 
-    <a href="https://aws.amazon.com/msk/" style="color:#a5b4fc;">Amazon MSK (Kafka)</a>, 
-    <a href="https://airbyte.com/" style="color:#a5b4fc;">Airbyte</a>, 
-    <a href="https://aws.amazon.com/lambda/" style="color:#a5b4fc;">AWS Lambda</a>, 
+  <li><b>Data Ingestion & Streaming:</b>
+    <a href="https://aws.amazon.com/msk/" style="color:#a5b4fc;">Amazon MSK (Kafka)</a>,
+    <a href="https://airbyte.com/" style="color:#a5b4fc;">Airbyte</a>,
+    <a href="https://aws.amazon.com/lambda/" style="color:#a5b4fc;">AWS Lambda</a>,
     <a href="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/data-ingestion.html" style="color:#a5b4fc;">Amazon OpenSearch Ingestion</a>
   </li>
-  <li><b>Data Processing & Storage:</b> 
-    <a href="https://aws.amazon.com/glue/" style="color:#a5b4fc;">AWS Glue</a>, 
-    <a href="https://aws.amazon.com/s3/" style="color:#a5b4fc;">Amazon S3</a>, 
-    <a href="https://aws.amazon.com/lake-formation/" style="color:#a5b4fc;">AWS Lake Formation</a>, 
+  <li><b>Data Processing & Storage:</b>
+    <a href="https://aws.amazon.com/glue/" style="color:#a5b4fc;">AWS Glue</a>,
+    <a href="https://aws.amazon.com/s3/" style="color:#a5b4fc;">Amazon S3</a>,
+    <a href="https://aws.amazon.com/lake-formation/" style="color:#a5b4fc;">AWS Lake Formation</a>,
     <a href="https://greatexpectations.io/" style="color:#a5b4fc;">Great Expectations</a>/<a href="https://github.com/awslabs/deequ" style="color:#a5b4fc;">Deequ</a>
   </li>
-  <li><b>Machine Learning & MLOps:</b> 
-    <a href="https://aws.amazon.com/sagemaker/" style="color:#a5b4fc;">Amazon SageMaker</a> (incl. <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/feature-store.html" style="color:#a5b4fc;">Feature Store</a>), 
-    <a href="https://aws.amazon.com/opensearch-service/" style="color:#a5b4fc;">Amazon OpenSearch</a> (vector search), 
-    <a href="https://www.promptingguide.ai/" style="color:#a5b4fc;">Prompt Engineering</a>, 
+  <li><b>Machine Learning & MLOps:</b>
+    <a href="https://aws.amazon.com/sagemaker/" style="color:#a5b4fc;">Amazon SageMaker</a> (incl. <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/feature-store.html" style="color:#a5b4fc;">Feature Store</a>),
+    <a href="https://aws.amazon.com/opensearch-service/" style="color:#a5b4fc;">Amazon OpenSearch</a> (vector search),
+    <a href="https://www.promptingguide.ai/" style="color:#a5b4fc;">Prompt Engineering</a>,
     <a href="https://arize.com/llm-observability/" style="color:#a5b4fc;">LLM Observability</a>
   </li>
-  <li><b>Model Deployment & Monitoring:</b> 
-    <a href="https://aws.amazon.com/eks/" style="color:#a5b4fc;">Amazon EKS (Kubernetes)</a>, 
-    <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html" style="color:#a5b4fc;">SageMaker Model Monitor</a>, 
-    <a href="https://evidentlyai.com/" style="color:#a5b4fc;">Evidently AI</a>, 
-    <a href="https://aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">Amazon CloudWatch</a>, 
+  <li><b>Model Deployment & Monitoring:</b>
+    <a href="https://aws.amazon.com/eks/" style="color:#a5b4fc;">Amazon EKS (Kubernetes)</a>,
+    <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html" style="color:#a5b4fc;">SageMaker Model Monitor</a>,
+    <a href="https://evidentlyai.com/" style="color:#a5b4fc;">Evidently AI</a>,
+    <a href="https://aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">Amazon CloudWatch</a>,
     <a href="https://en.wikipedia.org/wiki/A/B_testing" style="color:#a5b4fc;">A/B Testing</a>
   </li>
-  <li><b>Orchestration & Workflow:</b> 
+  <li><b>Orchestration & Workflow:</b>
     <a href="https://aws.amazon.com/step-functions/" style="color:#a5b4fc;">AWS Step Functions</a>
   </li>
-  <li><b>Infrastructure & Security:</b> 
-    <a href="https://aws.amazon.com/cdk/" style="color:#a5b4fc;">AWS CDK</a>/<a href="https://www.terraform.io/" style="color:#a5b4fc;">Terraform</a> (IaC), 
-    <a href="https://aws.amazon.com/iam/" style="color:#a5b4fc;">AWS IAM</a>, 
-    <a href="https://github.com/features/actions" style="color:#a5b4fc;">GitHub Actions</a>/<a href="https://aws.amazon.com/codepipeline/" style="color:#a5b4fc;">CodePipeline</a>, 
+  <li><b>Infrastructure & Security:</b>
+    <a href="https://aws.amazon.com/cdk/" style="color:#a5b4fc;">AWS CDK</a>/<a href="https://www.terraform.io/" style="color:#a5b4fc;">Terraform</a> (IaC),
+    <a href="https://aws.amazon.com/iam/" style="color:#a5b4fc;">AWS IAM</a>,
+    <a href="https://github.com/features/actions" style="color:#a5b4fc;">GitHub Actions</a>/<a href="https://aws.amazon.com/codepipeline/" style="color:#a5b4fc;">CodePipeline</a>,
     <a href="https://aws.amazon.com/aws-cost-management/aws-cost-explorer/" style="color:#a5b4fc;">Cost Explorer</a>/<a href="https://www.finops.org/" style="color:#a5b4fc;">FinOps</a>
   </li>
-  <li><b>Other Core:</b> 
-    <a href="https://aws.amazon.com/eks/" style="color:#a5b4fc;">EKS</a>, 
-    <a href="https://aws.amazon.com/ecs/" style="color:#a5b4fc;">ECS</a>, 
-    <a href="https://aws.amazon.com/lambda/" style="color:#a5b4fc;">Lambda</a>, 
-    <a href="https://aws.amazon.com/s3/" style="color:#a5b4fc;">S3</a>, 
-    <a href="https://aws.amazon.com/rds/" style="color:#a5b4fc;">RDS</a>, 
-    <a href="https://aws.amazon.com/rds/aurora/" style="color:#a5b4fc;">Aurora</a>, 
-    <a href="https://aws.amazon.com/vpc/" style="color:#a5b4fc;">VPC</a>, 
-    <a href="https://aws.amazon.com/iam/" style="color:#a5b4fc;">IAM</a>, 
-    <a href="https://aws.amazon.com/kms/" style="color:#a5b4fc;">KMS</a>, 
-    <a href="https://aws.amazon.com/secrets-manager/" style="color:#a5b4fc;">Secrets Manager</a>, 
-    <a href="https://aws.amazon.com/guardduty/" style="color:#a5b4fc;">GuardDuty</a>, 
-    <a href="https://aws.amazon.com/security-hub/" style="color:#a5b4fc;">Security Hub</a>, 
-    <a href="https://aws.amazon.com/config/" style="color:#a5b4fc;">Config</a>, 
-    <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html" style="color:#a5b4fc;">Audit Trails</a>, 
-    <a href="https://prometheus.io/" style="color:#a5b4fc;">Prometheus</a>, 
-    <a href="https://grafana.com/" style="color:#a5b4fc;">Grafana</a>, 
-    <a href="https://sentry.io/welcome/" style="color:#a5b4fc;">Sentry</a>, 
-    <a href="https://www.openpolicyagent.org/" style="color:#a5b4fc;">Policy as Code (OPA)</a>, 
-    <a href="https://python-poetry.org/" style="color:#a5b4fc;">Poetry</a>, 
-    <a href="https://pre-commit.com/" style="color:#a5b4fc;">pre-commit</a>, 
-    <a href="https://docusaurus.io/" style="color:#a5b4fc;">Docusaurus</a>, 
-    <a href="https://jupyter.org/" style="color:#a5b4fc;">Jupyter</a>, 
+  <li><b>Other Core:</b>
+    <a href="https://aws.amazon.com/eks/" style="color:#a5b4fc;">EKS</a>,
+    <a href="https://aws.amazon.com/ecs/" style="color:#a5b4fc;">ECS</a>,
+    <a href="https://aws.amazon.com/lambda/" style="color:#a5b4fc;">Lambda</a>,
+    <a href="https://aws.amazon.com/s3/" style="color:#a5b4fc;">S3</a>,
+    <a href="https://aws.amazon.com/rds/" style="color:#a5b4fc;">RDS</a>,
+    <a href="https://aws.amazon.com/rds/aurora/" style="color:#a5b4fc;">Aurora</a>,
+    <a href="https://aws.amazon.com/vpc/" style="color:#a5b4fc;">VPC</a>,
+    <a href="https://aws.amazon.com/iam/" style="color:#a5b4fc;">IAM</a>,
+    <a href="https://aws.amazon.com/kms/" style="color:#a5b4fc;">KMS</a>,
+    <a href="https://aws.amazon.com/secrets-manager/" style="color:#a5b4fc;">Secrets Manager</a>,
+    <a href="https://aws.amazon.com/guardduty/" style="color:#a5b4fc;">GuardDuty</a>,
+    <a href="https://aws.amazon.com/security-hub/" style="color:#a5b4fc;">Security Hub</a>,
+    <a href="https://aws.amazon.com/config/" style="color:#a5b4fc;">Config</a>,
+    <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html" style="color:#a5b4fc;">Audit Trails</a>,
+    <a href="https://prometheus.io/" style="color:#a5b4fc;">Prometheus</a>,
+    <a href="https://grafana.com/" style="color:#a5b4fc;">Grafana</a>,
+    <a href="https://sentry.io/welcome/" style="color:#a5b4fc;">Sentry</a>,
+    <a href="https://www.openpolicyagent.org/" style="color:#a5b4fc;">Policy as Code (OPA)</a>,
+    <a href="https://python-poetry.org/" style="color:#a5b4fc;">Poetry</a>,
+    <a href="https://pre-commit.com/" style="color:#a5b4fc;">pre-commit</a>,
+    <a href="https://docusaurus.io/" style="color:#a5b4fc;">Docusaurus</a>,
+    <a href="https://jupyter.org/" style="color:#a5b4fc;">Jupyter</a>,
     onboarding scripts
   </li>
 </ul>

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class ContainerEventRecord(BaseModel):
     event_id: str
     container_id: str

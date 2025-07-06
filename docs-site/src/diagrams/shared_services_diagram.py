@@ -3,8 +3,6 @@ from diagrams.aws.security import SecretsManager, KMS
 from diagrams.aws.management import SSM
 from diagrams.aws.integration import Eventbridge
 from diagrams.aws.security import IAM
-from diagrams.generic.compute import Rack
-from diagrams.generic.storage import Storage
 
 with Diagram("Shared & Supporting Services Architecture", direction="TB", show=False):
     with Cluster("Secrets & Config Management"):

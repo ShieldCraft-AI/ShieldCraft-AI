@@ -52,8 +52,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td><b>networking</b></td><td>—</td><td>VPC, subnets, security groups</td></tr>
-    <tr><td><b>s3</b></td><td>—</td><td>S3 buckets for data lake, raw/processed data, model artifacts</td></tr>
+    <tr><td><b>networking</b></td><td>-</td><td>VPC, subnets, security groups</td></tr>
+    <tr><td><b>s3</b></td><td>-</td><td>S3 buckets for data lake, raw/processed data, model artifacts</td></tr>
     <tr><td><b>lakeformation</b></td><td>S3</td><td>Data governance, permissions for Glue, Athena, etc.</td></tr>
     <tr><td><b>glue</b></td><td>S3, Lake Formation</td><td>ETL, crawlers, catalog for analytics</td></tr>
     <tr><td><b>lambda</b></td><td>VPC, IAM, S3, Secrets Manager</td><td>Event-driven ETL, orchestration, data quality</td></tr>
@@ -96,13 +96,14 @@ networking_stack
   └─▶ sagemaker_stack
 
 s3_stack
-  ├─▶ lakeformation_stack
-  ├─▶ glue_stack
-  ├─▶ dataquality_stack
-  └─▶ sagemaker_stack
+├─▶ lakeformation_stack
+├─▶ glue_stack
+├─▶ dataquality_stack
+└─▶ sagemaker_stack
 
 sagemaker_stack
-  (consumes VPC, S3, IAM)
+(consumes VPC, S3, IAM)
+
 </pre>
 </section>
 

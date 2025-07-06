@@ -1,6 +1,6 @@
 # --- Base image for all environments ---
-# Using Chainguard Python (zero-known CVE, minimal, secure)
-FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS base
+# Using official Python base image for maximum compatibility
+FROM python:3.11-slim AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -13,6 +13,7 @@ WORKDIR /app
 
 # --- Dev stage ---
 FROM base AS dev
+ARG BUILDKIT_INLINE_CACHE=1
 # Install dev tools and dependencies, combine steps for smaller image
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=cache,target=/root/.cache/pypoetry \
@@ -30,6 +31,7 @@ COPY . .
 
 # --- Staging stage ---
 FROM base AS staging
+ARG BUILDKIT_INLINE_CACHE=1
 COPY pyproject.toml poetry.lock ./
 RUN ["python", "-m", "pip", "install", "--upgrade", "pip"]
 RUN ["python", "-m", "pip", "install", "poetry"]
@@ -45,15 +47,10 @@ RUN ["useradd", "-u", "10001", "-m", "appuser"]
 RUN ["chown", "-R", "appuser", "/app"]
 USER appuser
 
-# --- Production stage ---
-FROM staging AS prod
 
-
-FROM cgr.dev/chainguard/python@sha256:f05174c45fa717309a5d504a976c12690eccd650efeac5221d1d53b32ff41e71 AS final
+# --- Production/final image ---
+FROM staging AS final
 WORKDIR /app
-COPY --from=prod /app /app
-COPY --from=prod /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=prod /usr/local/bin /usr/local/bin
 # Use custom non-root user for security
 USER 10001
 ARG ENV=prod
@@ -68,3 +65,14 @@ CMD ["-m", "src.main"]
 # docker build --target=dev --build-arg ENV=dev .
 # docker build --target=staging --build-arg ENV=staging .
 # docker build --target=final --build-arg ENV=prod .
+
+# --- Build and push with BuildKit cache (Main) ---
+# uses: docker/build-push-action@v5
+# with:
+# context: .
+# file: Dockerfile
+# target: final
+# push: true
+# tags: ghcr.io/${{ github.repository_owner }}/shieldcraft-main:latest
+# cache-from: type=gha
+# cache-to: type=gha,mode=max

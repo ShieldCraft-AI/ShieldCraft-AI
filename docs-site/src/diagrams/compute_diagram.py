@@ -3,12 +3,8 @@ from diagrams.aws.ml import Sagemaker
 from diagrams.aws.compute import Lambda
 from diagrams.aws.analytics import OpensearchService
 from diagrams.aws.integration import MSK
-from diagrams.aws.management import Cloudwatch
 from diagrams.aws.network import ELB
 from diagrams.aws.compute import ECS, EKS
-from diagrams.aws.devtools import Codebuild
-from diagrams.generic.compute import Rack
-from diagrams.generic.database import SQL
 
 with Diagram("Compute & Model Hosting Architecture", direction="TB", show=False):
     with Cluster("SageMaker ML Stack"):

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class SaaSSecurityRecord(BaseModel):
     event_id: str
     service: str
