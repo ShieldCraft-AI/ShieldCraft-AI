@@ -176,21 +176,23 @@ def format(session):
         if black_check != 0:
             matrix_log(
                 session,
-                "[FORMAT][WARN] Black could not auto-fix all issues. Please fix manually.",
-                color="yellow",
+                "[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.",
+                color="red",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[FORMAT][WARN] Black could not auto-fix all issues.\n")
+                f.write("[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.\n")
+            raise RuntimeError("Black could not auto-fix all issues. Please fix formatting errors.")
         if ruff_check == 1:
             matrix_log(
                 session,
-                "[FORMAT][WARN] Ruff found remaining lint issues after auto-fix. Please review.",
-                color="yellow",
+                "[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.",
+                color="red",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
                 f.write(
-                    "[FORMAT][WARN] Ruff found remaining lint issues after auto-fix.\n"
+                    "[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.\n"
                 )
+            raise RuntimeError("Ruff found remaining lint issues after auto-fix. Please fix lint errors.")
         matrix_log(session, "[FORMAT] ruff --fix and black complete.", color="green")
         with open(DEBUG_LOG_FILE, "a") as f:
             f.write("[FORMAT] ruff --fix and black complete.\n")
