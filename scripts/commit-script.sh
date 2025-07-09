@@ -235,6 +235,9 @@ fi
 full_commit_msg="$commit_type: $commit_msg"
 tmp_commit_file=".git/COMMIT_EDITMSG"
 echo -e "$full_commit_msg" > "$tmp_commit_file"
+
+# --- Auto-stage all changes again before commit to catch late modifications ---
+git add . 2>&1 | suppress_git_warnings || true
 if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | suppress_git_warnings; then
     echo -e "\033[1;31m🟥 Commit failed.\033[0m"
     rm -f "$tmp_commit_file"
@@ -251,8 +254,10 @@ if poetry run python "$CHECKLIST_SCRIPT_PATH" | grep -q 'updated'; then
     fi
 fi
 
-if ! python3 scripts/pre_nox.py all 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
-    echo -e "\033[1;31m🟥 Final Nox all session failed after all commits. Please fix issues manually.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+
+# --- Run the main orchestration session (commit_flow) instead of 'all' ---
+if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
+    echo -e "\033[1;31m🟥 Final Nox commit_flow session failed after all commits. Please fix issues manually.\033[0m" | tee -a "$DEBUG_LOG_FILE"
     exit 1
 fi
 
