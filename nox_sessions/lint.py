@@ -122,56 +122,44 @@ def lint(session):
 
 
 @nox_session_guard
+
 @nox.session(python=PYTHON_VERSIONS)
 def format(session):
-    """Auto-format code with black and ruff. Never fail the build on fixable linting issues."""
+    """Auto-format code with black and ruff, running both in parallel for speed. Fails build on unfixable issues."""
+    import concurrent.futures
+    import subprocess
+    import sys
 
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[FORMAT] Session started at {now_str()}\n")
     matrix_log(session, f"[FORMAT] Session started at {now_str()}", color="green")
     try:
-        matrix_log(session, "[FORMAT] Running ruff --fix...", color="green")
-        session.run(
-            "poetry",
-            "run",
-            "ruff",
-            "check",
-            ".",
-            "--fix",
-            success_codes=[0, 1],
-            silent=True,
-            external=True,
-        )
-        matrix_log(session, "[FORMAT] Running black...", color="green")
-        session.run(
-            "poetry",
-            "run",
-            "black",
-            ".",
-            success_codes=[0, 1],
-            silent=True,
-            external=True,
-        )
+        matrix_log(session, "[FORMAT] Running ruff --fix and black in parallel...", color="green")
+
+        def run_ruff():
+            return subprocess.run([
+                sys.executable, "-m", "poetry", "run", "ruff", "check", ".", "--fix"
+            ], capture_output=True)
+
+        def run_black():
+            return subprocess.run([
+                sys.executable, "-m", "poetry", "run", "black", "."
+            ], capture_output=True)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            ruff_future = executor.submit(run_ruff)
+            black_future = executor.submit(run_black)
+            ruff_result = ruff_future.result()
+            black_result = black_future.result()
+
         # After auto-fix, check if any unfixable issues remain
         ruff_check = session.run(
-            "poetry",
-            "run",
-            "ruff",
-            "check",
-            ".",
-            success_codes=[0, 1],
-            silent=True,
-            external=True,
+            "poetry", "run", "ruff", "check", ".",
+            success_codes=[0, 1], silent=True, external=True
         )
         black_check = session.run(
-            "poetry",
-            "run",
-            "black",
-            "--check",
-            ".",
-            success_codes=[0, 1],
-            silent=True,
-            external=True,
+            "poetry", "run", "black", "--check", ".",
+            success_codes=[0, 1], silent=True, external=True
         )
         if black_check != 0:
             matrix_log(
@@ -180,12 +168,8 @@ def format(session):
                 color="red",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write(
-                    "[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.\n"
-                )
-            raise RuntimeError(
-                "Black could not auto-fix all issues. Please fix formatting errors."
-            )
+                f.write("[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.\n")
+            raise RuntimeError("Black could not auto-fix all issues. Please fix formatting errors.")
         if ruff_check == 1:
             matrix_log(
                 session,
@@ -193,12 +177,8 @@ def format(session):
                 color="red",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write(
-                    "[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.\n"
-                )
-            raise RuntimeError(
-                "Ruff found remaining lint issues after auto-fix. Please fix lint errors."
-            )
+                f.write("[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.\n")
+            raise RuntimeError("Ruff found remaining lint issues after auto-fix. Please fix lint errors.")
         matrix_log(session, "[FORMAT] ruff --fix and black complete.", color="green")
         with open(DEBUG_LOG_FILE, "a") as f:
             f.write("[FORMAT] ruff --fix and black complete.\n")
