@@ -9,7 +9,8 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  flow_commit:
+    name: "Nox Orchestration: flow_commit"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,136 +32,15 @@ jobs:
             ${{ runner.os }}-poetry-
       - name: Install Poetry
         run: pip install poetry
-      - name: YAML Format (prettier)
-        run: poetry run nox -s yaml_format
-      - name: Lint (preflight)
-        run: python scripts/pre_nox.py lint
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Cache Poetry and pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pypoetry
-            ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py3.11
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        run: pip install poetry
-      - name: Run tests (preflight)
-        run: |
-          python scripts/pre_nox.py tests \
-            -- --cov=src \
-            --cov-report=xml \
-            --cov-report=html \
-            --tb=short > test.log 2>&1 || true
-      - name: Upload pytest log
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-log
-          path: test.log
-      - name: Upload coverage report (xml)
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-xml
-          path: coverage.xml
-      - name: Upload coverage report (html)
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: htmlcov/
-
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Cache Poetry and pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pypoetry
-            ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py3.11
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        run: pip install poetry
-      - name: Format Check (preflight)
-        run: python scripts/pre_nox.py format_check
-
-
-
-  notebooks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Cache Poetry and pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pypoetry
-            ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py3.11
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        run: pip install poetry
-      - name: Notebooks (preflight)
-        run: python scripts/pre_nox.py notebooks
-
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Cache Poetry and pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pypoetry
-            ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py3.11
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        run: pip install poetry
-      - name: Security Checks (preflight)
-        run: python scripts/pre_nox.py security
+      - name: Install project dependencies
+        run: poetry install --no-interaction --no-root --with dev
+      - name: Run all checks via Nox (flow_commit)
+        run: poetry run nox -s commit_flow
 
   docker_build_api:
+    name: "Docker Build: API"
     runs-on: ubuntu-latest
-    needs: [lint, test, format, notebooks, security]
+    needs: [flow_commit]
     if: >
       github.event_name == 'push' || github.event_name == 'pull_request'
       && (
@@ -169,8 +49,6 @@ jobs:
         contains(github.event.head_commit.message, 'pyproject.toml') ||
         contains(github.event.head_commit.message, 'poetry.lock')
       )
-    outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -201,8 +79,9 @@ jobs:
             linux/arm64
 
   docker_build_ingestion:
+    name: "Docker Build: Ingestion"
     runs-on: ubuntu-latest
-    needs: [lint, test, format, notebooks, security]
+    needs: [flow_commit]
     if: >
       github.event_name == 'push' || github.event_name == 'pull_request'
       && (
@@ -211,8 +90,6 @@ jobs:
         contains(github.event.head_commit.message, 'pyproject.toml') ||
         contains(github.event.head_commit.message, 'poetry.lock')
       )
-    outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -243,8 +120,9 @@ jobs:
             linux/arm64
 
   docker_build_main:
+    name: "Docker Build: Main"
     runs-on: ubuntu-latest
-    needs: [lint, test, format, notebooks, security]
+    needs: [flow_commit]
     if: >
       github.event_name == 'push' || github.event_name == 'pull_request'
       && (
@@ -253,8 +131,6 @@ jobs:
         contains(github.event.head_commit.message, 'pyproject.toml') ||
         contains(github.event.head_commit.message, 'poetry.lock')
       )
-    outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -285,6 +161,7 @@ jobs:
             linux/arm64
 
   docker_scan_api:
+    name: "Docker Scan: API"
     runs-on: ubuntu-latest
     needs: [docker_build_api]
     steps:
@@ -302,6 +179,7 @@ jobs:
             anchore/grype:latest "${{ needs.docker_build_api.outputs.image_tag }}"
 
   docker_scan_ingestion:
+    name: "Docker Scan: Ingestion"
     runs-on: ubuntu-latest
     needs: [docker_build_ingestion]
     steps:
@@ -319,6 +197,7 @@ jobs:
             anchore/grype:latest "${{ needs.docker_build_ingestion.outputs.image_tag }}"
 
   docker_scan_main:
+    name: "Docker Scan: Main"
     runs-on: ubuntu-latest
     needs: [docker_build_main]
     steps:

@@ -422,3 +422,240 @@ def test_airbyte_stack_invalid_cpu_memory(cpu, memory, airbyte_config):
             config=config,
             airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
         )
+
+
+# --- Supplementary: Output ARNs and DNS ---
+def test_airbyte_stack_outputs_present(airbyte_config):
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=airbyte_config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    outputs = template.to_json().get("Outputs", {})
+
+    def arn_like(val, service):
+        if isinstance(val, dict) and "Value" in val:
+            return arn_like(val["Value"], service)
+        if isinstance(val, dict) and "Fn::Join" in val:
+            join_list = (
+                val["Fn::Join"][1]
+                if isinstance(val["Fn::Join"], list) and len(val["Fn::Join"]) > 1
+                else []
+            )
+            flat = []
+            for v in join_list:
+                if isinstance(v, str):
+                    flat.append(v)
+                elif isinstance(v, (list, dict)):
+                    if arn_like(v, service):
+                        flat.append("")
+            joined = "".join([s for s in flat if isinstance(s, str)])
+            return f"arn:aws:{service}:" in joined
+        if isinstance(val, dict) and "Fn::GetAtt" in val:
+            # CDK GetAtt for ARNs
+            getatt = val["Fn::GetAtt"]
+            if isinstance(getatt, list) and getatt[-1] == "Arn":
+                return True
+        if isinstance(val, str):
+            return val.startswith(f"arn:aws:{service}:") or f"arn:aws:{service}:" in val
+        if isinstance(val, list):
+            flat = []
+            for v in val:
+                if isinstance(v, str):
+                    flat.append(v)
+                elif isinstance(v, (list, dict)):
+                    if arn_like(v, service):
+                        flat.append("")
+            joined = "".join([s for s in flat if isinstance(s, str)])
+            return f"arn:aws:{service}:" in joined
+        if isinstance(val, dict):
+            for v in val.values():
+                if arn_like(v, service):
+                    return True
+        return False
+
+    # Check all expected outputs
+    assert any("ALBDns" in k for k in outputs)
+    assert any("ServiceName" in k for k in outputs)
+    assert any("LogGroupName" in k for k in outputs)
+    assert any("AlarmArn" in k for k in outputs)
+    # Check ARNs are valid
+    for k, v in outputs.items():
+        if "AlarmArn" in k:
+            assert arn_like(v, "cloudwatch")
+
+
+# --- Supplementary: Removal Policy ---
+def test_airbyte_stack_removal_policy_dev():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {"app": {"env": "dev"}, "airbyte": {}}
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::Logs::LogGroup")
+    log_group = list(resources.values())[0]
+    assert log_group["DeletionPolicy"] == "Delete"
+
+
+def test_airbyte_stack_removal_policy_prod():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {"app": {"env": "prod"}, "airbyte": {}}
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::Logs::LogGroup")
+    log_group = list(resources.values())[0]
+    assert log_group["DeletionPolicy"] == "Retain"
+
+
+# --- Supplementary: Invalid removal_policy and subnet_type fallback ---
+def test_airbyte_stack_invalid_removal_policy_and_subnet_type():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "app": {"env": "prod"},
+        "airbyte": {
+            "removal_policy": "notarealpolicy",
+            "subnet_type": "notarealsubnet",
+        },
+    }
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::Logs::LogGroup")
+    log_group = list(resources.values())[0]
+    assert log_group["DeletionPolicy"] == "Retain"
+
+
+# --- Supplementary: Tag Propagation ---
+def test_airbyte_stack_tag_propagation():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "app": {"env": "test"},
+        "airbyte": {"tags": {"Owner": "DataTeam", "CostCenter": "AI123"}},
+    }
+    shared_tags = {"Extra": "Value"}
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+        shared_tags=shared_tags,
+    )
+    tags = stack.tags.render_tags()
+    assert any(
+        tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI"
+        for tag in tags
+    )
+    assert any(
+        tag.get("Key") == "Owner" and tag.get("Value") == "DataTeam" for tag in tags
+    )
+    assert any(
+        tag.get("Key") == "CostCenter" and tag.get("Value") == "AI123" for tag in tags
+    )
+    assert any(
+        tag.get("Key") == "Extra" and tag.get("Value") == "Value" for tag in tags
+    )
+
+
+# --- Supplementary: Security Group Ingress ---
+def test_airbyte_stack_security_group_ingress():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "app": {"env": "test"},
+        "airbyte": {"allowed_cidr": "1.2.3.4/32"},
+    }
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.to_json().get("Resources", {})
+    found = False
+    # Check standalone SecurityGroupIngress resources
+    for res in resources.values():
+        if res.get("Type") == "AWS::EC2::SecurityGroupIngress":
+            props = res.get("Properties", {})
+            if props.get("CidrIp") == "1.2.3.4/32":
+                found = True
+    # Also check SecurityGroupIngress property inside SecurityGroup resources
+    for res in resources.values():
+        if res.get("Type") == "AWS::EC2::SecurityGroup":
+            ingress = res.get("Properties", {}).get("SecurityGroupIngress", [])
+            if isinstance(ingress, dict):
+                ingress = [ingress]
+            for rule in ingress:
+                if rule.get("CidrIp") == "1.2.3.4/32":
+                    found = True
+    assert found
+
+
+# --- Supplementary: ALB Health Check config in template ---
+def test_airbyte_stack_health_check_in_template():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    vpc = DummyVpc(test_stack, "DummyVpc")
+    config = {
+        "app": {"env": "test"},
+        "airbyte": {
+            "health_check_path": "/custom/health",
+            "health_check_codes": "200-299",
+        },
+    }
+    stack = AirbyteStack(
+        app,
+        "TestAirbyteStack",
+        vpc=vpc,
+        config=config,
+        airbyte_role_arn="arn:aws:iam::123456789012:role/mock-airbyte-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.to_json().get("Resources", {})
+    found_path = False
+    found_codes = False
+    for res in resources.values():
+        props = res.get("Properties", {})
+        if "HealthCheckPath" in props and props["HealthCheckPath"] == "/custom/health":
+            found_path = True
+        if (
+            "Matcher" in props
+            and "HttpCode" in props["Matcher"]
+            and props["Matcher"]["HttpCode"] == "200-299"
+        ):
+            found_codes = True
+    assert found_path
+    assert found_codes

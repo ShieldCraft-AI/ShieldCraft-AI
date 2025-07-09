@@ -13,9 +13,12 @@ class ComplianceStack(Stack):
     ):
         super().__init__(scope, id, **kwargs)
         config_dict = config_dict or {}
+
         required_tag_keys = config_dict.get(
             "required_tag_keys", ["Project", "Environment", "Owner"]
         )
+        if not isinstance(required_tag_keys, list):
+            raise TypeError("required_tag_keys must be a list of strings")
 
         # Cross-stack IAM wiring for Lambda-backed Config rules (future extensibility)
         if compliance_lambda_role_arn:

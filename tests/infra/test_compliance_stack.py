@@ -97,3 +97,52 @@ def test_compliance_stack_too_few_tag_keys():
             config_dict=config,
             compliance_lambda_role_arn="arn:aws:iam::123456789012:role/MockComplianceLambdaRole",
         )
+
+
+# --- Unhappy path: required_tag_keys not a list ---
+def test_compliance_stack_required_tags_not_list():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    config = {"required_tag_keys": "notalist"}
+    with pytest.raises(TypeError):
+        ComplianceStack(
+            test_stack,
+            "TestComplianceStack",
+            config_dict=config,
+            compliance_lambda_role_arn="arn:aws:iam::123456789012:role/MockComplianceLambdaRole",
+        )
+
+
+# --- Edge case: More than 3 required tags (should only use first 3) ---
+def test_compliance_stack_more_than_three_tags():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    config = {"required_tag_keys": ["A", "B", "C", "D", "E"]}
+    stack = ComplianceStack(
+        test_stack,
+        "TestComplianceStack",
+        config_dict=config,
+        compliance_lambda_role_arn="arn:aws:iam::123456789012:role/MockComplianceLambdaRole",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::Config::ConfigRule")
+    for rule in resources.values():
+        params = rule["Properties"].get("InputParameters", {})
+        assert params.get("tag1Key") == "A"
+        assert params.get("tag2Key") == "B"
+        assert params.get("tag3Key") == "C"
+
+
+# --- Edge case: config_dict is None ---
+def test_compliance_stack_config_dict_none():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    stack = ComplianceStack(
+        test_stack,
+        "TestComplianceStack",
+        config_dict=None,
+        compliance_lambda_role_arn="arn:aws:iam::123456789012:role/MockComplianceLambdaRole",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::Config::ConfigRule")
+    assert any("RequiredTagsRule" in k for k in resources)

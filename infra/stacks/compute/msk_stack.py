@@ -20,17 +20,23 @@ class MskStack(Stack):
         msk_client_role_arn: str = None,
         msk_producer_role_arn: str = None,
         msk_consumer_role_arn: str = None,
+        shared_tags: dict = None,
         **kwargs,
     ):
+        # Remove shared_tags from kwargs if present (avoid passing to super)
+        if "shared_tags" in kwargs:
+            kwargs.pop("shared_tags")
         super().__init__(scope, construct_id, **kwargs)
 
         msk_cfg = config.get("msk", {})
         env = config.get("app", {}).get("env", "dev")
 
         # Tagging for traceability and custom tags
-        self.tags.set_tag("Project", "ShieldCraftAI")
-        self.tags.set_tag("Environment", env)
-        for k, v in msk_cfg.get("tags", {}).items():
+        tags = {"Project": "ShieldCraftAI", "Environment": env}
+        tags.update(msk_cfg.get("tags", {}))
+        if shared_tags:
+            tags.update(shared_tags)
+        for k, v in tags.items():
             self.tags.set_tag(k, v)
 
         # Validate required MSK IAM role ARNs (if needed for custom resources)

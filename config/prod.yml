@@ -5,7 +5,7 @@ app:
   log_level: WARN
   enable_feature_x: false
   # Cost and governance controls
-  budget_limit_usd: 10000  # Monthly budget limit for prod environment
+  budget_limit_usd: 10000 # Monthly budget limit for prod environment
   cost_alert_thresholds:
     - 50
     - 80
@@ -17,7 +17,6 @@ app:
   enable_cost_explorer: true
   enable_resource_tagging: true
   enable_budget_alerts: true
-
 
   buckets:
     - id: RawDataBucket

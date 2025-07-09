@@ -34,14 +34,14 @@ class LakeFormationStack(Stack):
 
         # --- Lake Formation S3 Resources ---
         buckets = lf_cfg.get("buckets", [])
+        self.shared_resources = {}
+        self.resources = []
         if s3_buckets:
-            # Use actual S3 bucket constructs for cross-stack sharing
             bucket_items = s3_buckets.items() if isinstance(s3_buckets, dict) else []
             if not bucket_items:
                 raise ValueError(
                     "s3_buckets must be a non-empty dict of bucket constructs."
                 )
-            self.resources = []
             for bucket_id, bucket in bucket_items:
                 name = getattr(bucket, "bucket_name", None)
                 arn = getattr(bucket, "bucket_arn", None)
@@ -49,7 +49,6 @@ class LakeFormationStack(Stack):
                     raise ValueError(
                         f"S3 bucket construct must have bucket_name and bucket_arn. Got: {bucket}"
                     )
-                # Validate bucket name (reuse S3 naming rules, allow CDK Tokens for cross-stack)
                 import re
                 from aws_cdk import Token
 
@@ -60,7 +59,6 @@ class LakeFormationStack(Stack):
                         raise ValueError(
                             f"Invalid S3 bucket name for LakeFormation: {name}"
                         )
-                # Use bucket_id (the dict key) for all resource IDs and output names to avoid unresolved tokens
                 resource = lakeformation.CfnResource(
                     self,
                     f"{construct_id}LakeFormationResource{bucket_id}",
@@ -74,11 +72,11 @@ class LakeFormationStack(Stack):
                     export_name=f"{construct_id}-lakeformation-resource-{bucket_id}-arn",
                 )
                 self.resources.append(resource)
+                self.shared_resources[bucket_id] = resource
         else:
             if not isinstance(buckets, list) or not buckets:
                 raise ValueError("LakeFormation buckets must be a non-empty list.")
             bucket_names = set()
-            self.resources = []
             for bucket_cfg in buckets:
                 name = bucket_cfg.get("name")
                 arn = bucket_cfg.get("arn")
@@ -98,7 +96,6 @@ class LakeFormationStack(Stack):
                 if name in bucket_names:
                     raise ValueError(f"Duplicate LakeFormation bucket name: {name}")
                 bucket_names.add(name)
-                # Validate bucket name (reuse S3 naming rules, allow CDK Tokens for cross-stack)
                 import re
                 from aws_cdk import Token
 
@@ -115,7 +112,6 @@ class LakeFormationStack(Stack):
                     resource_arn=arn,
                     use_service_linked_role=True,
                 )
-                # Attach removal policy to resource (if supported)
                 if hasattr(resource, "apply_removal_policy"):
                     resource.apply_removal_policy(removal_policy)
                 CfnOutput(
@@ -125,11 +121,13 @@ class LakeFormationStack(Stack):
                     export_name=f"{construct_id}-lakeformation-resource-{name}-arn",
                 )
                 self.resources.append(resource)
+                self.shared_resources[name] = resource
         # --- Basic Monitoring: CloudTrail event rule for Lake Formation failures (optional, best effort) ---
+        self.event_rule = None
         try:
             from aws_cdk import aws_events as events
 
-            events.Rule(
+            self.event_rule = events.Rule(
                 self,
                 f"{construct_id}LakeFormationFailureRule",
                 event_pattern=events.EventPattern(
@@ -149,6 +147,7 @@ class LakeFormationStack(Stack):
             raise ValueError("LakeFormation permissions must be a list.")
         perm_keys = set()
         self.permissions = []
+        self.shared_permissions = {}
         import re
 
         def sanitize_export_name(s):
@@ -181,7 +180,6 @@ class LakeFormationStack(Stack):
                 resource=resource,
                 permissions=perms,
             )
-            # Output principal/resource for traceability, sanitize export name
             sanitized_principal = sanitize_export_name(str(principal))
             CfnOutput(
                 self,
@@ -190,3 +188,4 @@ class LakeFormationStack(Stack):
                 export_name=f"{construct_id}-lakeformation-perm-{sanitized_principal}-principal",
             )
             self.permissions.append(perm)
+            self.shared_permissions[sanitized_principal] = perm

@@ -163,13 +163,30 @@ class GlueStack(Stack):
                 if crawler_removal_policy == "DESTROY" or env == "dev"
                 else RemovalPolicy.RETAIN
             )
+
+            # Handle schedule property: must be CfnCrawler.ScheduleProperty if present
+            schedule_cfg = crawler_cfg.get("schedule")
+            schedule_prop = None
+            if schedule_cfg:
+                if isinstance(schedule_cfg, dict):
+                    # Already a dict, assume correct shape
+                    schedule_prop = glue.CfnCrawler.ScheduleProperty(**schedule_cfg)
+                elif isinstance(schedule_cfg, str):
+                    schedule_prop = glue.CfnCrawler.ScheduleProperty(
+                        schedule_expression=schedule_cfg
+                    )
+                else:
+                    raise ValueError(
+                        f"Invalid schedule type for crawler {name}: {type(schedule_cfg)}"
+                    )
+
             crawler = glue.CfnCrawler(
                 self,
                 f"{construct_id}{name}",
                 role=role_arn if role_arn else glue_role.role_arn,
                 database_name=db_name,
                 targets={"s3Targets": [{"path": s3_path}]},
-                schedule=crawler_cfg.get("schedule"),
+                schedule=schedule_prop,
                 table_prefix=crawler_cfg.get("table_prefix", ""),
             )
             crawler.apply_removal_policy(crawler_removal_enum)

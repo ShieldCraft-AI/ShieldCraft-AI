@@ -101,6 +101,15 @@ class DataQualityStack(Stack):
                 raise ValueError("Lambda timeout must be a positive integer.")
             if not isinstance(lambda_memory, int) or lambda_memory < 128:
                 raise ValueError("Lambda memory must be >= 128 MB.")
+            # Explicitly create a LogGroup for the Lambda to ensure it appears in the template
+            log_group_name = f"/aws/lambda/{construct_id}DataQualityLambda"
+            lambda_log_group = aws_logs.LogGroup(
+                self,
+                f"{construct_id}DataQualityLambdaLogGroup",
+                log_group_name=log_group_name,
+                retention=log_retention_enum,
+                removal_policy=removal_policy,
+            )
             lambda_kwargs = dict(
                 runtime=_lambda.Runtime.PYTHON_3_11,
                 handler=lambda_handler,
@@ -108,7 +117,7 @@ class DataQualityStack(Stack):
                 environment=environment_vars,
                 timeout=Duration.seconds(lambda_timeout),
                 memory_size=lambda_memory,
-                log_retention=log_retention_enum,
+                log_group=lambda_log_group,
             )
             if lambda_vpc:
                 lambda_kwargs["vpc"] = lambda_vpc

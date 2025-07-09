@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
 )
 from constructs import Construct
+from aws_cdk import CfnTag
 
 
 class OpenSearchStack(Stack):
@@ -75,6 +76,12 @@ class OpenSearchStack(Stack):
             {"enabled": True, "internalUserDatabaseEnabled": True},
         )
         access_policies = domain_cfg.get("access_policies")
+        # Tag propagation for domain (must use CfnTag for L1)
+        domain_tags = []
+        for k, v in opensearch_cfg.get("tags", {}).items():
+            domain_tags.append(CfnTag(key=k, value=v))
+        domain_tags.append(CfnTag(key="Project", value="ShieldCraftAI"))
+        domain_tags.append(CfnTag(key="Environment", value=env))
 
         # Validation
         if not domain_id or not domain_name or not engine_version:
@@ -105,6 +112,7 @@ class OpenSearchStack(Stack):
             cluster_config=cluster_config,
             advanced_security_options=advanced_security_options,
             access_policies=access_policies,
+            tags=domain_tags,
         )
         self.domain.apply_removal_policy(
             RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
@@ -127,113 +135,122 @@ class OpenSearchStack(Stack):
         # --- CloudWatch Alarms for OpenSearch Monitoring ---
         from aws_cdk import aws_cloudwatch as cloudwatch, Duration
 
+        alarms_cfg = opensearch_cfg.get("alarms", {})
+        alarms_enabled = alarms_cfg.get("enabled", True)
         alarm_resources = {}
-        alarm_outputs = {}
-        # ClusterStatus.red
-        cluster_status_red_alarm = cloudwatch.Alarm(
-            self,
-            f"{construct_id}OpenSearchClusterStatusRedAlarm",
-            metric=cloudwatch.Metric(
-                namespace="AWS/ES",
-                metric_name="ClusterStatus.red",
-                dimensions_map={"DomainName": domain_name, "ClientId": self.account},
-                period=Duration.minutes(1),
-                statistic="Minimum",
-            ),
-            threshold=1,
-            evaluation_periods=1,
-            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="OpenSearch cluster status is RED",
-            alarm_name=f"{construct_id}-opensearch-cluster-status-red-alarm",
-        )
-        CfnOutput(
-            self,
-            f"{construct_id}OpenSearchClusterStatusRedAlarmArn",
-            value=cluster_status_red_alarm.alarm_arn,
-            export_name=f"{construct_id}-opensearch-cluster-status-red-alarm-arn",
-        )
-        alarm_resources["cluster_status_red_alarm"] = cluster_status_red_alarm
-        alarm_outputs["ClusterStatusRed"] = cluster_status_red_alarm.alarm_arn
 
-        # ClusterIndexWritesBlocked
-        index_writes_blocked_alarm = cloudwatch.Alarm(
-            self,
-            f"{construct_id}OpenSearchClusterIndexWritesBlockedAlarm",
-            metric=cloudwatch.Metric(
-                namespace="AWS/ES",
-                metric_name="ClusterIndexWritesBlocked",
-                dimensions_map={"DomainName": domain_name, "ClientId": self.account},
-                period=Duration.minutes(1),
-                statistic="Minimum",
-            ),
-            threshold=1,
-            evaluation_periods=1,
-            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="OpenSearch index writes are blocked",
-            alarm_name=f"{construct_id}-opensearch-index-writes-blocked-alarm",
-        )
-        CfnOutput(
-            self,
-            f"{construct_id}OpenSearchClusterIndexWritesBlockedAlarmArn",
-            value=index_writes_blocked_alarm.alarm_arn,
-            export_name=f"{construct_id}-opensearch-index-writes-blocked-alarm-arn",
-        )
-        alarm_resources["index_writes_blocked_alarm"] = index_writes_blocked_alarm
-        alarm_outputs["ClusterIndexWritesBlocked"] = (
-            index_writes_blocked_alarm.alarm_arn
-        )
+        if alarms_enabled:
+            # Allow per-alarm threshold override
+            cpu_threshold = alarms_cfg.get("cpu_utilization", {}).get("threshold", 80)
+            self.cluster_status_red_alarm = cloudwatch.Alarm(
+                self,
+                f"{construct_id}OpenSearchClusterStatusRedAlarm",
+                metric=cloudwatch.Metric(
+                    namespace="AWS/ES",
+                    metric_name="ClusterStatus.red",
+                    dimensions_map={
+                        "DomainName": domain_name,
+                        "ClientId": self.account,
+                    },
+                    period=Duration.minutes(1),
+                    statistic="Minimum",
+                ),
+                threshold=1,
+                evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+                alarm_description="OpenSearch cluster status is RED",
+                alarm_name=f"{construct_id}-opensearch-cluster-status-red-alarm",
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}OpenSearchClusterStatusRedAlarmArn",
+                value=self.cluster_status_red_alarm.alarm_arn,
+                export_name=f"{construct_id}-opensearch-cluster-status-red-alarm-arn",
+            )
+            alarm_resources["cluster_status_red_alarm"] = self.cluster_status_red_alarm
 
-        # FreeStorageSpace
-        free_storage_space_alarm = cloudwatch.Alarm(
-            self,
-            f"{construct_id}OpenSearchFreeStorageSpaceAlarm",
-            metric=cloudwatch.Metric(
-                namespace="AWS/ES",
-                metric_name="FreeStorageSpace",
-                dimensions_map={"DomainName": domain_name, "ClientId": self.account},
-                period=Duration.minutes(1),
-                statistic="Minimum",
-            ),
-            threshold=20480,  # 20GB in MB
-            evaluation_periods=1,
-            comparison_operator=cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-            alarm_description="OpenSearch free storage space below 20GB",
-            alarm_name=f"{construct_id}-opensearch-free-storage-alarm",
-        )
-        CfnOutput(
-            self,
-            f"{construct_id}OpenSearchFreeStorageSpaceAlarmArn",
-            value=free_storage_space_alarm.alarm_arn,
-            export_name=f"{construct_id}-opensearch-free-storage-alarm-arn",
-        )
-        alarm_resources["free_storage_space_alarm"] = free_storage_space_alarm
-        alarm_outputs["FreeStorageSpace"] = free_storage_space_alarm.alarm_arn
+            self.index_writes_blocked_alarm = cloudwatch.Alarm(
+                self,
+                f"{construct_id}OpenSearchClusterIndexWritesBlockedAlarm",
+                metric=cloudwatch.Metric(
+                    namespace="AWS/ES",
+                    metric_name="ClusterIndexWritesBlocked",
+                    dimensions_map={
+                        "DomainName": domain_name,
+                        "ClientId": self.account,
+                    },
+                    period=Duration.minutes(1),
+                    statistic="Minimum",
+                ),
+                threshold=1,
+                evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+                alarm_description="OpenSearch index writes are blocked",
+                alarm_name=f"{construct_id}-opensearch-index-writes-blocked-alarm",
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}OpenSearchClusterIndexWritesBlockedAlarmArn",
+                value=self.index_writes_blocked_alarm.alarm_arn,
+                export_name=f"{construct_id}-opensearch-index-writes-blocked-alarm-arn",
+            )
+            alarm_resources["index_writes_blocked_alarm"] = (
+                self.index_writes_blocked_alarm
+            )
 
-        # CPUUtilization
-        cpu_utilization_alarm = cloudwatch.Alarm(
-            self,
-            f"{construct_id}OpenSearchCPUUtilizationAlarm",
-            metric=cloudwatch.Metric(
-                namespace="AWS/ES",
-                metric_name="CPUUtilization",
-                dimensions_map={"DomainName": domain_name, "ClientId": self.account},
-                period=Duration.minutes(1),
-                statistic="Average",
-            ),
-            threshold=80,
-            evaluation_periods=1,
-            comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="OpenSearch CPU utilization above 80%",
-            alarm_name=f"{construct_id}-opensearch-cpu-alarm",
-        )
-        CfnOutput(
-            self,
-            f"{construct_id}OpenSearchCPUUtilizationAlarmArn",
-            value=cpu_utilization_alarm.alarm_arn,
-            export_name=f"{construct_id}-opensearch-cpu-alarm-arn",
-        )
-        alarm_resources["cpu_utilization_alarm"] = cpu_utilization_alarm
-        alarm_outputs["CPUUtilization"] = cpu_utilization_alarm.alarm_arn
+            self.free_storage_space_alarm = cloudwatch.Alarm(
+                self,
+                f"{construct_id}OpenSearchFreeStorageSpaceAlarm",
+                metric=cloudwatch.Metric(
+                    namespace="AWS/ES",
+                    metric_name="FreeStorageSpace",
+                    dimensions_map={
+                        "DomainName": domain_name,
+                        "ClientId": self.account,
+                    },
+                    period=Duration.minutes(1),
+                    statistic="Minimum",
+                ),
+                threshold=20480,
+                evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+                alarm_description="OpenSearch free storage space below 20GB",
+                alarm_name=f"{construct_id}-opensearch-free-storage-alarm",
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}OpenSearchFreeStorageSpaceAlarmArn",
+                value=self.free_storage_space_alarm.alarm_arn,
+                export_name=f"{construct_id}-opensearch-free-storage-alarm-arn",
+            )
+            alarm_resources["free_storage_space_alarm"] = self.free_storage_space_alarm
+
+            self.cpu_utilization_alarm = cloudwatch.Alarm(
+                self,
+                f"{construct_id}OpenSearchCPUUtilizationAlarm",
+                metric=cloudwatch.Metric(
+                    namespace="AWS/ES",
+                    metric_name="CPUUtilization",
+                    dimensions_map={
+                        "DomainName": domain_name,
+                        "ClientId": self.account,
+                    },
+                    period=Duration.minutes(1),
+                    statistic="Average",
+                ),
+                threshold=cpu_threshold,
+                evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+                alarm_description="OpenSearch CPU utilization above threshold",
+                alarm_name=f"{construct_id}-opensearch-cpu-alarm",
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}OpenSearchCPUUtilizationAlarmArn",
+                value=self.cpu_utilization_alarm.alarm_arn,
+                export_name=f"{construct_id}-opensearch-cpu-alarm-arn",
+            )
+            alarm_resources["cpu_utilization_alarm"] = self.cpu_utilization_alarm
 
         # Shared resources dict for downstream stacks
         self.shared_resources = {
