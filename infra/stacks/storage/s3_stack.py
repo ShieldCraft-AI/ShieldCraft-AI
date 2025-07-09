@@ -53,6 +53,10 @@ class S3Stack(Stack):
         bucket_ids = set()
         self.buckets: Dict[str, s3.Bucket] = {}
         for bucket_cfg in buckets_cfg:
+            if not isinstance(bucket_cfg, dict):
+                raise ValueError(
+                    f"Each bucket config must be a dict. Got: {bucket_cfg}"
+                )
             bucket_id = bucket_cfg.get("id") or bucket_cfg.get("name")
             bucket_name = bucket_cfg.get("name")
             if not bucket_id or not bucket_name:
@@ -76,15 +80,15 @@ class S3Stack(Stack):
                 removal_policy = (
                     RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
                 )
-            encryption = (
-                kms_key
-                if kms_key
-                else getattr(
+            # Fix: Only pass valid encryption types
+            if kms_key is not None:
+                encryption = s3.BucketEncryption.KMS
+            else:
+                encryption = getattr(
                     s3.BucketEncryption,
                     bucket_cfg.get("encryption", "S3_MANAGED").upper(),
                     s3.BucketEncryption.S3_MANAGED,
                 )
-            )
             block_public_access = getattr(
                 s3.BlockPublicAccess,
                 bucket_cfg.get("block_public_access", "BLOCK_ALL").upper(),
@@ -94,7 +98,7 @@ class S3Stack(Stack):
             # Enforce versioning and encryption in prod
             if env == "prod":
                 versioned = True
-                if not kms_key:
+                if kms_key is None:
                     encryption = s3.BucketEncryption.S3_MANAGED
             bucket = s3.Bucket(
                 self,
@@ -102,21 +106,32 @@ class S3Stack(Stack):
                 bucket_name=bucket_name,
                 versioned=versioned,
                 encryption=encryption,
+                encryption_key=kms_key if kms_key is not None else None,
                 block_public_access=block_public_access,
                 removal_policy=removal_policy,
             )
             self.buckets[bucket_id] = bucket
+
+            # Export names must only include alphanumeric, colon, or hyphen
+            def sanitize_export_name(name: str) -> str:
+                import re
+
+                # Replace any character not alphanumeric, colon, or hyphen with hyphen
+                return re.sub(r"[^A-Za-z0-9:-]", "-", name)
+
+            export_name_base = f"{construct_id}-s3-bucket-{bucket_id}"
+            export_name_base = sanitize_export_name(export_name_base)
             CfnOutput(
                 self,
                 f"{construct_id}S3Bucket{bucket_id}Name",
                 value=bucket.bucket_name,
-                export_name=f"{construct_id}-s3-bucket-{bucket_id}-name",
+                export_name=f"{export_name_base}-name",
             )
             CfnOutput(
                 self,
                 f"{construct_id}S3Bucket{bucket_id}Arn",
                 value=bucket.bucket_arn,
-                export_name=f"{construct_id}-s3-bucket-{bucket_id}-arn",
+                export_name=f"{export_name_base}-arn",
             )
 
             # CloudWatch Alarms and Metrics

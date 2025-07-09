@@ -1,4 +1,5 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import suppressWebpackVFileMessageWarnings from './plugins/suppressWebpackVFileMessageWarnings';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
@@ -143,6 +144,8 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
+  // Add custom plugins
+  plugins: [suppressWebpackVFileMessageWarnings],
 };
 
 export default config;

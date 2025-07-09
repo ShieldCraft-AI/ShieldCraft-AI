@@ -1,0 +1,20 @@
+# Enforce LF for all text files
+* text=auto
+
+# Always use LF for these file types
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.ipynb text eol=lf
+*.json text eol=lf
+
+# Binary files (never convert line endings)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

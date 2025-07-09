@@ -100,10 +100,47 @@ class LambdaStack(Stack):
                 lambda_vpc = shared_resources.get("vpc", vpc)
                 if shared_resources.get("default_sg"):
                     lambda_sgs = [shared_resources["default_sg"]]
-            # Create function
-            fn = _lambda.Function(
-                self,
-                name,
+            # Log retention (explicit LogGroup, robust mapping)
+            log_retention = fn_cfg.get("log_retention", None)
+            from aws_cdk import aws_logs
+
+            retention_enum = None
+            log_group = None
+            if log_retention is not None:
+                retention_map = {
+                    1: aws_logs.RetentionDays.ONE_DAY,
+                    3: aws_logs.RetentionDays.THREE_DAYS,
+                    5: aws_logs.RetentionDays.FIVE_DAYS,
+                    7: aws_logs.RetentionDays.ONE_WEEK,
+                    14: aws_logs.RetentionDays.TWO_WEEKS,
+                    30: aws_logs.RetentionDays.ONE_MONTH,
+                    60: aws_logs.RetentionDays.TWO_MONTHS,
+                    90: aws_logs.RetentionDays.THREE_MONTHS,
+                    120: aws_logs.RetentionDays.FOUR_MONTHS,
+                    150: aws_logs.RetentionDays.FIVE_MONTHS,
+                    180: aws_logs.RetentionDays.SIX_MONTHS,
+                    365: aws_logs.RetentionDays.ONE_YEAR,
+                    400: aws_logs.RetentionDays.THIRTEEN_MONTHS,
+                    545: aws_logs.RetentionDays.EIGHTEEN_MONTHS,
+                    731: aws_logs.RetentionDays.TWO_YEARS,
+                    1827: aws_logs.RetentionDays.FIVE_YEARS,
+                    3653: aws_logs.RetentionDays.TEN_YEARS,
+                }
+                if isinstance(log_retention, int):
+                    retention_enum = retention_map.get(
+                        log_retention, aws_logs.RetentionDays.ONE_WEEK
+                    )
+                elif isinstance(log_retention, aws_logs.RetentionDays):
+                    retention_enum = log_retention
+                # Explicit LogGroup creation
+                log_group = aws_logs.LogGroup(
+                    self,
+                    f"{name}LogGroup",
+                    log_group_name=f"/aws/lambda/{name}",
+                    retention=retention_enum,
+                    removal_policy=removal_policy,
+                )
+            lambda_kwargs = dict(
                 runtime=getattr(_lambda.Runtime, runtime),
                 handler=handler,
                 code=_lambda.Code.from_asset(code_path),
@@ -114,6 +151,9 @@ class LambdaStack(Stack):
                 security_groups=lambda_sgs,
                 role=role,
             )
+            if log_group is not None:
+                lambda_kwargs["log_group"] = log_group
+            fn = _lambda.Function(self, name, **lambda_kwargs)
             fn.apply_removal_policy(removal_policy)
             # Monitoring: CloudWatch alarms for errors, throttles, duration
             error_alarm = cloudwatch.Alarm(

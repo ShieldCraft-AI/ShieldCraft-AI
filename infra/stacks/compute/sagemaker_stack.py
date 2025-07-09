@@ -125,8 +125,6 @@ class SageMakerStack(Stack):
         initial_instance_count = sm_cfg.initial_instance_count
         initial_variant_weight = sm_cfg.initial_variant_weight
         alarm_threshold_status_failed = sm_cfg.alarm_threshold_status_failed
-        alarm_threshold_invocation_4xx = sm_cfg.alarm_threshold_invocation_4xx
-        alarm_threshold_latency_ms = sm_cfg.alarm_threshold_latency_ms
 
         from aws_cdk import (
             RemovalPolicy,
@@ -264,26 +262,18 @@ class SageMakerStack(Stack):
             alarm_description="SageMaker endpoint status is Failed",
             alarm_name=f"{model_name}-endpoint-status-failed-alarm",
         )
-        if sm_cfg.enable_sns_alerts and sm_cfg.sns_topic_arn:
-            from aws_cdk import aws_sns as sns
-            from aws_cdk.aws_cloudwatch_actions import SnsAction
-
-            alarm_topic_status = sns.Topic.from_topic_arn(
-                self, "AlarmTopicStatusFailed", sm_cfg.sns_topic_arn
-            )
-            endpoint_status_alarm.add_alarm_action(SnsAction(alarm_topic_status))
+        alarm_resources["endpoint_status_failed_alarm"] = endpoint_status_alarm
         CfnOutput(
             self,
             f"{sanitized_model_name}EndpointStatusFailedAlarmArn",
             value=endpoint_status_alarm.alarm_arn,
             export_name=f"{sanitized_model_name}-endpoint-status-failed-alarm-arn",
         )
-        alarm_resources["endpoint_status_failed_alarm"] = endpoint_status_alarm
 
-        # Invocation errors
-        invocation_errors_alarm = cloudwatch.Alarm(
+        # Invocation 4XX Errors
+        invocation_4xx_errors_alarm = cloudwatch.Alarm(
             self,
-            f"{model_name}InvocationErrorsAlarm",
+            f"{model_name}Invocation4XXErrorsAlarm",
             metric=cloudwatch.Metric(
                 namespace="AWS/SageMaker",
                 metric_name="Invocation4XXErrors",
@@ -291,29 +281,21 @@ class SageMakerStack(Stack):
                 period=Duration.minutes(1),
                 statistic="Sum",
             ),
-            threshold=alarm_threshold_invocation_4xx,
+            threshold=sm_cfg.alarm_threshold_invocation_4xx,
             evaluation_periods=1,
             comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="SageMaker endpoint invocation 4XX errors",
+            alarm_description="SageMaker endpoint 4XX errors",
             alarm_name=f"{model_name}-invocation-4xx-errors-alarm",
         )
-        if sm_cfg.enable_sns_alerts and sm_cfg.sns_topic_arn:
-            from aws_cdk import aws_sns as sns
-            from aws_cdk.aws_cloudwatch_actions import SnsAction
-
-            alarm_topic_invocation = sns.Topic.from_topic_arn(
-                self, "AlarmTopicInvocationErrors", sm_cfg.sns_topic_arn
-            )
-            invocation_errors_alarm.add_alarm_action(SnsAction(alarm_topic_invocation))
+        alarm_resources["invocation_4xx_errors_alarm"] = invocation_4xx_errors_alarm
         CfnOutput(
             self,
             f"{sanitized_model_name}Invocation4XXErrorsAlarmArn",
-            value=invocation_errors_alarm.alarm_arn,
+            value=invocation_4xx_errors_alarm.alarm_arn,
             export_name=f"{sanitized_model_name}-invocation-4xx-errors-alarm-arn",
         )
-        alarm_resources["invocation_4xx_errors_alarm"] = invocation_errors_alarm
 
-        # Model latency
+        # Model Latency
         model_latency_alarm = cloudwatch.Alarm(
             self,
             f"{model_name}ModelLatencyAlarm",
@@ -324,30 +306,22 @@ class SageMakerStack(Stack):
                 period=Duration.minutes(1),
                 statistic="Average",
             ),
-            threshold=alarm_threshold_latency_ms,
+            threshold=sm_cfg.alarm_threshold_latency_ms,
             evaluation_periods=1,
             comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="SageMaker endpoint model latency > 1s",
+            alarm_description="SageMaker model latency above threshold",
             alarm_name=f"{model_name}-model-latency-alarm",
         )
-        if sm_cfg.enable_sns_alerts and sm_cfg.sns_topic_arn:
-            from aws_cdk import aws_sns as sns
-            from aws_cdk.aws_cloudwatch_actions import SnsAction
-
-            alarm_topic_latency = sns.Topic.from_topic_arn(
-                self, "AlarmTopicModelLatency", sm_cfg.sns_topic_arn
-            )
-            model_latency_alarm.add_alarm_action(SnsAction(alarm_topic_latency))
+        alarm_resources["model_latency_alarm"] = model_latency_alarm
         CfnOutput(
             self,
             f"{sanitized_model_name}ModelLatencyAlarmArn",
             value=model_latency_alarm.alarm_arn,
             export_name=f"{sanitized_model_name}-model-latency-alarm-arn",
         )
-        alarm_resources["model_latency_alarm"] = model_latency_alarm
 
-        # CPU Utilization (optional, if metric available)
-        cpu_alarm = cloudwatch.Alarm(
+        # CPU Utilization
+        cpu_utilization_alarm = cloudwatch.Alarm(
             self,
             f"{model_name}CPUUtilizationAlarm",
             metric=cloudwatch.Metric(
@@ -360,27 +334,19 @@ class SageMakerStack(Stack):
             threshold=sm_cfg.alarm_threshold_cpu_utilization,
             evaluation_periods=1,
             comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="SageMaker endpoint CPU utilization high",
+            alarm_description="SageMaker endpoint CPU utilization above threshold",
             alarm_name=f"{model_name}-cpu-utilization-alarm",
         )
-        if sm_cfg.enable_sns_alerts and sm_cfg.sns_topic_arn:
-            from aws_cdk import aws_sns as sns
-            from aws_cdk.aws_cloudwatch_actions import SnsAction
-
-            alarm_topic_cpu = sns.Topic.from_topic_arn(
-                self, "AlarmTopicCPUUtilization", sm_cfg.sns_topic_arn
-            )
-            cpu_alarm.add_alarm_action(SnsAction(alarm_topic_cpu))
+        alarm_resources["cpu_utilization_alarm"] = cpu_utilization_alarm
         CfnOutput(
             self,
             f"{sanitized_model_name}CPUUtilizationAlarmArn",
-            value=cpu_alarm.alarm_arn,
+            value=cpu_utilization_alarm.alarm_arn,
             export_name=f"{sanitized_model_name}-cpu-utilization-alarm-arn",
         )
-        alarm_resources["cpu_utilization_alarm"] = cpu_alarm
 
-        # Memory Utilization (optional, if metric available)
-        memory_alarm = cloudwatch.Alarm(
+        # Memory Utilization
+        memory_utilization_alarm = cloudwatch.Alarm(
             self,
             f"{model_name}MemoryUtilizationAlarm",
             metric=cloudwatch.Metric(
@@ -393,68 +359,28 @@ class SageMakerStack(Stack):
             threshold=sm_cfg.alarm_threshold_memory_utilization,
             evaluation_periods=1,
             comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-            alarm_description="SageMaker endpoint memory utilization high",
+            alarm_description="SageMaker endpoint memory utilization above threshold",
             alarm_name=f"{model_name}-memory-utilization-alarm",
         )
-        if sm_cfg.enable_sns_alerts and sm_cfg.sns_topic_arn:
-            from aws_cdk import aws_sns as sns
-            from aws_cdk.aws_cloudwatch_actions import SnsAction
-
-            alarm_topic_mem = sns.Topic.from_topic_arn(
-                self, "AlarmTopicMemoryUtilization", sm_cfg.sns_topic_arn
-            )
-            memory_alarm.add_alarm_action(SnsAction(alarm_topic_mem))
+        alarm_resources["memory_utilization_alarm"] = memory_utilization_alarm
         CfnOutput(
             self,
             f"{sanitized_model_name}MemoryUtilizationAlarmArn",
-            value=memory_alarm.alarm_arn,
+            value=memory_utilization_alarm.alarm_arn,
             export_name=f"{sanitized_model_name}-memory-utilization-alarm-arn",
         )
-        alarm_resources["memory_utilization_alarm"] = memory_alarm
 
-        # --- Cost Anomaly/Usage Alarm (optional) ---
-        if sm_cfg.enable_cost_alarm and sm_cfg.cost_alarm_sns_topic_arn:
-            from aws_cdk import aws_cloudwatch as cloudwatch, aws_budgets as budgets
-
-            cost_alarm = budgets.CfnBudget(
-                self,
-                f"{model_name}CostBudget",
-                budget={
-                    "budgetType": "COST",
-                    "timeUnit": "MONTHLY",
-                    "budgetLimit": {
-                        "amount": sm_cfg.cost_alarm_threshold_usd,
-                        "unit": "USD",
-                    },
-                    "costFilters": {},
-                    "costTypes": {
-                        "IncludeTax": True,
-                        "IncludeSubscription": True,
-                        "UseBlended": False,
-                    },
-                    "name": f"{model_name}-monthly-cost-budget",
-                },
-                notifications_with_subscribers=[
-                    {
-                        "notification": {
-                            "notificationType": "ACTUAL",
-                            "comparisonOperator": "GREATER_THAN",
-                            "threshold": 100.0,
-                            "thresholdType": "PERCENTAGE",
-                        },
-                        "subscribers": [
-                            {
-                                "subscriptionType": "SNS",
-                                "address": sm_cfg.cost_alarm_sns_topic_arn,
-                            }
-                        ],
-                    }
-                ],
-            )
+        # --- Cost Alarm Output (if enabled) ---
+        if (
+            sm_cfg.enable_cost_alarm
+            and sm_cfg.cost_alarm_threshold_usd
+            and sm_cfg.cost_alarm_sns_topic_arn
+        ):
+            cost_budget_id = f"{sanitized_model_name}CostBudget"
             CfnOutput(
                 self,
                 f"{sanitized_model_name}CostBudgetId",
-                value=cost_alarm.ref,
+                value=cost_budget_id,
                 export_name=f"{sanitized_model_name}-cost-budget-id",
             )
 
@@ -463,7 +389,15 @@ class SageMakerStack(Stack):
             "model": model,
             "endpoint_config": endpoint_config,
             "endpoint": endpoint,
-            **alarm_resources,
+            "endpoint_status_failed_alarm": alarm_resources.get(
+                "endpoint_status_failed_alarm"
+            ),
+            "invocation_4xx_errors_alarm": alarm_resources.get(
+                "invocation_4xx_errors_alarm"
+            ),
+            "model_latency_alarm": alarm_resources.get("model_latency_alarm"),
+            "cpu_utilization_alarm": alarm_resources.get("cpu_utilization_alarm"),
+            "memory_utilization_alarm": alarm_resources.get("memory_utilization_alarm"),
         }
 
     @staticmethod

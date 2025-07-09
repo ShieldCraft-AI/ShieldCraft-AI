@@ -23,3 +23,4 @@ When responding:
 - Always ensure answers match the versions of libraries and dependencies, search the internet for updated information when necessary
 - If a question is asked and the content of a file is required, ask so I can assist
 - When suggesting commands to be run in a terminal, always use GitBash
+- When there is potential for running code or jobs in parrallel, always suggest as seasoned sage advice

@@ -77,6 +77,11 @@ class CloudNativeHardeningStack(Stack):
         opensearch_role_arn: str = None,
         **kwargs,
     ):
+        # Remove shared_tags from kwargs if present
+        if "shared_tags" in kwargs:
+            self.shared_tags = kwargs.pop("shared_tags")
+        else:
+            self.shared_tags = None
         super().__init__(scope, construct_id, **kwargs)
         try:
             validated = CloudNativeHardeningConfig(**config)
@@ -86,16 +91,7 @@ class CloudNativeHardeningStack(Stack):
         self.alarms = {}
         self.shared_resources = {}
 
-        # Example: import roles for use in custom resources if needed
-        # from aws_cdk import aws_iam as iam
-        # if lambda_role_arn:
-        #     lambda_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedLambdaRole", lambda_role_arn, mutable=False)
-        # if msk_client_role_arn:
-        #     msk_client_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedMskClientRole", msk_client_role_arn, mutable=False)
-        # if opensearch_role_arn:
-        #     opensearch_role = iam.Role.from_role_arn(self, f"{construct_id}ImportedOpenSearchRole", opensearch_role_arn, mutable=False)
-
-        # --- Advanced Tagging ---
+        # Advanced Tagging
         app_cfg = self.config.app
         self.tags.set_tag("Project", "ShieldCraftAI")
         self.tags.set_tag("Environment", app_cfg.env)
@@ -105,6 +101,9 @@ class CloudNativeHardeningStack(Stack):
             self.tags.set_tag("DataClassification", app_cfg.data_classification)
         if app_cfg.component:
             self.tags.set_tag("Component", app_cfg.component)
+        if self.shared_tags:
+            for k, v in self.shared_tags.items():
+                self.tags.set_tag(k, v)
 
         self._add_lambda_alarms()
         self._add_msk_alarms()
@@ -113,8 +112,8 @@ class CloudNativeHardeningStack(Stack):
         # Export all alarm ARNs and key resources for cross-stack use
         for k, v in self.alarms.items():
             if isinstance(v, dict):
-                for subk, arn in v.items():
-                    self.shared_resources[f"{k}_{subk}"] = arn
+                for subk, subv in v.items():
+                    self.shared_resources[f"{k}_{subk}"] = subv
             else:
                 self.shared_resources[k] = v
 
@@ -179,6 +178,9 @@ class CloudNativeHardeningStack(Stack):
             fn_name = fn_cfg.function_name
             error_threshold = fn_cfg.error_threshold
             duration_threshold = fn_cfg.duration_threshold_ms
+            # Explicit validation for alarm thresholds
+            if error_threshold < 0 or duration_threshold < 0:
+                raise ValueError(f"Invalid alarm threshold for {fn_name}: must be >= 0")
             # Cross-stack reference: import Lambda by name
             lambda_fn = _lambda.Function.from_function_name(
                 self, f"Imported{fn_name}", fn_name
@@ -201,6 +203,7 @@ class CloudNativeHardeningStack(Stack):
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
                 alarm_description=f"Alarm if {fn_name} errors >= {error_threshold}",
+                alarm_name=f"{fn_name}-error-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:
@@ -215,6 +218,7 @@ class CloudNativeHardeningStack(Stack):
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
                 alarm_description=f"Alarm if {fn_name} duration >= {duration_threshold}ms",
+                alarm_name=f"{fn_name}-duration-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:
@@ -238,6 +242,11 @@ class CloudNativeHardeningStack(Stack):
             cluster_name = msk_cfg.cluster_name
             under_replicated_threshold = msk_cfg.under_replicated_threshold
             broker_count_threshold = msk_cfg.broker_count_threshold
+            # Explicit validation for alarm thresholds
+            if under_replicated_threshold < 0 or broker_count_threshold < 0:
+                raise ValueError(
+                    f"Invalid MSK alarm threshold for {cluster_name}: must be >= 0"
+                )
             under_replicated_alarm = cloudwatch.Alarm(
                 self,
                 f"{cluster_name}UnderReplicatedPartitionsAlarm",
@@ -252,6 +261,7 @@ class CloudNativeHardeningStack(Stack):
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
                 alarm_description=f"Alarm if {cluster_name} under-replicated partitions >= {under_replicated_threshold}",
+                alarm_name=f"{cluster_name}-under-replicated-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:
@@ -270,6 +280,7 @@ class CloudNativeHardeningStack(Stack):
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
                 alarm_description=f"Alarm if {cluster_name} broker count < {broker_count_threshold}",
+                alarm_name=f"{cluster_name}-broker-count-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:
@@ -293,38 +304,45 @@ class CloudNativeHardeningStack(Stack):
             domain_name = os_cfg.domain_name
             status_red_threshold = os_cfg.status_red_threshold
             cpu_util_threshold = os_cfg.cpu_util_threshold
+            # Explicit validation for alarm thresholds
+            if status_red_threshold < 0 or cpu_util_threshold < 0:
+                raise ValueError(
+                    f"Invalid OpenSearch alarm threshold for {domain_name}: must be >= 0"
+                )
             status_red_alarm = cloudwatch.Alarm(
                 self,
-                f"{domain_name}ClusterStatusRedAlarm",
+                f"{domain_name}StatusRedAlarm",
                 metric=cloudwatch.Metric(
                     namespace="AWS/ES",
                     metric_name="ClusterStatus.red",
-                    dimensions_map={"DomainName": domain_name, "ClientId": "1"},
+                    dimensions_map={"DomainName": domain_name},
                     statistic="Maximum",
                 ),
                 threshold=status_red_threshold,
                 evaluation_periods=1,
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-                alarm_description=f"Alarm if {domain_name} cluster status red >= {status_red_threshold}",
+                alarm_description=f"Alarm if {domain_name} status red >= {status_red_threshold}",
+                alarm_name=f"{domain_name}-status-red-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:
                     status_red_alarm.add_alarm_action(action)
             cpu_util_alarm = cloudwatch.Alarm(
                 self,
-                f"{domain_name}CPUUtilizationAlarm",
+                f"{domain_name}CpuUtilAlarm",
                 metric=cloudwatch.Metric(
                     namespace="AWS/ES",
                     metric_name="CPUUtilization",
-                    dimensions_map={"DomainName": domain_name, "ClientId": "1"},
+                    dimensions_map={"DomainName": domain_name},
                     statistic="Maximum",
                 ),
                 threshold=cpu_util_threshold,
                 evaluation_periods=1,
                 datapoints_to_alarm=1,
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-                alarm_description=f"Alarm if {domain_name} CPU utilization >= {cpu_util_threshold}%",
+                alarm_description=f"Alarm if {domain_name} CPU util >= {cpu_util_threshold}",
+                alarm_name=f"{domain_name}-cpu-util-alarm",
             )
             if alarm_actions:
                 for action in alarm_actions:

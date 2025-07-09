@@ -1,8 +1,19 @@
+# Utility for consistent timestamp formatting (YYYY-MM-DD HH:MM:SS)
+from datetime import datetime
+
+
+def now_str():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
 import os
 import hashlib
 import functools
 import traceback
 import sys
+from nox_sessions.utils_encoding import force_utf8
+
+force_utf8()
 
 
 def file_hash(path):

@@ -15,7 +15,7 @@ dependencies = [
     "xgboost>=2.0.3,<3.0.0",
     "lightgbm>=4.3.0,<5.0.0",
     "langchain-community==0.3.26",
-    "mlflow>=2.12.2,<3.0.0",
+    "mlflow>=3.1.1,<4.0.0",
     "pandas>=2.2.2,<3.0.0",
     "numpy>=2.1.0,<3.0.0",
     "pyspark>=3.5.1,<4.0.0",
@@ -38,8 +38,8 @@ dependencies = [
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
 
+build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.lint.dependencies]
 ruff = "^0.4.4"
 black = "^24.4.2"
@@ -58,7 +58,7 @@ pre-commit = "^4.2.0"
 nox = "2023.4.22"
 toml = "^0.10.2"
 yamllint = "^1.32.0"
-nbval = "^0.11.0"
+pytest-xdist = "^3.8.0"
 
 [tool.poetry.group.security.dependencies]
 safety = "^3.2.0"
@@ -69,7 +69,8 @@ line-length = 88
 target-version = ["py311"]
 skip-string-normalization = false
 
-[tool.ruff]
+
+[tool.ruff.lint]
 ignore = ["E402"]
 
 [tool.pytest.ini_options]
@@ -77,3 +78,6 @@ markers = [
     "integration: mark a test as an integration test",
     "msk: mark a test as related to MSK"
 ]
+
+[tool.poetry.group.diagnostics.dependencies]
+toml = "^0.10.2"

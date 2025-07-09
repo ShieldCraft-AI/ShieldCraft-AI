@@ -122,11 +122,13 @@ class NetworkingStack(Stack):
         self.flow_logs_bucket = flow_logs_bucket
         # Restrict S3 bucket policy to allow only the VPC Flow Logs role to write logs
         if vpc_flow_logs_role_arn:
+            from aws_cdk import aws_iam as iam
+
             flow_logs_bucket.add_to_resource_policy(
-                s3.PolicyStatement(
+                iam.PolicyStatement(
                     actions=["s3:PutObject"],
                     resources=[f"{flow_logs_bucket.bucket_arn}/*"],
-                    principals=[s3.ArnPrincipal(vpc_flow_logs_role_arn)],
+                    principals=[iam.ArnPrincipal(vpc_flow_logs_role_arn)],
                 )
             )
         # The 'role' argument is not valid for ec2.FlowLog; must use IAM role in destination if needed

@@ -379,3 +379,99 @@ def test_sagemaker_stack_alarm_arns_are_strings(sagemaker_config):
         assert isinstance(arn, str) or hasattr(
             arn, "to_string"
         ), f"Alarm ARN for {alarm} is not a string or token"
+
+
+# --- Edge case: Empty subnet and security group lists ---
+def test_sagemaker_stack_empty_subnets_and_sgs(sagemaker_config):
+    config = dict(sagemaker_config)
+    config["sagemaker"] = dict(config["sagemaker"])
+    config["sagemaker"]["subnet_ids"] = []
+    config["sagemaker"]["security_group_ids"] = []
+    app = App()
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    resources = template.to_json().get("Resources", {})
+    model_resource = next(
+        (r for r in resources.values() if r["Type"] == "AWS::SageMaker::Model"), None
+    )
+    assert model_resource is not None
+    props = model_resource["Properties"]
+    assert "VpcConfig" not in props
+
+
+# --- Edge case: Invalid alarm thresholds (negative, zero, over 100) ---
+def test_sagemaker_stack_invalid_alarm_thresholds():
+    app = App()
+    config = {
+        "sagemaker": {
+            "model_name": "shieldcraft-model",
+            "image_uri": "uri",
+            "model_artifact_s3": "s3://bucket/model.tar.gz",
+            "execution_role_arn": "arn:aws:iam::123456789012:role/SageMakerExecutionRole",
+            "instance_type": "ml.m5.large",
+            "endpoint_name": "shieldcraft-model-endpoint",
+            "alarm_threshold_status_failed": 0,  # invalid (should be >=1)
+            "alarm_threshold_invocation_4xx": -1,  # invalid (should be >=0)
+            "alarm_threshold_latency_ms": 0,  # invalid (should be >=1)
+            "alarm_threshold_cpu_utilization": 101.0,  # invalid (should be <=100)
+            "alarm_threshold_memory_utilization": -5.0,  # invalid (should be >=0)
+        },
+        "app": {"env": "test"},
+    }
+    with pytest.raises(ValueError):
+        SageMakerStack(
+            app,
+            "TestSageMakerStack",
+            config=config,
+            sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role",
+        )
+
+
+# --- Edge case: Minimal config (only required fields) ---
+def test_sagemaker_stack_minimal_config():
+    app = App()
+    config = {
+        "sagemaker": {
+            "model_name": "shieldcraft-minimal",
+            "image_uri": "uri",
+            "model_artifact_s3": "s3://bucket/model.tar.gz",
+            "execution_role_arn": "arn:aws:iam::123456789012:role/SageMakerExecutionRole",
+        },
+        "app": {"env": "test"},
+    }
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    # Should create model, endpoint config, endpoint
+    template.resource_count_is("AWS::SageMaker::Model", 1)
+    template.resource_count_is("AWS::SageMaker::EndpointConfig", 1)
+    template.resource_count_is("AWS::SageMaker::Endpoint", 1)
+
+
+# --- Unhappy path: Invalid cost alarm config ---
+def test_sagemaker_stack_invalid_cost_alarm_config(sagemaker_config):
+    config = dict(sagemaker_config)
+    config["sagemaker"] = dict(config["sagemaker"])
+    config["sagemaker"]["enable_cost_alarm"] = True
+    config["sagemaker"]["cost_alarm_threshold_usd"] = 0.0
+    config["sagemaker"]["cost_alarm_sns_topic_arn"] = None
+    app = App()
+    stack = SageMakerStack(
+        app,
+        "TestSageMakerStack",
+        config=config,
+        sagemaker_role_arn="arn:aws:iam::123456789012:role/mock-sagemaker-role",
+    )
+    template = assertions.Template.from_stack(stack)
+    outputs = template.to_json().get("Outputs", {})
+    # Should not output cost budget id if config is invalid
+    assert not any("CostBudgetId" in k for k in outputs)

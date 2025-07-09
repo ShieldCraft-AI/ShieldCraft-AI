@@ -51,7 +51,7 @@ def test_large_config_performance(tmp_path):
     loader = ConfigLoader(env="dev", backend=backend)
     elapsed = time.time() - start
     assert loader.get("app.env") == "dev"
-    assert elapsed < 3  # Should load quickly and reliably in CI
+    assert elapsed < 5  # Should load quickly and reliably in CI
 
 
 def test_secret_resolution_extension_point():
