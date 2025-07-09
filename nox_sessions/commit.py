@@ -32,6 +32,10 @@ def log_debug(msg):
 @nox.session(name="commit_flow")
 @nox_session_guard
 def commit_flow(session):
+    # Ensure notebook dependencies for notebook execution/clearing
+    session.run("poetry", "install", "--with", "notebook", external=True)
+    # Auto-clear and re-execute all notebooks before running checks
+    session.run("python", "scripts/clear_and_run_notebooks.py", external=True)
     from nox_sessions.utils_poetry import ensure_poetry_installed
     ensure_poetry_installed()
     """
