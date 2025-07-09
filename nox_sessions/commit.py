@@ -77,6 +77,7 @@ def commit_flow(session):
             log_debug(f"Session {s} failed: {e}")
             return (s, False, str(e))
 
+
     # 1. Bootstrap (serial)
     matrix_log(
         session, f"Running bootstrap session: {bootstrap_session[0]}", color="green"
@@ -84,90 +85,37 @@ def commit_flow(session):
     log_debug("Running bootstrap session (serial)")
     session.notify(bootstrap_session[0])
 
-    # 2. Code quality sessions (parallel)
-    matrix_log(
-        session,
-        f"Running code quality sessions: {', '.join(code_quality_sessions)}",
-        color="green",
-    )
-    log_debug(f"Running code quality sessions: {code_quality_sessions}")
-    failed = []
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=len(code_quality_sessions)
-    ) as executor:
-        future_to_session = {
-            executor.submit(notify_and_log, s): s for s in code_quality_sessions
-        }
-        for future in concurrent.futures.as_completed(future_to_session):
-            s, ok, err = future.result()
-            if not ok:
-                failed.append((s, err))
-    if failed:
-        for s, err in failed:
-            matrix_log(session, f"❌ {s.upper()} failed: {err}", color="red")
-            log_debug(f"[FAIL] Session {s} failed: {err}")
-        raise RuntimeError(
-            f"Critical code quality session(s) failed: {[s for s, _ in failed]}"
-        )
-
-    # 3. Test and security sessions (parallel)
-    matrix_log(
-        session,
-        f"Running test and security sessions: {', '.join(test_and_security_sessions)}",
-        color="green",
-    )
-    log_debug(f"Running test and security sessions: {test_and_security_sessions}")
-    failed = []
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=len(test_and_security_sessions)
-    ) as executor:
-        future_to_session = {
-            executor.submit(notify_and_log, s): s for s in test_and_security_sessions
-        }
-        for future in concurrent.futures.as_completed(future_to_session):
-            s, ok, err = future.result()
-            if not ok:
-                failed.append((s, err))
-    if failed:
-        for s, err in failed:
-            matrix_log(session, f"❌ {s.upper()} failed: {err}", color="red")
-            log_debug(f"[FAIL] Session {s} failed: {err}")
-        raise RuntimeError(
-            f"Critical test/security session(s) failed: {[s for s, _ in failed]}"
-        )
-
-    # 4. Docs and docker build sessions (parallel)
-    docs_and_docker_sessions = [
-        "docs",
-        "docker_build",
+    # 2-4. All other session groups in parallel, fail-fast on any error
+    session_groups = [
+        ("Code quality", code_quality_sessions),
+        ("Test and security", test_and_security_sessions),
+        ("Docs and docker build", ["docs", "docker_build"]),
     ]
-    matrix_log(
-        session,
-        f"Running docs and docker build sessions: {', '.join(docs_and_docker_sessions)}",
-        color="green",
-    )
-    log_debug(f"Running docs and docker build sessions: {docs_and_docker_sessions}")
-    failed = []
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=len(docs_and_docker_sessions)
-    ) as executor:
-        future_to_session = {
-            executor.submit(notify_and_log, s): s for s in docs_and_docker_sessions
-        }
-        for future in concurrent.futures.as_completed(future_to_session):
-            s, ok, err = future.result()
-            if not ok:
-                failed.append((s, err))
-    if failed:
-        for s, err in failed:
-            matrix_log(session, f"❌ {s.upper()} failed: {err}", color="red")
-            log_debug(f"[FAIL] Session {s} failed: {err}")
-        raise RuntimeError(
-            f"Critical docs/docker session(s) failed: {[s for s, _ in failed]}"
+    for group_name, group_sessions in session_groups:
+        matrix_log(
+            session,
+            f"Running {group_name} sessions: {', '.join(group_sessions)}",
+            color="green",
         )
-
-    matrix_log(session, "🟩 commit_flow session finished.", color="green")
-    log_debug("Session finished.")
+        log_debug(f"Running {group_name} sessions: {group_sessions}")
+        failed = []
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=len(group_sessions)
+        ) as executor:
+            future_to_session = {
+                executor.submit(notify_and_log, s): s for s in group_sessions
+            }
+            for future in concurrent.futures.as_completed(future_to_session):
+                s, ok, err = future.result()
+                if not ok:
+                    failed.append((s, err))
+        if failed:
+            for s, err in failed:
+                matrix_log(session, f"❌ {s.upper()} failed: {err}", color="red")
+                log_debug(f"[FAIL] Session {s} failed: {err}")
+            raise RuntimeError(
+                f"Critical {group_name} session(s) failed: {[s for s, _ in failed]}"
+            )
 
     matrix_log(session, "🟩 commit_flow session finished.", color="green")
     log_debug("Session finished.")

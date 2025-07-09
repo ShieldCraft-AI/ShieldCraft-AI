@@ -180,16 +180,6 @@ fi
 unset PYTHONUNBUFFERED
 
 # --- Commit message and tagging workflow ---
-branch_name=$(git rev-parse --abbrev-ref HEAD)
-if ! [[ "$branch_name" =~ ^(feature|bugfix|chore|docs|refactor|test|ci|build|perf|revert)/ ]]; then
-    read -rp "Branch name '$branch_name' does not follow convention (e.g., feature/xyz, bugfix/abc). Continue anyway? [Y/n]: " branch_ok
-    branch_ok=${branch_ok:-Y}
-    if [[ ! "$branch_ok" =~ ^[Yy]$ ]]; then
-        echo "Aborting commit script."
-        exit 1
-    fi
-fi
-
 echo "Select commit type:"
 echo "  1) feat (default)"
 echo "  2) fix"
@@ -261,36 +251,20 @@ if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; the
     exit 1
 fi
 
-read -rp "All checks passed. Do you want to push to remote now? [Y/n]: " do_push
-do_push=${do_push:-Y}
-if [[ "$do_push" =~ ^[Yy]$ ]]; then
-    if ! git pull --rebase 2>&1 | suppress_git_warnings; then
-        echo -e "\033[1;31m🟥 Pull (rebase) failed. Resolve conflicts before pushing.\033[0m"
-        exit 1
-    fi
-    if ! poetry run git push 2>&1 | suppress_git_warnings; then
-        echo -e "\033[1;31m🟥 Push failed.\033[0m"
-        exit 1
-    fi
-    echo -e "\n\033[1;32m╔══════════════════════════════════════════════════════════════════════╗\033[0m"
-    echo -e "\033[1;32m║  ✅ All changes committed, version bumped, checklist updated, and pushed successfully. ║\033[0m"
-    echo -e "\033[1;32m╚══════════════════════════════════════════════════════════════════════╝\033[0m\n"
+echo -e "\n\033[1;34mPushing all changes to remote...\033[0m\n"
+echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
 
-    # --- Tagging major architectural improvements ---
-    read -rp "Tag this commit as a release? [y/N]: " do_tag
-    do_tag=${do_tag:-N}
-    if [[ "$do_tag" =~ ^[Yy]$ ]]; then
-        read -rp "Enter tag name (e.g., v0.9.0): " tag_name
-        if [ -n "$tag_name" ]; then
-            git tag -a "$tag_name" -m "Centralized dependency preflight for Poetry and npm; session/CI cleanup"
-            git push origin "$tag_name" 2>&1 | suppress_git_warnings
-            echo -e "\033[1;32mTag '$tag_name' created and pushed.\033[0m"
-        else
-            echo "Tag name cannot be empty. Skipping tag."
-        fi
-    fi
-else
-    echo -e "\n\033[1;34mPush skipped. You can push manually with 'git push' when ready.\033[0m\n"
+echo -e "\n\033[1;34mAll checks passed. Pushing changes to remote...\033[0m\n"
+if ! git pull --rebase 2>&1 | suppress_git_warnings; then
+    echo -e "\033[1;31m🟥 Pull (rebase) failed. Resolve conflicts before pushing.\033[0m"
+    exit 1
 fi
+if ! poetry run git push 2>&1 | suppress_git_warnings; then
+    echo -e "\033[1;31m🟥 Push failed.\033[0m"
+    exit 1
+fi
+echo -e "\n\033[1;32m╔═════════════════════════════════════════════════════════════════════════════╗\033[0m"
+echo -e "\033[1;32m║  ✅ All changes committed, version bumped, checklist updated, and pushed successfully. ║\033[0m"
+echo -e "\033[1;32m╚═════════════════════════════════════════════════════════════════════════════╝\033[0m\n"
 
 echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
