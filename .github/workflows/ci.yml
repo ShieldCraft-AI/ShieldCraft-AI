@@ -16,6 +16,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          sudo rm -rf /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/go /usr/local/share/powershell
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+          sudo apt-get clean
+          df -h
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -77,6 +84,9 @@ jobs:
           platforms: |
             linux/amd64
             linux/arm64
+      - name: Export image tag
+        id: export_tag
+        run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
 
   docker_build_ingestion:
     name: "Docker Build: Ingestion"
@@ -118,6 +128,9 @@ jobs:
           platforms: |
             linux/amd64
             linux/arm64
+      - name: Export image tag
+        id: export_tag
+        run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
 
   docker_build_main:
     name: "Docker Build: Main"
@@ -159,6 +172,9 @@ jobs:
           platforms: |
             linux/amd64
             linux/arm64
+      - name: Export image tag
+        id: export_tag
+        run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
 
   docker_scan_api:
     name: "Docker Scan: API"
@@ -168,15 +184,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Pull built image
         run: |
-          docker pull "${{ needs.docker_build_api.outputs.image_tag }}"
+          docker pull "$IMAGE_TAG"
       - name: Docker Scan (API)
         run: |
           docker pull aquasec/trivy:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest image "${{ needs.docker_build_api.outputs.image_tag }}"
+            aquasec/trivy:latest image "$IMAGE_TAG"
           docker pull anchore/grype:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            anchore/grype:latest "${{ needs.docker_build_api.outputs.image_tag }}"
+            anchore/grype:latest "$IMAGE_TAG"
 
   docker_scan_ingestion:
     name: "Docker Scan: Ingestion"
@@ -186,15 +202,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Pull built image
         run: |
-          docker pull "${{ needs.docker_build_ingestion.outputs.image_tag }}"
+          docker pull "$IMAGE_TAG"
       - name: Docker Scan (Ingestion)
         run: |
           docker pull aquasec/trivy:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest image "${{ needs.docker_build_ingestion.outputs.image_tag }}"
+            aquasec/trivy:latest image "$IMAGE_TAG"
           docker pull anchore/grype:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            anchore/grype:latest "${{ needs.docker_build_ingestion.outputs.image_tag }}"
+            anchore/grype:latest "$IMAGE_TAG"
 
   docker_scan_main:
     name: "Docker Scan: Main"
@@ -204,14 +220,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Pull built image
         run: |
-          docker pull "${{ needs.docker_build_main.outputs.image_tag }}"
+          docker pull "$IMAGE_TAG"
       - name: Docker Scan (Main)
         run: |
           docker pull aquasec/trivy:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest image "${{ needs.docker_build_main.outputs.image_tag }}"
+            aquasec/trivy:latest image "$IMAGE_TAG"
           docker pull anchore/grype:latest
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            anchore/grype:latest "${{ needs.docker_build_main.outputs.image_tag }}"
+            anchore/grype:latest "$IMAGE_TAG"
 
 # Fail fast: if any job fails, the workflow stops (default in GitHub Actions unless using a matrix with fail-fast: false)

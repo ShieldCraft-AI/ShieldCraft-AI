@@ -1,6 +1,7 @@
 {
   ".": {
     "release-type": "python",
-    "component": "shieldcraft-ai"
+    "component": "shieldcraft-ai",
+    "version": "0.1.7"
   }
 }

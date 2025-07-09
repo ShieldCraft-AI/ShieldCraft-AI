@@ -64,6 +64,10 @@ pytest-xdist = "^3.8.0"
 safety = "^3.2.0"
 bandit = "^1.7.8"
 
+[tool.poetry.group.notebook.dependencies]
+nbconvert = "^7.16.4"
+nbformat = "^5.10.4"
+
 [tool.black]
 line-length = 88
 target-version = ["py311"]
