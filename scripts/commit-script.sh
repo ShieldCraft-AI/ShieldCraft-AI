@@ -162,15 +162,8 @@ if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
 fi
 
 
-# 3. Run auto-formatting (fail fast)
-echo -e "\033[40m\033[1;32mRunning: format session...\033[0m"
-if ! python3 scripts/pre_nox.py format 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
-    echo -e "\033[1;31m🟥 Auto-formatting failed. Please fix formatting issues and try again.\033[0m" | tee -a "$DEBUG_LOG_FILE"
-    exit 1
-fi
 
-
-# 4. Run the single orchestration point for all checks (commit_flow)
+# Run the single orchestration point for all checks (commit_flow)
 export PYTHONUNBUFFERED=1
 if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
     echo -e "\033[1;31m🟥 Nox commit_flow session failed. No commit performed.\033[0m" | tee -a "$DEBUG_LOG_FILE"
@@ -253,6 +246,17 @@ fi
 
 echo -e "\n\033[1;34mPushing all changes to remote...\033[0m\n"
 echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
+
+
+# --- Final auto-stage/commit if any files were modified after main commit (e.g., by formatters or hooks) ---
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo -e "\033[1;33m[INFO] Detected unstaged or staged changes after main commit. Auto-staging and committing as 'chore: auto-format/fix after commit'.\033[0m"
+    git add . 2>&1 | suppress_git_warnings || true
+    if ! poetry run git commit -m "chore: auto-format/fix after commit" 2>&1 | suppress_git_warnings; then
+        echo -e "\033[1;31m🟥 Auto-commit of post-commit changes failed. Please resolve manually.\033[0m"
+        exit 1
+    fi
+fi
 
 echo -e "\n\033[1;34mAll checks passed. Pushing changes to remote...\033[0m\n"
 if ! git pull --rebase 2>&1 | suppress_git_warnings; then

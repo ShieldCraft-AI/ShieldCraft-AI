@@ -15,6 +15,8 @@ DEBUG_LOG_FILE = os.path.join(
 @nox.session()
 @nox_session_guard
 def security(session):
+    from nox_sessions.utils_poetry import ensure_poetry_installed
+    ensure_poetry_installed()
     """Run security checks: safety and bandit. Allow deploy if only mlflow vulnerabilities remain and have no known fix."""
     from nox_sessions.utils_color import color_log, color_error
 

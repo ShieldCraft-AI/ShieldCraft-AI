@@ -32,6 +32,8 @@ def log_debug(msg):
 @nox.session(name="commit_flow")
 @nox_session_guard
 def commit_flow(session):
+    from nox_sessions.utils_poetry import ensure_poetry_installed
+    ensure_poetry_installed()
     """
     ShieldCraft AI: Single orchestration point for all developer/CI checks.
     This session must be the only entry for running all checks, version bump, checklist update, and final all-session.

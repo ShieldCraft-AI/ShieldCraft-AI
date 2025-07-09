@@ -15,6 +15,8 @@ DEBUG_LOG_FILE = os.path.join(
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def tests(session):
+    from nox_sessions.utils_poetry import ensure_poetry_installed
+    ensure_poetry_installed()
     from nox_sessions.utils_color import matrix_log
 
     with open(DEBUG_LOG_FILE, "a") as f:

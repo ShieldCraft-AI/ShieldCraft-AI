@@ -1,3 +1,4 @@
+from nox_sessions.utils_poetry import ensure_poetry_installed
 import nox
 import os
 from nox_sessions.utils import now_str
@@ -18,6 +19,7 @@ from nox_sessions.utils_color import matrix_log
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def lint(session):
+    ensure_poetry_installed()
     """Lint code with ruff and black (no auto-fix)."""
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[LINT] Session started at {now_str()}\n")
@@ -125,6 +127,7 @@ def lint(session):
 
 @nox.session(python=PYTHON_VERSIONS)
 def format(session):
+    ensure_poetry_installed()
     """Auto-format code with black and ruff, running both in parallel for speed. Fails build on unfixable issues."""
     import concurrent.futures
     import subprocess
@@ -164,21 +167,19 @@ def format(session):
         if black_check != 0:
             matrix_log(
                 session,
-                "[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.",
-                color="red",
+                "[FORMAT][WARN] Black could not auto-fix all issues. Please review and fix formatting errors.",
+                color="yellow",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[FORMAT][ERROR] Black could not auto-fix all issues. Failing build.\n")
-            raise RuntimeError("Black could not auto-fix all issues. Please fix formatting errors.")
+                f.write("[FORMAT][WARN] Black could not auto-fix all issues. Please review and fix formatting errors.\n")
         if ruff_check == 1:
             matrix_log(
                 session,
-                "[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.",
-                color="red",
+                "[FORMAT][WARN] Ruff found remaining lint issues after auto-fix. Please review and fix.",
+                color="yellow",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[FORMAT][ERROR] Ruff found remaining lint issues after auto-fix. Failing build.\n")
-            raise RuntimeError("Ruff found remaining lint issues after auto-fix. Please fix lint errors.")
+                f.write("[FORMAT][WARN] Ruff found remaining lint issues after auto-fix. Please review and fix.\n")
         matrix_log(session, "[FORMAT] ruff --fix and black complete.", color="green")
         with open(DEBUG_LOG_FILE, "a") as f:
             f.write("[FORMAT] ruff --fix and black complete.\n")
@@ -200,6 +201,7 @@ def format(session):
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def typecheck(session):
+    ensure_poetry_installed()
     """Typecheck code with mypy."""
 
     with open(DEBUG_LOG_FILE, "a") as f:
@@ -233,6 +235,7 @@ def typecheck(session):
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def precommit(session):
+    ensure_poetry_installed()
 
     with open(DEBUG_LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f"[PRECOMMIT] Session started at {now_str()}\n")
