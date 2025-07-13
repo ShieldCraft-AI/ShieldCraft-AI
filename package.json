@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "remark-mermaidjs": "^7.0.0"
+  }
+}
