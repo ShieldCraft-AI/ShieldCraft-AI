@@ -10,8 +10,8 @@ Dependencies:
   poetry add beautifulsoup4 markdownify
 """
 
-import sys
 from pathlib import Path
+import sys
 from bs4 import BeautifulSoup
 import markdownify
 
