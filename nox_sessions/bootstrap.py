@@ -36,9 +36,9 @@ def bootstrap(session):
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[BOOTSTRAP] Session started at {now_str()}\n")
     try:
-        color_log(session, "Installing poetry and all dependencies...", "cyan")
+        color_log(session, "Installing poetry and main dependencies only...", "cyan")
         session.run("python", "-m", "pip", "install", "poetry", external=True)
-        session.run("poetry", "install", "--with", "dev", external=True)
+        session.run("poetry", "install", "--only", "main", external=True)
         session.notify("precommit_bootstrap")
         from nox_sessions.utils import file_hash
 
@@ -48,11 +48,9 @@ def bootstrap(session):
         )
         with open(".nox-poetry-installed", "w") as f2:
             f2.write(f"{lock_hash}|{py_hash}\n")
-        with open(".nox-poetry-installed-dev", "w") as f2:
-            f2.write(f"{lock_hash}|{py_hash}\n")
-        color_log(session, "Poetry install complete. Marker files written.", "green")
+        color_log(session, "Poetry install complete. Marker file written.", "green")
         with open(DEBUG_LOG_FILE, "a") as f:
-            f.write("[BOOTSTRAP] Poetry install and marker files written.\n")
+            f.write("[BOOTSTRAP] Poetry install and marker file written.\n")
     except Exception as e:
         color_error(session, f"[BOOTSTRAP][ERROR] {e}", "red")
         with open(DEBUG_LOG_FILE, "a") as f:
@@ -131,7 +129,7 @@ def dev(session):
         f.write(f"[DEV] Session started at {now_str()}\n")
     try:
         color_log(session, "Starting Python REPL with dev dependencies...", "cyan")
-        session.install("poetry")
+        session.run("poetry", "install", "--with", "dev", external=True)
         session.run("poetry", "run", "python", external=True)
         color_log(session, "Python REPL started.", "green")
         with open(DEBUG_LOG_FILE, "a") as f:
