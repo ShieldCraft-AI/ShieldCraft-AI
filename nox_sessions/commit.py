@@ -39,13 +39,8 @@ def log_debug(msg):
 def commit_flow(session):
     # Use shared virtualenv for all sessions
     nox.options.reuse_existing_virtualenv = True
-    # Install only notebook dependencies for notebook tasks
-    session.run("poetry", "install", "--with", "notebook", external=True)
     # Auto-clear and re-execute all notebooks before running checks
     session.run("python", "scripts/clear_and_run_notebooks.py", external=True)
-    from nox_sessions.utils_poetry import ensure_poetry_installed
-
-    ensure_poetry_installed()
     matrix_log(session, "🟩 commit_flow session started.", color="green")
     log_debug(f"Session started. posargs={session.posargs}")
 
@@ -74,21 +69,6 @@ def commit_flow(session):
         matrix_log(session, f"▶ {s.upper()} running...", color="green")
         log_debug(f"Notifying session: {s}")
         try:
-            # Install only required dependencies for each session
-            if s == "lint":
-                session.run("poetry", "install", "--with", "lint", external=True)
-            elif s == "typecheck":
-                session.run("poetry", "install", "--with", "typecheck", external=True)
-            elif s == "tests":
-                session.run("poetry", "install", "--with", "test", external=True)
-            elif s == "notebooks":
-                session.run("poetry", "install", "--with", "notebook", external=True)
-            elif s == "dev":
-                session.run("poetry", "install", "--with", "dev", external=True)
-            elif s == "docs":
-                session.run("poetry", "install", "--with", "diagnostics", external=True)
-            else:
-                session.run("poetry", "install", "--only", "main", external=True)
             session.notify(s)
             matrix_log(session, f"✅ {s.upper()} complete.", color="green")
             return (s, True, None)
@@ -160,7 +140,6 @@ def commit_flow(session):
     matrix_log(session, "Running Security session: security", color="green")
     log_debug("Running Security session: security")
     try:
-        session.run("poetry", "install", "--with", "security", external=True)
         session.notify("security")
         matrix_log(session, "✅ SECURITY complete.", color="green")
     except Exception as e:

@@ -1,4 +1,3 @@
-from nox_sessions.utils_poetry import ensure_poetry_installed
 import nox
 import os
 from nox_sessions.utils import now_str
@@ -19,14 +18,11 @@ from nox_sessions.utils_color import matrix_log
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def lint(session):
-    ensure_poetry_installed()
     """Lint code with ruff and black (no auto-fix)."""
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[LINT] Session started at {now_str()}\n")
     matrix_log(session, f"[LINT] Session started at {now_str()}", color="green")
     try:
-        # Ensure lint dependencies are installed
-        session.run("poetry", "install", "--with", "lint", external=True)
         # Run ruff check (no auto-fix)
         matrix_log(session, "[LINT] Running ruff check...", color="green")
         ruff_result = session.run(
@@ -126,7 +122,6 @@ def lint(session):
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def format(session):
-    ensure_poetry_installed()
     """Auto-format code with black and ruff, running both in parallel for speed. Fails build on unfixable issues."""
     import concurrent.futures
     import subprocess
@@ -222,7 +217,6 @@ def format(session):
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def typecheck(session):
-    ensure_poetry_installed()
     """Typecheck code with mypy."""
 
     with open(DEBUG_LOG_FILE, "a") as f:
@@ -233,7 +227,6 @@ def typecheck(session):
         color="green",
     )
     try:
-        session.run("poetry", "install", "--with", "typecheck", external=True)
         session.run("poetry", "run", "mypy", "src", external=True)
         matrix_log(session, "[TYPECHECK] mypy run complete.", color="green")
         with open(DEBUG_LOG_FILE, "a", encoding="utf-8") as f:
@@ -256,7 +249,6 @@ def typecheck(session):
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def precommit(session):
-    ensure_poetry_installed()
 
     with open(DEBUG_LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f"[PRECOMMIT] Session started at {now_str()}\n")

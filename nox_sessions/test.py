@@ -15,9 +15,6 @@ DEBUG_LOG_FILE = os.path.join(
 @nox_session_guard
 @nox.session(python=PYTHON_VERSIONS)
 def tests(session):
-    from nox_sessions.utils_poetry import ensure_poetry_installed
-
-    ensure_poetry_installed()
     from nox_sessions.utils_color import matrix_log
 
     with open(DEBUG_LOG_FILE, "a") as f:
@@ -38,18 +35,6 @@ def tests(session):
             matrix_log(session, "[TESTS] Node.js/npm preflight complete.", color="cyan")
             with open(DEBUG_LOG_FILE, "a") as f:
                 f.write("[TESTS] Node.js/npm preflight complete.\n")
-        # Always install all main and test dependencies unless user opts out
-        if "--skip-poetry-install" not in session.posargs:
-            session.run(
-                "poetry",
-                "install",
-                "--no-interaction",
-                "--with",
-                "test",
-            )
-            matrix_log(session, "[TESTS] poetry install complete.", color="cyan")
-            with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[TESTS] poetry install complete.\n")
         # By default, run pytest in parallel using pytest-xdist (-n auto), unless user disables with --no-xdist
         user_args = [
             a for a in session.posargs if a not in ("--force", "--skip-poetry-install")
