@@ -1,3 +1,7 @@
+"""
+Commit Flow Nox Session
+"""
+
 import nox
 import os
 from nox_sessions.utils import nox_session_guard
@@ -41,8 +45,9 @@ def commit_flow(session):
     ensure_poetry_installed()
     """
     ShieldCraft AI: Single orchestration point for all developer/CI checks.
-    This session must be the only entry for running all checks, version bump, checklist update, and final all-session.
-    Do NOT call other sessions directly from scripts or CI always use commit_flow for DRY, idempotent, and production-grade automation.
+    This session must be the only entry for running all checks, version bump, checklist
+    update, and final all-session. Do not call other sessions directly from scripts or CI
+    always use commit_flow for DRY, idempotent, and production-grade automation.
     """
 
     matrix_log(session, "🟩 commit_flow session started.", color="green")

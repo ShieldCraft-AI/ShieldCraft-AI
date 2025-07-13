@@ -16,15 +16,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Free up disk space
+      - name: Aggressive disk cleanup (pre-deps)
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
           sudo rm -rf /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/go /usr/local/share/powershell
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
           sudo apt-get clean
+          docker system prune -af --volumes
+          docker builder prune -af
+          poetry cache clear --all pypi || true
+          pip cache purge || true
+          rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
           df -h
       - name: Clean Python/Nox artifacts (pre-Nox)
-        run: rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
+        run: |
+          rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
+          poetry cache clear --all pypi || true
+          pip cache purge || true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -41,12 +49,27 @@ jobs:
             ${{ runner.os }}-poetry-
       - name: Install Poetry
         run: pip install poetry
-      - name: Install project dependencies
-        run: poetry install --no-interaction --no-root --with dev
+      - name: Install project dependencies (main only)
+        run: |
+          poetry install --only main --no-interaction --no-root
+          poetry cache clear --all pypi || true
+          pip cache purge || true
+          df -h
       - name: Run all checks via Nox (flow_commit)
-        run: poetry run nox -s commit_flow
-      - name: Clean Python/Nox artifacts (post-Nox)
-        run: rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
+        run: |
+          poetry run nox -s commit_flow
+          poetry cache clear --all pypi || true
+          pip cache purge || true
+          df -h
+          du -sh ./*
+      - name: Aggressive disk cleanup (post-Nox)
+        run: |
+          rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
+          poetry cache clear --all pypi || true
+          pip cache purge || true
+          docker system prune -af --volumes
+          docker builder prune -af
+          df -h
 
   cdk_deploy:
     name: "CDK Deploy"
