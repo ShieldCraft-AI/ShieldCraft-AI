@@ -22,7 +22,7 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --with dev --no-interaction --no-ansi
 ARG SKIP_LARGE_DOWNLOADS=0
 RUN if [ "$SKIP_LARGE_DOWNLOADS" = "1" ]; then echo "Skipping large downloads in dev"; fi
-COPY . .
+COPY src/ /app/src/
 
 FROM base AS staging
 ARG BUILDKIT_INLINE_CACHE=1
@@ -31,7 +31,7 @@ RUN python -m pip install --upgrade pip
 # Export requirements using Poetry (only main dependencies)
 RUN pip install poetry && poetry export -f requirements.txt --output requirements.txt --without-hashes
 RUN python -m pip install --no-cache-dir -r requirements.txt
-COPY . .
+COPY src/ /app/src/
 # Remove dev files, tests, docs, .env, build artifacts, and pip/poetry caches
 RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__ /root/.cache/pip /root/.cache/pypoetry
 # Use a custom non-root user for security and explicit UID/GID

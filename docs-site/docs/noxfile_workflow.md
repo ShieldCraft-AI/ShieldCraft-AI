@@ -55,20 +55,28 @@
 
 ---
 
-## 3. CI/CD Integration
+
+## 3. CI/CD Integration & Disk Management
 
 - **GitHub Actions** and other CI/CD systems invoke Nox sessions for all checks
 - **Consistent local and CI/CD environments** (same Noxfile, same results)
 - **Fail-fast:** CI fails on first error, with clear logs and actionable output
+- **Aggressive disk cleanup:** CI jobs now clean up Python, Nox, and Docker artifacts before and after major steps to prevent disk exhaustion. This includes:
+  - `rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo` before and after Nox orchestration
+  - `docker system prune -af --volumes` and `docker builder prune -af` after Docker builds
+- **Minimized Docker build context:** Dockerfiles only copy `pyproject.toml`, `poetry.lock`, and the `src/` directory, reducing build context size and intermediate layer bloat.
+- **Optional job splitting:** For very large projects, Nox sessions can be split into separate CI jobs to further control disk usage and resource allocation.
 
 ---
 
-## 4. Developer Experience
+
+## 4. Developer Experience & Resource Awareness
 
 - **One-liner onboarding:** `nox -l` lists all available sessions; `nox -s <session>` runs any task
 - **Self-documenting:** Each session has a description and help output
 - **Fast feedback:** Only changed code is checked/tested where possible
 - **Extensible:** Easy to add new sessions for new tools or workflows
+- **Resource awareness:** Developers and CI/CD maintainers are encouraged to monitor disk usage (`df -h`) and clean up artifacts regularly, especially when working with large datasets or running extensive test suites.
 
 </section>
 
