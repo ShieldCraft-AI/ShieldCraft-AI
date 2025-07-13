@@ -30,8 +30,7 @@ RUN python -m pip install --upgrade pip
 RUN pip install poetry && poetry export -f requirements.txt --output requirements.txt --without-hashes
 RUN python -m pip install --no-cache-dir -r requirements.txt
 COPY src/ /app/src/
-# Remove dev files, tests, docs, .env, build artifacts, and pip/poetry caches
-RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__ /root/.cache/pip /root/.cache/pypoetry
+RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__ /root/.cache/pip /root/.cache/pypoetry /root/.local/pipx
 # Use a custom non-root user for security and explicit UID/GID
 RUN useradd -u 10001 -m appuser
 RUN chown -R appuser /app
