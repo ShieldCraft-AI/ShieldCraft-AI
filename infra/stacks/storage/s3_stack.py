@@ -1,14 +1,11 @@
+from typing import Any, Dict, Optional
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import (
-    Stack,
-    aws_s3 as s3,
-    aws_cloudwatch as cloudwatch,
-    Duration,
-    RemovalPolicy,
-    CfnOutput,
-)
+    aws_secretsmanager as secretsmanager,
+)  # pylint: disable=unused-import
+from aws_cdk import aws_s3 as s3
 from constructs import Construct
-
-from typing import Dict, Optional, Any
 
 
 class S3Stack(Stack):
@@ -25,33 +22,16 @@ class S3Stack(Stack):
         raw_bucket, processed_bucket, analytics_bucket: Common buckets for backward compatibility.
     """
 
-    def __init__(
-        self,
-        scope: Construct,
-        construct_id: str,
-        config: dict,
-        shared_tags: Optional[Dict[str, str]] = None,
-        kms_key: Optional[Any] = None,
-        **kwargs,
-    ):
-        super().__init__(scope, construct_id, **kwargs)
-
+    def _validate_cross_stack_resources(self, config):
+        """
+        Explicitly validate referenced cross-stack resources before creation.
+        Raises ValueError if any required resource is missing or misconfigured.
+        """
         s3_cfg = config.get("s3", {})
-        env = config.get("app", {}).get("env", "dev")
-
-        self.tags.set_tag("Project", "ShieldCraftAI")
-        self.tags.set_tag("Environment", env)
-        for k, v in s3_cfg.get("tags", {}).items():
-            self.tags.set_tag(k, v)
-        if shared_tags:
-            for k, v in shared_tags.items():
-                self.tags.set_tag(k, v)
-
         buckets_cfg = s3_cfg.get("buckets", [])
         if not isinstance(buckets_cfg, list) or not buckets_cfg:
             raise ValueError("buckets must be a non-empty list.")
         bucket_ids = set()
-        self.buckets: Dict[str, s3.Bucket] = {}
         for bucket_cfg in buckets_cfg:
             if not isinstance(bucket_cfg, dict):
                 raise ValueError(
@@ -66,7 +46,100 @@ class S3Stack(Stack):
             if bucket_id in bucket_ids:
                 raise ValueError(f"Duplicate bucket id: {bucket_id}")
             bucket_ids.add(bucket_id)
-            # Validate bucket name (AWS S3 naming rules)
+            import re
+
+            if not isinstance(bucket_name, str) or not re.match(
+                r"^[a-z0-9.-]{3,63}$", bucket_name
+            ):
+                raise ValueError(f"Invalid S3 bucket name: {bucket_name}")
+            # Validate block_public_access value
+            block_public_access = bucket_cfg.get("block_public_access", "BLOCK_ALL")
+            valid_block_public_access = [
+                "BLOCK_ALL",
+                "BLOCK_ACLS",
+                "BLOCK_PUBLIC_POLICY",
+                "BLOCK_AUTHENTICATED_USERS",
+            ]
+            if block_public_access not in valid_block_public_access:
+                block_public_access = "BLOCK_ALL"
+
+    @staticmethod
+    def sanitize_export_name(name: str) -> str:
+        import re
+
+        # Only allow alphanumeric, colons, and hyphens
+        return re.sub(r"[^A-Za-z0-9:-]", "-", name)
+
+    def _export_resource(self, name, value):
+        """
+        Export a resource value (ARN, name, etc.) for cross-stack consumption and auditability.
+        """
+        sanitized_export_name = self.sanitize_export_name(f"{self.stack_name}-{name}")
+        CfnOutput(self, name, value=value, export_name=sanitized_export_name)
+
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        config: dict,
+        shared_tags: Optional[Dict[str, str]] = None,
+        kms_key: Optional[Any] = None,
+        secrets_manager_arn: Optional[str] = None,
+        **kwargs,
+    ):
+        stack_kwargs = {
+            k: kwargs[k] for k in ("env", "tags", "description") if k in kwargs
+        }
+        super().__init__(scope, construct_id, **stack_kwargs)
+        self._validate_cross_stack_resources(config)
+        # Vault integration: import the main secrets manager secret if provided
+        self.secrets_manager_arn = secrets_manager_arn
+        self.secrets_manager_secret = None
+        self.shared_resources = {}
+        if self.secrets_manager_arn:
+            self.secrets_manager_secret = (
+                secretsmanager.Secret.from_secret_complete_arn(
+                    self, "ImportedVaultSecret", self.secrets_manager_arn
+                )
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}VaultSecretArn",
+                value=self.secrets_manager_arn,
+                export_name=f"{construct_id}-vault-secret-arn",
+            )
+            self.shared_resources["vault_secret"] = self.secrets_manager_secret
+        s3_cfg = config.get("s3", {})
+        env = config.get("app", {}).get("env", "dev")
+        self.tags.set_tag("Project", "ShieldCraftAI")
+        self.tags.set_tag("Environment", env)
+        for k, v in s3_cfg.get("tags", {}).items():
+            self.tags.set_tag(k, v)
+        if shared_tags:
+            for k, v in shared_tags.items():
+                self.tags.set_tag(k, v)
+        buckets_cfg = s3_cfg.get("buckets", [])
+        bucket_ids = set()
+        self.buckets: Dict[str, s3.Bucket] = {}
+        referenced_bucket_ids = set()
+        # ...existing code...
+        from aws_cdk import Tags
+
+        for bucket_cfg in buckets_cfg:
+            if not isinstance(bucket_cfg, dict):
+                raise ValueError(
+                    f"Each bucket config must be a dict. Got: {bucket_cfg}"
+                )
+            bucket_id = bucket_cfg.get("id") or bucket_cfg.get("name")
+            bucket_name = bucket_cfg.get("name")
+            if not bucket_id or not bucket_name:
+                raise ValueError(
+                    f"Each bucket must have 'id' and 'name'. Got: {bucket_cfg}"
+                )
+            if bucket_id in bucket_ids:
+                raise ValueError(f"Duplicate bucket id: {bucket_id}")
+            bucket_ids.add(bucket_id)
+            referenced_bucket_ids.add(bucket_id)
             import re
 
             if not isinstance(bucket_name, str) or not re.match(
@@ -80,7 +153,6 @@ class S3Stack(Stack):
                 removal_policy = (
                     RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
                 )
-            # Fix: Only pass valid encryption types
             if kms_key is not None:
                 encryption = s3.BucketEncryption.KMS
             else:
@@ -89,13 +161,23 @@ class S3Stack(Stack):
                     bucket_cfg.get("encryption", "S3_MANAGED").upper(),
                     s3.BucketEncryption.S3_MANAGED,
                 )
+            block_public_access_value = bucket_cfg.get(
+                "block_public_access", "BLOCK_ALL"
+            )
+            valid_block_public_access = [
+                "BLOCK_ALL",
+                "BLOCK_ACLS",
+                "BLOCK_PUBLIC_POLICY",
+                "BLOCK_AUTHENTICATED_USERS",
+            ]
+            if block_public_access_value not in valid_block_public_access:
+                block_public_access_value = "BLOCK_ALL"
             block_public_access = getattr(
                 s3.BlockPublicAccess,
-                bucket_cfg.get("block_public_access", "BLOCK_ALL").upper(),
+                block_public_access_value.upper(),
                 s3.BlockPublicAccess.BLOCK_ALL,
             )
             versioned = bucket_cfg.get("versioned", True)
-            # Enforce versioning and encryption in prod
             if env == "prod":
                 versioned = True
                 if kms_key is None:
@@ -112,30 +194,17 @@ class S3Stack(Stack):
             )
             self.buckets[bucket_id] = bucket
 
-            # Export names must only include alphanumeric, colon, or hyphen
-            def sanitize_export_name(name: str) -> str:
-                import re
+            # Propagate stack and shared tags to each bucket resource for auditability
+            for tag_key, tag_value in self.tags.render_tags():
+                Tags.of(bucket).add(tag_key, tag_value)
 
-                # Replace any character not alphanumeric, colon, or hyphen with hyphen
-                return re.sub(r"[^A-Za-z0-9:-]", "-", name)
-
-            export_name_base = f"{construct_id}-s3-bucket-{bucket_id}"
-            export_name_base = sanitize_export_name(export_name_base)
-            CfnOutput(
-                self,
-                f"{construct_id}S3Bucket{bucket_id}Name",
-                value=bucket.bucket_name,
-                export_name=f"{export_name_base}-name",
+            self._export_resource(
+                f"{construct_id}S3Bucket{bucket_id}Name", bucket.bucket_name
             )
-            CfnOutput(
-                self,
-                f"{construct_id}S3Bucket{bucket_id}Arn",
-                value=bucket.bucket_arn,
-                export_name=f"{export_name_base}-arn",
+            self._export_resource(
+                f"{construct_id}S3Bucket{bucket_id}Arn", bucket.bucket_arn
             )
-
             # CloudWatch Alarms and Metrics
-            # Alarm: 4xx errors (access denied, not found, etc.)
             cloudwatch.Alarm(
                 self,
                 f"{bucket_id}S3_4xxErrorsAlarm",
@@ -156,7 +225,6 @@ class S3Stack(Stack):
                 alarm_description=f"4xx errors detected on S3 bucket {bucket.bucket_name}",
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             )
-            # Alarm: 5xx errors (server errors)
             cloudwatch.Alarm(
                 self,
                 f"{bucket_id}S3_5xxErrorsAlarm",
@@ -177,7 +245,6 @@ class S3Stack(Stack):
                 alarm_description=f"5xx errors detected on S3 bucket {bucket.bucket_name}",
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             )
-            # Metrics: Number of objects and bucket size (for monitoring growth and cost)
             cloudwatch.Metric(
                 namespace="AWS/S3",
                 metric_name="NumberOfObjects",

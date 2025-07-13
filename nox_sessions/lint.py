@@ -124,7 +124,6 @@ def lint(session):
 
 
 @nox_session_guard
-
 @nox.session(python=PYTHON_VERSIONS)
 def format(session):
     ensure_poetry_installed()
@@ -137,17 +136,23 @@ def format(session):
         f.write(f"[FORMAT] Session started at {now_str()}\n")
     matrix_log(session, f"[FORMAT] Session started at {now_str()}", color="green")
     try:
-        matrix_log(session, "[FORMAT] Running ruff --fix and black in parallel...", color="green")
+        matrix_log(
+            session,
+            "[FORMAT] Running ruff --fix and black in parallel...",
+            color="green",
+        )
 
         def run_ruff():
-            return subprocess.run([
-                sys.executable, "-m", "poetry", "run", "ruff", "check", ".", "--fix"
-            ], capture_output=True)
+            return subprocess.run(
+                [sys.executable, "-m", "poetry", "run", "ruff", "check", ".", "--fix"],
+                capture_output=True,
+            )
 
         def run_black():
-            return subprocess.run([
-                sys.executable, "-m", "poetry", "run", "black", "."
-            ], capture_output=True)
+            return subprocess.run(
+                [sys.executable, "-m", "poetry", "run", "black", "."],
+                capture_output=True,
+            )
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             ruff_future = executor.submit(run_ruff)
@@ -157,12 +162,24 @@ def format(session):
 
         # After auto-fix, check if any unfixable issues remain
         ruff_check = session.run(
-            "poetry", "run", "ruff", "check", ".",
-            success_codes=[0, 1], silent=True, external=True
+            "poetry",
+            "run",
+            "ruff",
+            "check",
+            ".",
+            success_codes=[0, 1],
+            silent=True,
+            external=True,
         )
         black_check = session.run(
-            "poetry", "run", "black", "--check", ".",
-            success_codes=[0, 1], silent=True, external=True
+            "poetry",
+            "run",
+            "black",
+            "--check",
+            ".",
+            success_codes=[0, 1],
+            silent=True,
+            external=True,
         )
         if black_check != 0:
             matrix_log(
@@ -171,7 +188,9 @@ def format(session):
                 color="yellow",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[FORMAT][WARN] Black could not auto-fix all issues. Please review and fix formatting errors.\n")
+                f.write(
+                    "[FORMAT][WARN] Black could not auto-fix all issues. Please review and fix formatting errors.\n"
+                )
         if ruff_check == 1:
             matrix_log(
                 session,
@@ -179,7 +198,9 @@ def format(session):
                 color="yellow",
             )
             with open(DEBUG_LOG_FILE, "a") as f:
-                f.write("[FORMAT][WARN] Ruff found remaining lint issues after auto-fix. Please review and fix.\n")
+                f.write(
+                    "[FORMAT][WARN] Ruff found remaining lint issues after auto-fix. Please review and fix.\n"
+                )
         matrix_log(session, "[FORMAT] ruff --fix and black complete.", color="green")
         with open(DEBUG_LOG_FILE, "a") as f:
             f.write("[FORMAT] ruff --fix and black complete.\n")

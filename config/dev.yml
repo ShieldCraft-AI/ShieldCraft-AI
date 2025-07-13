@@ -5,6 +5,21 @@ app:
   log_level: DEBUG
   enable_feature_x: true
 
+networking:
+  vpc_id: vpc-shieldcraft-dev
+  cidr: "10.0.0.0/16"
+  subnets:
+    - id: subnet-priv-a
+      cidr: "10.0.1.0/24"
+      type: private
+    - id: subnet-priv-b
+      cidr: "10.0.2.0/24"
+      type: private
+  security_groups:
+    - id: sg-default
+      description: Default security group for ShieldCraft dev VPC
+      allow_all_outbound: true
+
 s3:
   buckets:
     - id: RawDataBucket
@@ -13,18 +28,30 @@ s3:
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
       removal_policy: DESTROY
+      enable_glue_crawler: true
+      crawler:
+        schedule: "cron(0 2 * * ? *)"
+        table_prefix: "raw_"
     - id: ProcessedDataBucket
       name: shieldcraft-dev-processed
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
       removal_policy: DESTROY
+      enable_glue_crawler: true
+      crawler:
+        schedule: "cron(0 3 * * ? *)"
+        table_prefix: "processed_"
     - id: AnalyticsDataBucket
       name: shieldcraft-dev-analytics
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
       removal_policy: DESTROY
+      enable_glue_crawler: true
+      crawler:
+        schedule: "cron(0 4 * * ? *)"
+        table_prefix: "analytics_"
   lifecycle_policy_days: 30
   enable_access_logs: true
 
@@ -121,10 +148,22 @@ lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-dev-analytics
   permissions:
-    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+    - template: etl
+      principal: GLUE_EXECUTION_ROLE_ARN
+      resource_type: table
       resource:
-        database: { name: shieldcraft_dev_db }
-      permissions: ["ALL"]
+        databaseName: shieldcraft_dev_db
+        tableName: raw_data
+    - template: admin
+      principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource_type: database
+      resource:
+        databaseName: shieldcraft_dev_db
+    - principal: SAGEMAKER_EXECUTION_ROLE_ARN
+      resource_type: bucket
+      resource:
+        arn: arn:aws:s3:::shieldcraft-dev-analytics
+      actions: ["DATA_LOCATION_ACCESS"]
 
 sagemaker:
   training_instance_type: ml.m5.xlarge
@@ -138,3 +177,10 @@ cloud_native_hardening:
   config_rules:
     - s3-bucket-public-read-prohibited
     - iam-user-no-policies-check
+tags:
+  project: shieldcraft-ai
+  environment: dev
+  owner: ai-solutions
+  cost_center: RND
+  team: mlops
+  compliance: standard

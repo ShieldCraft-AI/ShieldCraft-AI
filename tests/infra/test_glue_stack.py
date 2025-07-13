@@ -42,7 +42,7 @@ def test_glue_stack_synthesizes(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -79,7 +79,7 @@ def test_glue_stack_crawler_creation():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -116,7 +116,7 @@ def test_glue_stack_outputs():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -141,7 +141,7 @@ def test_glue_stack_tags(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -166,7 +166,7 @@ def test_glue_stack_missing_db_name(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -200,7 +200,7 @@ def test_glue_stack_invalid_crawler_config(mock_vpc, mock_iam_role, bad_crawler)
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -235,7 +235,7 @@ def test_glue_stack_duplicate_crawler_names(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -266,7 +266,7 @@ def test_glue_stack_invalid_arn_and_s3(mock_vpc, mock_iam_role, role_arn, s3_pat
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -282,7 +282,7 @@ def test_glue_stack_minimal_config(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -302,7 +302,7 @@ def test_glue_stack_removal_policy_retain(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -325,7 +325,7 @@ def test_glue_stack_removal_policy_destroy(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -350,7 +350,7 @@ def test_glue_stack_tag_propagation(mock_vpc, mock_iam_role):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=mock_iam_role,
         config=config,
     )
@@ -393,7 +393,7 @@ def test_glue_stack_multiple_crawlers():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -414,7 +414,7 @@ def test_glue_stack_invalid_crawlers_type(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -430,7 +430,7 @@ def test_glue_stack_imported_role_arn(mock_vpc):
         test_stack,
         "TestGlueStack",
         vpc=mock_vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role_arn=role_arn,
         config=config,
     )
@@ -446,7 +446,7 @@ def test_glue_stack_missing_config(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=None,
         )
@@ -482,7 +482,7 @@ def test_glue_stack_custom_crawler_schedule_and_prefix():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -524,7 +524,7 @@ def test_glue_stack_output_arns():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -533,13 +533,20 @@ def test_glue_stack_output_arns():
     db_arn = outputs["TestGlueStackGlueDatabaseArn"]
     crawler_arn = outputs["TestGlueStackGlueCrawlertestcrawlerArn"]
 
-    def arn_like(val, service):
+    def arn_like(val, service, depth=0, max_depth=10, seen=None):
         # Accepts string, list, or dict (CloudFormation join, Output wrapping, etc)
+        if seen is None:
+            seen = set()
+        if depth > max_depth:
+            return False
+        if id(val) in seen:
+            return False
+        seen.add(id(val))
         if isinstance(val, dict):
             # Handle CDK Output wrapping
-            if "Value" in val:
-                return arn_like(val["Value"], service)
-            # Handle Fn::Join and other intrinsics
+            value = val.get("Value", val)
+            if isinstance(value, dict) and value is not val:
+                return arn_like(value, service, depth + 1, max_depth, seen)
             if "Fn::Join" in val:
                 join_list = (
                     val["Fn::Join"][1]
@@ -552,13 +559,13 @@ def test_glue_stack_output_arns():
                         flat.append(v)
                     elif isinstance(v, (list, dict)):
                         # Recursively flatten
-                        if arn_like(v, service):
+                        if arn_like(v, service, depth + 1, max_depth, seen):
                             flat.append("")
                 joined = "".join([s for s in flat if isinstance(s, str)])
                 return f"arn:aws:{service}:" in joined
             # Recursively check all dict values
-            for v in val.values():
-                if arn_like(v, service):
+            for v2 in val.values():
+                if arn_like(v2, service, depth + 1, max_depth, seen):
                     return True
             return False
         if isinstance(val, str):
@@ -570,7 +577,7 @@ def test_glue_stack_output_arns():
                 if isinstance(v, str):
                     flat.append(v)
                 elif isinstance(v, (list, dict)):
-                    if arn_like(v, service):
+                    if arn_like(v, service, depth + 1, max_depth, seen):
                         flat.append("")
             joined = "".join([s for s in flat if isinstance(s, str)])
             return f"arn:aws:{service}:" in joined
@@ -599,7 +606,7 @@ def test_glue_stack_no_crawlers_outputs():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -643,7 +650,7 @@ def test_glue_stack_crawler_table_prefix_default():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -673,7 +680,7 @@ def test_glue_stack_invalid_removal_policy():
         test_stack,
         "TestGlueStack",
         vpc=vpc,
-        data_bucket=bucket,
+        buckets={"MockBucket": bucket},
         glue_role=iam_role,
         config=config,
     )
@@ -707,7 +714,7 @@ def test_glue_stack_crawler_s3_path_outside_bucket(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -732,7 +739,7 @@ def test_glue_stack_crawler_missing_name_and_s3_path(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )
@@ -767,7 +774,7 @@ def test_glue_stack_crawler_s3_path_token(mock_vpc, mock_iam_role):
             test_stack,
             "TestGlueStack",
             vpc=mock_vpc,
-            data_bucket=bucket,
+            buckets={"MockBucket": bucket},
             glue_role=mock_iam_role,
             config=config,
         )

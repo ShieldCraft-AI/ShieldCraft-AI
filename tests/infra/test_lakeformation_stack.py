@@ -9,7 +9,10 @@ def test_lakeformation_stack_resource_creation_config():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}]
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -17,7 +20,7 @@ def test_lakeformation_stack_resource_creation_config():
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::LakeFormation::Resource", 1)
     outputs = template.to_json().get("Outputs", {})
-    assert "TestLakeFormationStackLakeFormationResourcebucket1Arn" in outputs
+    assert "LakeFormationResourcebucket1Arn" in outputs
 
 
 # --- Happy path: S3 Resource creation (cross-stack S3 bucket constructs) ---
@@ -28,14 +31,22 @@ def test_lakeformation_stack_resource_creation_s3_buckets():
     test_stack = Stack(app, "TestStack")
     s3_bucket = s3.Bucket(test_stack, "TestBucket", bucket_name="bucket2")
     s3_buckets = {"TestBucket": s3_bucket}
-    config = {"lakeformation": {}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket2",
+            "permissions": [],
+            "buckets": [{"name": "bucket2", "arn": "arn:aws:s3:::bucket2"}],
+        },
+        "app": {"env": "test"},
+    }
     stack = LakeFormationStack(
         test_stack, "TestLakeFormationStack", config=config, s3_buckets=s3_buckets
     )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::LakeFormation::Resource", 1)
     outputs = template.to_json().get("Outputs", {})
-    assert "TestLakeFormationStackLakeFormationResourceTestBucketArn" in outputs
+    assert "LakeFormationResourceTestBucketArn" in outputs
 
 
 # --- Happy path: Permissions creation ---
@@ -45,13 +56,16 @@ def test_lakeformation_stack_permissions_creation():
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [
                 {
                     "principal": "LAKEFORMATION_ADMIN_ROLE_ARN",
+                    "resource_type": "bucket",
                     "resource": {
                         "dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}
                     },
-                    "permissions": ["DATA_LOCATION_ACCESS"],
+                    "actions": ["DATA_LOCATION_ACCESS"],
                 }
             ],
         },
@@ -77,6 +91,9 @@ def test_lakeformation_stack_tags():
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
             "tags": {"Owner": "DataTeam"},
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -103,13 +120,19 @@ def test_lakeformation_stack_removal_policy():
                     "arn": "arn:aws:s3:::bucketdev",
                     "removal_policy": "DESTROY",
                 }
-            ]
+            ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketdev",
+            "permissions": [],
         },
         "app": {"env": "dev"},
     }
     config_prod = {
         "lakeformation": {
-            "buckets": [{"name": "bucketprod", "arn": "arn:aws:s3:::bucketprod"}]
+            "buckets": [{"name": "bucketprod", "arn": "arn:aws:s3:::bucketprod"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketprod",
+            "permissions": [],
         },
         "app": {"env": "prod"},
     }
@@ -132,7 +155,10 @@ def test_lakeformation_stack_monitoring_event_rule():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}]
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -152,13 +178,16 @@ def test_lakeformation_stack_resource_and_permission_exposure():
                 {"name": "bucket1", "arn": "arn:aws:s3:::bucket1"},
                 {"name": "bucket2", "arn": "arn:aws:s3:::bucket2"},
             ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [
                 {
                     "principal": "arn:aws:iam::123456789012:role/LakeAdmin",
+                    "resource_type": "bucket",
                     "resource": {
                         "dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}
                     },
-                    "permissions": ["DATA_LOCATION_ACCESS"],
+                    "actions": ["DATA_LOCATION_ACCESS"],
                 }
             ],
         },
@@ -180,6 +209,9 @@ def test_lakeformation_stack_shared_tags_propagation():
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
             "tags": {"Owner": "LFTeam"},
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -207,13 +239,19 @@ def test_lakeformation_stack_removal_policy_propagation():
                     "arn": "arn:aws:s3:::bucketdev",
                     "removal_policy": "DESTROY",
                 }
-            ]
+            ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketdev",
+            "permissions": [],
         },
         "app": {"env": "dev"},
     }
     config_prod = {
         "lakeformation": {
-            "buckets": [{"name": "bucketprod", "arn": "arn:aws:s3:::bucketprod"}]
+            "buckets": [{"name": "bucketprod", "arn": "arn:aws:s3:::bucketprod"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketprod",
+            "permissions": [],
         },
         "app": {"env": "prod"},
     }
@@ -237,13 +275,16 @@ def test_lakeformation_stack_output_export_names():
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [
                 {
                     "principal": "arn:aws:iam::123456789012:role/LakeAdmin",
+                    "resource_type": "bucket",
                     "resource": {
                         "dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}
                     },
-                    "permissions": ["DATA_LOCATION_ACCESS"],
+                    "actions": ["DATA_LOCATION_ACCESS"],
                 }
             ],
         },
@@ -269,7 +310,10 @@ def test_lakeformation_stack_event_rule_presence():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}]
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -297,7 +341,10 @@ def test_lakeformation_stack_duplicate_bucket_names():
             "buckets": [
                 {"name": "dup", "arn": "arn:aws:s3:::bucket1"},
                 {"name": "dup", "arn": "arn:aws:s3:::bucket2"},
-            ]
+            ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::dup",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -309,7 +356,15 @@ def test_lakeformation_stack_duplicate_bucket_names():
 def test_lakeformation_stack_permissions_not_list():
     app = App()
     test_stack = Stack(app, "TestStack")
-    config = {"lakeformation": {"permissions": "notalist"}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": "notalist",
+        },
+        "app": {"env": "test"},
+    }
     with pytest.raises(ValueError):
         LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)
 
@@ -320,12 +375,15 @@ def test_lakeformation_stack_duplicate_permissions():
     test_stack = Stack(app, "TestStack")
     perm = {
         "principal": "arn:aws:iam::123456789012:role/LakeAdmin",
+        "resource_type": "bucket",
         "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}},
-        "permissions": ["DATA_LOCATION_ACCESS"],
+        "actions": ["DATA_LOCATION_ACCESS"],
     }
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [perm, perm],
         },
         "app": {"env": "test"},
@@ -339,7 +397,12 @@ def test_lakeformation_stack_bucket_missing_fields():
     app = App()
     test_stack = Stack(app, "TestStack")
     config = {
-        "lakeformation": {"buckets": [{"name": "bucket1"}]},
+        "lakeformation": {
+            "buckets": [{"name": "bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
+        },
         "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
@@ -352,7 +415,10 @@ def test_lakeformation_stack_permission_missing_fields():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "permissions": [{"principal": "arn:aws:iam::123456789012:role/LakeAdmin"}]
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [{"principal": "arn:aws:iam::123456789012:role/LakeAdmin"}],
         },
         "app": {"env": "test"},
     }
@@ -364,7 +430,15 @@ def test_lakeformation_stack_permission_missing_fields():
 def test_lakeformation_stack_empty_buckets():
     app = App()
     test_stack = Stack(app, "TestStack")
-    config = {"lakeformation": {"buckets": []}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "buckets": [],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::empty",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
     with pytest.raises(ValueError):
         LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)
 
@@ -375,7 +449,12 @@ def test_lakeformation_stack_invalid_bucket_name():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "INVALID_BUCKET_NAME!", "arn": "arn:aws:s3:::bucket1"}]
+            "buckets": [
+                {"name": "INVALID_BUCKET_NAME!", "arn": "arn:aws:s3:::bucket1"}
+            ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -390,6 +469,8 @@ def test_lakeformation_stack_empty_permissions():
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [],
         },
         "app": {"env": "test"},
@@ -408,6 +489,8 @@ def test_lakeformation_stack_permission_missing_fields_all():
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [{"principal": None, "resource": None, "permissions": None}],
         },
         "app": {"env": "test"},
@@ -422,7 +505,10 @@ def test_lakeformation_stack_minimal_config():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "bucketmin", "arn": "arn:aws:s3:::bucketmin"}]
+            "buckets": [{"name": "bucketmin", "arn": "arn:aws:s3:::bucketmin"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketmin",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -437,7 +523,15 @@ def test_lakeformation_stack_empty_s3_buckets_dict():
     app = App()
     test_stack = Stack(app, "TestStack")
     s3_buckets = {}
-    config = {"lakeformation": {}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "buckets": [],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::empty",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
     with pytest.raises(ValueError):
         LakeFormationStack(
             test_stack, "TestLakeFormationStack", config=config, s3_buckets=s3_buckets
@@ -452,7 +546,15 @@ def test_lakeformation_stack_invalid_s3_bucket_construct():
     app = App()
     test_stack = Stack(app, "TestStack")
     s3_buckets = {"Dummy": DummyBucket()}
-    config = {"lakeformation": {}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "buckets": [],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::dummy",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
     with pytest.raises(ValueError):
         LakeFormationStack(
             test_stack, "TestLakeFormationStack", config=config, s3_buckets=s3_buckets
@@ -468,7 +570,15 @@ def test_lakeformation_stack_unresolved_token_bucket_name():
     unresolved_name = Token.as_string({"Ref": "SomeResource"})
     s3_bucket = s3.Bucket(test_stack, "TestBucket", bucket_name=unresolved_name)
     s3_buckets = {"TestBucket": s3_bucket}
-    config = {"lakeformation": {}, "app": {"env": "test"}}
+    config = {
+        "lakeformation": {
+            "buckets": [{"name": "bucket2", "arn": "arn:aws:s3:::bucket2"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::unresolved",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
     stack = LakeFormationStack(
         test_stack, "TestLakeFormationStack", config=config, s3_buckets=s3_buckets
     )
@@ -482,17 +592,21 @@ def test_lakeformation_stack_duplicate_resource_different_principal():
     test_stack = Stack(app, "TestStack")
     perm1 = {
         "principal": "arn:aws:iam::123456789012:role/LakeAdmin1",
+        "resource_type": "bucket",
         "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}},
-        "permissions": ["DATA_LOCATION_ACCESS"],
+        "actions": ["DATA_LOCATION_ACCESS"],
     }
     perm2 = {
         "principal": "arn:aws:iam::123456789012:role/LakeAdmin2",
+        "resource_type": "bucket",
         "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}},
-        "permissions": ["DATA_LOCATION_ACCESS"],
+        "actions": ["DATA_LOCATION_ACCESS"],
     }
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [perm1, perm2],
         },
         "app": {"env": "test"},
@@ -508,18 +622,26 @@ def test_lakeformation_stack_admin_placeholder_no_role():
     test_stack = Stack(app, "TestStack")
     perm = {
         "principal": "LAKEFORMATION_ADMIN_ROLE_ARN",
+        "resource_type": "bucket",
         "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}},
-        "permissions": ["DATA_LOCATION_ACCESS"],
+        "actions": ["DATA_LOCATION_ACCESS"],
     }
     config = {
         "lakeformation": {
             "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
             "permissions": [perm],
         },
         "app": {"env": "test"},
     }
-    # Should not raise, just uses the placeholder string as principal
-    stack = LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)
+    # Provide lakeformation_admin_role_arn so the placeholder resolves
+    stack = LakeFormationStack(
+        test_stack,
+        "TestLakeFormationStack",
+        config=config,
+        lakeformation_admin_role_arn="arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+    )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::LakeFormation::Permissions", 1)
 
@@ -531,7 +653,10 @@ def test_lakeformation_stack_minimal_and_edge_cases():
     test_stack = Stack(app, "TestStack")
     config = {
         "lakeformation": {
-            "buckets": [{"name": "bucketmin", "arn": "arn:aws:s3:::bucketmin"}]
+            "buckets": [{"name": "bucketmin", "arn": "arn:aws:s3:::bucketmin"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketmin",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
@@ -540,75 +665,109 @@ def test_lakeformation_stack_minimal_and_edge_cases():
     template.resource_count_is("AWS::LakeFormation::Resource", 1)
     # Unhappy: duplicate bucket name
     app = App()
-    test_stack = Stack(app, "TestStack")
+    test_stack_dup = Stack(app, "TestStackDup")
     config_dup = {
         "lakeformation": {
             "buckets": [
                 {"name": "dup", "arn": "arn:aws:s3:::bucket1"},
                 {"name": "dup", "arn": "arn:aws:s3:::bucket2"},
-            ]
+            ],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::dup",
+            "permissions": [],
         },
         "app": {"env": "test"},
     }
-    with pytest.raises(ValueError):
-        LakeFormationStack(test_stack, "TestLakeFormationStackDup", config=config_dup)
-    # Unhappy: invalid bucket name
-    app = App()
-    test_stack = Stack(app, "TestStack")
-    config_bad = {
-        "lakeformation": {
-            "buckets": [{"name": "INVALID!", "arn": "arn:aws:s3:::bucket1"}]
-        },
-        "app": {"env": "test"},
-    }
-    with pytest.raises(ValueError):
-        LakeFormationStack(test_stack, "TestLakeFormationStackBad", config=config_bad)
-    # Unhappy: empty buckets
-    app = App()
-    test_stack = Stack(app, "TestStack")
-    config_empty = {"lakeformation": {"buckets": []}, "app": {"env": "test"}}
     with pytest.raises(ValueError):
         LakeFormationStack(
-            test_stack, "TestLakeFormationStackEmpty", config=config_empty
+            test_stack_dup, "TestLakeFormationStackDup", config=config_dup
+        )
+    # Unhappy: invalid bucket name
+    app = App()
+    test_stack_bad = Stack(app, "TestStackBad")
+    config_bad = {
+        "lakeformation": {
+            "buckets": [{"name": "INVALID!", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
+    with pytest.raises(ValueError):
+        LakeFormationStack(
+            test_stack_bad, "TestLakeFormationStackBad", config=config_bad
+        )
+    # Unhappy: empty buckets
+    app = App()
+    test_stack_empty = Stack(app, "TestStackEmpty")
+    config_empty = {
+        "lakeformation": {
+            "buckets": [],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::empty",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
+    with pytest.raises(ValueError):
+        LakeFormationStack(
+            test_stack_empty, "TestLakeFormationStackEmpty", config=config_empty
         )
     # Unhappy: permissions not a list
     app = App()
-    test_stack = Stack(app, "TestStack")
+    test_stack_perm = Stack(app, "TestStackPerm")
     config_perm = {
         "lakeformation": {
             "buckets": [{"name": "b", "arn": "arn:aws:s3:::b"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::b",
             "permissions": "notalist",
         },
         "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
-        LakeFormationStack(test_stack, "TestLakeFormationStackPerm", config=config_perm)
+        LakeFormationStack(
+            test_stack_perm, "TestLakeFormationStackPerm", config=config_perm
+        )
     # Unhappy: duplicate permissions
     app = App()
-    test_stack = Stack(app, "TestStack")
+    test_stack_dup_perm = Stack(app, "TestStackDupPerm")
     perm = {
         "principal": "arn:aws:iam::123456789012:role/LakeAdmin",
+        "resource_type": "bucket",
         "resource": {"dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}},
-        "permissions": ["DATA_LOCATION_ACCESS"],
+        "actions": ["DATA_LOCATION_ACCESS"],
     }
     config_dup_perm = {
         "lakeformation": {
             "buckets": [{"name": "b", "arn": "arn:aws:s3:::b"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::b",
             "permissions": [perm, perm],
         },
         "app": {"env": "test"},
     }
     with pytest.raises(ValueError):
         LakeFormationStack(
-            test_stack, "TestLakeFormationStackDupPerm", config=config_dup_perm
+            test_stack_dup_perm, "TestLakeFormationStackDupPerm", config=config_dup_perm
         )
     # Unhappy: missing required fields
     app = App()
-    test_stack = Stack(app, "TestStack")
+    test_stack_missing = Stack(app, "TestStackMissing")
     config_missing = {
-        "lakeformation": {"buckets": [{"name": "b"}]},
+        "lakeformation": {
+            "buckets": [{"name": "b"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::b",
+            "permissions": [],
+        },
         "app": {"env": "test"},
     }
+    with pytest.raises(ValueError):
+        LakeFormationStack(
+            test_stack_missing, "TestLakeFormationStackMissing", config=config_missing
+        )
     with pytest.raises(ValueError):
         LakeFormationStack(
             test_stack, "TestLakeFormationStackMissing", config=config_missing
@@ -619,6 +778,8 @@ def test_lakeformation_stack_minimal_and_edge_cases():
     config_perm_missing = {
         "lakeformation": {
             "buckets": [{"name": "b", "arn": "arn:aws:s3:::b"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::b",
             "permissions": [{"principal": None, "resource": None, "permissions": None}],
         },
         "app": {"env": "test"},
@@ -634,7 +795,15 @@ def test_lakeformation_stack_minimal_and_edge_cases():
 
     s3_bucket = s3.Bucket(test_stack, "TestBucket", bucket_name="bucketx")
     s3_buckets = {"TestBucket": s3_bucket}
-    config_cross = {"lakeformation": {}, "app": {"env": "test"}}
+    config_cross = {
+        "lakeformation": {
+            "buckets": [{"name": "bucketx", "arn": "arn:aws:s3:::bucketx"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucketx",
+            "permissions": [],
+        },
+        "app": {"env": "test"},
+    }
     stack = LakeFormationStack(
         test_stack,
         "TestLakeFormationStackCross",
@@ -643,3 +812,50 @@ def test_lakeformation_stack_minimal_and_edge_cases():
     )
     template = assertions.Template.from_stack(stack)
     template.resource_count_is("AWS::LakeFormation::Resource", 1)
+
+
+def test_lakeformation_stack_exports_removal_policy_and_event_rule():
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    config = {
+        "lakeformation": {
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [],
+        },
+        "app": {"env": "prod"},
+    }
+    stack = LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)
+    template = assertions.Template.from_stack(stack)
+    outputs = template.to_json().get("Outputs", {})
+    assert "LakeFormationResourcebucket1RemovalPolicy" in outputs
+    assert "TestLakeFormationStackEventRuleArn" in outputs
+
+
+def test_lakeformation_stack_permission_template_unhappy_path():
+    import pytest
+
+    app = App()
+    test_stack = Stack(app, "TestStack")
+    config = {
+        "lakeformation": {
+            "buckets": [{"name": "bucket1", "arn": "arn:aws:s3:::bucket1"}],
+            "admin_role": "arn:aws:iam::123456789012:role/MockLakeFormationAdminRole",
+            "data_lake_location": "arn:aws:s3:::bucket1",
+            "permissions": [
+                {
+                    "template": "unknown_template",
+                    "principal": "arn:aws:iam::123456789012:role/LakeAdmin",
+                    "resource_type": "bucket",
+                    "resource": {
+                        "dataLocation": {"resourceArn": "arn:aws:s3:::bucket1"}
+                    },
+                    "actions": ["DATA_LOCATION_ACCESS"],
+                }
+            ],
+        },
+        "app": {"env": "test"},
+    }
+    with pytest.raises(ValueError):
+        LakeFormationStack(test_stack, "TestLakeFormationStack", config=config)

@@ -52,4 +52,4 @@ This document identifies and describes all data sources required for ShieldCraft
 
 ---
 
-_ShieldCraft AI — Data Source Inventory & Integration Map_
+_ShieldCraft AI: Data Source Inventory & Integration Map_

@@ -1,68 +1,202 @@
+"""
+ShieldCraftAI AirbyteStack: Airbyte deployment on ECS Fargate with config validation and monitoring.
+"""
+
+from typing import Dict, Optional
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import (
-    Stack,
-    aws_ec2 as ec2,
     aws_secretsmanager as secretsmanager,
-    aws_ecs as ecs,
-    Duration,
-)
-from constructs import Construct
+)  # pylint: disable=unused-import
+from aws_cdk import aws_iam as iam  # pylint: disable=unused-import
+from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_ecs as ecs
+from aws_cdk import aws_elasticloadbalancingv2 as elbv2
+from aws_cdk import aws_logs as logs
+from constructs import Construct  # pylint: disable=unused-import
+from pydantic import BaseModel, Field, ValidationError
+
+
+# --- Config Validation Model ---
+class AirbyteConfig(BaseModel):
+    desired_count: int = Field(default=1, ge=1)
+    cpu: int = Field(default=1024, ge=256)
+    memory: int = Field(default=2048, ge=512)
+    db_secret_arn: Optional[str] = None
+    image: str = Field(default="airbyte/airbyte:0.50.2")
+    container_port: int = Field(default=8000, ge=1)
+    log_group: Optional[str] = None
+    subnet_type: str = Field(default="PRIVATE_WITH_EGRESS")
+    health_check_path: str = Field(default="/api/v1/health")
+    health_check_codes: str = Field(default="200")
+    allowed_cidr: str = Field(default="0.0.0.0/0")
+    removal_policy: Optional[str] = None
+    tags: Dict[str, str] = Field(default_factory=dict)
+    environment: Dict[str, str] = Field(default_factory=dict)
+
+
+class _AirbyteStackDoc:
+    """CDK Stack for deploying Airbyte on ECS Fargate with best practices, config validation, and monitoring."""
+
+
+def validate_airbyte_config(cfg: dict) -> AirbyteConfig:
+    try:
+        return AirbyteConfig(**cfg)
+    except ValidationError as e:
+        raise ValueError(f"Invalid Airbyte config: {e}") from e
 
 
 class AirbyteStack(Stack):
+    """
+    CDK Stack for deploying Airbyte on ECS Fargate with best practices, config validation, and monitoring.
+    """
+
     def __init__(
         self,
-        scope: Construct,
-        construct_id: str,
-        vpc: ec2.IVpc,
-        config: dict,
-        airbyte_role_arn: str,
-        shared_resources: dict = None,
-        shared_tags: dict = None,
+        scope,
+        construct_id,
+        vpc,
+        config,
+        airbyte_role_arn,
+        *args,
+        secrets_manager_arn=None,
+        shared_resources=None,
+        shared_tags=None,
         **kwargs,
     ):
         super().__init__(scope, construct_id, **kwargs)
-        airbyte_cfg = config.get("airbyte", {})
+        self.secrets_manager_arn = secrets_manager_arn
+        self.secrets_manager_secret = None
+        if self.secrets_manager_arn:
+            self.secrets_manager_secret = (
+                secretsmanager.Secret.from_secret_complete_arn(
+                    self, "ImportedVaultSecret", self.secrets_manager_arn
+                )
+            )
+            CfnOutput(
+                self,
+                f"{construct_id}VaultSecretArn",
+                value=self.secrets_manager_arn,
+                export_name=f"{construct_id}-vault-secret-arn",
+            )
+        if self.secrets_manager_secret and airbyte_role_arn:
+            role = iam.Role.from_role_arn(self, "ImportedAirbyteRole", airbyte_role_arn)
+            self.secrets_manager_secret.grant_read(role)
+        airbyte_cfg_raw = config.get("airbyte", {})
         env = config.get("app", {}).get("env", "dev")
-        # Tagging for traceability and custom tags
+        airbyte_cfg = validate_airbyte_config(airbyte_cfg_raw)
+        self._validate_cross_stack_resources(vpc, airbyte_cfg, airbyte_role_arn)
+        self._apply_tags(env, airbyte_cfg, shared_tags)
+        removal_policy = self._resolve_removal_policy(airbyte_cfg, env)
+        db_secret = None
+        if airbyte_cfg.db_secret_arn:
+            db_secret = secretsmanager.Secret.from_secret_complete_arn(
+                self, f"{construct_id}AirbyteDbSecret", airbyte_cfg.db_secret_arn
+            )
+        airbyte_sg = self._create_security_group(construct_id, vpc)
+        alb_sg = self._create_alb_security_group(construct_id, vpc)
+        self.cluster = ecs.Cluster(self, f"{construct_id}AirbyteCluster", vpc=vpc)
+        log_group = self._create_log_group(
+            construct_id, airbyte_cfg, removal_policy, env
+        )
+        task_role = iam.Role.from_role_arn(
+            self,
+            f"{construct_id}AirbyteImportedTaskRole",
+            airbyte_role_arn,
+            mutable=False,
+        )
+        task_def = self._create_task_definition(construct_id, airbyte_cfg, task_role)
+        container = self._add_container(
+            construct_id, task_def, airbyte_cfg, log_group, db_secret
+        )
+        container.add_port_mappings(
+            ecs.PortMapping(container_port=airbyte_cfg.container_port)
+        )
+        subnet_type_value = str(airbyte_cfg.subnet_type)
+        subnet_type = getattr(
+            ec2.SubnetType,
+            subnet_type_value.upper(),
+            ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        )
+        self.service = ecs.FargateService(
+            self,
+            f"{construct_id}AirbyteService",
+            cluster=self.cluster,
+            task_definition=task_def,
+            desired_count=airbyte_cfg.desired_count,
+            security_groups=[airbyte_sg],
+            vpc_subnets=ec2.SubnetSelection(subnet_type=subnet_type),
+        )
+        alb = self._create_alb(construct_id, vpc, alb_sg, subnet_type)
+        self._add_alb_listener_and_targets(construct_id, alb, self.service, airbyte_cfg)
+        self._restrict_ingress(airbyte_sg, airbyte_cfg, env, alb_sg)
+        self.alb = alb
+        self._add_monitoring_and_outputs(construct_id, alb, log_group)
+        self.shared_resources = {
+            "cluster": self.cluster,
+            "service": self.service,
+            "alb": self.alb,
+            "log_group": log_group,
+            "task_alarm": self.ecs_task_alarm,
+            "alb_5xx_alarm": self.alb_5xx_alarm,
+        }
+
+    def _create_alb_security_group(self, construct_id, vpc):
+        return ec2.SecurityGroup(
+            self,
+            f"{construct_id}AirbyteAlbSecurityGroup",
+            vpc=vpc,
+            description="Security group for Airbyte ALB",
+            allow_all_outbound=True,
+        )
+
+    def _validate_cross_stack_resources(self, vpc, airbyte_cfg, airbyte_role_arn):
+        """
+        Explicitly validate referenced cross-stack resources before creation.
+        Raises ValueError if any required resource is missing or misconfigured.
+        """
+        if vpc is None:
+            raise ValueError("AirbyteStack requires a valid VPC reference.")
+        if not airbyte_cfg.image:
+            raise ValueError("AirbyteStack requires a valid image.")
+        if not airbyte_role_arn:
+            raise ValueError("AirbyteStack requires a valid airbyte_role_arn.")
+        if not airbyte_cfg.container_port or airbyte_cfg.container_port < 1:
+            raise ValueError("AirbyteStack requires a valid container_port.")
+        if not airbyte_cfg.cpu or airbyte_cfg.cpu < 256:
+            raise ValueError("AirbyteStack requires a valid cpu value (>=256).")
+        if not airbyte_cfg.memory or airbyte_cfg.memory < 512:
+            raise ValueError("AirbyteStack requires a valid memory value (>=512).")
+
+    def _export_resource(self, name, value):
+        """
+        Export a resource value (ARN, name, etc.) for cross-stack consumption and auditability.
+        """
+        CfnOutput(self, name, value=value, export_name=f"{self.stack_name}-{name}")
+
+    def _apply_tags(
+        self, env: str, airbyte_cfg: AirbyteConfig, shared_tags: Optional[dict]
+    ):
         self.tags.set_tag("Project", "ShieldCraftAI")
         self.tags.set_tag("Environment", env)
-        for k, v in airbyte_cfg.get("tags", {}).items():
+        for k, v in airbyte_cfg.tags.items():
             self.tags.set_tag(k, v)
         if shared_tags:
             for k, v in shared_tags.items():
                 self.tags.set_tag(k, v)
 
-        from aws_cdk import RemovalPolicy, CfnOutput
-
-        # Removal policy
-        removal_policy = airbyte_cfg.get("removal_policy", None)
+    def _resolve_removal_policy(self, airbyte_cfg: AirbyteConfig, env: str):
+        removal_policy = airbyte_cfg.removal_policy
         if isinstance(removal_policy, str):
             removal_policy = getattr(RemovalPolicy, removal_policy.upper(), None)
         if removal_policy is None:
             removal_policy = (
                 RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
             )
+        return removal_policy
 
-        # --- Config Validation ---
-        # instance_type = airbyte_cfg.get('instance_type', 't3.medium')
-        desired_count = airbyte_cfg.get("desired_count", 1)
-        cpu = airbyte_cfg.get("cpu", 1024)
-        memory = airbyte_cfg.get("memory", 2048)
-        if not isinstance(desired_count, int) or desired_count < 1:
-            raise ValueError("Airbyte desired_count must be a positive integer")
-        if cpu and (not isinstance(cpu, int) or cpu < 256):
-            raise ValueError("Airbyte cpu must be an integer >= 256")
-        if memory and (not isinstance(memory, int) or memory < 512):
-            raise ValueError("Airbyte memory must be an integer >= 512")
-
-        secret_arn = airbyte_cfg.get("db_secret_arn")
-        db_secret = None
-        if secret_arn:
-            db_secret = secretsmanager.Secret.from_secret_complete_arn(
-                self, f"{construct_id}AirbyteDbSecret", secret_arn
-            )
-
-        airbyte_sg = ec2.SecurityGroup(
+    def _create_security_group(self, construct_id, vpc):
+        return ec2.SecurityGroup(
             self,
             f"{construct_id}AirbyteSecurityGroup",
             vpc=vpc,
@@ -70,110 +204,80 @@ class AirbyteStack(Stack):
             allow_all_outbound=True,
         )
 
-        self.cluster = ecs.Cluster(self, f"{construct_id}AirbyteCluster", vpc=vpc)
-
-        # --- ECS Task Definition & Service ---
-        airbyte_image = airbyte_cfg.get("image", "airbyte/airbyte:0.50.2")
-        container_port = airbyte_cfg.get("container_port", 8000)
-
-        from aws_cdk import aws_iam as iam
-
-        # Import the Airbyte execution role from the provided ARN
-        task_role = iam.Role.from_role_arn(
-            self,
-            f"{construct_id}AirbyteImportedTaskRole",
-            airbyte_role_arn,
-            mutable=False,
-        )
-
-        from aws_cdk import aws_logs as logs
-
-        log_group_name = airbyte_cfg.get("log_group", f"/aws/ecs/airbyte-{env}")
-        log_group = logs.LogGroup(
+    def _create_log_group(self, construct_id, airbyte_cfg, removal_policy, env):
+        log_group_name = airbyte_cfg.log_group or f"/aws/ecs/airbyte-{env}"
+        return logs.LogGroup(
             self,
             f"{construct_id}AirbyteLogGroup",
             log_group_name=log_group_name,
             removal_policy=removal_policy,
         )
 
-        task_def = ecs.FargateTaskDefinition(
+    def _create_task_definition(self, construct_id, airbyte_cfg, task_role):
+        return ecs.FargateTaskDefinition(
             self,
             f"{construct_id}AirbyteTaskDef",
-            cpu=cpu,
-            memory_limit_mib=memory,
+            cpu=airbyte_cfg.cpu,
+            memory_limit_mib=airbyte_cfg.memory,
             task_role=task_role,
         )
 
-        env_vars = airbyte_cfg.get("environment", {})
+    def _add_container(self, construct_id, task_def, airbyte_cfg, log_group, db_secret):
+        env_vars = airbyte_cfg.environment
         container_secrets = {}
-        if secret_arn:
-            # Inject the actual secret value as AIRBYTE_DB_SECRET
+        if airbyte_cfg.db_secret_arn and db_secret is not None:
             container_secrets["AIRBYTE_DB_SECRET"] = ecs.Secret.from_secrets_manager(
                 db_secret
             )
-
-        container = task_def.add_container(
+        return task_def.add_container(
             f"{construct_id}AirbyteContainer",
-            image=ecs.ContainerImage.from_registry(airbyte_image),
+            image=ecs.ContainerImage.from_registry(airbyte_cfg.image),
             logging=ecs.LogDriver.aws_logs(
                 stream_prefix="airbyte", log_group=log_group
             ),
             environment=env_vars,
             secrets=container_secrets if container_secrets else None,
         )
-        container.add_port_mappings(ecs.PortMapping(container_port=container_port))
 
-        subnet_type_str = airbyte_cfg.get("subnet_type", "PRIVATE_WITH_EGRESS").upper()
-        subnet_type = getattr(
-            ec2.SubnetType, subnet_type_str, ec2.SubnetType.PRIVATE_WITH_EGRESS
-        )
-
-        self.service = ecs.FargateService(
-            self,
-            f"{construct_id}AirbyteService",
-            cluster=self.cluster,
-            task_definition=task_def,
-            desired_count=desired_count,
-            security_groups=[airbyte_sg],
-            vpc_subnets=ec2.SubnetSelection(subnet_type=subnet_type),
-        )
-
-        from aws_cdk import aws_elasticloadbalancingv2 as elbv2
-
-        alb = elbv2.ApplicationLoadBalancer(
+    def _create_alb(self, construct_id, vpc, airbyte_sg, subnet_type):
+        return elbv2.ApplicationLoadBalancer(
             self,
             f"{construct_id}AirbyteALB",
             vpc=vpc,
             internet_facing=True if subnet_type == ec2.SubnetType.PUBLIC else False,
             security_group=airbyte_sg,
         )
+
+    def _add_alb_listener_and_targets(self, construct_id, alb, service, airbyte_cfg):
         listener = alb.add_listener(
             f"{construct_id}AirbyteListener", port=80, open=True
         )
-        health_path = airbyte_cfg.get("health_check_path", "/api/v1/health")
-        healthy_codes = airbyte_cfg.get("health_check_codes", "200")
         listener.add_targets(
             f"{construct_id}AirbyteTarget",
-            port=container_port,
-            targets=[self.service],
+            port=airbyte_cfg.container_port,
+            targets=[service],
             health_check=elbv2.HealthCheck(
-                path=health_path, healthy_http_codes=healthy_codes
+                path=airbyte_cfg.health_check_path,
+                healthy_http_codes=airbyte_cfg.health_check_codes,
             ),
         )
 
-        # Restrict security group ingress to ALB or open to 0.0.0.0/0 for demo, but recommend locking down in prod
-        allowed_cidr = airbyte_cfg.get("allowed_cidr", "0.0.0.0/0")
-        airbyte_sg.add_ingress_rule(
-            peer=ec2.Peer.ipv4(allowed_cidr),
-            connection=ec2.Port.tcp(80),
-            description="Allow HTTP from ALB or allowed CIDR",
-        )
+    def _restrict_ingress(self, airbyte_sg, airbyte_cfg, env, alb_sg):
+        # Harden: Only allow ALB SecurityGroup to talk to ECS unless in dev/demo
+        if env == "prod":
+            airbyte_sg.add_ingress_rule(
+                peer=ec2.Peer.security_group_id(alb_sg.security_group_id),
+                connection=ec2.Port.tcp(80),
+                description="Allow HTTP from ALB SecurityGroup only",
+            )
+        else:
+            airbyte_sg.add_ingress_rule(
+                peer=ec2.Peer.ipv4(airbyte_cfg.allowed_cidr),
+                connection=ec2.Port.tcp(80),
+                description="Allow HTTP from allowed CIDR",
+            )
 
-        self.alb = alb
-
-        # --- Monitoring: CloudWatch alarms for ECS service and ALB ---
-        from aws_cdk import aws_cloudwatch as cloudwatch
-
+    def _add_monitoring_and_outputs(self, construct_id, alb, log_group):
         # ECS Service Task Failures metric (ServiceTaskFailures)
         ecs_task_failures_metric = cloudwatch.Metric(
             namespace="AWS/ECS",
@@ -221,7 +325,6 @@ class AirbyteStack(Stack):
             value=self.alb_5xx_alarm.alarm_arn,
             export_name=f"{construct_id}-alb-5xx-alarm-arn",
         )
-
         # --- Outputs: ALB DNS, ECS Service Name, Log Group Name ---
         CfnOutput(
             self,
@@ -241,12 +344,3 @@ class AirbyteStack(Stack):
             value=log_group.log_group_name,
             export_name=f"{construct_id}-log-group",
         )
-        # Expose for downstream stacks
-        self.shared_resources = {
-            "cluster": self.cluster,
-            "service": self.service,
-            "alb": self.alb,
-            "log_group": log_group,
-            "task_alarm": self.ecs_task_alarm,
-            "alb_5xx_alarm": self.alb_5xx_alarm,
-        }

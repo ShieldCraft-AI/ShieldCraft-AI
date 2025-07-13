@@ -12,12 +12,17 @@ class ShieldcraftPipelineStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        repo_owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "Dee66")
-        repo_name = os.environ.get("GITHUB_REPOSITORY_NAME", "shieldcraft-ai")
-        branch = os.environ.get("GITHUB_BRANCH", "main")
-        github_connection_arn = os.environ.get(
-            "GITHUB_CONNECTION_ARN"
-        )  # Set in AWS Secrets Manager or env
+        from infra.utils.config_loader import get_config_loader
+
+        config = get_config_loader().export()
+        repo_owner = config.get("github_repository_owner", "Dee66")
+        repo_name = config.get("github_repository_name", "shieldcraft-ai")
+        branch = config.get("github_branch", "main")
+        github_connection_arn = config.get("github_connection_arn")
+        if not github_connection_arn:
+            raise ValueError(
+                "GITHUB_CONNECTION_ARN environment variable must be set and non-empty."
+            )
 
         source = pipelines.CodePipelineSource.connection(
             f"{repo_owner}/{repo_name}",

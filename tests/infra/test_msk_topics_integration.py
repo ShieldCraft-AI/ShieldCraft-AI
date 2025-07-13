@@ -35,14 +35,15 @@ def test_msk_topics_exist():
     )
     assert topic_lambda, "msk_topic_creator lambda config not found"
 
-    # Get cluster ARN and topics from config
-    cluster_arn = msk_cfg["cluster"].get("arn")
-    if not cluster_arn:
-        # Try to extract from outputs if not present in config
-        cluster_arn = msk_cfg["cluster"].get("cluster_arn")
+    # Get cluster ARN and topics from config, with environment variable fallback
+    cluster_arn = (
+        msk_cfg["cluster"].get("arn")
+        or msk_cfg["cluster"].get("cluster_arn")
+        or os.environ.get("MSK_CLUSTER_ARN")
+    )
     if not cluster_arn:
         pytest.skip(
-            "MSK cluster ARN not found in config. Add 'arn' or 'cluster_arn' to msk.cluster config."
+            "MSK cluster ARN not found in config or environment. Add 'arn' or 'cluster_arn' to msk.cluster config, or set MSK_CLUSTER_ARN env var."
         )
 
     # Support both new and legacy topic config

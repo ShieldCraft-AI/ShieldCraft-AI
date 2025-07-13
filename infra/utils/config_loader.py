@@ -1,12 +1,68 @@
+def _normalize_empty_dicts(config, model):
+    """
+    Recursively convert empty dicts for optional model fields to None.
+    """
+    if not isinstance(config, dict):
+        return config
+    normalized = {}
+    for field, value in config.items():
+        if field in model.model_fields:
+            field_info = model.model_fields[field]
+            annotation = field_info.annotation
+            # If the field is a model and optional, and value is an empty dict, remove the key
+            if (
+                hasattr(annotation, "__mro__")
+                and issubclass(annotation.__mro__[0], BaseModel)
+                and (field_info.is_required is False or field_info.default is None)
+                and value == {}
+            ):
+                continue  # Remove the key entirely
+            elif (
+                isinstance(value, dict)
+                and hasattr(annotation, "__mro__")
+                and issubclass(annotation.__mro__[0], BaseModel)
+            ):
+                normalized[field] = _normalize_empty_dicts(value, annotation)
+            else:
+                normalized[field] = value
+        else:
+            normalized[field] = value
+    return normalized
+
+
+def _ensure_plain_dict(obj):
+    """
+    Recursively convert any Pydantic models to plain dicts.
+    """
+    if isinstance(obj, dict):
+        return {k: _ensure_plain_dict(v) for k, v in obj.items()}
+    if hasattr(obj, "model_dump"):
+        return _ensure_plain_dict(obj.model_dump())
+    if isinstance(obj, list):
+        return [_ensure_plain_dict(v) for v in obj]
+    return obj
+
+
+"""
+ConfigLoader for ShieldCraft AI
+This module provides a singleton ConfigLoader class that loads configuration
+"""
+
 import os
 import logging
 import re
+import pathlib
+
 from typing import Any, Dict, Optional
 from threading import Lock
-from pydantic import BaseModel, ValidationError
-from .config_backends import ConfigBackend, LocalYamlBackend, S3Backend, SSMBackend
-
-import pathlib
+from pydantic import ValidationError, BaseModel
+from infra.utils.config_backends import (
+    ConfigBackend,
+    LocalYamlBackend,
+    S3Backend,
+    SSMBackend,
+)
+from infra.utils.config_schema import ShieldCraftConfig
 
 # Use project root /config directory, not infra/config
 CONFIG_DIR = str(pathlib.Path(__file__).parent.parent.parent / "config")
@@ -15,18 +71,6 @@ _DEFAULT_ENV = "dev"
 _SECRET_PATTERN = re.compile(r"^aws-vault:(.+)$")
 _CONFIG_LOADER_SINGLETON = None
 _CONFIG_LOADER_LOCK = Lock()
-
-
-class ConfigSchema(BaseModel):
-    app: dict
-    s3: dict
-    glue: dict
-    msk: dict
-    lambda_: Optional[dict] = None
-    opensearch: Optional[dict] = None
-    airbyte: Optional[dict] = None
-    data_quality: Optional[dict] = None
-    lakeformation: Optional[dict] = None
 
 
 class ConfigLoader:
@@ -45,24 +89,26 @@ class ConfigLoader:
 
     def __init__(
         self,
-        env: str = None,
+        env: Optional[str] = None,
         strict: bool = False,
-        schema: Optional[BaseModel] = None,
         backend: Optional[ConfigBackend] = None,
     ):
-        if hasattr(self, "_initialized") and self._initialized:
+        if not hasattr(self, "_initialized"):
+            self._initialized = False
+        if self._initialized:
             return
         self.backend = backend
         # If a backend is provided (e.g., for testing), skip env validation and backend selection
         if backend is not None:
-            self.env = env
+            self.env = env if env is not None else _DEFAULT_ENV
             self.strict = strict
-            self.schema = schema or ConfigSchema
             self.config = self._load_config()
             self._initialized = True
             return
         self.env = (
-            env or os.environ.get("ENV") or os.environ.get("APP_ENV") or _DEFAULT_ENV
+            env
+            if env is not None
+            else os.environ.get("ENV") or os.environ.get("APP_ENV") or _DEFAULT_ENV
         )
         self.env = self.env.lower()
         if self.env not in _VALID_ENVS:
@@ -70,7 +116,6 @@ class ConfigLoader:
                 f"Invalid environment: {self.env}. Must be one of {_VALID_ENVS}."
             )
         self.strict = strict
-        self.schema = schema or ConfigSchema
         self.backend = self._select_backend()
         self.config = self._load_config()
         self._initialized = True
@@ -90,17 +135,55 @@ class ConfigLoader:
             return SSMBackend(param_prefix)
         raise ValueError(f"Unknown config backend: {backend_type}")
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict:
+        if self.backend is None:
+            raise RuntimeError("Config backend is not set. Cannot load config.")
         config = self.backend.load(self.env)
-        if not config or not isinstance(config, dict):
-            raise ValueError(f"Config for env {self.env} is empty or invalid.")
-        # Validate schema
+        # Defensive: ensure config is a plain dict
+        if not config or type(config) is not dict:
+            if hasattr(config, "model_dump"):
+                config = config.model_dump()
+            else:
+                config = dict(config)
+        # Only keep allowed keys and remove optional sections with empty dicts
+        allowed_keys = set(ShieldCraftConfig.model_fields.keys())
+        cleaned = {}
+        for k, v in config.items():
+            if k not in allowed_keys:
+                continue
+            field_info = ShieldCraftConfig.model_fields.get(k)
+            annotation = field_info.annotation if field_info else None
+            # Remove key if optional section and value is empty dict
+            if (
+                field_info
+                and hasattr(annotation, "__mro__")
+                and issubclass(annotation.__mro__[0], BaseModel)
+                and (field_info.is_required is False or field_info.default is None)
+                and v == {}
+            ):
+                continue
+            cleaned[k] = v
+        config = _normalize_empty_dicts(cleaned, ShieldCraftConfig)
+        # Ensure config is a plain dict before validation (handles nested models)
+        config = _ensure_plain_dict(config)
+        # Only enforce presence of core required fields
+        required_fields = ["app", "s3", "glue"]
+        missing = [k for k in required_fields if k not in config]
+        if missing:
+            raise ValueError(f"Missing required config sections: {missing}")
+        validated = None
         try:
-            self.schema(**{k.replace("-", "_"): v for k, v in config.items()})
+            validated = ShieldCraftConfig.model_validate(config)
         except ValidationError as e:
             if self.strict:
                 raise ValueError(f"Config schema validation failed: {e}")
-        return config
+            import logging
+
+            logging.getLogger("shieldcraft").warning(
+                f"Config schema validation failed, using raw config: {e}"
+            )
+            return config
+        return validated.model_dump() if validated is not None else config
 
     def reload(self):
         self.config = self._load_config()
@@ -149,7 +232,7 @@ class ConfigLoader:
             raise KeyError(f"Missing config section: {section}")
         return {}
 
-    def export(self, redact_secrets: bool = True) -> Dict[str, Any]:
+    def export(self, redact_secrets: bool = True) -> Any:
         def redact(obj):
             if isinstance(obj, dict):
                 return {k: redact(v) for k, v in obj.items()}

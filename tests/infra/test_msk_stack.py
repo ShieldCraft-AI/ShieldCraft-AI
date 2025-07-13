@@ -213,6 +213,8 @@ def test_msk_stack_invalid_client_subnets_empty():
 def test_msk_stack_invalid_security_groups_notalist():
     app = App()
     test_stack = Stack(app, "TestStack")
+
+    # --- Broker Storage and Encryption Configs ---
     vpc = DummyVpc(test_stack, "DummyVpc")
     config = {
         "msk": {
@@ -234,6 +236,7 @@ def test_msk_stack_invalid_security_groups_notalist():
             "TestMskStack",
             vpc=vpc,
             config=config,
+            # --- Topic Resource Export ---
             msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
             msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
             msk_consumer_role_arn="arn:aws:iam::123456789012:role/mock-msk-consumer-role",
@@ -255,6 +258,7 @@ def test_msk_stack_invalid_security_groups_empty():
                 "instance_type": "kafka.m5.large",
                 "security_groups": [],
             },
+            # --- Alarm Configuration Unhappy Paths ---
         },
         "app": {"env": "test"},
     }
@@ -279,6 +283,7 @@ def test_msk_stack_outputs_and_arns(msk_config):
         app,
         "TestMskStack",
         vpc=vpc,
+        # --- Parallel Instantiation (Sequential for CDK Safety) ---
         config=msk_config,
         msk_client_role_arn="arn:aws:iam::123456789012:role/mock-msk-client-role",
         msk_producer_role_arn="arn:aws:iam::123456789012:role/mock-msk-producer-role",
@@ -300,6 +305,7 @@ def test_msk_stack_outputs_and_arns(msk_config):
             for v in join_list:
                 if isinstance(v, str):
                     flat.append(v)
+                # --- Extra/Unknown Config Fields (Deeply Nested) ---
                 elif isinstance(v, (list, dict)):
                     if arn_like(v, service):
                         flat.append("")
@@ -324,6 +330,7 @@ def test_msk_stack_outputs_and_arns(msk_config):
         if isinstance(val, dict):
             for v in val.values():
                 if arn_like(v, service):
+                    # --- Scale/Performance: Large Number of Topics ---
                     return True
         return False
 

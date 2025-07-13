@@ -16,6 +16,7 @@ DEBUG_LOG_FILE = os.path.join(
 @nox.session(python=PYTHON_VERSIONS)
 def notebooks(session):
     from nox_sessions.utils_poetry import ensure_poetry_installed
+
     ensure_poetry_installed()
     """Validate and lint/format all Jupyter notebooks (nbval, nbqa, ruff, black)."""
     from nox_sessions.utils_color import color_log, color_error
