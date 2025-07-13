@@ -27,7 +27,6 @@ const config: Config = {
   projectName: 'docusaurus', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -44,7 +43,6 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/', // TODO DP -> fix
-          remarkPlugins: [require('remark-mermaidjs')],
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +54,6 @@ const config: Config = {
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
-          remarkPlugins: [require('remark-mermaidjs')],
         },
         theme: {
           customCss: './src/css/custom.css',

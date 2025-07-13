@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 1
       - name: Aggressive disk cleanup (pre-deps)
         run: |
+          echo "::group::DISK_DEBUG: Aggressive disk cleanup (pre-deps)"
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
           sudo rm -rf /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/go /usr/local/share/powershell
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
@@ -27,14 +28,22 @@ jobs:
           poetry cache clear --all pypi || true
           pip cache purge || true
           rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
-          echo "[DEBUG] Disk usage before any build steps:" && df -h
-          echo "[DEBUG] Workspace size before build:" && du -sh ./* || true
-          echo "[DEBUG] Top 20 largest files before build:" && find . -type f -exec du -h {} + | sort -rh | head -20
+          echo "DISK_DEBUG: df -h after cleanup"
+          df -h
+          echo "DISK_DEBUG: du -sh workspace root"
+          du -sh ./*
+          echo "::endgroup::"
       - name: Clean Python/Nox artifacts (pre-Nox)
         run: |
+          echo "::group::DISK_DEBUG: Clean Python/Nox artifacts (pre-Nox)"
           rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
           poetry cache clear --all pypi || true
           pip cache purge || true
+          echo "DISK_DEBUG: df -h after Python/Nox artifact cleanup"
+          df -h
+          echo "DISK_DEBUG: du -sh workspace root"
+          du -sh ./*
+          echo "::endgroup::"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -53,31 +62,39 @@ jobs:
         run: pip install poetry
       - name: Install project dependencies (main only)
         run: |
+          echo "::group::DISK_DEBUG: Install project dependencies (main only)"
           poetry install --with dev --no-interaction --no-root
           poetry cache clear --all pypi || true
           pip cache purge || true
-          echo "[DEBUG] Disk usage after Poetry install:" && df -h
-          echo "[DEBUG] Workspace size after Poetry install:" && du -sh ./* || true
-          echo "[DEBUG] Top 20 largest files after Poetry install:" && find . -type f -exec du -h {} + | sort -rh | head -20
+          echo "DISK_DEBUG: df -h after poetry install"
+          df -h
+          echo "DISK_DEBUG: du -sh workspace root"
+          du -sh ./*
+          echo "::endgroup::"
       - name: Run all checks via Nox (flow_commit)
         run: |
+          echo "::group::DISK_DEBUG: Run all checks via Nox (flow_commit)"
           poetry run nox -s commit_flow
           poetry cache clear --all pypi || true
           pip cache purge || true
-          echo "[DEBUG] Disk usage after Nox orchestration:" && df -h
-          echo "[DEBUG] Workspace size after Nox orchestration:" && du -sh ./* || true
-          echo "[DEBUG] Top 20 largest files after Nox orchestration:" && find . -type f -exec du -h {} + | sort -rh | head -20
+          echo "DISK_DEBUG: df -h after Nox checks"
+          df -h
+          echo "DISK_DEBUG: du -sh workspace root"
           du -sh ./*
+          echo "::endgroup::"
       - name: Aggressive disk cleanup (post-Nox)
         run: |
+          echo "::group::DISK_DEBUG: Aggressive disk cleanup (post-Nox)"
           rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
           poetry cache clear --all pypi || true
           pip cache purge || true
           docker system prune -af --volumes
           docker builder prune -af
-          echo "[DEBUG] Disk usage after cleanup:" && df -h
-          echo "[DEBUG] Workspace size after cleanup:" && du -sh ./* || true
-          echo "[DEBUG] Top 20 largest files after cleanup:" && find . -type f -exec du -h {} + | sort -rh | head -20
+          echo "DISK_DEBUG: df -h after post-Nox cleanup"
+          df -h
+          echo "DISK_DEBUG: du -sh workspace root"
+          du -sh ./*
+          echo "::endgroup::"
 
   cdk_deploy:
     name: "CDK Deploy"

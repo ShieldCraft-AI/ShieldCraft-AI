@@ -1,3 +1,21 @@
+# Python and Nox artifacts
+.nox/
+.venv/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+# Poetry and pip cache
+.cache/
+# VSCode and IDE
+.vscode/
+# Docker
+*.log
+# Node modules
+node_modules/
 # .dockerignore for ShieldCraft AI
 # Exclude files and directories that should not be sent to the Docker build context
 # This will dramatically reduce build context size and speed up builds
