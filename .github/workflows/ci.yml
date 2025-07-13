@@ -23,6 +23,8 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
           sudo apt-get clean
           df -h
+      - name: Clean Python/Nox artifacts (pre-Nox)
+        run: rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -43,6 +45,8 @@ jobs:
         run: poetry install --no-interaction --no-root --with dev
       - name: Run all checks via Nox (flow_commit)
         run: poetry run nox -s commit_flow
+      - name: Clean Python/Nox artifacts (post-Nox)
+        run: rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
 
   cdk_deploy:
     name: "CDK Deploy"
