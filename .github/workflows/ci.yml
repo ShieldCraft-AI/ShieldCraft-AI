@@ -27,7 +27,9 @@ jobs:
           poetry cache clear --all pypi || true
           pip cache purge || true
           rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
-          df -h
+          echo "[DEBUG] Disk usage before any build steps:" && df -h
+          echo "[DEBUG] Workspace size before build:" && du -sh ./* || true
+          echo "[DEBUG] Top 20 largest files before build:" && find . -type f -exec du -h {} + | sort -rh | head -20
       - name: Clean Python/Nox artifacts (pre-Nox)
         run: |
           rm -rf .pytest_cache .nox dist build __pycache__ *.pyc *.pyo
@@ -54,13 +56,17 @@ jobs:
           poetry install --with dev --no-interaction --no-root
           poetry cache clear --all pypi || true
           pip cache purge || true
-          df -h
+          echo "[DEBUG] Disk usage after Poetry install:" && df -h
+          echo "[DEBUG] Workspace size after Poetry install:" && du -sh ./* || true
+          echo "[DEBUG] Top 20 largest files after Poetry install:" && find . -type f -exec du -h {} + | sort -rh | head -20
       - name: Run all checks via Nox (flow_commit)
         run: |
           poetry run nox -s commit_flow
           poetry cache clear --all pypi || true
           pip cache purge || true
-          df -h
+          echo "[DEBUG] Disk usage after Nox orchestration:" && df -h
+          echo "[DEBUG] Workspace size after Nox orchestration:" && du -sh ./* || true
+          echo "[DEBUG] Top 20 largest files after Nox orchestration:" && find . -type f -exec du -h {} + | sort -rh | head -20
           du -sh ./*
       - name: Aggressive disk cleanup (post-Nox)
         run: |
@@ -69,7 +75,9 @@ jobs:
           pip cache purge || true
           docker system prune -af --volumes
           docker builder prune -af
-          df -h
+          echo "[DEBUG] Disk usage after cleanup:" && df -h
+          echo "[DEBUG] Workspace size after cleanup:" && du -sh ./* || true
+          echo "[DEBUG] Top 20 largest files after cleanup:" && find . -type f -exec du -h {} + | sort -rh | head -20
 
   cdk_deploy:
     name: "CDK Deploy"

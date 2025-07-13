@@ -314,7 +314,3 @@ flowchart TD
     budget_stack --> cloud_native_hardening_stack
     budget_stack --> compliance_stack
 ```
-
-> **How to use:** Copy the above Mermaid diagram into your markdown viewer or documentation tool (e.g., GitHub, VS Code, Mermaid Live Editor) to visualize stack dependencies and relationships.
-
----
