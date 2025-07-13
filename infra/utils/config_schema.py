@@ -72,6 +72,12 @@ class AppConfig(BaseModel):
     config_version: Optional[str] = None
     last_modified: Optional[str] = None
     author: Optional[str] = None
+    sns_topic_secret_arn: Optional[str] = Field(
+        default=None, description="ARN for SNS topic secret", secret=True
+    )
+    external_api_key_arn: Optional[str] = Field(
+        default=None, description="ARN for external API key", secret=True
+    )
 
     model_config = ConfigDict(extra="ignore")
 
@@ -308,11 +314,41 @@ class SageMakerConfig(BaseModel):
 
 
 class CloudNativeHardeningConfig(BaseModel):
+    @model_validator(mode="after")
+    def enforce_secret_fields_are_vault_refs(cls, self):
+        secret_fields = ["sns_topic_secret_arn", "external_api_key_arn"]
+        vault_pattern = re.compile(r"^(aws-vault:|arn:aws:secretsmanager:)")
+        for field in secret_fields:
+            value = getattr(self, field, None)
+            if value is not None and not vault_pattern.match(str(value)):
+                raise ValueError(
+                    f"{field} must be a vault reference (aws-vault: or arn:aws:secretsmanager:), got: {value}"
+                )
+        return self
+
+    @model_validator(mode="after")
+    def enforce_secret_fields_are_vault_refs(cls, self):
+        secret_fields = ["sns_topic_secret_arn", "external_api_key_arn"]
+        vault_pattern = re.compile(r"^(aws-vault:|arn:aws:secretsmanager:)")
+        for field in secret_fields:
+            value = getattr(self, field, None)
+            if value is not None and not vault_pattern.match(str(value)):
+                raise ValueError(
+                    f"{field} must be a vault reference (aws-vault: or arn:aws:secretsmanager:), got: {value}"
+                )
+        return self
+
     """Cloud-native hardening and compliance configuration."""
 
     enable_cloudwatch_alarms: Optional[bool] = None
     alarm_email: Optional[str] = None
     config_rules: Optional[List[str]] = None
+    sns_topic_secret_arn: Optional[str] = Field(
+        default=None, description="ARN for SNS topic secret", secret=True
+    )
+    external_api_key_arn: Optional[str] = Field(
+        default=None, description="ARN for external API key", secret=True
+    )
 
     model_config = ConfigDict(extra="ignore")
 

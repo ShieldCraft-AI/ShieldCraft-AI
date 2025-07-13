@@ -8,35 +8,20 @@ Includes:
 """
 
 from typing import Any, Dict, List, Optional, cast
-from aws_cdk import Stack, CfnOutput
-from aws_cdk import aws_cloudwatch as cloudwatch
-from aws_cdk import (
-    aws_secretsmanager as secretsmanager,
-)  # pylint: disable=unused-import
-from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
-from aws_cdk import aws_config as cdk_config
-from aws_cdk import aws_iam as iam
-from aws_cdk import aws_lambda as _lambda
-from aws_cdk import aws_sns as sns
-from aws_cdk.aws_cloudwatch import IAlarmAction
-from constructs import Construct
+from constructs import Construct  # pylint: disable=unused-import
 from pydantic import BaseModel, Field, ValidationError
-
-from typing import Any, Dict, List, Optional, cast
 from aws_cdk import Stack
 from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import (
     aws_secretsmanager as secretsmanager,
 )  # pylint: disable=unused-import
-from aws_cdk import CfnOutput  # pylint: disable=unused-import
 from aws_cdk import aws_cloudwatch_actions as cloudwatch_actions
 from aws_cdk import aws_config as cdk_config
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_sns as sns
 from aws_cdk.aws_cloudwatch import IAlarmAction
-from constructs import Construct
-from pydantic import BaseModel, Field, ValidationError
+from aws_cdk import CfnOutput  # pylint: disable=unused-import
 
 
 class LambdaFunctionConfig(BaseModel):

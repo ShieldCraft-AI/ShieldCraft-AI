@@ -63,6 +63,7 @@ pytest-xdist = "^3.8.0"
 pylint = "^3.3.7"
 autoflake = "^2.3.1"
 pytest-forked = "^1.6.0"
+pyyaml = "^6.0.0"
 
 [tool.poetry.group.security.dependencies]
 safety = "^3.2.0"

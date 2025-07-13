@@ -120,6 +120,11 @@ jobs:
       - name: Export image tag
         id: export_tag
         run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
+      - name: Aggressive Docker Cleanup
+        run: |
+          docker system prune -af --volumes
+          docker builder prune -af
+          df -h
 
   docker_build_ingestion:
     name: "Docker Build: Ingestion"
@@ -164,6 +169,11 @@ jobs:
       - name: Export image tag
         id: export_tag
         run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
+      - name: Aggressive Docker Cleanup
+        run: |
+          docker system prune -af --volumes
+          docker builder prune -af
+          df -h
 
   docker_build_main:
     name: "Docker Build: Main"
@@ -208,6 +218,11 @@ jobs:
       - name: Export image tag
         id: export_tag
         run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
+      - name: Aggressive Docker Cleanup
+        run: |
+          docker system prune -af --volumes
+          docker builder prune -af
+          df -h
 
   docker_scan_api:
     name: "Docker Scan: API"

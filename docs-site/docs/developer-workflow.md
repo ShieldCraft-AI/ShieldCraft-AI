@@ -17,10 +17,10 @@ sidebar_position: 2
 <ol style="margin-bottom:0.5em;">
   <li>Clone the repo: <code>git clone https://github.com/Dee66/shieldcraft-ai.git</code></li>
   <li>Install dependencies: <code>poetry install</code></li>
-  <li>Deploy infrastructure: All AWS deployments use <b>CDK v2</b> and <b>AWS CLI v2</b> only.<br>
-    <b>Authentication is via IAM Identity Center (SSO) for developers, or OIDC for CI/CD.</b><br>
-    <b>Static AWS credentials and CDK v1 are not supported.</b><br>
-    <b>Before deploying, run:</b> <code>aws configure sso</code> and select your assigned profile and region.<br>
+  <li>Deploy infrastructure: All AWS deployments use <b>CDK v2</b> and <b>AWS CLI v2</b> only.<br />
+    <b>Authentication is via IAM Identity Center (SSO) for developers, or OIDC for CI/CD.</b><br />
+    <b>Static AWS credentials and CDK v1 are not supported.</b><br />
+    <b>Before deploying, run:</b> <code>aws configure sso</code> and select your assigned profile and region.<br />
     See below for onboarding steps.
   </li>
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">

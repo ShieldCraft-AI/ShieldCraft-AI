@@ -190,16 +190,55 @@ class ConfigLoader:
 
     def _resolve_env_override(self, key_path: str) -> Optional[Any]:
         env_key = key_path.upper().replace(".", "_")
-        return os.environ.get(env_key)
+        value = os.environ.get(env_key)
+        if value is not None:
+            logging.getLogger("shieldcraft.audit").info(
+                f"[AUDIT] ENV override accessed: key={key_path}, env_key={env_key}, value=REDACTED, env={self.env}"
+            )
+        return value
 
     def _resolve_secret(self, value: Any) -> Any:
         if isinstance(value, str):
             match = _SECRET_PATTERN.match(value)
             if match:
                 secret_name = match.group(1)
-                # Placeholder for AWS Vault/SecretsManager integration
-                # In production, fetch secret from AWS here
-                return f"[REDACTED:{secret_name}]"
+                logging.getLogger("shieldcraft.audit").info(
+                    f"[AUDIT] Secret access: secret_name={secret_name}, env={self.env}"
+                )
+                try:
+                    import boto3
+
+                    client = boto3.client("secretsmanager")
+                    response = client.get_secret_value(SecretId=secret_name)
+                    secret_val = response.get("SecretString")
+                    if secret_val is not None:
+                        return secret_val
+                    if "SecretBinary" in response:
+                        return response["SecretBinary"].decode()
+                except Exception as e:
+                    logging.getLogger("shieldcraft").warning(
+                        f"Failed to fetch secret '{secret_name}': {e}"
+                    )
+                    return f"[REDACTED:{secret_name}]"
+            if value.startswith("arn:aws:secretsmanager:"):
+                logging.getLogger("shieldcraft.audit").info(
+                    f"[AUDIT] Secret access by ARN: arn={value}, env={self.env}"
+                )
+                try:
+                    import boto3
+
+                    client = boto3.client("secretsmanager")
+                    response = client.get_secret_value(SecretId=value)
+                    secret_val = response.get("SecretString")
+                    if secret_val is not None:
+                        return secret_val
+                    if "SecretBinary" in response:
+                        return response["SecretBinary"].decode()
+                except Exception as e:
+                    logging.getLogger("shieldcraft").warning(
+                        f"Failed to fetch secret by ARN '{value}': {e}"
+                    )
+                    return f"[REDACTED:{value}]"
         return value
 
     def get(self, key: str, default: Any = None, strict: Optional[bool] = None) -> Any:
@@ -210,17 +249,24 @@ class ConfigLoader:
             if isinstance(value, dict) and k in value:
                 value = value[k]
             else:
-                # Check env override
                 env_override = self._resolve_env_override(key)
                 if env_override is not None:
+                    logging.getLogger("shieldcraft.audit").info(
+                        f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+                    )
                     return env_override
                 if strict if strict is not None else self.strict:
                     raise KeyError(f"Missing config key: {key}")
                 return default
-        # Check env override for leaf key
         env_override = self._resolve_env_override(key)
         if env_override is not None:
+            logging.getLogger("shieldcraft.audit").info(
+                f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+            )
             return env_override
+        logging.getLogger("shieldcraft.audit").info(
+            f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+        )
         return self._resolve_secret(value)
 
     def get_section(

@@ -7,8 +7,8 @@
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
 <div style="color:#b3b3b3; text-align:center; font-size:1.1em; margin-bottom:1em;">
-  This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities, <br>and how they interact to deliver a secure, modular, and production-grade MLOps platform.
-  All relationships <br>are defined in code for full reproducibility and auditability.
+  This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities, <br /> and how they interact to deliver a secure, modular, and production-grade MLOps platform.<br />
+  All relationships <br /> are defined in code for full reproducibility and auditability.<br />
 </div>
 </section>
 

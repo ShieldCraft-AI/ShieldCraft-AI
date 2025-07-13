@@ -59,9 +59,9 @@ if os.environ.get("CDK_DEPLOY_ENABLED", "0") == "1":
                     ValueError(f"Missing required config section: {section}"),
                 )
         app = cdk.App()
-        secrets_config_path = f"config/secrets.{env}.yml"
+        SECRETS_CONFIG_PATH = f"config/secrets.{env}.yml"
         try:
-            with open(secrets_config_path, "r", encoding="utf-8") as f:
+            with open(SECRETS_CONFIG_PATH, "r", encoding="utf-8") as f:
                 secrets_config = yaml.safe_load(f).get("secrets", {})
         except (FileNotFoundError, yaml.YAMLError) as e:
             log_and_raise(
