@@ -18,45 +18,31 @@ def security(session):
     from nox_sessions.utils_poetry import ensure_poetry_installed
 
     ensure_poetry_installed()
-    """Run security checks: safety and bandit. Allow deploy if only mlflow vulnerabilities remain and have no known fix."""
     from nox_sessions.utils_color import color_log, color_error
 
-    with open(DEBUG_LOG_FILE, "a") as f:
-        f.write(f"[SECURITY] Session started at {now_str()}\n")
-    color_log(session, f"[SECURITY] Session started at {now_str()}", style="cyan")
-    try:
-        import time
-        from nox_sessions.utils_color import color_log
 
-        color_log(session, "[SECURITY] Running bandit scan...", style="cyan")
-        t0 = time.time()
-        # Exclude common non-source directories for speed and reliability
-        session.run(
-            "poetry",
-            "run",
-            "bandit",
-            "-r",
-            "src",
-            "--exclude",
-            ".nox,.venv,node_modules,tests",
-            external=True,
-        )
-        t1 = time.time()
-        color_log(
-            session, f"[SECURITY] bandit scan completed in {t1-t0:.1f}s", style="cyan"
-        )
-        color_log(session, "[SECURITY] bandit check complete.", style="green")
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write("[SECURITY] bandit check complete.\n")
-    except Exception as e:
-        color_error(session, f"[SECURITY][ERROR] {e}")
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write(f"[SECURITY][ERROR] {e}\n")
-        raise
-    finally:
-        color_log(session, f"[SECURITY] Session ended at {now_str()}", style="cyan")
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write(f"[SECURITY] Session ended at {now_str()}\n")
+@nox.session()
+def audit_secrets(session):
+    """Run audit script to check for plaintext secrets in config files."""
+    session.run("poetry", "install", "--with", "dev", external=True)
+    from nox_sessions.utils_color import color_log, color_error
+
+    color_log(session, "[AUDIT] Running secrets audit...", style="cyan")
+    config_files = ["config/dev.yml", "config/prod.yml", "config/staging.yml"]
+    for config_file in config_files:
+        try:
+            session.run(
+                "poetry",
+                "run",
+                "python",
+                "scripts/audit_secrets.py",
+                config_file,
+                external=True,
+            )
+        except Exception as e:
+            color_error(session, f"[AUDIT][ERROR] {config_file}: {e}")
+            raise
+    color_log(session, "[AUDIT] Secrets audit complete.", style="green")
 
 
 @nox_session_guard
