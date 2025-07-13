@@ -1,3 +1,4 @@
+#!/bin/bash
 # --- Suppress Git line-ending warnings everywhere ---
 suppress_git_warnings() {
   grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
