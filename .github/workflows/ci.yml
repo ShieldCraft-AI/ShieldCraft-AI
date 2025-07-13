@@ -51,7 +51,7 @@ jobs:
         run: pip install poetry
       - name: Install project dependencies (main only)
         run: |
-          poetry install --only main --no-interaction --no-root
+          poetry install --with dev --no-interaction --no-root
           poetry cache clear --all pypi || true
           pip cache purge || true
           df -h
