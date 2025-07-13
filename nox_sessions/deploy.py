@@ -2,7 +2,6 @@
 
 import os
 import nox
-from nox_sessions.utils_poetry import ensure_poetry_installed
 from nox_sessions.utils_color import matrix_log
 
 
@@ -12,13 +11,11 @@ def cdk_deploy(session):
     Deploy AWS CDK stacks in parallel with robust dependency management and post-deploy validation.
     Ensures Poetry, AWS CDK v2 CLI, and all dependencies are installed. Supports local and CI/CD workflows.
     """
-    ensure_poetry_installed()
     matrix_log(
         session,
         "[CDK_DEPLOY] Ensuring AWS CDK and dependencies are installed...",
         color="cyan",
     )
-    session.run("poetry", "install", "--with", "dev", external=True)
     # Ensure aws-cdk-lib is installed (v2)
     session.run("poetry", "run", "pip", "install", "aws-cdk-lib", external=True)
     # Install latest AWS CDK CLI globally (npm is the official way)

@@ -6,6 +6,7 @@ from nox_sessions.utils import now_str
 from nox_sessions.utils import nox_session_guard
 from nox_sessions.utils_color import color_log, color_error
 from nox_sessions.utils_encoding import force_utf8
+from nox_sessions.utils_poetry import ensure_poetry_installed
 
 force_utf8()
 
@@ -36,9 +37,12 @@ def bootstrap(session):
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[BOOTSTRAP] Session started at {now_str()}\n")
     try:
-        color_log(session, "Installing poetry and main dependencies only...", "cyan")
-        session.run("python", "-m", "pip", "install", "poetry", external=True)
-        session.run("poetry", "install", "--only", "main", external=True)
+        color_log(session, "Ensuring poetry is installed...", "cyan")
+        # Use the utility function to ensure poetry is installed
+        ensure_poetry_installed()
+        color_log(session, "Installing all dependencies (with dev)...", "cyan")
+        session.run("poetry", "install", "--with", "dev", external=True)
+        color_log(session, "Installing pre-commit hooks...", "cyan")
         session.notify("precommit_bootstrap")
         from nox_sessions.utils import file_hash
 
@@ -48,9 +52,9 @@ def bootstrap(session):
         )
         with open(".nox-poetry-installed", "w") as f2:
             f2.write(f"{lock_hash}|{py_hash}\n")
-        color_log(session, "Poetry install complete. Marker file written.", "green")
+        color_log(session, "Environment setup complete. Marker file written.", "green")
         with open(DEBUG_LOG_FILE, "a") as f:
-            f.write("[BOOTSTRAP] Poetry install and marker file written.\n")
+            f.write("[BOOTSTRAP] Environment setup and marker file written.\n")
     except Exception as e:
         color_error(session, f"[BOOTSTRAP][ERROR] {e}", "red")
         with open(DEBUG_LOG_FILE, "a") as f:

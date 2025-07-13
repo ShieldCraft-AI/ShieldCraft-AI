@@ -15,16 +15,12 @@ DEBUG_LOG_FILE = os.path.join(
 @nox.session()
 @nox_session_guard
 def security(session):
-    from nox_sessions.utils_poetry import ensure_poetry_installed
-
-    ensure_poetry_installed()
     from nox_sessions.utils_color import color_log, color_error
 
 
 @nox.session()
 def audit_secrets(session):
     """Run audit script to check for plaintext secrets in config files."""
-    session.run("poetry", "install", "--with", "dev", external=True)
     from nox_sessions.utils_color import color_log, color_error
 
     color_log(session, "[AUDIT] Running secrets audit...", style="cyan")

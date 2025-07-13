@@ -1,3 +1,7 @@
+"""
+DataQualityStack: AWS CDK Stack for Data Quality Monitoring
+"""
+
 from typing import Any, Dict, Optional
 import logging
 from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack, aws_cloudwatch
