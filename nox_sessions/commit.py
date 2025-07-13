@@ -37,11 +37,12 @@ def commit_flow(session):
     # Auto-clear and re-execute all notebooks before running checks
     session.run("python", "scripts/clear_and_run_notebooks.py", external=True)
     from nox_sessions.utils_poetry import ensure_poetry_installed
+
     ensure_poetry_installed()
     """
     ShieldCraft AI: Single orchestration point for all developer/CI checks.
     This session must be the only entry for running all checks, version bump, checklist update, and final all-session.
-    Do NOT call other sessions directly from scripts or CI—always use commit_flow for DRY, idempotent, and production-grade automation.
+    Do NOT call other sessions directly from scripts or CI always use commit_flow for DRY, idempotent, and production-grade automation.
     """
 
     matrix_log(session, "🟩 commit_flow session started.", color="green")
@@ -82,7 +83,6 @@ def commit_flow(session):
             matrix_log(session, f"❌ {s.upper()} failed: {e}", color="red")
             log_debug(f"Session {s} failed: {e}")
             return (s, False, str(e))
-
 
     # 1. Bootstrap (serial)
     matrix_log(

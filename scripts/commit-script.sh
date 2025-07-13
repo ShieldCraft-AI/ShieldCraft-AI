@@ -3,13 +3,50 @@ suppress_git_warnings() {
   grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
 }
 
+
+# --- Robust error handling: ensure log file is always written ---
 set -euo pipefail
 
-trap 'echo -e "\033[1;31m[ERROR] Script failed at line $LINENO. Last command: $BASH_COMMAND\033[0m" >&2' ERR
+# Fallback log file in /tmp if repo root cannot be determined
+FALLBACK_LOG_FILE="/tmp/commit_nox_debug.log"
+
+
+
+# --- Set repo root and debug log file (minimal output) ---
+
+REPO_ROOT=""
+if git rev-parse --show-toplevel >/dev/null 2>&1; then
+    REPO_ROOT="$(git rev-parse --show-toplevel)"
+fi
+if [ -z "$REPO_ROOT" ]; then
+    echo "[ERROR] Could not determine git repo root. Logging to $FALLBACK_LOG_FILE." >&2
+    DEBUG_LOG_FILE="$FALLBACK_LOG_FILE"
+else
+    DEBUG_LOG_FILE="$REPO_ROOT/commit_nox_debug.log"
+fi
+if ! echo "--- $(date) ---" >"$DEBUG_LOG_FILE" 2>/dev/null; then
+    echo "[ERROR] Could not write to $DEBUG_LOG_FILE. Logging to $FALLBACK_LOG_FILE." >&2
+    DEBUG_LOG_FILE="$FALLBACK_LOG_FILE"
+    echo "--- $(date) ---" >"$DEBUG_LOG_FILE"
+fi
+
+# Output logging function
+
+# Output logging function (fallback to /tmp if needed)
+log_output() {
+    if ! echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$DEBUG_LOG_FILE" 2>/dev/null; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$FALLBACK_LOG_FILE"
+    fi
+}
+
+
+# Trap errors and always log to fallback if needed
+trap 'echo -e "\033[1;31m[ERROR] Script failed at line $LINENO. Last command: $BASH_COMMAND\033[0m" >&2; log_output "[ERROR] Script failed at line $LINENO. Last command: $BASH_COMMAND"' ERR
 
 
 
 # --- -Style Banner (no rain effect) ---
+
 echo -e "\033[40m\033[1;32m"
 echo "╔══════════════════════════════════════════════════════════════════════╗"
 echo "║   ShieldCraft AI Commit & CI Preflight Utility ( Mode)               ║"
@@ -19,33 +56,37 @@ echo "║  Hardened, DRY, and production-grade commit workflow for MLOps       �
 echo "║  All automation is cross-platform, CI-friendly, and self-healing     ║"
 echo "╚══════════════════════════════════════════════════════════════════════╝"
 echo -e "\033[0m\n"
+log_output "[INFO] Commit script started by $(git config user.name)"
 
 
-# --- Set repo root and debug log file (minimal output) ---
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-DEBUG_LOG_FILE="$REPO_ROOT/commit_nox_debug.log"
-echo "--- $(date) ---" >"$DEBUG_LOG_FILE"
+
+
+
+log_output "[INFO] Set repo root to $REPO_ROOT"
+if [ -z "$REPO_ROOT" ]; then
+    echo "[ERROR] Cannot cd to repo root. Aborting." >&2
+    log_output "[ERROR] Cannot cd to repo root. Aborting."
+    exit 1
+fi
 cd "$REPO_ROOT"
-
-
-
 
 
 # --- Automatically stage all changes (silent unless staged) ---
 if ! git diff --quiet; then
     git add . 2>&1 | grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy' || true
-    echo "Auto-staged changes for commit." >> "$DEBUG_LOG_FILE"
+    log_output "[INFO] Auto-staged changes for commit."
 fi
 
 
 # --- Warn if large/secret files are staged (minimal output) ---
 if git ls-files | grep -E '\.(env|pem|key|sqlite3|db|csv|tsv|parquet|h5|hdf5|npz|npy|sav|dat|tmp|log|pkl)$' | grep -vE 'docs-site|notebooks' | grep -vE '(^$)' >/tmp/large_or_secret_files.txt; then
-    echo "Warning: Large or secret files staged. See /tmp/large_or_secret_files.txt" >> "$DEBUG_LOG_FILE"
+    log_output "[WARN] Large or secret files staged. See /tmp/large_or_secret_files.txt"
     cat /tmp/large_or_secret_files.txt
     read -rp "Continue anyway? [y/N]: " cont_secrets
     cont_secrets=${cont_secrets:-N}
     if [[ ! "$cont_secrets" =~ ^[Yy]$ ]]; then
         echo "Aborting commit script." >&2
+        log_output "[ERROR] Aborted due to large/secret files."
         exit 1
     fi
 fi
@@ -150,6 +191,7 @@ ACTUAL_NOX_VERSION=$(echo "$NOX_VERSION_OUTPUT" | head -n 1 | awk '{print $NF}' 
 if [[ -z "$ACTUAL_NOX_VERSION" || "$ACTUAL_NOX_VERSION" != "$EXPECTED_NOX_VERSION" ]]; then
     echo -e "\033[1;31m🟥 Poetry-managed Nox version is '$ACTUAL_NOX_VERSION', expected '$EXPECTED_NOX_VERSION'.\033[0m" | tee -a "$DEBUG_LOG_FILE"
     echo -e "\033[1;33mTIP: Run 'poetry add --group dev nox@$EXPECTED_NOX_VERSION' to fix.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+    log_output "[ERROR] Poetry-managed Nox version is '$ACTUAL_NOX_VERSION', expected '$EXPECTED_NOX_VERSION'."
     exit 1
 fi
 
@@ -157,6 +199,7 @@ fi
 if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
     if ! python3 scripts/pre_npm.py 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
         echo -e "\033[1;41m\033[1;97m🟥 npm preflight failed. Please fix npm issues and try again.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+        log_output "[ERROR] npm preflight failed."
         exit 1
     fi
 fi
@@ -167,6 +210,7 @@ fi
 export PYTHONUNBUFFERED=1
 if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
     echo -e "\033[1;31m🟥 Nox commit_flow session failed. No commit performed.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+    log_output "[ERROR] Nox commit_flow session failed. No commit performed."
     git reset
     exit 1
 fi
@@ -223,6 +267,7 @@ echo -e "$full_commit_msg" > "$tmp_commit_file"
 git add . 2>&1 | suppress_git_warnings || true
 if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | suppress_git_warnings; then
     echo -e "\033[1;31m🟥 Commit failed.\033[0m"
+    log_output "[ERROR] Commit failed."
     rm -f "$tmp_commit_file"
     exit 1
 fi
@@ -233,6 +278,7 @@ if poetry run python "$CHECKLIST_SCRIPT_PATH" | grep -q 'updated'; then
     git add "$REPO_ROOT/docs-site/docs/checklist.md" "$REPO_ROOT/README.md" 2>&1 | suppress_git_warnings
     if ! poetry run git commit -m "chore: update checklist progress bar" 2>&1 | suppress_git_warnings; then
         echo -e "\033[1;31m🟥 Auto-commit of checklist progress bar failed.\033[0m"
+        log_output "[ERROR] Auto-commit of checklist progress bar failed."
         exit 1
     fi
 fi
@@ -254,6 +300,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
     git add . 2>&1 | suppress_git_warnings || true
     if ! poetry run git commit -m "chore: auto-format/fix after commit" 2>&1 | suppress_git_warnings; then
         echo -e "\033[1;31m🟥 Auto-commit of post-commit changes failed. Please resolve manually.\033[0m"
+        log_output "[ERROR] Auto-commit of post-commit changes failed."
         exit 1
     fi
 fi
@@ -261,14 +308,16 @@ fi
 echo -e "\n\033[1;34mAll checks passed. Pushing changes to remote...\033[0m\n"
 if ! git pull --rebase 2>&1 | suppress_git_warnings; then
     echo -e "\033[1;31m🟥 Pull (rebase) failed. Resolve conflicts before pushing.\033[0m"
+    log_output "[ERROR] Pull (rebase) failed."
     exit 1
 fi
 if ! poetry run git push 2>&1 | suppress_git_warnings; then
     echo -e "\033[1;31m🟥 Push failed.\033[0m"
+    log_output "[ERROR] Push failed."
     exit 1
 fi
 echo -e "\n\033[1;32m╔════════════════════════════════════════════════════════════════════════════════════════════╗\033[0m"
-echo -e "\033[1;32m║  ✅ All changes committed, version bumped, checklist updated, and pushed successfully. ║\033[0m"
+echo -e "\033[1;32m║  ✅ All changes committed, version bumped, checklist updated, and pushed successfully.     ║\033[0m"
 echo -e "\033[1;32m╚════════════════════════════════════════════════════════════════════════════════════════════╝\033[0m\n"
 
 echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"

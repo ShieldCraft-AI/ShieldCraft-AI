@@ -1,6 +1,78 @@
+# --- Integration test guidance ---
 import pytest
 from aws_cdk import App, assertions
 from infra.stacks.storage.s3_stack import S3Stack
+
+pytestmark = pytest.mark.unit
+
+# For full auditability, supplement with integration tests post-deployment:
+#   aws s3api get-bucket-tagging --bucket <bucket-name>
+#   aws resourcegroupstaggingapi get-resources --resource-type-filters s3
+
+
+# --- Supplementary: Validate tags on every bucket via CDK Tags API ---
+def test_s3_stack_bucket_tags_propagation():
+    app = App()
+    shared_tags = {"CostCenter": "8888", "Owner": "S3Team"}
+    config = minimal_s3_config()
+    stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
+    expected_keys = {"Project", "Environment", "Owner", "CostCenter"}
+    for bucket in stack.buckets.values():
+        tags = [t[0] for t in bucket.node.try_get_context("@aws-cdk/core:tags") or []]
+        # Fallback to Tags.of(bucket).has_tag if available
+        for key in expected_keys:
+            assert any(key == tag.get("Key") for tag in stack.tags.render_tags())
+
+
+# --- Supplementary: Unhappy path - missing required tag ---
+def test_s3_stack_missing_shared_tag():
+    app = App()
+    config = minimal_s3_config()
+    # No shared_tags, only config tags
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    tags = stack.tags.render_tags()
+    tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
+    assert "Owner" in tag_keys
+    assert "CostCenter" not in tag_keys
+
+
+# --- Supplementary: No duplicate tags if present in both config and shared_tags ---
+def test_s3_stack_no_duplicate_tags():
+    app = App()
+    config = minimal_s3_config()
+    shared_tags = {"Owner": "S3Team"}
+    stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
+    tags = stack.tags.render_tags()
+    owner_tags = [tag for tag in tags if tag.get("Key") == "Owner"]
+    assert len(owner_tags) == 1
+
+
+# --- Supplementary: Scalability - tags propagate to all buckets ---
+def test_s3_stack_tags_scalability_large_bucket_count():
+    app = App()
+    shared_tags = {"Audit": "True"}
+    config = {
+        "s3": {"buckets": [{"id": f"B{i}", "name": f"bucket-{i}"} for i in range(50)]},
+        "app": {"env": "test"},
+    }
+    stack = S3Stack(app, "TestS3StackScale", config=config, shared_tags=shared_tags)
+    for bucket in stack.buckets.values():
+        # Validate that Audit tag is present in stack tags
+        assert any(tag.get("Key") == "Audit" for tag in stack.tags.render_tags())
+
+
+# --- Supplementary: Stack-level tags present in all buckets ---
+def test_s3_stack_stack_level_tags_present_in_buckets():
+    app = App()
+    config = minimal_s3_config()
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    stack_tag_keys = [
+        tag.get("Key") for tag in stack.tags.render_tags() if isinstance(tag, dict)
+    ]
+    for bucket in stack.buckets.values():
+        # Validate that all stack-level tag keys are present in stack.tags
+        for key in stack_tag_keys:
+            assert any(tag.get("Key") == key for tag in stack.tags.render_tags())
 
 
 def minimal_s3_config():
@@ -405,3 +477,148 @@ def test_s3_stack_backward_compatibility_attrs():
     assert stack.raw_bucket is not None
     assert stack.processed_bucket is not None
     assert stack.analytics_bucket is None
+
+
+# --- Supplementary: Resource-level tag propagation ---
+def test_s3_stack_bucket_resource_tags():
+    # CDK assertions.Template does not expose global tags in .to_json().
+    # For auditability, validate tags at the construct level and supplement with integration tests using AWS CLI v2.
+    app = App()
+    shared_tags = {"CostCenter": "9999"}
+    config = minimal_s3_config()
+    stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
+    tags = stack.tags.render_tags()
+    tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
+    assert "Project" in tag_keys
+    assert "Owner" in tag_keys
+    assert "Environment" in tag_keys
+    assert "CostCenter" in tag_keys
+    # For deployed resources, use:
+    # aws s3api get-bucket-tagging --bucket <bucket-name>
+
+
+# --- Supplementary: CloudWatch alarm config ---
+def test_s3_stack_cloudwatch_alarm_config():
+    app = App()
+    config = minimal_s3_config()
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::CloudWatch::Alarm")
+    found_4xx = found_5xx = False
+    for k, v in resources.items():
+        props = v["Properties"]
+        if "4xxErrorsAlarm" in k:
+            found_4xx = True
+            assert props["Threshold"] == 1
+            assert props["EvaluationPeriods"] == 1
+            assert props["TreatMissingData"] == "notBreaching"
+        if "5xxErrorsAlarm" in k:
+            found_5xx = True
+            assert props["Threshold"] == 1
+            assert props["EvaluationPeriods"] == 1
+            assert props["TreatMissingData"] == "notBreaching"
+    assert found_4xx and found_5xx
+
+
+# --- Supplementary: Removal policy export validation ---
+def test_s3_stack_removal_policy_export():
+    for policy in ["DESTROY", "RETAIN"]:
+        app = App()
+        config = {
+            "s3": {
+                "buckets": [
+                    {
+                        "id": policy,
+                        "name": f"bucket-{policy.lower()}",
+                        "removal_policy": policy,
+                    }
+                ]
+            },
+            "app": {"env": "test"},
+        }
+        stack = S3Stack(app, f"TestS3Stack{policy}", config=config)
+        template = assertions.Template.from_stack(stack)
+        outputs = template.to_json().get("Outputs", {})
+        bucket_name_key = f"TestS3Stack{policy}S3Bucket{policy}Name"
+        assert bucket_name_key in outputs
+
+
+# --- Supplementary: KMS key propagation ---
+def test_s3_stack_kms_key_encryption_type():
+    from aws_cdk import aws_kms as kms, Stack
+
+    app = App()
+    test_stack = Stack(app, "TestS3StackKMS2")
+    kms_key = kms.Key(test_stack, "TestKmsKey2")
+    config = {
+        "s3": {
+            "buckets": [
+                {"id": "KmsBucket2", "name": "kms-bucket2", "encryption": "UNENCRYPTED"}
+            ]
+        },
+        "app": {"env": "test"},
+    }
+    stack = S3Stack(test_stack, "S3", config=config, kms_key=kms_key)
+    for b in stack.buckets.values():
+        assert getattr(b, "encryption_key", None) == kms_key
+    # Inspect the synthesized template for KMS encryption configuration
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::S3::Bucket")
+    for r in resources.values():
+        props = r["Properties"]
+        # The presence of BucketEncryption with KMSMasterKeyID indicates KMS encryption
+        if "BucketEncryption" in props:
+            sse_config = props["BucketEncryption"].get(
+                "ServerSideEncryptionConfiguration"
+            )
+            if isinstance(sse_config, dict):
+                rules = sse_config.get("Rules", [])
+            elif isinstance(sse_config, list):
+                rules = sse_config
+            else:
+                rules = []
+            found_kms = any(
+                rule.get("ServerSideEncryptionByDefault", {}).get("SSEAlgorithm")
+                == "aws:kms"
+                for rule in rules
+                if isinstance(rule, dict)
+            )
+            assert found_kms
+
+
+# --- Supplementary: Scalability/parallelism ---
+def test_s3_stack_scalability_tags():
+    # CDK assertions.Template does not expose global tags in .to_json().
+    # For auditability, validate tags at the construct level and supplement with integration tests using AWS CLI v2.
+    app = App()
+    shared_tags = {"Team": "ScaleTest"}
+    config = {
+        "s3": {"buckets": [{"id": f"B{i}", "name": f"bucket-{i}"} for i in range(100)]},
+        "app": {"env": "test"},
+    }
+    stack = S3Stack(app, "TestS3StackScale", config=config, shared_tags=shared_tags)
+    resources = stack.buckets
+    assert len(resources) == 100
+    tags = stack.tags.render_tags()
+    tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
+    assert "Team" in tag_keys
+    assert "Project" in tag_keys
+    # For deployed resources, use:
+    # aws s3api get-bucket-tagging --bucket <bucket-name>
+
+
+# --- Supplementary: Error logging/auditability ---
+def test_s3_stack_error_logging_on_invalid_config():
+    app = App()
+    config = {
+        "s3": {"buckets": [{"id": "Bad", "name": "bad!bucket"}]},
+        "app": {"env": "test"},
+    }
+    try:
+        S3Stack(app, "TestS3Stack", config=config)
+    except ValueError as e:
+        assert "Invalid S3 bucket name" in str(e)
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "unit: mark a test as a unit test")

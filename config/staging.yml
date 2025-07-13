@@ -5,44 +5,27 @@ app:
   log_level: INFO
   enable_feature_x: false
   # Cost and governance controls
-  budget_limit_usd: 1000 # Monthly budget limit for staging environment
-  cost_alert_thresholds:
-    - 50
-    - 80
-    - 100
-  cost_tags:
-    project: shieldcraft-ai
-    environment: staging
-    owner: ai-solutions
-  enable_cost_explorer: true
-  enable_resource_tagging: true
-  enable_budget_alerts: true
 
-  buckets:
-    - id: RawDataBucket
-      name: shieldcraft-staging-raw
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-    - id: ProcessedDataBucket
-      name: shieldcraft-staging-processed
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-    - id: AnalyticsDataBucket
-      name: shieldcraft-staging-analytics
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-  lifecycle_policy_days: 60
-  enable_access_logs: true
-glue:
-  database_name: shieldcraft_staging_db
-  crawler_schedule: cron(0 2 * * ? *)
-  enable_data_quality: true
+networking:
+  vpc_id: vpc-shieldcraft-staging
+  cidr: "10.1.0.0/16"
+  subnets:
+    - id: subnet-priv-a
+      cidr: "10.1.1.0/24"
+      type: private
+    - id: subnet-priv-b
+      cidr: "10.1.2.0/24"
+      type: private
+  security_groups:
+    - id: sg-msk
+      description: Security group for MSK brokers
+      allow_all_outbound: true
+    - id: sg-lambda
+      description: Security group for Lambda functions
+      allow_all_outbound: true
+    - id: sg-default
+      description: Default security group for ShieldCraft staging VPC
+      allow_all_outbound: true
 
 msk:
   security_group:
@@ -132,10 +115,22 @@ lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-staging-analytics
   permissions:
-    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+    - template: etl
+      principal: GLUE_EXECUTION_ROLE_ARN
+      resource_type: table
       resource:
-        database: { name: shieldcraft_staging_db }
-      permissions: ["ALL"]
+        databaseName: shieldcraft_staging_db
+        tableName: raw_data
+    - template: admin
+      principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource_type: database
+      resource:
+        databaseName: shieldcraft_staging_db
+    - principal: SAGEMAKER_EXECUTION_ROLE_ARN
+      resource_type: bucket
+      resource:
+        arn: arn:aws:s3:::shieldcraft-staging-analytics
+      actions: ["DATA_LOCATION_ACCESS"]
 
 sagemaker:
   training_instance_type: ml.m5.xlarge
@@ -149,3 +144,10 @@ cloud_native_hardening:
   config_rules:
     - s3-bucket-public-read-prohibited
     - iam-user-no-policies-check
+tags:
+  project: shieldcraft-ai
+  environment: staging
+  owner: ai-solutions
+  cost_center: RND
+  team: mlops
+  compliance: standard

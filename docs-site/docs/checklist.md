@@ -6,8 +6,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
-  <progress id="shieldcraft-progress" value="29" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">29% Complete</div>
+  <progress id="shieldcraft-progress" value="32" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">32% Complete</div>
 </div>
 </section>
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
@@ -50,13 +50,13 @@
 - 🟩 [Commit script unified, automating checks, versioning, and progress](./commit_script.md)
 - 🟩 Deliverables: [business case summary](./business_case.md), [MLOps diagram](./modular_mlops_governance.md), [risk log](./risk_log.md), [cost model](./infra_estimate.md), and [ADRs](./adrs.md)
 - 🟩 <strong>Production-grade AWS MLOps stack architecture implemented and tested</strong> ([architecture & dependency map](./aws_stack_architecture.md))
-    - All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
-    - Pydantic config validation, advanced tagging, and parameterization enforced
-    - Cross-stack resource sharing and dependency injection established
-    - Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
-    - S3 lifecycle, cost controls, and budget alarms implemented
-    - 150+ automated tests covering happy/unhappy paths, config validation, and outputs
-    - Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
+    - 🟩 All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
+    - 🟩 Pydantic config validation, advanced tagging, and parameterization enforced
+    - 🟩 Cross-stack resource sharing and dependency injection established
+    - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
+    - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
+    - 🟩 294+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
 ---
 
@@ -87,13 +87,13 @@
 - 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
     - 🟥 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
         - 🟩 Set up Amazon MSK (Kafka) cluster with topic creation
-        - 🟥 Integrate Airbyte for connector-based data integration (pending code/config confirmation)
-        - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing (pending code/config confirmation)
-        - 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces (pending code/config confirmation)
-        - 🟥 Build AWS Glue jobs for batch ETL and normalization (pending code/config confirmation)
-        - 🟥 Store raw and processed data in Amazon S3 data lake (pending code/config confirmation)
-        - 🟥 Enforce governance and privacy with AWS Lake Formation (pending code/config confirmation)
-        - 🟥 Add data quality checks (Great Expectations, Deequ) (pending code/config confirmation)
+        - 🟥 Integrate Airbyte for connector-based data integration
+        - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing
+        - 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
+        - 🟥 Build AWS Glue jobs for batch ETL and normalization
+        - 🟥 Store raw and processed data in Amazon S3 data lake
+        - 🟥 Enforce governance and privacy with AWS Lake Formation
+        - 🟥 Add data quality checks (Great Expectations, Deequ)
     - 🟥 Implement data cleaning, normalization, and structuring
     - 🟥 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
     - 🟥 Establish data versioning for reproducibility
@@ -123,30 +123,30 @@
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Is the AWS environment production-grade, modular, secure, and cost-optimized for MLOps and GenAI workloads?</span>
 </div>
 <div style="margin-bottom:1em;">
-  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls.</span>
+  <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls. Architecture is modular, extensible, and supports rapid iteration and rollback.</span>
 </div>
 <details>
-
 <summary>Show AWS checklist…</summary>
 
-- 🟩 <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html" style="color:#a5b4fc;">Multi-account, multi-environment AWS Organization structure</a>
-- 🟩 <a href="https://docs.aws.amazon.com/vpc/latest/userguide/" style="color:#a5b4fc;">VPC</a>, subnets, and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html" style="color:#a5b4fc;">security groups</a> for all workloads
-- 🟩 <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3 data lake</a> (raw, processed, analytics buckets) with lifecycle, encryption, and access controls
-- 🟩 <a href="https://docs.aws.amazon.com/glue/latest/dg/" style="color:#a5b4fc;">AWS Glue Data Catalog</a> and crawlers for metadata management
-- 🟩 <a href="https://docs.aws.amazon.com/msk/latest/developerguide/" style="color:#a5b4fc;">Amazon MSK (Kafka)</a> cluster with automated topic creation (CDK + <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda</a>)
-- 🟩 <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda stack</a> for event-driven data prep and orchestration
-- 🟩 <a href="https://docs.airbyte.com/" style="color:#a5b4fc;">Airbyte stack</a> for managed connector-based ingestion
-- 🟩 <a href="https://opensearch.org/docs/latest/" style="color:#a5b4fc;">OpenSearch stack</a> for log/metric/trace indexing and analytics
-- 🟩 <a href="https://docs.aws.amazon.com/lake-formation/latest/dg/" style="color:#a5b4fc;">Lake Formation</a> for data governance and fine-grained access
-- 🟩 <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/" style="color:#a5b4fc;">SageMaker stack</a> for model training, tuning, and deployment
-- 🟩 <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, SNS, and Config for monitoring, alerting, and compliance
-- 🟩 Advanced <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-what-is.html" style="color:#a5b4fc;">tagging</a>, cost controls, and budget alarms
-- 🟩 Automated config management (YAML, S3, SSM) and <a href="https://docs.pydantic.dev/" style="color:#a5b4fc;">Pydantic</a> schema validation
-- 🟩 <a href="https://docs.aws.amazon.com/cdk/latest/guide/resources.html" style="color:#a5b4fc;">Cross-stack resource sharing</a> and dependency injection
-- 🟩 Hardened <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM roles</a>, policies, and boundary enforcement
-- 🟩 Cloud-native hardening stack (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>, etc.)
-- 🟩 Automated <a href="https://docs.aws.amazon.com/cdk/latest/guide/testing.html" style="color:#a5b4fc;">integration tests</a> for all critical AWS resources
-- 🟩 Comprehensive documentation for AWS stack architecture and outputs (<a href="./aws_stack_architecture.md" style="color:#a5b4fc;">see details</a>)
+<!-- Expanded AWS Cloud Foundation & Architecture achievements -->
+- 🟩 <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html" style="color:#a5b4fc;">Multi-account, multi-environment AWS Organization structure</a> with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
+- 🟩 Modular <a href="https://docs.aws.amazon.com/cdk/latest/guide/resources.html" style="color:#a5b4fc;">CDK stacks</a> for all major AWS services (<a href="https://docs.aws.amazon.com/vpc/latest/userguide/" style="color:#a5b4fc;">VPC</a>, <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3</a>, <a href="https://docs.aws.amazon.com/glue/latest/dg/" style="color:#a5b4fc;">Glue</a>, <a href="https://docs.aws.amazon.com/msk/latest/developerguide/" style="color:#a5b4fc;">MSK</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda</a>, <a href="https://docs.airbyte.com/" style="color:#a5b4fc;">Airbyte</a>, <a href="https://opensearch.org/docs/latest/" style="color:#a5b4fc;">OpenSearch</a>, <a href="https://docs.aws.amazon.com/lake-formation/latest/dg/" style="color:#a5b4fc;">Lake Formation</a>, <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/" style="color:#a5b4fc;">SageMaker</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html" style="color:#a5b4fc;">SNS</a>, <a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM</a>, <a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>), each refactored for maintainability and extensibility.
+- 🟩 Advanced cross-stack resource sharing and dependency injection, enabling secure, DRY, and scalable infrastructure composition.
+- 🟩 <a href="https://docs.pydantic.dev/" style="color:#a5b4fc;">Pydantic</a>-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
+- 🟩 Automated tagging and metadata propagation across all resources for cost allocation, compliance, and auditability.
+- 🟩 Hardened <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM roles</a>, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html" style="color:#a5b4fc;">AWS Secrets Manager</a>.
+- 🟩 <a href="https://github.com/99designs/aws-vault" style="color:#a5b4fc;">AWS Vault</a> integration for secure credential management and developer onboarding.
+- 🟩 Automated <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3</a> lifecycle policies, encryption, and access controls for all data lake buckets.
+- 🟩 End-to-end cost controls and budget alarms, with <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a> and <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html" style="color:#a5b4fc;">SNS</a> integration for real-time alerting.
+- 🟩 Cloud-native hardening stack (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>) with automated findings aggregation and remediation hooks.
+- 🟩 Automated <a href="https://docs.aws.amazon.com/cdk/latest/guide/testing.html" style="color:#a5b4fc;">integration tests</a> for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
+- 🟩 Comprehensive documentation for stack interactions, outputs, and architectural decisions, supporting onboarding and audit requirements.
+- 🟩 <a href="https://docs.github.com/en/actions" style="color:#a5b4fc;">GitHub Actions CI/CD pipeline</a> for automated build, test, and deployment of all infrastructure code.
+- 🟩 Automated dependency management and patching via <a href="https://python-poetry.org/" style="color:#a5b4fc;">Poetry</a>, ensuring reproducible builds and secure supply chain.
+- 🟩 Modular, environment-parameterized deployment scripts and commit automation for rapid iteration and rollback.
+- 🟩 Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
+- 🟩 Secure, reproducible <a href="https://docs.docker.com/" style="color:#a5b4fc;">Dockerfiles</a> and <a href="https://docs.docker.com/compose/" style="color:#a5b4fc;">Compose files</a> for local and cloud development, with best practices enforced.
+- 🟩 Continuous compliance monitoring (<a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, custom rules) and regular security architecture reviews.
 
 </details>
 </section>

@@ -36,6 +36,6 @@ Highlight strengths:
 Be ready to sketch:
 If asked to whiteboard, quickly reproduce the high-level diagram, then add detail as the conversation deepens.
 6. Architectural Insight
-The best diagrams for interviews are not the most detailed—they are the most communicative.
+The best diagrams for interviews are not the most detailed they are the most communicative.
 They show you can abstract, organize, and explain, not just implement.
 A visually clean, layered diagram sequence demonstrates both technical and communication skills.

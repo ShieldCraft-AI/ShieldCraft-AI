@@ -18,6 +18,7 @@ app:
   enable_resource_tagging: true
   enable_budget_alerts: true
 
+s3:
   buckets:
     - id: RawDataBucket
       name: shieldcraft-prod-raw
@@ -36,17 +37,36 @@ app:
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
-      removal_policy: RETAIN
   lifecycle_policy_days: 90
   enable_access_logs: true
-glue:
-  database_name: shieldcraft_prod_db
-  crawler_schedule: cron(0 2 * * ? *)
-  enable_data_quality: true
+
+networking:
+  vpc_id: vpc-shieldcraft-prod
+  cidr: "10.2.0.0/16"
+  subnets:
+    - id: subnet-priv-a
+      cidr: "10.2.1.0/24"
+      type: private
+    - id: subnet-priv-b
+      cidr: "10.2.2.0/24"
+      type: private
+    - id: subnet-priv-c
+      cidr: "10.2.3.0/24"
+      type: private
+  security_groups:
+    - id: sg-msk
+      description: Security group for MSK brokers
+      allow_all_outbound: true
+    - id: sg-lambda
+      description: Security group for Lambda functions
+      allow_all_outbound: true
+    - id: sg-default
+      description: Default security group for ShieldCraft prod VPC
+      allow_all_outbound: true
 
 msk:
   security_group:
-    id: MskSecurityGroup
+    id: sg-msk
     description: Security group for MSK brokers
     allow_all_outbound: true
   cluster:
@@ -134,10 +154,22 @@ lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-prod-analytics
   permissions:
-    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+    - template: etl
+      principal: GLUE_EXECUTION_ROLE_ARN
+      resource_type: table
       resource:
-        database: { name: shieldcraft_prod_db }
-      permissions: ["ALL"]
+        databaseName: shieldcraft_prod_db
+        tableName: raw_data
+    - template: admin
+      principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource_type: database
+      resource:
+        databaseName: shieldcraft_prod_db
+    - principal: SAGEMAKER_EXECUTION_ROLE_ARN
+      resource_type: bucket
+      resource:
+        arn: arn:aws:s3:::shieldcraft-prod-analytics
+      actions: ["DATA_LOCATION_ACCESS"]
 
 sagemaker:
   training_instance_type: ml.m5.2xlarge
@@ -146,6 +178,14 @@ sagemaker:
   model_registry: shieldcraft-model-registry-prod
 
 cloud_native_hardening:
+
+tags:
+  project: shieldcraft-ai
+  environment: prod
+  owner: ai-solutions
+  cost_center: RND
+  team: mlops
+  compliance: standard
   enable_cloudwatch_alarms: true
   alarm_email: ops@shieldcraft.ai
   config_rules:

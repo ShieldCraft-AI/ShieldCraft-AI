@@ -1,7 +1,7 @@
-import pytest
 from aws_cdk import App, Stack, assertions
 from infra.stacks.data.airbyte_stack import AirbyteStack
 from aws_cdk import aws_ec2 as ec2
+import pytest
 
 
 class DummyVpc(ec2.Vpc):
@@ -15,9 +15,6 @@ def airbyte_config():
         "app": {"env": "test"},
         "airbyte": {"instance_type": "t3.medium", "desired_count": 1},
     }
-
-
-# --- Happy path: Outputs ---
 
 
 # --- Happy path: Secret injection ---
@@ -225,7 +222,7 @@ def test_airbyte_stack_with_db_secret(monkeypatch, airbyte_config):
 # --- Unhappy path: Missing VPC ---
 def test_airbyte_stack_missing_vpc_raises(airbyte_config):
     app = App()
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         AirbyteStack(
             app,
             "TestAirbyteStack",
@@ -388,9 +385,11 @@ def test_airbyte_stack_allowed_cidr():
     found = False
     for sg in resources.values():
         ingress = sg["Properties"].get("SecurityGroupIngress", [])
-    for rule in ingress:
-        if rule.get("CidrIp") == "10.0.0.0/16":
-            found = True
+        if isinstance(ingress, dict):
+            ingress = [ingress]
+        for rule in ingress:
+            if rule.get("CidrIp") == "10.0.0.0/16":
+                found = True
     assert found
 
 

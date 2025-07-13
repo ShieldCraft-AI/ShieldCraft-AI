@@ -2,6 +2,8 @@
 import threading
 import time
 
+from infra.utils.config_backends import ConfigBackend
+
 
 def test_thread_safety_singleton(monkeypatch, tmp_path):
     # Singleton should be thread-safe and always return the same instance
@@ -56,7 +58,7 @@ def test_large_config_performance(tmp_path):
 
 def test_secret_resolution_extension_point():
     # Simulate a future AWS Secrets Manager integration
-    class SecretBackend:
+    class SecretBackend(ConfigBackend):
         def load(self, env):
             return {
                 "app": {"env": "dev", "secret": "aws-vault:my-secret"},
@@ -77,7 +79,7 @@ def test_cloud_native_env_vars(monkeypatch):
     monkeypatch.setenv("CONFIG_S3_PREFIX", "test/")
 
     # Use a dummy backend to avoid real AWS calls
-    class DummyS3:
+    class DummyS3(ConfigBackend):
         def load(self, env):
             return {"app": {"env": env}, "s3": {}, "glue": {}, "msk": {}}
 
@@ -90,7 +92,7 @@ def test_reload_consistency():
     config1 = {"app": {"env": "dev", "foo": "bar"}, "s3": {}, "glue": {}, "msk": {}}
     config2 = {"app": {"env": "dev", "foo": "baz"}, "s3": {}, "glue": {}, "msk": {}}
 
-    class ReloadBackend:
+    class ReloadBackend(ConfigBackend):
         def __init__(self):
             self._config = config1
 
@@ -112,7 +114,7 @@ from infra.utils.config_loader import ConfigLoader
 from infra.utils.config_backends import LocalYamlBackend
 
 
-class DummyBackend:
+class DummyBackend(ConfigBackend):
     def __init__(self, config):
         self._config = config
 
@@ -186,7 +188,7 @@ def test_reload_logic(tmp_path):
     config1 = {"app": {"env": "dev", "foo": "bar"}, "s3": {}, "glue": {}, "msk": {}}
     config2 = {"app": {"env": "dev", "foo": "baz"}, "s3": {}, "glue": {}, "msk": {}}
 
-    class ReloadBackend:
+    class ReloadBackend(ConfigBackend):
         def __init__(self):
             self._config = config1
 
@@ -220,14 +222,25 @@ def test_singleton_behavior(monkeypatch, tmp_path):
 
 
 def test_optional_sections():
-    config = {"app": {"env": "dev"}, "s3": {}, "glue": {}, "msk": {}}
+    config = {
+        "app": {"env": "dev", "region": "us-west-2", "resource_prefix": "test"},
+        "s3": {"buckets": [{"id": "b1", "name": "bucket1"}]},
+        "glue": {"database_name": "db1"},
+        "msk": {},
+    }
     loader = ConfigLoader(env="dev", backend=DummyBackend(config), strict=True)
     # Optional sections should be missing but not raise
     assert "lambda_" not in loader.config or loader.config["lambda_"] is None
 
 
 def test_extra_keys_ignored():
-    config = {"app": {"env": "dev"}, "s3": {}, "glue": {}, "msk": {}, "extra": 123}
+    config = {
+        "app": {"env": "dev", "region": "us-west-2", "resource_prefix": "test"},
+        "s3": {"buckets": [{"id": "b1", "name": "bucket1"}]},
+        "glue": {"database_name": "db1"},
+        "msk": {},
+        "extra": 123,
+    }
     loader = ConfigLoader(env="dev", backend=DummyBackend(config), strict=True)
     assert loader.get("app.env") == "dev"
 
@@ -248,7 +261,7 @@ def test_malformed_yaml(tmp_path):
 
 
 def test_nonexistent_env():
-    class FailingBackend:
+    class FailingBackend(ConfigBackend):
         def load(self, env):
             raise FileNotFoundError(f"Config for env {env} not found")
 

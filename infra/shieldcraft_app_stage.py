@@ -49,10 +49,10 @@ class ShieldcraftAppStage(Stage):
             app,
             "GlueStack",
             vpc=networking.vpc,
-            data_bucket=s3.data_bucket,
+            buckets=s3.buckets,
             default_sg=networking.default_sg,
             glue_role_arn=glue_role_arn,
-            config=config.get("glue", {}),
+            config=config,
         )
         iam_roles = IamRoleStack(app, "IamRoleStack", config=config)
         lambda_role_arn = Fn.import_value("IamRoleStack-lambda-role-arn")
@@ -70,12 +70,6 @@ class ShieldcraftAppStage(Stage):
             vpc=networking.vpc,
             config=config.get("airbyte", {}),
             airbyte_role_arn=airbyte_role_arn,
-        )
-        lakeformation = LakeFormationStack(
-            app,
-            "LakeFormationStack",
-            vpc=networking.vpc,
-            config=config.get("lakeformation", {}),
         )
         lakeformation_admin_role_arn = Fn.import_value(
             "IamRoleStack-lakeformation-admin-role-arn"

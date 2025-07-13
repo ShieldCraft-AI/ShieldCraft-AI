@@ -1,8 +1,8 @@
-
 import os
 import subprocess
 import sys
 from pathlib import Path
+
 
 def ensure_poetry_installed():
     """
@@ -11,7 +11,12 @@ def ensure_poetry_installed():
     Raises RuntimeError if installation fails.
     """
     try:
-        subprocess.run(["poetry", "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            ["poetry", "--version"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         return
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
@@ -34,6 +39,13 @@ def ensure_poetry_installed():
     if poetry_bin.exists():
         os.environ["PATH"] = f"{poetry_bin.parent}:{os.environ['PATH']}"
     try:
-        subprocess.run(["poetry", "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            ["poetry", "--version"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
     except Exception as e:
-        raise RuntimeError("Poetry installation failed or not found in PATH after install.")
+        raise RuntimeError(
+            "Poetry installation failed or not found in PATH after install."
+        )

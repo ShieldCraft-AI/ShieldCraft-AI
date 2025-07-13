@@ -22,6 +22,7 @@ from nox_sessions.docs import docs
 from nox_sessions.docker import docker_build
 from nox_sessions.security import security
 from nox_sessions.commit import commit_flow
+from nox_sessions.deploy import cdk_deploy
 import nox
 
 __all__ = [
@@ -36,6 +37,7 @@ __all__ = [
     "docker_build",
     "security",
     "commit_flow",
+    "cdk_deploy",
 ]
 
 

@@ -1,161 +1,151 @@
-from aws_cdk import (
-    Stack,
-    aws_lambda as _lambda,
-    aws_ec2 as ec2,
-    aws_iam as iam,
-    aws_cloudwatch as cloudwatch,
-    Duration,
-    RemovalPolicy,
-    CfnOutput,
-    custom_resources as cr,
-)
-from constructs import Construct
+"""
+ShieldCraft AI LambdaStack: Secure, robust, and modular AWS Lambda deployment stack
+with config validation, tagging, and monitoring. Hardened for best practices.
+"""
+
 import json
+from typing import Any, Optional
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import aws_cloudwatch as cloudwatch
+from aws_cdk import aws_ec2 as ec2  # pylint: disable=unused-import
+from aws_cdk import aws_iam as iam
+from aws_cdk import aws_lambda as _lambda
+from aws_cdk import aws_logs
+from aws_cdk import aws_secretsmanager as secretsmanager
+from aws_cdk import custom_resources as cr
+from constructs import Construct  # pylint: disable=unused-import
+from pydantic import BaseModel, Field, ValidationError
+
+
+class LambdaFunctionConfig(BaseModel):
+    """Pydantic model for validating Lambda function configuration."""
+
+    name: str
+    runtime: str = "PYTHON_3_11"
+    handler: str = "index.handler"
+    code_path: str
+    environment: dict[str, Any] = Field(default_factory=dict)
+    timeout: int = 60
+    vpc: bool = True
+    memory: int = 128
+    role_arn: Optional[str] = None
+    removal_policy: Optional[str] = None
+    log_retention: Optional[int] = None
+    secrets: Optional[dict[str, str]] = None  # key: env var, value: secret ARN
 
 
 class LambdaStack(Stack):
+    """CDK Stack for deploying and monitoring AWS Lambda functions with robust
+    config validation and tagging."""
+
     def __init__(
         self,
-        scope: Construct,
-        construct_id: str,
-        vpc: ec2.IVpc,
-        config: dict,
-        lambda_role_arn: str = None,
-        shared_resources: dict = None,
-        shared_tags: dict = None,
+        scope,
+        construct_id,
+        vpc,
+        config,
+        *args,
+        lambda_role_arn=None,
+        shared_resources=None,
+        secrets_manager_arn=None,
         **kwargs,
     ):
         super().__init__(scope, construct_id, **kwargs)
-
-        lambda_cfgs = config.get("lambda_", {}).get("functions", [])
+        self.secrets_manager_arn = secrets_manager_arn
+        self.secrets_manager_secret = None
+        if self.secrets_manager_arn:
+            self.secrets_manager_secret = (
+                secretsmanager.Secret.from_secret_complete_arn(
+                    self, "ImportedVaultSecret", self.secrets_manager_arn
+                )
+            )
+        functions_cfg = config.get("lambda_", {}).get("functions", [])
+        if not isinstance(functions_cfg, list):
+            raise ValueError("LambdaStack 'functions' config must be a list.")
+        try:
+            lambda_cfgs = [LambdaFunctionConfig(**fn) for fn in functions_cfg]
+        except ValidationError as e:
+            raise ValueError(f"Invalid LambdaStack config: {e}") from e
         env = config.get("app", {}).get("env", "dev")
-        tags_cfg = config.get("lambda_", {}).get("tags", {})
-
-        # Tagging for traceability and custom tags
-        self.tags.set_tag("Project", "ShieldCraftAI")
-        self.tags.set_tag("Environment", env)
-        for k, v in tags_cfg.items():
-            self.tags.set_tag(k, v)
-        if shared_tags:
-            for k, v in shared_tags.items():
-                self.tags.set_tag(k, v)
-
-        if not isinstance(lambda_cfgs, list):
-            raise ValueError("Lambda functions config must be a list.")
+        # Tagging is now handled at orchestration level (app.py)
+        self._validate_cross_stack_resources(
+            vpc, lambda_role_arn, shared_resources, lambda_cfgs
+        )
         fn_names = set()
         self.functions = []
         self.shared_resources = {}
         for fn_cfg in lambda_cfgs:
-            # If no explicit role_arn in function config, use the stack-provided lambda_role_arn
-            if not fn_cfg.get("role_arn") and lambda_role_arn:
-                fn_cfg["role_arn"] = lambda_role_arn
-            name = fn_cfg.get("name")
-            runtime = fn_cfg.get("runtime", "PYTHON_3_11")
-            handler = fn_cfg.get("handler", "index.handler")
-            code_path = fn_cfg.get("code_path", f"lambda/{name}")
-            environment = fn_cfg.get("environment", {})
-            timeout = fn_cfg.get("timeout", 60)
-            use_vpc = fn_cfg.get("vpc", True)
-            memory = fn_cfg.get("memory", 128)
-            role_arn = fn_cfg.get("role_arn")
-            removal_policy = fn_cfg.get("removal_policy", None)
-            if isinstance(removal_policy, str):
-                removal_policy = getattr(RemovalPolicy, removal_policy.upper(), None)
-            if removal_policy is None:
-                removal_policy = (
-                    RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
-                )
-            if not name or not runtime or not handler or not code_path:
+            if not fn_cfg.name or not fn_cfg.code_path:
                 raise ValueError(
-                    f"Lambda function config must include name, runtime, handler, and code_path. Got: {fn_cfg}"
+                    "Lambda function config must include 'name' and 'code_path'."
+                )
+            if not fn_cfg.role_arn and lambda_role_arn:
+                fn_cfg.role_arn = lambda_role_arn
+            name = fn_cfg.name
+            runtime = fn_cfg.runtime
+            handler = fn_cfg.handler
+            code_path = fn_cfg.code_path
+            environment = fn_cfg.environment
+            timeout = fn_cfg.timeout
+            use_vpc = fn_cfg.vpc
+            memory = fn_cfg.memory
+            role_arn = fn_cfg.role_arn
+            removal_policy_str = fn_cfg.removal_policy
+            removal_policy = (
+                RemovalPolicy.DESTROY if env == "dev" else RemovalPolicy.RETAIN
+            )
+            if isinstance(removal_policy_str, str):
+                removal_policy = getattr(
+                    RemovalPolicy, removal_policy_str.upper(), removal_policy
                 )
             if name in fn_names:
                 raise ValueError(f"Duplicate Lambda function name: {name}")
             fn_names.add(name)
-            # Validate runtime
-            if not hasattr(_lambda.Runtime, runtime):
-                raise ValueError(f"Invalid Lambda runtime: {runtime}")
-            # Validate environment variables
-            if not isinstance(environment, dict):
-                raise ValueError(
-                    f"Lambda environment must be a dict for function {name}"
-                )
-            # Validate timeout
-            if not isinstance(timeout, int):
-                raise ValueError(
-                    f"Lambda timeout must be an int (seconds) for function {name}"
-                )
-            # IAM Role (shared, custom, or auto)
             role = None
             if role_arn:
-                role = iam.Role.from_role_arn(
-                    self, f"{construct_id}Lambda{name}Role", role_arn
-                )
+                role = iam.Role.from_role_arn(self, f"{name}Role", role_arn)
             elif shared_resources and shared_resources.get("lambda_role"):
                 role = shared_resources["lambda_role"]
-            # VPC and SG (shared or provided)
             lambda_vpc = vpc
             lambda_sgs = None
-            if shared_resources:
-                lambda_vpc = shared_resources.get("vpc", vpc)
-                if shared_resources.get("default_sg"):
-                    lambda_sgs = [shared_resources["default_sg"]]
-            # Log retention (explicit LogGroup, robust mapping)
-            log_retention = fn_cfg.get("log_retention", None)
-            from aws_cdk import aws_logs
-
+            if shared_resources and shared_resources.get("lambda_security_groups"):
+                lambda_sgs = shared_resources["lambda_security_groups"]
+            log_retention = fn_cfg.log_retention
             retention_enum = None
             log_group = None
             if log_retention is not None:
-                retention_map = {
-                    1: aws_logs.RetentionDays.ONE_DAY,
-                    3: aws_logs.RetentionDays.THREE_DAYS,
-                    5: aws_logs.RetentionDays.FIVE_DAYS,
-                    7: aws_logs.RetentionDays.ONE_WEEK,
-                    14: aws_logs.RetentionDays.TWO_WEEKS,
-                    30: aws_logs.RetentionDays.ONE_MONTH,
-                    60: aws_logs.RetentionDays.TWO_MONTHS,
-                    90: aws_logs.RetentionDays.THREE_MONTHS,
-                    120: aws_logs.RetentionDays.FOUR_MONTHS,
-                    150: aws_logs.RetentionDays.FIVE_MONTHS,
-                    180: aws_logs.RetentionDays.SIX_MONTHS,
-                    365: aws_logs.RetentionDays.ONE_YEAR,
-                    400: aws_logs.RetentionDays.THIRTEEN_MONTHS,
-                    545: aws_logs.RetentionDays.EIGHTEEN_MONTHS,
-                    731: aws_logs.RetentionDays.TWO_YEARS,
-                    1827: aws_logs.RetentionDays.FIVE_YEARS,
-                    3653: aws_logs.RetentionDays.TEN_YEARS,
-                }
-                if isinstance(log_retention, int):
-                    retention_enum = retention_map.get(
-                        log_retention, aws_logs.RetentionDays.ONE_WEEK
-                    )
-                elif isinstance(log_retention, aws_logs.RetentionDays):
-                    retention_enum = log_retention
-                # Explicit LogGroup creation
-                log_group = aws_logs.LogGroup(
-                    self,
-                    f"{name}LogGroup",
-                    log_group_name=f"/aws/lambda/{name}",
-                    retention=retention_enum,
-                    removal_policy=removal_policy,
+                retention_enum = getattr(
+                    aws_logs.RetentionDays,
+                    f"DAYS_{log_retention}",
+                    aws_logs.RetentionDays.ONE_WEEK,
                 )
-            lambda_kwargs = dict(
-                runtime=getattr(_lambda.Runtime, runtime),
-                handler=handler,
-                code=_lambda.Code.from_asset(code_path),
-                environment=environment,
-                timeout=Duration.seconds(timeout),
-                memory_size=memory,
-                vpc=lambda_vpc if use_vpc else None,
-                security_groups=lambda_sgs,
-                role=role,
-            )
-            if log_group is not None:
-                lambda_kwargs["log_group"] = log_group
+                log_group = aws_logs.LogGroup(
+                    self, f"{name}LogGroup", retention=retention_enum
+                )
+            if not hasattr(_lambda.Runtime, runtime):
+                raise ValueError(f"Invalid Lambda runtime: {runtime}")
+            lambda_kwargs = {
+                "runtime": getattr(_lambda.Runtime, runtime),
+                "handler": handler,
+                "code": _lambda.Code.from_asset(code_path),
+                "environment": environment,
+                "timeout": Duration.seconds(timeout),
+                "memory_size": memory,
+                "vpc": lambda_vpc if use_vpc else None,
+                "security_groups": lambda_sgs,
+                "role": role,
+            }
             fn = _lambda.Function(self, name, **lambda_kwargs)
+            if log_group is not None:
+                fn.node.add_dependency(log_group)
+            if fn_cfg.secrets:
+                for env_var, secret_arn in fn_cfg.secrets.items():
+                    secret = secretsmanager.Secret.from_secret_complete_arn(
+                        self, f"{name}{env_var}Secret", secret_arn
+                    )
+                    fn.add_environment(env_var, secret.secret_value.to_string())
+                    secret.grant_read(fn)
             fn.apply_removal_policy(removal_policy)
-            # Monitoring: CloudWatch alarms for errors, throttles, duration
             error_alarm = cloudwatch.Alarm(
                 self,
                 f"{construct_id}Lambda{name}ErrorAlarm",
@@ -186,6 +176,15 @@ class LambdaStack(Stack):
                 alarm_description=f"Lambda {name} throttles detected",
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             )
+            timeout_seconds: float = 60.0
+            if (
+                hasattr(fn, "timeout")
+                and fn.timeout is not None
+                and hasattr(fn.timeout, "to_seconds")
+            ):
+                timeout_val = fn.timeout.to_seconds()  # type: ignore[call-arg]
+                if isinstance(timeout_val, (int, float)):
+                    timeout_seconds = float(timeout_val)
             duration_alarm = cloudwatch.Alarm(
                 self,
                 f"{construct_id}Lambda{name}DurationAlarm",
@@ -196,43 +195,22 @@ class LambdaStack(Stack):
                     statistic="Average",
                     period=Duration.minutes(5),
                 ),
-                threshold=fn.timeout.to_seconds() * 0.9,  # 90% of timeout
+                threshold=timeout_seconds * 0.9,  # 90% of timeout
                 evaluation_periods=1,
                 alarm_description=f"Lambda {name} duration high",
                 comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             )
-            # Outputs
-            CfnOutput(
-                self,
-                f"{construct_id}Lambda{name}Name",
-                value=fn.function_name,
-                export_name=f"{construct_id}-lambda-{name}-name",
+            self._export_resource(f"{construct_id}Lambda{name}Name", fn.function_name)
+            self._export_resource(f"{construct_id}Lambda{name}Arn", fn.function_arn)
+            self._export_resource(
+                f"{construct_id}Lambda{name}ErrorAlarmArn", error_alarm.alarm_arn
             )
-            CfnOutput(
-                self,
-                f"{construct_id}Lambda{name}Arn",
-                value=fn.function_arn,
-                export_name=f"{construct_id}-lambda-{name}-arn",
+            self._export_resource(
+                f"{construct_id}Lambda{name}ThrottleAlarmArn", throttle_alarm.alarm_arn
             )
-            CfnOutput(
-                self,
-                f"{construct_id}Lambda{name}ErrorAlarmArn",
-                value=error_alarm.alarm_arn,
-                export_name=f"{construct_id}-lambda-{name}-error-alarm-arn",
+            self._export_resource(
+                f"{construct_id}Lambda{name}DurationAlarmArn", duration_alarm.alarm_arn
             )
-            CfnOutput(
-                self,
-                f"{construct_id}Lambda{name}ThrottleAlarmArn",
-                value=throttle_alarm.alarm_arn,
-                export_name=f"{construct_id}-lambda-{name}-throttle-alarm-arn",
-            )
-            CfnOutput(
-                self,
-                f"{construct_id}Lambda{name}DurationAlarmArn",
-                value=duration_alarm.alarm_arn,
-                export_name=f"{construct_id}-lambda-{name}-duration-alarm-arn",
-            )
-            # Shared resources dict for downstream stacks
             self.shared_resources[name] = {
                 "function": fn,
                 "role": fn.role,
@@ -242,95 +220,90 @@ class LambdaStack(Stack):
             }
             self.functions.append(fn)
 
-        # Find the config for the topic creator Lambda
         topic_lambda_cfg = next(
-            (f for f in lambda_cfgs if f["name"] == "msk_topic_creator"), None
+            (f for f in lambda_cfgs if f.name == "msk_topic_creator"), None
         )
-        if topic_lambda_cfg:
-            # Import MSK cluster ARN and topic config from shared_resources or config
-            msk_cluster_arn = shared_resources["msk"]["cluster_arn"]
-            topic_config = config["msk"]["topics"]  # List of dicts
+        if topic_lambda_cfg and shared_resources and shared_resources.get("msk"):
+            msk_cluster_arn = shared_resources["msk"].get("cluster_arn")
+            topic_config = config.get("msk", {}).get("topics", [])
 
-            # Set environment variables
-            topic_lambda_cfg["environment"].update(
+            topic_lambda_cfg.environment.update(
                 {
                     "MSK_CLUSTER_ARN": msk_cluster_arn,
                     "TOPIC_CONFIG": json.dumps(topic_config),
                 }
             )
 
-            # Grant least-privilege permissions for MSK topic management
             fn = self.shared_resources["msk_topic_creator"]["function"]
             msk_arn = msk_cluster_arn
-            fn.add_to_role_policy(
-                iam.PolicyStatement(
-                    actions=[
-                        "kafka:DescribeCluster",
-                        "kafka:GetBootstrapBrokers",
-                        "kafka:CreateTopic",
-                        "kafka:ListTopics",
-                        "kafka:DescribeTopic",
-                    ],
-                    resources=[msk_arn],
+            if fn.role:
+                fn.role.add_to_policy(
+                    iam.PolicyStatement(
+                        actions=[
+                            "kafka:DescribeCluster",
+                            "kafka:GetBootstrapBrokers",
+                            "kafka:CreateTopic",
+                            "kafka:ListTopics",
+                            "kafka:DescribeTopic",
+                        ],
+                        resources=[msk_arn],
+                    )
                 )
-            )
-            # Networking is handled by vpc/vpc_sg
 
-            # --- Custom Resource to trigger topic creation ---
-            provider = cr.Provider(self, "MskTopicCreatorProvider", on_event_handler=fn)
-            cr.CustomResource(
+            cr.Provider(self, "MskTopicCreatorProvider", on_event_handler=fn)
+            cr.AwsCustomResource(
                 self,
                 "MskTopicCreatorCustomResource",
-                service_token=provider.service_token,
-                properties={
-                    "ClusterArn": msk_cluster_arn,
-                    "TopicConfig": json.dumps(topic_config),
+                on_create={
+                    "service": "Lambda",
+                    "action": "invoke",
+                    "parameters": {
+                        "FunctionName": fn.function_name,
+                        "Payload": json.dumps(
+                            {
+                                "ClusterArn": msk_cluster_arn,
+                                "TopicConfig": topic_config,
+                            }
+                        ),
+                    },
+                    "physicalResourceId": cr.PhysicalResourceId.of(
+                        f"MskTopicCreatorCustomResource-{msk_cluster_arn}"
+                    ),
                 },
+                policy=cr.AwsCustomResourcePolicy.from_sdk_calls(
+                    resources=cr.AwsCustomResourcePolicy.ANY_RESOURCE
+                ),
             )
 
-        from aws_cdk import aws_lambda, aws_iam
+    def _validate_cross_stack_resources(
+        self, vpc, lambda_role_arn, shared_resources, lambda_cfgs
+    ):
+        """
+        Explicitly validate referenced cross-stack resources before creation.
+        Raises ValueError if any required resource is missing or misconfigured.
+        """
+        if vpc is None:
+            raise ValueError("LambdaStack requires a valid VPC reference.")
+        if not isinstance(lambda_cfgs, list):
+            raise ValueError(
+                "LambdaStack requires a list of LambdaFunctionConfig objects."
+            )
+        for fn_cfg in lambda_cfgs:
+            if not getattr(fn_cfg, "name", None):
+                raise ValueError(f"Lambda function config missing name: {fn_cfg}")
+            if not getattr(fn_cfg, "code_path", None):
+                raise ValueError(f"Lambda function config missing code_path: {fn_cfg}")
+        # Validate IAM role ARNs if provided
+        if lambda_role_arn is not None and not isinstance(lambda_role_arn, str):
+            raise ValueError(
+                "LambdaStack lambda_role_arn must be a string if provided."
+            )
+        # Validate shared resources if provided
+        if shared_resources is not None and not isinstance(shared_resources, dict):
+            raise ValueError("LambdaStack shared_resources must be a dict if provided.")
 
-        class LambdaStack(Stack):
-            def __init__(
-                self,
-                scope: Construct,
-                construct_id: str,
-                vpc: ec2.IVpc,
-                config: dict,
-                shared_resources: dict = None,
-                **kwargs,
-            ):
-                super().__init__(scope, construct_id, **kwargs)
-                lambda_cfgs = config.get("lambda", {}).get("functions", {})
-
-                for name, fn_cfg in lambda_cfgs.items():
-                    if name == "msk_topic_creator":
-                        msk_cluster_arn = shared_resources["msk"]["cluster_arn"]
-                        topic_config = config["msk"]["topics"]
-                        fn_cfg["environment"].update(
-                            {
-                                "MSK_CLUSTER_ARN": msk_cluster_arn,
-                                "TOPIC_CONFIG": json.dumps(topic_config),
-                            }
-                        )
-
-                        fn = aws_lambda.Function(
-                            self,
-                            "MskTopicCreatorLambda",
-                            runtime=aws_lambda.Runtime.PYTHON_3_11,
-                            handler=fn_cfg["handler"],
-                            code=aws_lambda.Code.from_asset(fn_cfg["code_path"]),
-                            timeout=Duration.seconds(fn_cfg["timeout"]),
-                            memory_size=fn_cfg["memory"],
-                            vpc=vpc,
-                            environment=fn_cfg["environment"],
-                        )
-                        fn.add_to_role_policy(
-                            aws_iam.PolicyStatement(
-                                actions=[
-                                    "kafka:DescribeCluster",
-                                    "kafka:GetBootstrapBrokers",
-                                ],
-                                resources=["*"],
-                            )
-                        )
+    def _export_resource(self, name, value):
+        """
+        Export a resource value (ARN, name, etc.) for cross-stack consumption and auditability.
+        """
+        CfnOutput(self, name, value=value, export_name=f"{self.stack_name}-{name}")
