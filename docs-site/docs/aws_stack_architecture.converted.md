@@ -1,12 +1,11 @@
-⬅️ Back to Project Overview
+[⬅️ Back to Project Overview](../../README.md)
 
-⬅️ Back to Checklist
+[⬅️ Back to Checklist](./checklist.md)
 
 # 🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map
 
-This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities,and how they interact to deliver a secure, modular, and production-grade MLOps platform.All relationshipsare defined in code for full reproducibility and auditability.
+This document provides a comprehensive overview of all major infrastructure stacks in ShieldCraft AI, their responsibilities,  and how they interact to deliver a secure, modular, and production-grade MLOps platform.  All relationships  are defined in code for full reproducibility and auditability.
 
-:::tip
 ## Recent Architectural Improvements & Best Practices
 
 * Centralized Vault Integration:All major stacks now accept asecrets_manager_arnparameter, importing the AWS Secrets Manager vault secret, exporting its ARN viaCfnOutput, and exposing it inshared_resourcesfor secure, auditable cross-stack consumption. This supports centralized secrets management, auditability, and downstream wiring.
@@ -27,7 +26,6 @@ This document provides a comprehensive overview of all major infrastructure stac
 * Auditability:UseCfnOutputfor all critical resources; document outputs and imports.
 * Extensibility:Parameterize compliance and monitoring rules for easy future updates.
 * Testing:Cover both happy and unhappy paths, especially for resource validation and cross-stack outputs.
-:::
 
 ## Stack Roles & Responsibilities
 
@@ -50,7 +48,24 @@ This document provides a comprehensive overview of all major infrastructure stac
 
 ## Expanded Dependency Matrix (Outputs & Inputs)
 
-StackExports (CfnOutput)Consumed By (Fn.import_value)Notes on ParallelismIamRoleStackAll required IAM role ARNsAll stacks needing rolesDeploy first or in parallel, outputs must exist before importNetworkingStackVPC ID, SG IDs, Flow Logs ARN, vault secret ARNAll compute/data stacksSame as aboveS3Stackdata_bucket name/ARN, vault secret ARNGlueStack, LakeFormationStack, etc.S3Stack must finish before dependent stacksGlueStackGlue DB/catalog name, vault secret ARNLakeFormationStack, DataQualityStackGlueStack must finish before dependentsLakeFormationStackAdmin role, permissions, vault secret ARN(If needed by other stacks)MskStackBroker info, client/producer/consumer roles, vault secret ARNLambdaStack, AirbyteStack, etc.LambdaStackLambda ARNs, vault secret ARNDataQualityStack, ComplianceStack, AttackSimulationStackAttackSimulationStackLambda ARN, alarm ARN, imported secret ARNSecurity, audit, downstream consumersCan run in parallel with other compute stacksSecretsManagerStackSecret ARNs, resource policiesAll stacks needing secretsDeploy first for secret availabilityAirbyteStackEndpoints, role ARN, vault secret ARN(If needed by other stacks)OpenSearchStackEndpoint, role ARN, vault secret ARNAnalytics, LambdaStackDataQualityStackMetrics, alerts, vault secret ARN(If needed by other stacks)SageMakerStackEndpoint, role ARN, vault secret ARNML pipeline, LambdaStackCloudNativeHardeningStackSecurity findings, config rules, vault secret ARN(If needed by other stacks)ComplianceStackCompliance reports, Lambda ARNs, vault secret ARN(If needed by other stacks)BudgetStackBudget ARNs, SNS topic ARN, vault secret ARNAll teams, FinOps, notificationsDeployed last, depends on all infra
+| Stack | Exports (CfnOutput) | Consumed By (Fn.import_value) | Notes on Parallelism |
+| --- | --- | --- | --- |
+| IamRoleStack | All required IAM role ARNs | All stacks needing roles | Deploy first or in parallel, outputs must exist before import |
+| NetworkingStack | VPC ID, SG IDs, Flow Logs ARN, vault secret ARN | All compute/data stacks | Same as above |
+| S3Stack | data_bucket name/ARN, vault secret ARN | GlueStack, LakeFormationStack, etc. | S3Stack must finish before dependent stacks |
+| GlueStack | Glue DB/catalog name, vault secret ARN | LakeFormationStack, DataQualityStack | GlueStack must finish before dependents |
+| LakeFormationStack | Admin role, permissions, vault secret ARN | (If needed by other stacks) |  |
+| MskStack | Broker info, client/producer/consumer roles, vault secret ARN | LambdaStack, AirbyteStack, etc. |  |
+| LambdaStack | Lambda ARNs, vault secret ARN | DataQualityStack, ComplianceStack, AttackSimulationStack |  |
+| AttackSimulationStack | Lambda ARN, alarm ARN, imported secret ARN | Security, audit, downstream consumers | Can run in parallel with other compute stacks |
+| SecretsManagerStack | Secret ARNs, resource policies | All stacks needing secrets | Deploy first for secret availability |
+| AirbyteStack | Endpoints, role ARN, vault secret ARN | (If needed by other stacks) |  |
+| OpenSearchStack | Endpoint, role ARN, vault secret ARN | Analytics, LambdaStack |  |
+| DataQualityStack | Metrics, alerts, vault secret ARN | (If needed by other stacks) |  |
+| SageMakerStack | Endpoint, role ARN, vault secret ARN | ML pipeline, LambdaStack |  |
+| CloudNativeHardeningStack | Security findings, config rules, vault secret ARN | (If needed by other stacks) |  |
+| ComplianceStack | Compliance reports, Lambda ARNs, vault secret ARN | (If needed by other stacks) |  |
+| BudgetStack | Budget ARNs, SNS topic ARN, vault secret ARN | All teams, FinOps, notifications | Deployed last, depends on all infra |
 
 ## How the Stacks Interact
 
@@ -127,7 +142,6 @@ budget_stack
 
 ```
 
-:::info
 ## Architectural Insights
 
 * Centralized secrets management is enforced via AWS Secrets Manager vault integration. All stacks import the vault secret, export its ARN, and expose it inshared_resourcesfor secure, auditable downstream consumption.AttackSimulationStackand other security stacks consume secret ARNs for runtime access, supporting automated security validation and audit.
@@ -136,9 +150,7 @@ budget_stack
 * All relationships are explicit and testable, supporting both happy and unhappy paths.
 * Outputs and shared resources are robustly validated in tests, ensuring reliability for downstream consumers.
 * Design supports cloud-native, MLOps, and enterprise best practices for production workloads.
-:::
 
-:::tip
 ## Legend & Guidance
 
 * Arrows(▶) indicate dependency or resource consumption.
@@ -147,7 +159,6 @@ budget_stack
 * All relationships are defined in code for full reproducibility and auditability.
 
 For a graphical version, consider using Mermaid or PlantUML with this structure as a base.
-:::
 
 ## IAM Role Management & Config-Driven Permissions
 
@@ -254,3 +265,5 @@ flowchart TD
     budget_stack --> cloud_native_hardening_stack
     budget_stack --> compliance_stack
 ```
+
+<!-- Unhandled tags: br, li -->
