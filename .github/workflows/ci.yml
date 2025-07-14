@@ -112,7 +112,6 @@ jobs:
           echo "::endgroup::"
 
   cdk_deploy:
-    if: false  # Temporarily disable this job
     name: "CDK Deploy"
     runs-on: ubuntu-latest
     needs: [flow_commit]
@@ -164,7 +163,6 @@ jobs:
         run: poetry run nox -s cdk_deploy
 
   docker_build:
-    if: false  # Temporarily disable this job
     name: "Docker Build"
     runs-on: ubuntu-latest
     needs: [flow_commit]
@@ -229,7 +227,6 @@ jobs:
           df -h
 
   docker_scan:
-    if: false  # Temporarily disable this job
     name: "Docker Scan"
     runs-on: ubuntu-latest
     needs: [docker_build]
