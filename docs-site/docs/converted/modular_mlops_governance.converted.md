@@ -45,7 +45,7 @@ This document details the modular architecture, MLOps lifecycle, and security/da
 
 - **Access Control:**
   - IAM roles and least-privilege access
-  - Centralized secrets management ([see doc](security/aws-secrets-management.md))
+  - Centralized secrets management ([see doc](security/aws-secrets-management.converted.md))
   - Audit logging for all access and changes
 
 - **Compliance:**

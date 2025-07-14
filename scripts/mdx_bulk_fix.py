@@ -2,8 +2,11 @@
 import re
 import shutil
 import logging
+import html
 from bs4 import BeautifulSoup
 from pathlib import Path
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
@@ -12,25 +15,18 @@ def fix_self_closing_tags(html):
     void_tags = [
         "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"
     ]
-    # Self-close all void tags (except progress)
-    pattern = r'<({})([^>/]*)(?<!/)>'.format("|".join(void_tags))
-    html = re.sub(pattern, r'<\1\2 />', html)
-
-    # Use BeautifulSoup to robustly handle <progress> tags
+    # Use BeautifulSoup for all void/self-closing tags
     soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.find_all("progress"):
-        if not tag.contents or (len(tag.contents) == 1 and str(tag.contents[0]).strip() == ""):
-            # Empty <progress> -> self-close
-            tag.attrs = dict(tag.attrs)  # ensure attrs is a dict
-            tag.string = None
-            tag.insert_after(BeautifulSoup("", "html.parser"))
-            tag.replace_with(BeautifulSoup(str(tag).replace("<progress", "<progress").replace("></progress>", " />"), "html.parser"))
-        else:
-            # Has content, ensure properly closed
-            if not str(tag).endswith("</progress>"):
-                logging.warning("Auto-closing <progress> tag with content for MDX compatibility.")
-                tag.append(BeautifulSoup("</progress>", "html.parser"))
-    # Return soup as string
+    for tag_name in void_tags + ["progress"]:
+        for tag in soup.find_all(tag_name):
+            if not tag.contents or (len(tag.contents) == 1 and str(tag.contents[0]).strip() == ""):
+                tag.attrs = dict(tag.attrs)
+                tag.string = None
+                tag.replace_with(BeautifulSoup(f"<{tag_name}{' '.join([f'{k}="{v}"' for k,v in tag.attrs.items()])}/>", "html.parser"))
+            else:
+                if tag_name == "progress" and not str(tag).endswith("</progress>"):
+                    logging.warning("Auto-closing <progress> tag with content for MDX compatibility.")
+                    tag.append(BeautifulSoup("</progress>", "html.parser"))
     return str(soup)
 def html_table_to_markdown(table_tag):
     md_rows = []
@@ -94,8 +90,16 @@ def convert_list(list_tag):
 
 def convert_code_block(pre_tag):
     code_text = pre_tag.get_text()
-    if "mermaid" in code_text:
+    # Validate code block language
+    lang = ""
+    if pre_tag.has_attr("class"):
+        for c in pre_tag["class"]:
+            if c.startswith("language-"):
+                lang = c.replace("language-", "")
+    if "mermaid" in code_text or lang == "mermaid":
         return f"```mermaid\n{code_text}\n```"
+    elif lang:
+        return f"```{lang}\n{code_text}\n```"
     return f"```\n{code_text}\n```"
 
 def convert_inline(tag, asset_copier=None, src_path=None, out_dir=None):
@@ -167,12 +171,12 @@ def convert_block(tag, unhandled_tags=None, indent_level=0, asset_copier=None, s
         return tag.get_text(strip=True)
 
 def asset_copier(src, src_path, out_dir):
-    # Copy asset to out_dir/assets, return new relative path
+    # Centralize all assets in docs-site/docs/converted/assets
     if not src or src.startswith('http'):
         return src
-    src_file = (src_path.parent / src).resolve()
-    assets_dir = out_dir / "assets"
+    assets_dir = Path('docs-site/docs/converted/assets')
     assets_dir.mkdir(parents=True, exist_ok=True)
+    src_file = (src_path.parent / src).resolve()
     dest_file = assets_dir / src_file.name
     try:
         if src_file.exists():
@@ -245,6 +249,50 @@ def convert_html_to_markdown(html, src_path=None, out_dir=None):
         logging.warning("Unclosed <progress> tag detected after conversion. Please check the source file.")
     return markdown
 
+def load_tree(tree_path):
+    """Parse tree.txt and return a set of all files and a mapping of base names to converted names."""
+    files = set()
+    converted_map = defaultdict(str)
+    with open(tree_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.endswith('/'):
+                continue
+            files.add(line)
+            # If .md file, map to .converted.md
+            if line.endswith('.md'):
+                base = line.rsplit('.md', 1)[0]
+                converted_map[line] = base + '.converted.md'
+    return files, converted_map
+
+import os
+def rewrite_links(markdown, src_path, tree_files, converted_map):
+    """Rewrite internal links to point to converted files and correct relative paths, including anchors and query params."""
+    def link_replacer(match):
+        text, url = match.group(1), match.group(2)
+        # Only rewrite relative links to .md files
+        if url.startswith('http'):
+            return match.group(0)
+        # Split anchor/query
+        base_url, anchor = re.match(r'([^#?]+)([#?].*)?', url).groups() if re.match(r'([^#?]+)([#?].*)?', url) else (url, '')
+        if not base_url.endswith('.md'):
+            return match.group(0)
+        # Find the target in tree_files
+        for tree_file in tree_files:
+            if tree_file.endswith(base_url):
+                new_url = converted_map.get(tree_file, tree_file)
+                src_converted_dir = src_path.parent / 'converted'
+                target_converted_path = Path('docs-site/docs/converted') / Path(tree_file).parent / Path(new_url).name
+                try:
+                    rel_path = os.path.relpath(str(target_converted_path), str(src_converted_dir))
+                except Exception as e:
+                    logging.warning(f"Could not compute relative path for link: {url} in {src_path}: {e}")
+                    rel_path = new_url
+                return f'[{text}]({rel_path}{anchor or ""})'
+        logging.warning(f"Unresolved link: {url} in {src_path}")
+        return match.group(0)
+    markdown = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link_replacer, markdown)
+    return markdown
 def autocorrect_mdx_compatibility(markdown, path):
     corrections = []
     # Auto-correct unclosed <progress> tags
@@ -259,9 +307,15 @@ def autocorrect_mdx_compatibility(markdown, path):
     if re.search(r'<br([^>]*)>(?!.*?/>)', markdown):
         markdown = re.sub(r'<br([^>]*)>(?!.*?/>)', r'<br\1 />', markdown)
         corrections.append("Auto-corrected unclosed <br> tag.")
-    # Final sweep: ensure all self-closing tags use <tag .../> (no space before slash)
-    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s+/\s*>', r'<\1\2/>', markdown)
-    corrections.append("Normalized self-closing tag syntax for MDX.")
+    # Final sweep: strictly normalize all self-closing tags to <tag/>
+    # Remove spaces and extra slashes before />
+    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s*/+\s*>', r'<\1\2/>', markdown)
+    # Also catch cases like <progress //> or <progress / />
+    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)/\s*>', lambda m: f'<{m.group(1)}{m.group(2).rstrip()}/>', markdown)
+    corrections.append("Strictly normalized self-closing tag syntax for MDX.")
+    # Decode HTML entities
+    markdown = html.unescape(markdown)
+    corrections.append("Decoded HTML entities.")
     # Log corrections
     if corrections:
         logging.info(f"MDX auto-corrections applied to {path}:")
@@ -269,28 +323,47 @@ def autocorrect_mdx_compatibility(markdown, path):
             logging.info(f"  - {corr}")
     return markdown
 
-def process_file(path, dry_run=False):
+def process_file(path, dry_run=False, tree_files=None, converted_map=None, error_list=None):
     try:
         with open(path, "r", encoding="utf-8") as f:
             original = f.read()
         out_dir = path.parent / "converted"
         out_dir.mkdir(parents=True, exist_ok=True)
         updated = convert_html_to_markdown(original, src_path=path, out_dir=out_dir)
-        # Auto-correct MDX compatibility before writing
         updated = autocorrect_mdx_compatibility(updated, path)
+        if tree_files and converted_map:
+            updated = rewrite_links(updated, path, tree_files, converted_map)
         if original != updated:
             if not dry_run:
                 out_path = out_dir / path.name.replace('.md', '.converted.md')
-                with open(out_path, "w", encoding="utf-8") as f:
-                    f.write(updated)
-                logging.info(f"Converted file written to: {out_path}")
+                try:
+                    with open(out_path, "w", encoding="utf-8") as f:
+                        f.write(updated)
+                    logging.info(f"Converted file written to: {out_path}")
+                except Exception as e:
+                    logging.error(f"Error writing {out_path}: {e}")
+                    if error_list is not None:
+                        error_list.append((str(path), str(e)))
     except Exception as e:
         logging.error(f"Error processing {path}: {e}")
+        if error_list is not None:
+            error_list.append((str(path), str(e)))
 
 if __name__ == "__main__":
     docs_root = Path("docs-site/docs")
-    md_files = list(docs_root.rglob("*.md"))
-    for md_file in md_files:
-        if md_file.name.endswith(".converted.md"):
-            continue
-        process_file(md_file, dry_run=False)
+    tree_path = docs_root / "tree.txt"
+    tree_files, converted_map = load_tree(tree_path)
+    md_files = [md_file for md_file in docs_root.rglob("*.md") if not md_file.name.endswith(".converted.md")]
+    error_list = []
+    # Parallel processing for scalability
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {executor.submit(process_file, md_file, False, tree_files, converted_map, error_list): md_file for md_file in md_files}
+        for future in as_completed(futures):
+            pass
+    # Summary report
+    if error_list:
+        logging.error("Summary of errors during conversion:")
+        for fname, err in error_list:
+            logging.error(f"  {fname}: {err}")
+    else:
+        logging.info("All files converted successfully.")
