@@ -195,6 +195,9 @@ def asset_copier(src, src_path, out_dir):
         return src
 
 def convert_html_to_markdown(html, src_path=None, out_dir=None):
+    if html is None or not isinstance(html, str) or not html.strip():
+        logging.error(f"Input HTML for {src_path} is None or empty.")
+        return ""
     html = fix_self_closing_tags(html)
     soup = BeautifulSoup(html, "html.parser")
     body = soup.body or soup
@@ -330,8 +333,19 @@ def autocorrect_mdx_compatibility(markdown, path):
 
 def process_file(path, dry_run=False, tree_files=None, converted_map=None, error_list=None):
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            original = f.read()
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                original = f.read()
+        except Exception as e:
+            logging.error(f"Error reading {path}: {e}")
+            if error_list is not None:
+                error_list.append((str(path), f"Error reading file: {e}"))
+            return
+        if original is None or not isinstance(original, str) or not original.strip():
+            logging.error(f"File {path} is empty or unreadable.")
+            if error_list is not None:
+                error_list.append((str(path), "File is empty or unreadable."))
+            return
         out_dir = path.parent / "converted"
         out_dir.mkdir(parents=True, exist_ok=True)
         updated = convert_html_to_markdown(original, src_path=path, out_dir=out_dir)
