@@ -26,7 +26,38 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Built on a scalable, secure cloud-native architecture leveraging AWS services and MLOps best practices.<br />
-        <b>Key Technologies</b>: Amazon Bedrock, SageMaker, OpenSearch, MSK, Kinesis, Airbyte, S3, Lake Formation, Glue, EKS, ECS, Lambda, Step Functions, CDK, Terraform, Poetry, pre-commit, GuardDuty, Security Hub, Config, CloudTrail, VPC, WAF, CloudWatch, X-Ray, Prometheus, Grafana, Sentry, OPA, Cost Explorer, Docusaurus, Jupyter.
+        <b>Key Technologies</b>:&nbsp;
+        <a href="https://aws.amazon.com/bedrock/" style={{ color: '#a5b4fc' }}>Amazon Bedrock</a>,&nbsp;
+        <a href="https://aws.amazon.com/sagemaker/" style={{ color: '#a5b4fc' }}>SageMaker</a>,&nbsp;
+        <a href="https://aws.amazon.com/opensearch-service/" style={{ color: '#a5b4fc' }}>OpenSearch</a>,&nbsp;
+        <a href="https://aws.amazon.com/msk/" style={{ color: '#a5b4fc' }}>MSK</a>,&nbsp;
+        <a href="https://aws.amazon.com/kinesis/" style={{ color: '#a5b4fc' }}>Kinesis</a>,&nbsp;
+        <a href="https://airbyte.com/" style={{ color: '#a5b4fc' }}>Airbyte</a>,&nbsp;
+        <a href="https://aws.amazon.com/s3/" style={{ color: '#a5b4fc' }}>S3</a>,&nbsp;
+        <a href="https://aws.amazon.com/lake-formation/" style={{ color: '#a5b4fc' }}>Lake Formation</a>,&nbsp;
+        <a href="https://aws.amazon.com/glue/" style={{ color: '#a5b4fc' }}>Glue</a>,&nbsp;
+        <a href="https://aws.amazon.com/eks/" style={{ color: '#a5b4fc' }}>EKS</a>,&nbsp;
+        <a href="https://aws.amazon.com/ecs/" style={{ color: '#a5b4fc' }}>ECS</a>,&nbsp;
+        <a href="https://aws.amazon.com/lambda/" style={{ color: '#a5b4fc' }}>Lambda</a>,&nbsp;
+        <a href="https://aws.amazon.com/step-functions/" style={{ color: '#a5b4fc' }}>Step Functions</a>,&nbsp;
+        <a href="https://aws.amazon.com/cdk/" style={{ color: '#a5b4fc' }}>CDK</a>,&nbsp;
+        <a href="https://www.terraform.io/" style={{ color: '#a5b4fc' }}>Terraform</a>,&nbsp;
+        <a href="https://python-poetry.org/" style={{ color: '#a5b4fc' }}>Poetry</a>,&nbsp;
+        <a href="https://aws.amazon.com/guardduty/" style={{ color: '#a5b4fc' }}>GuardDuty</a>,&nbsp;
+        <a href="https://aws.amazon.com/security-hub/" style={{ color: '#a5b4fc' }}>Security Hub</a>,&nbsp;
+        <a href="https://aws.amazon.com/config/" style={{ color: '#a5b4fc' }}>Config</a>,&nbsp;
+        <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html" style={{ color: '#a5b4fc' }}>CloudTrail</a>,&nbsp;
+        <a href="https://aws.amazon.com/vpc/" style={{ color: '#a5b4fc' }}>VPC</a>,&nbsp;
+        <a href="https://aws.amazon.com/waf/" style={{ color: '#a5b4fc' }}>WAF</a>,&nbsp;
+        <a href="https://aws.amazon.com/cloudwatch/" style={{ color: '#a5b4fc' }}>CloudWatch</a>,&nbsp;
+        <a href="https://aws.amazon.com/x-ray/" style={{ color: '#a5b4fc' }}>X-Ray</a>,&nbsp;
+        <a href="https://prometheus.io/" style={{ color: '#a5b4fc' }}>Prometheus</a>,&nbsp;
+        <a href="https://grafana.com/" style={{ color: '#a5b4fc' }}>Grafana</a>,&nbsp;
+        <a href="https://sentry.io/welcome/" style={{ color: '#a5b4fc' }}>Sentry</a>,&nbsp;
+        <a href="https://www.openpolicyagent.org/" style={{ color: '#a5b4fc' }}>OPA</a>,&nbsp;
+        <a href="https://aws.amazon.com/aws-cost-management/aws-cost-explorer/" style={{ color: '#a5b4fc' }}>Cost Explorer</a>,&nbsp;
+        <a href="https://docusaurus.io/" style={{ color: '#a5b4fc' }}>Docusaurus</a>,&nbsp;
+        <a href="https://jupyter.org/" style={{ color: '#a5b4fc' }}>Jupyter</a>.
       </>
     ),
   },
