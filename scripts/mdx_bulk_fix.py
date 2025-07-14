@@ -43,10 +43,7 @@ def convert_admonition(section_tag):
     # Remove leading/trailing blank lines and join with double newlines
     text = "\n\n".join([b for b in blocks if b.strip() or b == ""])
     text = re.sub(r'(\n\n)+', '\n\n', text).strip()
-    if "Best Practice" in text or "Guidance" in text:
-        return f":::tip\n{text}\n:::"  # Docusaurus tip
-    elif "Insight" in text or "Auditability" in text:
-        return f":::info\n{text}\n:::"  # Docusaurus info
+    # Do not wrap in Docusaurus admonition blocks
     return text
 
 def convert_list(list_tag):
@@ -99,9 +96,19 @@ def convert_block(tag, unhandled_tags=None, indent_level=0):
     if isinstance(tag, str):
         return tag.strip()
     if tag.name == "section":
-        # Admonition: wrap all content, ensure block separation
-        admonition = convert_admonition(tag)
-        return admonition
+        # Only wrap in admonition if content matches keywords
+        section_text = tag.get_text(" ", strip=True)
+        if any(k in section_text for k in ["Best Practice", "Guidance", "Insight", "Auditability"]):
+            admonition = convert_admonition(tag)
+            return admonition
+        else:
+            # Not an admonition: process children as regular blocks
+            blocks = []
+            for child in tag.children:
+                block = convert_block(child, unhandled_tags, indent_level)
+                if block:
+                    blocks.append(block)
+            return "\n\n".join(blocks)
     elif tag.name == "table":
         return html_table_to_markdown(tag)
     elif tag.name in ["ul", "ol"]:
