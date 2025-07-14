@@ -44,10 +44,13 @@ jobs:
           echo "DISK_DEBUG: du -sh workspace root"
           du -sh ./*
           echo "::endgroup::"
+      - name: Read Python version from .python-version
+        id: python_version
+        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Cache Poetry and pip
         uses: actions/cache@v4
         with:
@@ -105,10 +108,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Read Python version from .python-version
+        id: python_version
+        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install Poetry
         run: pip install poetry
       - name: Install project dependencies
@@ -159,6 +165,8 @@ jobs:
       - name: Build and push with BuildKit cache (API)
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
           context: .
           file: Dockerfile.api
           target: final
@@ -208,6 +216,8 @@ jobs:
       - name: Build and push with BuildKit cache (Ingestion)
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
           context: .
           file: Dockerfile.ingestion
           target: final
@@ -257,6 +267,8 @@ jobs:
       - name: Build and push with BuildKit cache (Main)
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
           context: .
           file: Dockerfile
           target: final

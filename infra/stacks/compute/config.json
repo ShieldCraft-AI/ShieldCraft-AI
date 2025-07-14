@@ -1,12 +1,11 @@
 {
     "msk_topic_creator": {
-        "runtime": "python3.11",
+        "runtime": "python{{ PYTHON_VERSION }}",
         "handler": "handler.lambda_handler",
         "code_path": "lambda/msk_topic_creator",
         "timeout": 120,
         "memory": 256,
         "vpc": true,
-        "environment": {
-        }
+        "environment": {}
     }
 }

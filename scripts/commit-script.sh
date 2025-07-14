@@ -1,19 +1,20 @@
 #!/bin/bash
-# --- Suppress Git line-ending warnings everywhere ---
 suppress_git_warnings() {
   grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
 }
 
 
-# --- Robust error handling: ensure log file is always written ---
+
 set -euo pipefail
 
-# Fallback log file in /tmp if repo root cannot be determined
 FALLBACK_LOG_FILE="/tmp/commit_nox_debug.log"
 
-
-
-# --- Set repo root and debug log file (minimal output) ---
+# --- Best-in-class Poetry environment hygiene ---
+log_output() {
+    if ! echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$DEBUG_LOG_FILE" 2>/dev/null; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$FALLBACK_LOG_FILE"
+    fi
+}
 
 REPO_ROOT=""
 if git rev-parse --show-toplevel >/dev/null 2>&1; then
@@ -31,9 +32,17 @@ if ! echo "--- $(date) ---" >"$DEBUG_LOG_FILE" 2>/dev/null; then
     echo "--- $(date) ---" >"$DEBUG_LOG_FILE"
 fi
 
-# Output logging function
+# Clean all Poetry environments for this project before starting
+log_output "[INFO] Cleaning all Poetry environments for project hygiene."
+poetry_envs=$(poetry env list --full-path | awk '{print $1}')
+for env_path in $poetry_envs; do
+    log_output "[INFO] Removing Poetry environment: $env_path"
+    poetry env remove "$env_path" || log_output "[WARN] Could not remove Poetry env $env_path (may not exist or already removed)"
+done
+log_output "[INFO] Rehydrating Poetry environment with fresh install."
+poetry install
 
-# Output logging function (fallback to /tmp if needed)
+
 log_output() {
     if ! echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$DEBUG_LOG_FILE" 2>/dev/null; then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$FALLBACK_LOG_FILE"
@@ -41,21 +50,18 @@ log_output() {
 }
 
 
-# Trap errors and always log to fallback if needed
 trap 'echo -e "\033[1;31m[ERROR] Script failed at line $LINENO. Last command: $BASH_COMMAND\033[0m" >&2; log_output "[ERROR] Script failed at line $LINENO. Last command: $BASH_COMMAND"' ERR
 
 
 
-# --- -Style Banner (no rain effect) ---
-
 echo -e "\033[40m\033[1;32m"
-echo "╔══════════════════════════════════════════════════════════════════════╗"
-echo "║   ShieldCraft AI Commit & CI Preflight Utility ( Mode)               ║"
-echo "╠══════════════════════════════════════════════════════════════════════╣"
-echo "║  Project: ShieldCraft AI | Author: $(git config user.name)                             ║"
-echo "║  Hardened, DRY, and production-grade commit workflow for MLOps       ║"
-echo "║  All automation is cross-platform, CI-friendly, and self-healing     ║"
-echo "╚══════════════════════════════════════════════════════════════════════╝"
+echo "╔═══════════════════════════════════════════════════════════════════╗"
+echo "║   ShieldCraft AI Commit & CI Preflight Utility ( Mode)            ║"
+echo "╠═══════════════════════════════════════════════════════════════════╣"
+echo "║  Project: ShieldCraft AI | Author: $(git config user.name)                          ║"
+echo "║  Hardened, DRY, and production-grade commit workflow for MLOps    ║"
+echo "║  All automation is cross-platform, CI-friendly, and self-healing  ║"
+echo "╚═══════════════════════════════════════════════════════════════════╝"
 echo -e "\033[0m\n"
 log_output "[INFO] Commit script started by $(git config user.name)"
 
@@ -71,15 +77,21 @@ if [ -z "$REPO_ROOT" ]; then
 fi
 cd "$REPO_ROOT"
 
+# Ensure Python can import nox_sessions (fixes Poetry/Nox import path issues)
+export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+if ! poetry run python -c "import nox_sessions"; then
+    echo "[ERROR] Python cannot import 'nox_sessions'. Check PYTHONPATH and project structure." >&2
+    log_output "[ERROR] Python cannot import 'nox_sessions'. Check PYTHONPATH and project structure."
+    exit 1
+fi
 
-# --- Automatically stage all changes (silent unless staged) ---
+
 if ! git diff --quiet; then
     git add . 2>&1 | grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy' || true
     log_output "[INFO] Auto-staged changes for commit."
 fi
 
 
-# --- Warn if large/secret files are staged (minimal output) ---
 if git ls-files | grep -E '\.(env|pem|key|sqlite3|db|csv|tsv|parquet|h5|hdf5|npz|npy|sav|dat|tmp|log|pkl)$' | grep -vE 'docs-site|notebooks' | grep -vE '(^$)' >/tmp/large_or_secret_files.txt; then
     log_output "[WARN] Large or secret files staged. See /tmp/large_or_secret_files.txt"
     cat /tmp/large_or_secret_files.txt
@@ -93,7 +105,6 @@ if git ls-files | grep -E '\.(env|pem|key|sqlite3|db|csv|tsv|parquet|h5|hdf5|npz
 fi
 
 
-# --- Fast-forward merge (minimal output) ---
 git fetch origin main >/dev/null 2>&1
 if ! git merge --ff-only origin/main >/dev/null 2>&1; then
     echo "Fast-forward merge from origin/main failed. Please resolve conflicts manually before proceeding." >&2
@@ -106,7 +117,6 @@ HOOKS_DIR="$REPO_ROOT/.git/hooks"
 HOOKS_INSTALLED_MARKER="$HOOKS_DIR/.precommit_hooks_installed"
 
 
-# --- Poetry/Nox preflight (self-healing) ---
 if ! command -v poetry >/dev/null 2>&1; then
     echo "Poetry is not installed. Attempting self-heal..." >&2
     curl -sSL https://install.python-poetry.org | python3 -
@@ -127,7 +137,6 @@ if ! poetry run nox --version >/dev/null 2>&1; then
     echo "[INFO] Nox installed successfully in Poetry environment." >&2
 fi
 
-# --- Ensure pre-commit hooks are always installed and up-to-date (idempotent) ---
 NEED_HOOKS_INSTALL=0
 if [ ! -f "$HOOKS_INSTALLED_MARKER" ]; then
     NEED_HOOKS_INSTALL=1
@@ -135,7 +144,6 @@ fi
 if [ ! -x "$HOOKS_DIR/pre-commit" ] || [ ! -x "$HOOKS_DIR/pre-push" ]; then
     NEED_HOOKS_INSTALL=1
 fi
-# Check if the installed hooks are out of date (compare hash of .pre-commit-config.yaml and marker)
 if [ -f "$HOOKS_INSTALLED_MARKER" ]; then
     PRECOMMIT_CONFIG_HASH=$(sha256sum "$REPO_ROOT/.pre-commit-config.yaml" | awk '{print $1}')
     MARKER_HASH=$(cat "$HOOKS_INSTALLED_MARKER" 2>/dev/null | head -n1)
@@ -151,16 +159,12 @@ if [ "$NEED_HOOKS_INSTALL" -eq 1 ]; then
             [ -f "$hook" ] && dos2unix "$hook" 2>>"$DEBUG_LOG_FILE" || true
         done
     fi
-    # Store hash of .pre-commit-config.yaml in marker for idempotency
-    sha256sum "$REPO_ROOT/.pre-commit-config.yaml" | awk '{print $1}' > "$HOOKS_INSTALLED_MARKER"
+    sha256sum "$REPO_RaOOT/.pre-commit-config.yaml" | awk '{print $1}' > "$HOOKS_INSTALLED_MARKER"
 fi
 
 
 
 
-# --- Check poetry.lock freshness, auto-heal if needed (relaxed) ---
-
-# --- Check poetry.lock freshness (minimal output) ---
 if ! poetry lock --check >/dev/null 2>&1; then
     poetry lock >/dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -178,14 +182,10 @@ fi
 
 
 
-# --- Poetry lock check complete (minimal output) ---
 echo "Poetry lock check complete." >> "$DEBUG_LOG_FILE"
 
 
-# --- Nox/Poetry/Node preflight (minimal, DRY, no duplication) ---
 
-
-# 1. Check Nox version (fail fast if not correct)
 EXPECTED_NOX_VERSION="2023.4.22"
 NOX_VERSION_OUTPUT=$(python3 scripts/pre_nox.py -- --version 2>&1)
 ACTUAL_NOX_VERSION=$(echo "$NOX_VERSION_OUTPUT" | head -n 1 | awk '{print $NF}' | tr -d '\r\n')
@@ -196,7 +196,6 @@ if [[ -z "$ACTUAL_NOX_VERSION" || "$ACTUAL_NOX_VERSION" != "$EXPECTED_NOX_VERSIO
     exit 1
 fi
 
-# 2. Run npm preflight if needed
 if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
     if ! python3 scripts/pre_npm.py 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
         echo -e "\033[1;41m\033[1;97m🟥 npm preflight failed. Please fix npm issues and try again.\033[0m" | tee -a "$DEBUG_LOG_FILE"
@@ -207,7 +206,6 @@ fi
 
 
 
-# Run the single orchestration point for all checks (commit_flow)
 export PYTHONUNBUFFERED=1
 if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
     echo -e "\033[1;31m🟥 Nox commit_flow session failed. No commit performed.\033[0m" | tee -a "$DEBUG_LOG_FILE"
@@ -217,7 +215,6 @@ if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; the
 fi
 unset PYTHONUNBUFFERED
 
-# --- Commit message and tagging workflow ---
 echo "Select commit type:"
 echo "  1) feat (default)"
 echo "  2) fix"
@@ -248,7 +245,6 @@ case $commit_type_num in
 esac
 
 
-# --- Robust commit message input (multi-line and single-line safe) ---
 echo "Enter commit message. End with an empty line (press Enter twice):"
 commit_msg=""
 while IFS= read -r line; do
@@ -264,7 +260,6 @@ full_commit_msg="$commit_type: $commit_msg"
 tmp_commit_file=".git/COMMIT_EDITMSG"
 echo -e "$full_commit_msg" > "$tmp_commit_file"
 
-# --- Auto-stage all changes again before commit to catch late modifications ---
 git add . 2>&1 | suppress_git_warnings || true
 if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | suppress_git_warnings; then
     echo -e "\033[1;31m🟥 Commit failed.\033[0m"
@@ -285,7 +280,6 @@ if poetry run python "$CHECKLIST_SCRIPT_PATH" | grep -q 'updated'; then
 fi
 
 
-# --- Run the main orchestration session (commit_flow) instead of 'all' ---
 if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
     echo -e "\033[1;31m🟥 Final Nox commit_flow session failed after all commits. Please fix issues manually.\033[0m" | tee -a "$DEBUG_LOG_FILE"
     exit 1
@@ -295,7 +289,6 @@ echo -e "\n\033[1;34mPushing all changes to remote...\033[0m\n"
 echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
 
 
-# --- Final auto-stage/commit if any files were modified after main commit (e.g., by formatters or hooks) ---
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo -e "\033[1;33m[INFO] Detected unstaged or staged changes after main commit. Auto-staging and committing as 'chore: auto-format/fix after commit'.\033[0m"
     git add . 2>&1 | suppress_git_warnings || true

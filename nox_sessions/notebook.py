@@ -1,7 +1,6 @@
 import nox
 import os
-from nox_sessions.utils import now_str
-from nox_sessions.utils import nox_session_guard
+from nox_sessions.utils import now_str, nox_session_guard, write_debug_log
 from .bootstrap import PYTHON_VERSIONS
 from nox_sessions.utils_encoding import force_utf8
 
@@ -18,8 +17,7 @@ def notebooks(session):
     """Validate and lint/format all Jupyter notebooks (nbval, nbqa, ruff, black)."""
     from nox_sessions.utils_color import color_log, color_error
 
-    with open(DEBUG_LOG_FILE, "a") as f:
-        f.write(f"[NOTEBOOKS] Session started at {now_str()}\n")
+    write_debug_log("[NOTEBOOKS] Session started", DEBUG_LOG_FILE)
     color_log(session, f"[NOTEBOOKS] Session started at {now_str()}", style="cyan")
     try:
         # Install all required tools
@@ -46,17 +44,16 @@ def notebooks(session):
         session.run("nbqa", "black", "notebooks/")
         color_log(session, "[NOTEBOOKS] nbqa black complete.", style="green")
 
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write("[NOTEBOOKS] nbval, nbqa ruff, and nbqa black complete.\n")
+        write_debug_log(
+            "[NOTEBOOKS] nbval, nbqa ruff, and nbqa black complete.", DEBUG_LOG_FILE
+        )
     except Exception as e:
         color_error(session, f"[NOTEBOOKS][ERROR] {e}")
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write(f"[NOTEBOOKS][ERROR] {e}\n")
+        write_debug_log(f"[NOTEBOOKS][ERROR] {e}", DEBUG_LOG_FILE)
         raise
     finally:
         color_log(session, f"[NOTEBOOKS] Session ended at {now_str()}", style="cyan")
-        with open(DEBUG_LOG_FILE, "a") as f:
-            f.write(f"[NOTEBOOKS] Session ended at {now_str()}\n")
+        write_debug_log("[NOTEBOOKS] Session ended", DEBUG_LOG_FILE)
 
 
 # notebook_lint is now merged into notebooks session for DRYness and maintainability.

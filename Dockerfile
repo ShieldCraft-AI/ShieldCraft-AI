@@ -1,6 +1,7 @@
 # --- Base image for all environments ---
 # Using official Python base image for maximum compatibility
-FROM python:3.11-slim AS base
+ARG PYTHON_VERSION
+FROM python:${PYTHON_VERSION}-slim AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \

@@ -90,7 +90,7 @@ class AttackSimulationStack(Stack):
         self.simulation_lambda = _lambda.Function(
             self,
             "AttackSimulationLambda",
-            runtime=_lambda.Runtime.PYTHON_3_11,
+            runtime=_lambda.Runtime.PYTHON_3_12,
             handler="attack_simulation.handler",
             code=_lambda.Code.from_asset("lambda/attack_simulation"),
             environment={
