@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 1
       - name: Check required secrets
         run: |
-          if [ -z "${{ secrets.AWS_PROFILE_NAME }}" ] || [ -z "${{ secrets.AWS_DEFAULT_REGION }}" ]; then
+          if [ -z "$AWS_PROFILE_NAME" ] || [ -z "$AWS_DEFAULT_REGION" ]; then
             echo "Missing required secrets: AWS_PROFILE_NAME or AWS_DEFAULT_REGION"; exit 1
           fi
       - name: Aggressive disk cleanup (pre-deps)
@@ -53,11 +53,11 @@ jobs:
           echo "::endgroup::"
       - name: Read Python version from .python-version
         id: python_version
-        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
+        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_OUTPUT
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ steps.python_version.outputs.PYTHON_VERSION }}
       - name: Cache Poetry and pip
         uses: actions/cache@v4
         with:
@@ -65,7 +65,7 @@ jobs:
             ~/.cache/pip
             ~/.cache/pypoetry
             ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py${{ env.PYTHON_VERSION }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}-py${{ steps.python_version.outputs.PYTHON_VERSION }}
           restore-keys: |
             ${{ runner.os }}-poetry-
       - name: Install Poetry
@@ -123,7 +123,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ steps.python_version.outputs.PYTHON_VERSION }}
       - name: Install Poetry
         run: pip install poetry
       - name: Install project dependencies
@@ -131,17 +131,17 @@ jobs:
       - name: Configure AWS credentials (OIDC, Identity Center)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }} 
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
       - name: Install AWS CDK CLI (v2)
         run: npm install -g aws-cdk
       - name: CDK Synthesis (Validation)
         run: cdk synth
       - name: Deploy AWS CDK stacks via Nox
         env:
-          AWS_PROFILE: ${{ secrets.AWS_PROFILE_NAME }}
-          AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_PROFILE: ${{ vars.AWS_PROFILE_NAME }}
+          AWS_REGION: ${{ vars.AWS_DEFAULT_REGION }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
         run: poetry run nox -s cdk_deploy
 
   docker_build_api:
@@ -230,9 +230,6 @@ jobs:
         run: echo "image_tag=${{ steps.meta.outputs.image_tag }}" >> $GITHUB_ENV
       - name: Aggressive Docker Cleanup
         run: |
-          docker system prune -af --volumes
-          docker builder prune -af
-          df -h
           docker system prune -af --volumes
           docker builder prune -af
           df -h
