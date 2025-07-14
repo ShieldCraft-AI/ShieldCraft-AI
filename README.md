@@ -45,7 +45,7 @@ ShieldCraft AI leverages a multi-faceted AI approach to deliver solutions that g
 </div>
 <ul style="margin-bottom:0.5em;">
   <li>
-    <a href="./docs-site/docs/alert-triage.md" style="color:#a5b4fc;"><b>Autonomous Remediation & Self-Healing:</b></a><br/>
+    <a href="./docs-site/docs/github/alert-triage.md" style="color:#a5b4fc;"><b>Autonomous Remediation & Self-Healing:</b></a><br/>
     <span style="font-size:0.95em;">
       The Challenge: Manual incident response is inherently slow, resource-intensive, and struggles to keep pace with rapid attack cycles.
       Our Solution: ShieldCraft AI doesn't just identify threats; it acts. Our intelligent agents autonomously analyze confirmed risks, precisely generate AWS-native remediation code (e.g., CloudFormation), and execute fixes within pre-defined, secure guardrails. This dramatically reduces Mean Time To Respond (MTTR), minimizes breach impact, and liberates your security team for strategic focus.

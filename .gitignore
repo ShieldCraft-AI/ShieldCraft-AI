@@ -132,7 +132,7 @@ docs-site/coverage/
 docs-site/coverage.*
 docs-site/.nyc_output/
 docs-site/node_modules/
-docs-site/package-lock.json
+# docs-site/package-lock.json
 docs-site/.eslintcache
 docs-site/.cache/
 docs-site/.vite/

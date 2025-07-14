@@ -7,15 +7,7 @@
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
 <div style="color:#b3b3b3; text-align:center; font-size:1.1em; margin-bottom:1em;">
-</div>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#181818; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Recent Architectural Improvements & Best Practices</h2>
-<ul style="color:#b3b3b3;">
-</ul>
-<h3 style="color:#a5b4fc; margin-top:1.5em;">Learnings & Best Practices</h3>
-<ul style="color:#b3b3b3;">
-</ul>
+</div></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="color:#a5b4fc; margin-top:0;">Stack Roles & Responsibilities</h2>
@@ -43,7 +35,7 @@
     <tr><td><b>sagemaker</b></td><td>Model training, deployment, and monitoring</td><td>SageMaker endpoints, models, monitoring, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
     <tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, and multi-channel notifications</td><td>AWS Budgets, SNS topics, email alerts, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
   </tbody>
-</table>
+</table></section>
 
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
@@ -77,12 +69,12 @@
     <tr><td><b>BudgetStack</b></td><td>Budget ARNs, SNS topic ARN, vault secret ARN</td><td>All teams, FinOps, notifications</td><td>Deployed last, depends on all infra</td></tr>
   </tbody>
 </table>
-</div>
+</div></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="color:#a5b4fc; margin-top:0;">How the Stacks Interact</h2>
 <ul style="color:#b3b3b3;">
-</ul>
+</ul></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="color:#a5b4fc; margin-top:0;">Textual Overview</h2>
@@ -141,27 +133,7 @@ sagemaker_stack
 budget_stack
   (depends on all other stacks; provides cost guardrails and notifications)
 
-</pre>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Architectural Insights</h2>
-<ul style="color:#b3b3b3;">
-</ul>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Legend & Guidance</h2>
-<ul style="color:#b3b3b3;">
-</ul>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">IAM Role Management & Config-Driven Permissions</h2>
-<ul style="color:#b3b3b3;">
-</ul>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Compliance Stack Extensibility</h2>
-<ul style="color:#b3b3b3;">
-</ul>
+</pre></section>
 
 ## Graphical Stack Dependency Diagram (Mermaid)
 
