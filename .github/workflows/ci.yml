@@ -135,7 +135,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }} 
-          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION || 'af-south-1' }}
       - name: Install AWS CDK CLI (v2)
         run: npm install -g aws-cdk
       - name: CDK Synthesis (Validation)
