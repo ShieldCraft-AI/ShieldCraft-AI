@@ -27,7 +27,7 @@ COPY src/ /app/src/
 
 FROM base AS staging
 ARG BUILDKIT_INLINE_CACHE=1
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock requirements.txt ./
 RUN python -m pip install --upgrade pip
 # Ensure Poetry is upgraded and available, then debug environment
 RUN pip install --upgrade poetry
@@ -35,9 +35,8 @@ RUN python --version
 RUN which poetry
 RUN echo $PATH
 RUN poetry --version  # Show Poetry version in build logs
-# Try poetry export, fallback to poetry install if export fails
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes || poetry install --no-root --no-dev
-RUN python -m pip install --no-cache-dir -r requirements.txt || true
+# Install dependencies with Poetry
+RUN poetry install --no-root --no-dev
 COPY src/ /app/src/
 RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__ /root/.cache/pip /root/.cache/pypoetry /root/.local/pipx
 # Use a custom non-root user for security and explicit UID/GID
