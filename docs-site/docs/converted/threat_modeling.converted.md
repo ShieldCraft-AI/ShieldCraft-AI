@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Threat Modeling & Adversarial Testing
 
@@ -47,3 +47,5 @@ This document outlines the threat modeling and adversarial testing (including re
 Related:ADRs|Security & Governance|Privacy Impact Assessment
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ./checklist.md -->

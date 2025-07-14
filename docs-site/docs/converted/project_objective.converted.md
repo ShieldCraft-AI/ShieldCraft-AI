@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Business-Aligned Project Objective
 
@@ -28,8 +28,10 @@ Deliver a modular, explainable, and automation-driven AI security platform that 
 ## 📋 Next Steps
 
 - Review and validate objective with business and technical stakeholders
-- Proceed to: **Data sources and expected outputs specified** in the [Checklist](./checklist.md)
+- Proceed to: **Data sources and expected outputs specified** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:Project Scope|Data Sources|Infrastructure Estimate
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./checklist.md -->

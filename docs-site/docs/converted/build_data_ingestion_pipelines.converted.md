@@ -1,4 +1,4 @@
-⬅️ [Back to Checklist](./checklist.md)
+⬅️ [Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛠️ Build Data Ingestion Pipelines Implementation Plan
 
@@ -73,3 +73,5 @@ This document details the strategy, design, and implementation steps for the **B
 3. Define standard topic names/configs and parameterize for environments.
 4. Document integration patterns for Airbyte, Lambda, Glue, and OpenSearch.
 5. Add governance, data quality, and compliance automation.
+
+<!-- Broken links detected: ./checklist.md -->

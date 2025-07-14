@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](../checklist.md)
+[⬅️ Back to Checklist](../checklist.md) <!-- BROKEN LINK -->
 
 # 🗂️ ShieldCraft AI Data Inputs Overview
 
@@ -50,3 +50,5 @@ See also:
 Related:Checklist|Schemas|Risk Log
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ../checklist.md -->

@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 📁 Project Structure, Version Control & Docusaurus Docs
 
@@ -41,3 +41,5 @@ The repository uses a monorepo layout, grouping all code, documentation, and inf
 Related:ADRs|Risk Log|Project Structure
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md -->

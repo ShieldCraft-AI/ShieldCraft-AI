@@ -6,7 +6,7 @@ title: "🛠️ Nox Session Architecture & CI/CD Integration"
 description: "Comprehensive overview of ShieldCraft AI's Nox-powered automation, session sequencing, and best practices for production-grade MLOps."
 ---
 
-[⬅️ Back to Project Overview](../../README.md)
+[⬅️ Back to Project Overview](../../README.md) <!-- BROKEN LINK -->
 
 # 🛠️ Nox Session Architecture & CI/CD Integration
 
@@ -69,3 +69,5 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 * Expand onboarding docs for contributors, referencing this session architecture.
 
 <!-- Unhandled tags: li, strong -->
+
+<!-- Broken links detected: ../../README.md -->

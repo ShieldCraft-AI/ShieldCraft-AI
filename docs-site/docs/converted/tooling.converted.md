@@ -1,4 +1,4 @@
-[⬅️ Back to Project Overview](../../README.md)
+[⬅️ Back to Project Overview](../../README.md) <!-- BROKEN LINK -->
 
 ## 🛠️Tooling & Libraries Applied to Generative AI Implementation Lifecycle for Shieldcraft
 
@@ -48,3 +48,5 @@ Key tools and libraries, and how they apply to the various steps in the Generati
 * Application:AWS CDK:Automate the deployment of all Generative AI infrastructure (LangChain services, vector databases, Bedrock configurations).Docker & Kubernetes (AWS EKS):For scalable and reliable production deployment of the GenAI application layer.AWS SageMaker Model Registry:Version and manage the specific FMs used, and potentially custom fine-tuned models if applicable.AWS SageMaker Model Monitor:Monitor the quality of RAG retrievals, prompt success rates, and potential concept drift in the underlying data affecting GenAI output.Prometheus / Grafana / AWS CloudWatch:For real-time monitoring of application health, GenAI service metrics, and cost.AWS X-Ray:For tracing requests through the entire GenAI pipeline (API -> LangChain -> Bedrock -> Vector DB) to identify bottlenecks.
 
 <!-- Unhandled tags: li -->
+
+<!-- Broken links detected: ../../README.md -->

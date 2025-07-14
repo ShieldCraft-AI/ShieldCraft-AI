@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI Business Case
 
@@ -69,8 +69,10 @@ ShieldCraft enables organizations to:
 ## 📋 Next Steps
 
 - Review and refine this business case with stakeholders
-- Proceed to: **User profiles, pain points, value proposition, and ROI articulated** in the [Checklist](./checklist.md)
+- Proceed to: **User profiles, pain points, value proposition, and ROI articulated** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:User Profiles|Project Scope|Infrastructure Estimate
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./checklist.md -->

@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 📊 Required Data Sources
 
@@ -48,8 +48,10 @@ This document identifies and describes all data sources required for ShieldCraft
 
 ---
 
-**See also:** [Data Sources Overview](./data_sources.md) | [Data Preparation Checklist](./checklist.md#💾-data-preparation)
+**See also:** [Data Sources Overview](./data_sources.md) <!-- BROKEN LINK --> | [Data Preparation Checklist](./checklist.md#💾-data-preparation) <!-- BROKEN LINK -->
 
 ---
 
 _ShieldCraft AI: Data Source Inventory & Integration Map_
+
+<!-- Broken links detected: ./checklist.md, ./data_sources.md, ./checklist.md#💾-data-preparation -->

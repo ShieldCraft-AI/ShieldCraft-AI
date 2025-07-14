@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Ethics, Safety & Compliance
 
@@ -55,3 +55,5 @@ I am committed to building responsible, trustworthy AI systems. This document de
 Related:Infrastructure Estimate|Privacy Impact Assessment|Security & Governance
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ./checklist.md -->

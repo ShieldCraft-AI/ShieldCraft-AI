@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Project Scope, MVP Features & Success Metrics
 
@@ -9,7 +9,7 @@
 - Integrate with common security data sources (logs, threat feeds, cloud events)
 - Provide APIs and UI for security analysts and managers
 - Support rapid onboarding and extensibility for new data sources and workflows
-- Link to: [Business Case](./business_case.md), [User Profiles](./user_profiles.md), [Project Objective](./project_objective.md)
+- Link to: [Business Case](./business_case.md) <!-- BROKEN LINK -->, [User Profiles](./user_profiles.md) <!-- BROKEN LINK -->, [Project Objective](./project_objective.md) <!-- BROKEN LINK -->
 
 ---
 
@@ -42,8 +42,10 @@
 
 - Review and validate scope/features/metrics with stakeholders
 - Refine MVP backlog and delivery plan
-- Proceed to: **Clear, business-aligned project objective documented** in the [Checklist](./checklist.md)
+- Proceed to: **Clear, business-aligned project objective documented** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:Business Case|User Profiles|Project Objective
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./business_case.md, ./user_profiles.md, ./project_objective.md, ./checklist.md -->

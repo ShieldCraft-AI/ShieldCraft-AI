@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 💾 Data Ingestion, Cleaning, Normalization, Privacy & Versioning
 
@@ -34,10 +34,12 @@ This document details the modular approach to ingesting, cleaning, normalizing, 
 
 ---
 
-> **See also:** [Required Data Sources](./data_sources_required.md) | [Data Preparation Checklist](./checklist.md#💾-data-preparation)
+> **See also:** [Required Data Sources](./data_sources_required.md) <!-- BROKEN LINK --> | [Data Preparation Checklist](./checklist.md#💾-data-preparation) <!-- BROKEN LINK -->
 
 ---
 
 ShieldCraft AI — Data Ingestion, Cleaning, Privacy & Versioning Overview
 
 <!-- Unhandled tags: li -->
+
+<!-- Broken links detected: ./checklist.md, ./data_sources_required.md, ./checklist.md#💾-data-preparation -->

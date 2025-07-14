@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Architecture Decision Records (ADRs)
 
@@ -21,4 +21,6 @@ This document tracks key architectural decisions for ShieldCraft AI. Each ADR in
 
 ---
 
-_Related: [Risk Log](./risk_log.md) | [Threat Modeling](./threat_modeling.md) | [Security & Governance](./security_governance.md)_
+_Related: [Risk Log](./risk_log.md) <!-- BROKEN LINK --> | [Threat Modeling](./threat_modeling.md) <!-- BROKEN LINK --> | [Security & Governance](./security_governance.md) <!-- BROKEN LINK -->_
+
+<!-- Broken links detected: ./checklist.md, ./risk_log.md, ./threat_modeling.md, ./security_governance.md -->

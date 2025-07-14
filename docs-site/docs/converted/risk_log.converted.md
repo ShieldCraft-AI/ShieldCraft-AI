@@ -1,8 +1,8 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Risk Log
 
-[See also: Security & Governance](./security_governance.md)
+[See also: Security & Governance](./security_governance.md) <!-- BROKEN LINK -->
 
 A living log of technical, ethical, operational, and business risks for the ShieldCraft AI project. Each risk is tracked with its likelihood, impact, mitigation, and status.
 
@@ -26,3 +26,5 @@ A living log of technical, ethical, operational, and business risks for the Shie
 Related:Risk Mitigation|ADRs|Security & Governance
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ./checklist.md, ./security_governance.md -->

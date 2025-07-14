@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🔏 Privacy Impact Assessment & Compliance Review
 
@@ -21,7 +21,7 @@ This document details the privacy impact assessment (PIA) process and outlines t
 5. **Documentation:** Maintain records of processing activities and risk mitigations.
 
 **Status:**
-- Initial PIA completed (see [Risk Log](./risk_log.md)).
+- Initial PIA completed (see [Risk Log](./risk_log.md) <!-- BROKEN LINK -->).
 - Ongoing reviews scheduled (see below).
 
 ## 2. Regular Compliance Reviews
@@ -50,3 +50,5 @@ Review Process: * Audit data processing and storage practices.
 Related:Security & Governance|Privacy Impact Assessment|Ethics & Compliance
 
 <!-- Unhandled tags: em, li, strong -->
+
+<!-- Broken links detected: ./checklist.md, ./risk_log.md -->

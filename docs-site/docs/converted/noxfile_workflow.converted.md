@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # ⚙️ Noxfile & Developer Workflow Automation
 
@@ -74,3 +74,5 @@ This document describes the Noxfile and developer automation workflows for Shiel
 Related:Docker Hardening|Modular System & MLOps|Project Structure
 
 <!-- Unhandled tags: em, session -->
+
+<!-- Broken links detected: ./checklist.md -->
