@@ -42,43 +42,13 @@ def validate_poetry_marker(
     Adds debug logging for troubleshooting environment drift.
     Returns True if valid, False otherwise.
     """
-    debug_log_file = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "commit_nox_debug.log"
-    )
     if marker_file is None:
         marker_file = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), ".nox-poetry-installed"
         )
-    cwd = os.getcwd()
-    write_debug_log(f"[MARKER VALIDATION] cwd: {cwd}", debug_log_file)
-    print(f"[MARKER VALIDATION] cwd: {cwd}")
-    # Check existence and permissions
     marker_exists = os.path.exists(marker_file)
     lock_exists = os.path.exists(lock_file)
     py_exists = os.path.exists(pyproject_file)
-    write_debug_log(f"[MARKER VALIDATION] marker_file: {marker_file} exists={marker_exists}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] lock_file: {lock_file} exists={lock_exists}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] pyproject_file: {pyproject_file} exists={py_exists}", debug_log_file)
-    # Debug: Print/log file contents
-    def safe_read(path):
-        try:
-            with open(path, "rb") as f:
-                content = f.read()
-                return content.hex()[:128] + "..." if len(content) > 128 else content.decode(errors="replace")
-        except Exception as e:
-            return f"[ERROR reading {path}: {e}]"
-    if marker_exists:
-        marker_content = safe_read(marker_file)
-        write_debug_log(f"[MARKER VALIDATION] marker_file content: {marker_content}", debug_log_file)
-        print(f"[MARKER VALIDATION] marker_file content: {marker_content}")
-    if lock_exists:
-        lock_content = safe_read(lock_file)
-        write_debug_log(f"[MARKER VALIDATION] lock_file content: {lock_content}", debug_log_file)
-        print(f"[MARKER VALIDATION] lock_file content: {lock_content}")
-    if py_exists:
-        py_content = safe_read(pyproject_file)
-        write_debug_log(f"[MARKER VALIDATION] pyproject_file content: {py_content}", debug_log_file)
-        print(f"[MARKER VALIDATION] pyproject_file content: {py_content}")
     lock_hash = file_hash(lock_file) if lock_exists else ""
     py_hash = file_hash(pyproject_file) if py_exists else ""
     expected = f"{lock_hash}|{py_hash}"
@@ -86,31 +56,10 @@ def validate_poetry_marker(
     try:
         with open(marker_file, "r", encoding="utf-8") as f:
             actual = f.read()
-        # Strip whitespace and newlines for robust comparison
         actual = actual.strip()
-    except Exception as e:
-        msg = f"[MARKER VALIDATION] Could not read marker file: {e}"
-        write_debug_log(msg, debug_log_file)
-        print(msg)
+    except Exception:
         return False
-    write_debug_log(f"[MARKER VALIDATION] lock_hash: {lock_hash}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] lock_hash (repr): {repr(lock_hash)}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] py_hash: {py_hash}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] py_hash (repr): {repr(py_hash)}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] expected: {expected}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] expected (repr): {repr(expected)}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] actual: {actual}", debug_log_file)
-    write_debug_log(f"[MARKER VALIDATION] actual (repr): {repr(actual)}", debug_log_file)
-    print(f"[MARKER VALIDATION] expected: {expected}")
-    print(f"[MARKER VALIDATION] actual: {actual}")
-    if actual == expected:
-        write_debug_log("[MARKER VALIDATION] Marker file is valid.", debug_log_file)
-        print("[MARKER VALIDATION] Marker file is valid.")
-        return True
-    else:
-        write_debug_log("[MARKER VALIDATION] Marker file is INVALID.", debug_log_file)
-        print("[MARKER VALIDATION] Marker file is INVALID.")
-        return False
+    return actual == expected
 
 def nox_session_guard(func):
     """Decorator to catch and log all exceptions in Nox sessions, printing tracebacks and exiting with error."""
@@ -129,33 +78,3 @@ def nox_session_guard(func):
             # Optionally, re-raise to let Nox handle exit code
             raise
     return wrapper
-
-def _should_npm_install(force=False):
-    # Deprecated: All npm install logic should be handled in a centralized preflight script, not in session files.
-    # This function is retained for backward compatibility but should not be used in new code.
-    marker = os.path.join("docs-site", ".nox-npm-installed")
-    pkg_hash = (
-        file_hash(os.path.join("docs-site", "package.json"))
-        if os.path.exists(os.path.join("docs-site", "package.json"))
-        else ""
-    )
-    lock_hash = (
-        file_hash(os.path.join("docs-site", "package-lock.json"))
-        if os.path.exists(os.path.join("docs-site", "package-lock.json"))
-        else ""
-    )
-    need_npm = True
-    if os.path.exists(marker) and not force:
-        try:
-            with open(marker) as f:
-                marker_hash = f.read().strip().split("|")
-                if (
-                    len(marker_hash) == 2
-                    and marker_hash[0] == pkg_hash
-                    and marker_hash[1] == lock_hash
-                    and os.path.exists(os.path.join("docs-site", "node_modules"))
-                ):
-                    need_npm = False
-        except Exception:
-            need_npm = True
-    return need_npm, marker, pkg_hash, lock_hash

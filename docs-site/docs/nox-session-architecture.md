@@ -67,7 +67,6 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 <tr><td>all</td><td>test.py</td><td>Meta-session: everything (local/dev)</td><td>Yes</td><td>No</td><td>Meta-session</td></tr>
 <tr><td>file_hash</td><td>utils.py</td><td>Compute SHA256 hash of a file</td><td>Yes</td><td>Yes</td><td>Dependency change detection</td></tr>
 <tr><td>nox_session_guard</td><td>utils.py</td><td>Decorator for robust error handling</td><td>Yes</td><td>Yes</td><td>All sessions</td></tr>
-<tr><td>_should_npm_install</td><td>utils.py</td><td>Check if npm env is up-to-date</td><td>Yes</td><td>Yes</td><td>Docs sessions</td></tr>
 </tbody>
 </table>
 </section>
