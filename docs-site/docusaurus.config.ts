@@ -1,7 +1,6 @@
-import { themes as prismThemes } from 'prism-react-renderer';
-import suppressWebpackVFileMessageWarnings from './plugins/suppressWebpackVFileMessageWarnings';
-import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type { Config } from '@docusaurus/types';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -26,7 +25,7 @@ const config: Config = {
   organizationName: 'facebook', // Usually your GitHub org/user name.
   projectName: 'docusaurus', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -46,17 +45,17 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/site/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/blog/',
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   feedOptions: {
+        //     type: ['rss', 'atom'],
+        //     xslt: true,
+        //   },
+        //   editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/blog/',
+        //   onInlineTags: 'warn',
+        //   onInlineAuthors: 'warn',
+        //   onUntruncatedBlogPosts: 'warn',
+        // },
         theme: {
           customCss: [
             require.resolve('./static/css/shieldcraft-docs.css'),

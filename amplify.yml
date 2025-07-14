@@ -1,0 +1,51 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Navigate into the Docusaurus project directory
+        - cd docs-site 
+        # Install dependencies for your Docusaurus site
+        - npm ci 
+    build:
+      commands:
+        # Build your Docusaurus site
+        - npm run build 
+  artifacts:
+    # This is where Docusaurus outputs its static build files (typically 'build' directory inside 'docs-site')
+    baseDirectory: docs-site/build 
+    files:
+      - '**/*'
+  cache:
+    paths:
+      # Cache node_modules to speed up subsequent builds
+      - docs-site/node_modules/**/*
+
+# --- Monorepo Configuration (Crucial for your error) ---
+# This section tells Amplify which part of your monorepo contains the *specific app* to deploy.
+# Note: appRoot specifies the directory where the frontend build commands will run from.
+# The 'frontend' block above assumes you've cd'd into docs-site first,
+# so if the appRoot is 'docs-site', the baseDirectory would be 'build'
+# relative to that appRoot. Let's adjust for clarity.
+#
+# If the appRoot is omitted, Amplify assumes the root of the repo is the appRoot.
+# Since your Docusaurus site is in a subdirectory, we need to guide it.
+
+# Corrected Monorepo setup to simplify the 'cd' command:
+applications:
+  - appRoot: docs-site # <--- THIS IS THE FIX for 'Invalid monorepo spec'
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci # This will run inside 'docs-site'
+        build:
+          commands:
+            - npm run build # This will run inside 'docs-site'
+      artifacts:
+        baseDirectory: build # This is relative to appRoot: docs-site
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
