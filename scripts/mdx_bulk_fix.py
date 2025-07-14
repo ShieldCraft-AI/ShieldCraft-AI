@@ -333,14 +333,28 @@ def autocorrect_mdx_compatibility(markdown, path):
 
 def process_file(path, dry_run=False, tree_files=None, converted_map=None, error_list=None):
     try:
+        # Skip non-regular files (directories, symlinks, etc.)
+        if not path.is_file():
+            logging.warning(f"Skipping non-regular file: {path}")
+            if error_list is not None:
+                error_list.append((str(path), "Not a regular file (directory, symlink, etc.)"))
+            return
+        original = None
         try:
             with open(path, "r", encoding="utf-8") as f:
                 original = f.read()
         except Exception as e:
-            logging.error(f"Error reading {path}: {e}")
-            if error_list is not None:
-                error_list.append((str(path), f"Error reading file: {e}"))
-            return
+            logging.warning(f"UTF-8 text read failed for {path}: {e}. Trying bytes decode fallback.")
+            try:
+                with open(path, "rb") as f:
+                    original_bytes = f.read()
+                original = original_bytes.decode("utf-8", errors="replace")
+                logging.info(f"File {path} decoded as UTF-8 with replacement for errors.")
+            except Exception as e2:
+                logging.error(f"Error reading {path} as bytes: {e2}")
+                if error_list is not None:
+                    error_list.append((str(path), f"Error reading file: {e2}"))
+                return
         if original is None or not isinstance(original, str) or not original.strip():
             logging.error(f"File {path} is empty or unreadable.")
             if error_list is not None:
