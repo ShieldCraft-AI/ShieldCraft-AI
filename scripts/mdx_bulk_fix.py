@@ -18,7 +18,31 @@ def html_table_to_markdown(table_tag):
     return "\n".join(md_rows)
 
 def convert_admonition(section_tag):
-    text = section_tag.get_text("\n", strip=True)
+    # Gather block-level children for proper separation and Markdown rendering
+    blocks = []
+    for child in section_tag.children:
+        if getattr(child, 'name', None) in ["ul", "ol"]:
+            # Add blank line before and after lists
+            blocks.append("")
+            blocks.append(convert_list(child))
+            blocks.append("")
+        elif getattr(child, 'name', None) in ["h1", "h2", "h3", "h4", "h5", "h6"]:
+            # Add blank line before and after headings
+            blocks.append("")
+            blocks.append(convert_heading(child))
+            blocks.append("")
+        elif getattr(child, 'name', None) == "p":
+            blocks.append(child.get_text(strip=True))
+        elif getattr(child, 'name', None) == "div":
+            blocks.append(child.get_text(strip=True))
+        elif isinstance(child, str):
+            if child.strip():
+                blocks.append(child.strip())
+        else:
+            blocks.append(convert_block(child))
+    # Remove leading/trailing blank lines and join with double newlines
+    text = "\n\n".join([b for b in blocks if b.strip() or b == ""])
+    text = re.sub(r'(\n\n)+', '\n\n', text).strip()
     if "Best Practice" in text or "Guidance" in text:
         return f":::tip\n{text}\n:::"  # Docusaurus tip
     elif "Insight" in text or "Auditability" in text:
@@ -31,7 +55,15 @@ def convert_list(list_tag):
     for li in list_tag.find_all("li", recursive=False):
         # Recursively process children for nested lists
         content = convert_block(li)
-        items.append(f"{bullet} {content}")
+        # If content contains multiple lines, indent subsequent lines
+        if "\n" in content:
+            lines = content.splitlines()
+            item = f"{bullet} {lines[0]}"
+            for l in lines[1:]:
+                item += f"\n  {l}"
+            items.append(item)
+        else:
+            items.append(f"{bullet} {content}")
     return "\n".join(items)
 
 def convert_code_block(pre_tag):
@@ -67,10 +99,9 @@ def convert_block(tag, unhandled_tags=None, indent_level=0):
     if isinstance(tag, str):
         return tag.strip()
     if tag.name == "section":
-        # Admonition: wrap all content
-        content = "\n".join([convert_block(child, unhandled_tags, indent_level) for child in tag.children if not isinstance(child, str) or child.strip()])
+        # Admonition: wrap all content, ensure block separation
         admonition = convert_admonition(tag)
-        return f"{admonition}\n{content}" if content.strip() else admonition
+        return admonition
     elif tag.name == "table":
         return html_table_to_markdown(tag)
     elif tag.name in ["ul", "ol"]:
@@ -103,23 +134,54 @@ def convert_html_to_markdown(html):
     body = soup.body or soup
     markdown_blocks = []
     nav_links = []
+    nav_seen = set()
     unhandled_tags = set()
-    # Move navigation links to top
+    header = None
+    intro = None
+    # First pass: extract header, navigation, and intro
     for child in body.children:
         if getattr(child, 'name', None) == 'div':
-            # Look for navigation links in divs
             a_tag = child.find('a')
             if a_tag:
-                nav_links.append(convert_inline(a_tag))
+                nav_text = convert_inline(a_tag)
+                if nav_text not in nav_seen:
+                    nav_links.append(nav_text)
+                    nav_seen.add(nav_text)
+            # Look for intro text in centered divs
+            if child.get('style', '').find('text-align:center') != -1 or child.get('style', '').find('font-size:1.1em') != -1:
+                intro_candidate = child.get_text(" ", strip=True)
+                if intro_candidate and not intro:
+                    intro = intro_candidate
             continue
+        if getattr(child, 'name', None) and child.name.startswith('h') and child.name[1:].isdigit():
+            if not header:
+                header = convert_heading(child)
+            continue
+        # If not header/nav/intro, process as block
         md = convert_block(child, unhandled_tags)
         if md:
             markdown_blocks.append(md)
-    markdown = "\n\n".join([block for block in markdown_blocks if block.strip()])
+    # Remove navigation and header from markdown_blocks if present
+    markdown_blocks = [block for block in markdown_blocks if block not in nav_links and (header is None or block != header)]
+    # Compose Markdown output
+    # Render navigation links as individual lines, followed by blank line
     nav = "\n".join(nav_links)
-    markdown = f"{nav}\n\n{markdown}" if nav else markdown
+    parts = []
+    if nav:
+        parts.append(nav)
+        parts.append("")  # blank line after navigation
+    if header:
+        parts.append(header)
+        parts.append("")  # blank line after header
+    if intro:
+        parts.append(intro)
+        parts.append("")  # blank line after intro
+    if markdown_blocks:
+        parts.append("\n\n".join([block for block in markdown_blocks if block.strip()]))
+    markdown = "\n".join(parts)
     if unhandled_tags:
         markdown += f"\n\n<!-- Unhandled tags: {', '.join(sorted(unhandled_tags))} -->"
+    # Clean up excessive blank lines
     markdown = re.sub(r'\n{3,}', '\n\n', markdown)
     return markdown
 
