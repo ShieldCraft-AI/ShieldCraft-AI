@@ -41,10 +41,10 @@ const config: Config = {
       'classic',
       {
         docs: {
-          path: 'docs', // Use docs-site/docs for both GitHub and Amplify
+          path: 'docs/converted', // Serve converted docs for the website
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/',
+          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/converted/',
         },
         blog: {
           showReadingTime: true,
@@ -142,7 +142,7 @@ const config: Config = {
     },
   } satisfies Preset.ThemeConfig,
   // Add custom plugins
-  plugins: [suppressWebpackVFileMessageWarnings],
+  plugins: [require.resolve('./plugins/suppressWebpackVFileMessageWarnings')],
 };
 
 export default config;

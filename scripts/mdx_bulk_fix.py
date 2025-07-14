@@ -1,8 +1,37 @@
 
 import re
+import shutil
+import logging
 from bs4 import BeautifulSoup
 from pathlib import Path
 
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def fix_self_closing_tags(html):
+    # HTML5 void elements that must be self-closing in MDX
+    void_tags = [
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"
+    ]
+    # Self-close all void tags (except progress)
+    pattern = r'<({})([^>/]*)(?<!/)>'.format("|".join(void_tags))
+    html = re.sub(pattern, r'<\1\2 />', html)
+
+    # Use BeautifulSoup to robustly handle <progress> tags
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup.find_all("progress"):
+        if not tag.contents or (len(tag.contents) == 1 and str(tag.contents[0]).strip() == ""):
+            # Empty <progress> -> self-close
+            tag.attrs = dict(tag.attrs)  # ensure attrs is a dict
+            tag.string = None
+            tag.insert_after(BeautifulSoup("", "html.parser"))
+            tag.replace_with(BeautifulSoup(str(tag).replace("<progress", "<progress").replace("></progress>", " />"), "html.parser"))
+        else:
+            # Has content, ensure properly closed
+            if not str(tag).endswith("</progress>"):
+                logging.warning("Auto-closing <progress> tag with content for MDX compatibility.")
+                tag.append(BeautifulSoup("</progress>", "html.parser"))
+    # Return soup as string
+    return str(soup)
 def html_table_to_markdown(table_tag):
     md_rows = []
     header = table_tag.find("thead")
@@ -69,7 +98,7 @@ def convert_code_block(pre_tag):
         return f"```mermaid\n{code_text}\n```"
     return f"```\n{code_text}\n```"
 
-def convert_inline(tag):
+def convert_inline(tag, asset_copier=None, src_path=None, out_dir=None):
     if tag.name == "a":
         href = tag.get("href", "")
         text = tag.get_text(strip=True)
@@ -77,7 +106,12 @@ def convert_inline(tag):
     elif tag.name == "img":
         src = tag.get("src", "")
         alt = tag.get("alt", "")
-        return f"![{alt}]({src})"
+        # Copy asset if needed
+        if asset_copier and src:
+            new_src = asset_copier(src, src_path, out_dir)
+        else:
+            new_src = src
+        return f"![{alt}]({new_src})"
     elif tag.name == "code":
         return f"`{tag.get_text(strip=True)}`"
     elif tag.name == "span":
@@ -90,33 +124,30 @@ def convert_heading(tag):
 
 
 # Recursive block-level processor
-def convert_block(tag, unhandled_tags=None, indent_level=0):
+def convert_block(tag, unhandled_tags=None, indent_level=0, asset_copier=None, src_path=None, out_dir=None):
     if unhandled_tags is None:
         unhandled_tags = set()
     if isinstance(tag, str):
         return tag.strip()
     if tag.name == "section":
-        # Only wrap in admonition if content matches keywords
         section_text = tag.get_text(" ", strip=True)
         if any(k in section_text for k in ["Best Practice", "Guidance", "Insight", "Auditability"]):
             admonition = convert_admonition(tag)
             return admonition
         else:
-            # Not an admonition: process children as regular blocks
             blocks = []
             for child in tag.children:
-                block = convert_block(child, unhandled_tags, indent_level)
+                block = convert_block(child, unhandled_tags, indent_level, asset_copier, src_path, out_dir)
                 if block:
                     blocks.append(block)
             return "\n\n".join(blocks)
     elif tag.name == "table":
         return html_table_to_markdown(tag)
     elif tag.name in ["ul", "ol"]:
-        # Indent nested lists
         items = []
         bullet = "*" if tag.name == "ul" else "1."
         for li in tag.find_all("li", recursive=False):
-            content = convert_block(li, unhandled_tags, indent_level + 1)
+            content = convert_block(li, unhandled_tags, indent_level + 1, asset_copier, src_path, out_dir)
             prefix = "  " * indent_level + bullet
             items.append(f"{prefix} {content}")
         return "\n".join(items)
@@ -125,18 +156,38 @@ def convert_block(tag, unhandled_tags=None, indent_level=0):
     elif tag.name == "pre":
         return convert_code_block(tag)
     elif tag.name == "div" or tag.name == "p":
-        # Paragraph: process children, separate by blank lines
-        content = " ".join([convert_block(child, unhandled_tags, indent_level) for child in tag.children if not isinstance(child, str) or child.strip()])
+        content = " ".join([convert_block(child, unhandled_tags, indent_level, asset_copier, src_path, out_dir) for child in tag.children if not isinstance(child, str) or child.strip()])
         return content.strip()
     elif tag.name in ["a", "img", "code", "span"]:
-        return convert_inline(tag)
+        return convert_inline(tag, asset_copier, src_path, out_dir)
     elif tag.name is None:
         return str(tag).strip()
     else:
         unhandled_tags.add(tag.name)
         return tag.get_text(strip=True)
 
-def convert_html_to_markdown(html):
+def asset_copier(src, src_path, out_dir):
+    # Copy asset to out_dir/assets, return new relative path
+    if not src or src.startswith('http'):
+        return src
+    src_file = (src_path.parent / src).resolve()
+    assets_dir = out_dir / "assets"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    dest_file = assets_dir / src_file.name
+    try:
+        if src_file.exists():
+            shutil.copy2(src_file, dest_file)
+            logging.info(f"Copied asset: {src_file} -> {dest_file}")
+            return f"./assets/{src_file.name}"
+        else:
+            logging.warning(f"Asset not found: {src_file}")
+            return src
+    except Exception as e:
+        logging.error(f"Error copying asset {src_file}: {e}")
+        return src
+
+def convert_html_to_markdown(html, src_path=None, out_dir=None):
+    html = fix_self_closing_tags(html)
     soup = BeautifulSoup(html, "html.parser")
     body = soup.body or soup
     markdown_blocks = []
@@ -145,16 +196,14 @@ def convert_html_to_markdown(html):
     unhandled_tags = set()
     header = None
     intro = None
-    # First pass: extract header, navigation, and intro
     for child in body.children:
         if getattr(child, 'name', None) == 'div':
             a_tag = child.find('a')
             if a_tag:
-                nav_text = convert_inline(a_tag)
+                nav_text = convert_inline(a_tag, asset_copier, src_path, out_dir)
                 if nav_text not in nav_seen:
                     nav_links.append(nav_text)
                     nav_seen.add(nav_text)
-            # Look for intro text in centered divs
             if child.get('style', '').find('text-align:center') != -1 or child.get('style', '').find('font-size:1.1em') != -1:
                 intro_candidate = child.get_text(" ", strip=True)
                 if intro_candidate and not intro:
@@ -164,45 +213,82 @@ def convert_html_to_markdown(html):
             if not header:
                 header = convert_heading(child)
             continue
-        # If not header/nav/intro, process as block
-        md = convert_block(child, unhandled_tags)
+        md = convert_block(child, unhandled_tags, asset_copier=asset_copier, src_path=src_path, out_dir=out_dir)
         if md:
             markdown_blocks.append(md)
-    # Remove navigation and header from markdown_blocks if present
     markdown_blocks = [block for block in markdown_blocks if block not in nav_links and (header is None or block != header)]
-    # Compose Markdown output
-    # Render navigation links as individual lines, followed by blank line
     nav = "\n".join(nav_links)
     parts = []
     if nav:
         parts.append(nav)
-        parts.append("")  # blank line after navigation
+        parts.append("")
     if header:
         parts.append(header)
-        parts.append("")  # blank line after header
+        parts.append("")
     if intro:
         parts.append(intro)
-        parts.append("")  # blank line after intro
+        parts.append("")
     if markdown_blocks:
         parts.append("\n\n".join([block for block in markdown_blocks if block.strip()]))
     markdown = "\n".join(parts)
     if unhandled_tags:
         markdown += f"\n\n<!-- Unhandled tags: {', '.join(sorted(unhandled_tags))} -->"
-    # Clean up excessive blank lines
     markdown = re.sub(r'\n{3,}', '\n\n', markdown)
+
+    # Final sweep: ensure all <progress> tags are MDX-compatible
+    # 1. Self-close orphan <progress ...> tags not followed by </progress>
+    markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', r'<progress\1 />', markdown)
+    # 2. For <progress ...>...</progress>, ensure both tags are present (already handled by BeautifulSoup, but double check)
+    # 3. Remove any stray <progress> tags inside paragraphs
+    # 4. Log a warning if any <progress> tags remain unclosed
+    if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
+        logging.warning("Unclosed <progress> tag detected after conversion. Please check the source file.")
     return markdown
 
+def verify_mdx_compatibility(markdown, path):
+    errors = []
+    # Check for unclosed <progress> tags
+    if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
+        errors.append("Unclosed <progress> tag detected.")
+    # Check for other common MDX-incompatible patterns (add more as needed)
+    # Example: unclosed <img> tags (should be self-closing)
+    if re.search(r'<img([^>]*)>(?!.*?/>)', markdown):
+        errors.append("Unclosed <img> tag detected.")
+    # Example: stray <br> tags
+    if re.search(r'<br([^>]*)>(?!.*?/>)', markdown):
+        errors.append("Unclosed <br> tag detected.")
+    # Log errors and optionally halt
+    if errors:
+        logging.error(f"MDX compatibility errors in {path}:")
+        for err in errors:
+            logging.error(f"  - {err}")
+        return False
+    return True
+
 def process_file(path, dry_run=False):
-    with open(path, "r", encoding="utf-8") as f:
-        original = f.read()
-    updated = convert_html_to_markdown(original)
-    if original != updated:
-        if not dry_run:
-            out_path = path.with_name(path.name.replace('.md', '.converted.md'))
-            with open(out_path, "w", encoding="utf-8") as f:
-                f.write(updated)
-            print(f"Converted file written to: {out_path}")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            original = f.read()
+        out_dir = path.parent / "converted"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        updated = convert_html_to_markdown(original, src_path=path, out_dir=out_dir)
+        # Verify MDX compatibility before writing
+        if not verify_mdx_compatibility(updated, path):
+            logging.error(f"Skipping write for {path} due to MDX errors.")
+            return
+        if original != updated:
+            if not dry_run:
+                out_path = out_dir / path.name.replace('.md', '.converted.md')
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(updated)
+                logging.info(f"Converted file written to: {out_path}")
+    except Exception as e:
+        logging.error(f"Error processing {path}: {e}")
 
 if __name__ == "__main__":
-    test_file = Path("docs-site/docs/aws_stack_architecture.md")
-    process_file(test_file, dry_run=False)
+    docs_root = Path("docs-site/docs")
+    md_files = list(docs_root.rglob("*.md"))
+    for md_file in md_files:
+        if md_file.name.endswith(".converted.md"):
+            continue
+        process_file(md_file, dry_run=False)
