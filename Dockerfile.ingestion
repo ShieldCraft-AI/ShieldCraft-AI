@@ -25,8 +25,8 @@ FROM base AS staging
 ARG BUILDKIT_INLINE_CACHE=1
 COPY pyproject.toml poetry.lock ./
 RUN python -m pip install --upgrade pip
-# Ensure Poetry is installed and available, then export requirements
-RUN pip install "poetry>=1.2.0"
+# Ensure Poetry is upgraded and available, then export requirements
+RUN pip install --upgrade poetry
 RUN poetry --version  # Show Poetry version in build logs
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 RUN python -m pip install --no-cache-dir -r requirements.txt
