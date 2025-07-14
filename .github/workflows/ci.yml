@@ -146,14 +146,7 @@ jobs:
     name: "Docker Build: API"
     runs-on: ubuntu-latest
     needs: [flow_commit]
-    if: >
-      github.event_name == 'push' || github.event_name == 'pull_request'
-      && (
-        contains(github.event.head_commit.message, 'Dockerfile.api') ||
-        contains(github.event.head_commit.message, 'src/') ||
-        contains(github.event.head_commit.message, 'pyproject.toml') ||
-        contains(github.event.head_commit.message, 'poetry.lock')
-      )
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -197,14 +190,7 @@ jobs:
     name: "Docker Build: Ingestion"
     runs-on: ubuntu-latest
     needs: [flow_commit]
-    if: >
-      github.event_name == 'push' || github.event_name == 'pull_request'
-      && (
-        contains(github.event.head_commit.message, 'Dockerfile.ingestion') ||
-        contains(github.event.head_commit.message, 'src/') ||
-        contains(github.event.head_commit.message, 'pyproject.toml') ||
-        contains(github.event.head_commit.message, 'poetry.lock')
-      )
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -248,14 +234,7 @@ jobs:
     name: "Docker Build: Main"
     runs-on: ubuntu-latest
     needs: [flow_commit]
-    if: >
-      github.event_name == 'push' || github.event_name == 'pull_request'
-      && (
-        contains(github.event.head_commit.message, 'Dockerfile') ||
-        contains(github.event.head_commit.message, 'src/') ||
-        contains(github.event.head_commit.message, 'pyproject.toml') ||
-        contains(github.event.head_commit.message, 'poetry.lock')
-      )
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
