@@ -1,0 +1,53 @@
+/* ShieldCraft AI Documentation Theme */
+.sc-section {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #222;
+    padding: 2em;
+    margin: 2em 0;
+    background: linear-gradient(135deg, #181818 60%, #23234c 100%);
+    color: #e0e7ff;
+    border: 1px solid #6366f1;
+}
+
+.sc-header {
+    color: #a5b4fc;
+    margin-top: 0;
+    font-size: 2em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.sc-table {
+    width: 100%;
+    background: #23234c;
+    color: #e0e7ff;
+    border-radius: 8px;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.sc-table th,
+.sc-table td {
+    padding: 0.75em 1em;
+    border-bottom: 1px solid #6366f1;
+}
+
+.sc-list {
+    color: #b3b3b3;
+    margin-left: 1.5em;
+    font-size: 1.05em;
+}
+
+.sc-nav {
+    margin-bottom: 2em;
+    font-size: 1.1em;
+    text-align: left;
+    color: #a5b4fc;
+}
+
+.sc-intro {
+    text-align: center;
+    font-size: 1.15em;
+    color: #b3b3b3;
+    margin-bottom: 1.5em;
+}
