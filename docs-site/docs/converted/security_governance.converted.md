@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🔒 ShieldCraft AI: Security & Governance
 
@@ -45,3 +45,5 @@ This document describes the overarching security and governance framework for Sh
 Related:Threat Modeling|Privacy Impact Assessment|Ethics & Compliance
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ./checklist.md -->

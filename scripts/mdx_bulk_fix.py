@@ -1,4 +1,3 @@
-
 import re
 import shutil
 import logging
@@ -243,13 +242,9 @@ def convert_html_to_markdown(html, src_path=None, out_dir=None):
     if unhandled_tags:
         markdown += f"\n\n<!-- Unhandled tags: {', '.join(sorted(unhandled_tags))} -->"
     markdown = re.sub(r'\n{3,}', '\n\n', markdown)
-
     # Final sweep: ensure all <progress> tags are MDX-compatible
-    # 1. Self-close orphan <progress ...> tags not followed by </progress>
-    markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', r'<progress\1 />', markdown)
-    # 2. For <progress ...>...</progress>, ensure both tags are present (already handled by BeautifulSoup, but double check)
-    # 3. Remove any stray <progress> tags inside paragraphs
-    # 4. Log a warning if any <progress> tags remain unclosed
+    markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', lambda m: f'<progress{m.group(1).rstrip()} />', markdown)
+    markdown = re.sub(r'(<progress[^>]*/>)\s*/', r'\1', markdown)
     if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
         logging.warning("Unclosed <progress> tag detected after conversion. Please check the source file.")
     return markdown
@@ -304,21 +299,20 @@ def autocorrect_mdx_compatibility(markdown, path):
     corrections = []
     # Auto-correct unclosed <progress> tags
     if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
-        markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', r'<progress\1 />', markdown)
+        markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', lambda m: f'<progress{m.group(1).rstrip()} />', markdown)
         corrections.append("Auto-corrected unclosed <progress> tag.")
     # Auto-correct unclosed <img> tags
     if re.search(r'<img([^>]*)>(?!.*?/>)', markdown):
-        markdown = re.sub(r'<img([^>]*)>(?!.*?/>)', r'<img\1 />', markdown)
+        markdown = re.sub(r'<img([^>]*)>(?!.*?/>)', lambda m: f'<img{m.group(1).rstrip()} />', markdown)
         corrections.append("Auto-corrected unclosed <img> tag.")
     # Auto-correct unclosed <br> tags
     if re.search(r'<br([^>]*)>(?!.*?/>)', markdown):
-        markdown = re.sub(r'<br([^>]*)>(?!.*?/>)', r'<br\1 />', markdown)
+        markdown = re.sub(r'<br([^>]*)>(?!.*?/>)', lambda m: f'<br{m.group(1).rstrip()} />', markdown)
         corrections.append("Auto-corrected unclosed <br> tag.")
-    # Final sweep: strictly normalize all self-closing tags to <tag/>
-    # Remove spaces and extra slashes before />
-    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s*/+\s*>', r'<\1\2/>', markdown)
-    # Also catch cases like <progress //> or <progress / />
-    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)/\s*>', lambda m: f'<{m.group(1)}{m.group(2).rstrip()}/>', markdown)
+    # Strictly normalize all self-closing tags to <tag ... /> (no trailing slash or space)
+    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s*/+\s*>', lambda m: f'<{m.group(1)}{m.group(2).rstrip()} />', markdown)
+    # Remove any accidental trailing slash after />
+    markdown = re.sub(r'(<[a-zA-Z0-9]+[^>]*/>)\s*/', r'\1', markdown)
     corrections.append("Strictly normalized self-closing tag syntax for MDX.")
     # Decode HTML entities
     markdown = html.unescape(markdown)

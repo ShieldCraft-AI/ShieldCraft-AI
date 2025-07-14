@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: User Profiles, Pain Points, Value Proposition & ROI
 
@@ -45,8 +45,10 @@
 
 - Review and validate user profiles and pain points with stakeholders
 - Quantify ROI with real or benchmarked data where possible
-- Proceed to: **Define project scope, MVP features, and success metrics** in the [Checklist](./checklist.md)
+- Proceed to: **Define project scope, MVP features, and success metrics** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:Business Case|Project Scope|Data Sources
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./checklist.md -->

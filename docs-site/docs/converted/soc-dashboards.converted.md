@@ -1,4 +1,4 @@
-[⬅️ Back to Project Overview](../../README.md)
+[⬅️ Back to Project Overview](../../README.md) <!-- BROKEN LINK -->
 
 # 📊 Real-Time, Actionable Dashboards for SOC Teams
 
@@ -38,3 +38,5 @@ ShieldCraft AI provides security teams with deep visibility, context-aware intel
 * AWS Stack Architecture
 
 <!-- Unhandled tags: li -->
+
+<!-- Broken links detected: ../../README.md -->

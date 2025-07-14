@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # ⚠️ ShieldCraft AI: Technical, Ethical & Operational Risks
 
@@ -31,3 +31,5 @@ This document identifies and tracks the major technical, ethical, and operationa
 Related:Risk Mitigation|ADRs|Risk Log
 
 <!-- Unhandled tags: em, li -->
+
+<!-- Broken links detected: ./checklist.md -->

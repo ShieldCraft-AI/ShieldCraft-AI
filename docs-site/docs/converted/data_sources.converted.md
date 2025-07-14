@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Data Sources & Expected Outputs
 
@@ -32,8 +32,10 @@
 
 - Validate data sources and outputs with stakeholders
 - Prioritize integrations for MVP
-- Proceed to: **Baseline infrastructure and cloud usage estimated** in the [Checklist](./checklist.md)
+- Proceed to: **Baseline infrastructure and cloud usage estimated** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:Project Objective|Infrastructure Estimate|Ethics & Compliance
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./checklist.md -->

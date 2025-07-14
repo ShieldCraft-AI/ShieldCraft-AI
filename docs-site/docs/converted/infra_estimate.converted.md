@@ -1,4 +1,4 @@
-[⬅️ Back to Checklist](./checklist.md)
+[⬅️ Back to Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 # 🛡️ ShieldCraft AI: Baseline Infrastructure & Cloud Usage Estimate
 
@@ -75,8 +75,10 @@ All pricing is estimated in South African Rand (ZAR/R), based on AWS public pric
 ## 📋 Next Steps
 
 - Set up cost monitoring and alerting
-- Proceed to: **Address ethics, safety, and compliance requirements** in the [Checklist](./checklist.md)
+- Proceed to: **Address ethics, safety, and compliance requirements** in the [Checklist](./checklist.md) <!-- BROKEN LINK -->
 
 Related:Infrastructure Estimate|ADRs|Project Structure
 
 <!-- Unhandled tags: em -->
+
+<!-- Broken links detected: ./checklist.md, ./checklist.md -->
