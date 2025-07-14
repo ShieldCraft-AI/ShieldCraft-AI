@@ -77,4 +77,4 @@ ShieldCraft enables organizations to:
 
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./user_profiles.md" style="color:#a5b4fc;">User Profiles</a> | <a href="./project_scope.md" style="color:#a5b4fc;">Project Scope</a> | <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a></em>
+  <em>Related: <a href="./user_profiles.md" style="color:#a5b4fc;">User Profiles</a> | <a href="./project_scope.md" style="color:#a5b4fc;">Project Scope</a> | <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a></em></section>

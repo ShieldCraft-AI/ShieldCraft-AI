@@ -56,21 +56,22 @@
     - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
 ---
-
 ### MSK + Lambda Integration To-Do List
 
-- [ ] Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
-- [ ] Deploy Lambda in private subnets with correct security group(s)
-- [ ] Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
-- [ ] Set up CloudWatch alarms for Lambda errors, throttles, and duration
-- [ ] Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
-- [ ] Route alarm notifications to the correct email/SNS topic
-- [ ] Implement and test the end-to-end MSK + Lambda topic creation flow
-- [ ] Update documentation for MSK + Lambda integration, including troubleshooting steps
+- 🟥 Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
+- 🟥 Deploy Lambda in private subnets with correct security group(s)
+- 🟥 Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
+- 🟥 Set up CloudWatch alarms for Lambda errors, throttles, and duration
+- 🟥 Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
+- 🟥 Route alarm notifications to the correct email/SNS topic
+- 🟥 Implement and test the end-to-end MSK + Lambda topic creation flow
+- 🟥 Update documentation for MSK + Lambda integration, including troubleshooting steps
 
- </details>
+ </details></section>
 
-## 💾 Data Preparation
+ <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">💾 Data Preparatione</strong>
+
 <div>
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
 </div>
@@ -111,7 +112,7 @@
     - 🟥 Optimize vector indexing for retrieval speed
     - 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 
-</details>
+</details></section>
 
  <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">☁️ AWS Cloud Foundation & Architecture</strong>
@@ -144,7 +145,7 @@
 - 🟩 Secure, reproducible <a href="https://docs.docker.com/" style="color:#a5b4fc;">Dockerfiles</a> and <a href="https://docs.docker.com/compose/" style="color:#a5b4fc;">Compose files</a> for local and cloud development, with best practices enforced.
 - 🟩 Continuous compliance monitoring (<a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, custom rules) and regular security architecture reviews.
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🧠 AI Core Development & Experimentation</strong>
@@ -191,7 +192,7 @@
 - 🟥 Model and Prompt card generation for documentation
 - 🟥 Implement canary and shadow testing for new models/prompts
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🚀 Application Layer & Integration</strong>
@@ -218,7 +219,7 @@
 - 🟥 Implement API Gateway (AWS API Gateway) for secure access
 - 🟥 Automated API documentation generation (e.g., OpenAPI/Swagger)
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">✅ Evaluation & Continuous Improvement</strong>
@@ -242,7 +243,7 @@
 - 🟥 Iterative prompt, model, and data retrieval refinement processes
 - 🟥 Regular stakeholder feedback sessions and roadmap alignment
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">⚙️ MLOps, Deployment & Monitoring</strong>
@@ -286,7 +287,7 @@
     - 🟥 Automate SBOM generation and review third-party dependencies for supply chain risk
     - 🟥 Define release management and versioning policies for all major components
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🔒 Security & Governance (Overarching)</strong>
@@ -314,7 +315,7 @@
 - 🟥 Define and enforce IAM roles and fine-grained access controls
 - 🟥 Regularly monitor for Infrastructure drift and automated remediation for security configurations
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">📚 Documentation & Enablement</strong>
