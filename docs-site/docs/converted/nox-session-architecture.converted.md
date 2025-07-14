@@ -11,18 +11,20 @@
   <strong>Automation Progress</strong>
   <div id="progress-label">100% Session Review Complete</div>
 </div>
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🔎</span> Overview
 </h2>
+</section>
 ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to automate all aspects of code quality, security, documentation, testing, and deployment. This ensures that every CI/CD run is reproducible, traceable, and production-grade.
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">📋</span> Session Table & Responsibilities
 </h2>
-
+</section>
 <table>
 <thead>
 <tr>
@@ -68,6 +70,7 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 </h2>
 <ul>
 </ul>
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
@@ -75,6 +78,7 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 </h2>
 <ul>
 </ul>
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
@@ -82,3 +86,4 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 </h2>
 <ul>
 </ul>
+</section>

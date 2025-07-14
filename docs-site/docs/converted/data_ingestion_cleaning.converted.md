@@ -6,9 +6,10 @@
 <div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
   This document details the modular approach to ingesting, cleaning, normalizing, and versioning data for ShieldCraft AI, with a focus on privacy and compliance.
 </div>
+</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
-
+</section>
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">🔗 Data Ingestion</h2>
 <ul style="margin-bottom:0.5em;">
 </ul>
@@ -33,3 +34,4 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.98em; text-align:center;">
   ShieldCraft AI &mdash; Data Ingestion, Cleaning, Privacy & Versioning Overview
+</section>

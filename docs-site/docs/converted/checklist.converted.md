@@ -8,7 +8,10 @@
   <progress id="shieldcraft-progress" value="32" max="100" style="width: 60%; height: 18px;"></progress>
   <div id="progress-label">32% Complete</div>
 </div>
+</section>
+
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+</section>
 
 <div style="margin-bottom:1em;">
   <span style="color:#b3b3b3; font-size:1em;">Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.</span>
@@ -146,7 +149,7 @@
 *   🟩 Secure, reproducible <a href="https://docs.docker.com/" style="color:#a5b4fc;">Dockerfiles</a> and <a href="https://docs.docker.com/compose/" style="color:#a5b4fc;">Compose files</a> for local and cloud development, with best practices enforced.
 *   🟩 Continuous compliance monitoring (<a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, custom rules) and regular security architecture reviews.
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🧠 AI Core Development & Experimentation</strong>
@@ -193,7 +196,7 @@
 *   🟥 Model and Prompt card generation for documentation
 *   🟥 Implement canary and shadow testing for new models/prompts
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🚀 Application Layer & Integration</strong>
@@ -220,7 +223,7 @@
 *   🟥 Implement API Gateway (AWS API Gateway) for secure access
 *   🟥 Automated API documentation generation (e.g., OpenAPI/Swagger)
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">✅ Evaluation & Continuous Improvement</strong>
@@ -244,7 +247,7 @@
 *   🟥 Iterative prompt, model, and data retrieval refinement processes
 *   🟥 Regular stakeholder feedback sessions and roadmap alignment
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">⚙️ MLOps, Deployment & Monitoring</strong>
@@ -288,7 +291,7 @@
     *   🟥 Automate SBOM generation and review third-party dependencies for supply chain risk
     *   🟥 Define release management and versioning policies for all major components
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🔒 Security & Governance (Overarching)</strong>
@@ -316,7 +319,7 @@
 *   🟥 Define and enforce IAM roles and fine-grained access controls
 *   🟥 Regularly monitor for Infrastructure drift and automated remediation for security configurations
 
-</details>
+</details></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">📚 Documentation & Enablement</strong>
@@ -350,4 +353,4 @@
 *   🟥 End-to-end tests simulating real analyst workflows
 *   🟥 Fuzz testing for API and prompt inputs
 
-</details>
+</details></section>

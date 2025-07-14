@@ -3,8 +3,8 @@
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Business Case</h1>
-
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+</section>
+<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;"></section>
 
 ## 💡 Executive Summary
 
@@ -80,3 +80,4 @@ ShieldCraft enables organizations to:
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./user_profiles.md" style="color:#a5b4fc;">User Profiles</a> | <a href="./project_scope.md" style="color:#a5b4fc;">Project Scope</a> | <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a></em>
+</section>
