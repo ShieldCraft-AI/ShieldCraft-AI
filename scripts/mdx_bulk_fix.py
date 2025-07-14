@@ -84,17 +84,18 @@ def process_file(path, dry_run=False):
         original = f.read()
     updated = convert_html_to_markdown(original)
     if original != updated:
-        print(f"\n--- {path} ---")
-        for line in difflib.unified_diff(
-            original.splitlines(),
-            updated.splitlines(),
-            lineterm="",
-            fromfile="original",
-            tofile="updated",
-        ):
-            print(line)
-        if not dry_run:
-            out_path = path.with_suffix(path.suffix.replace('.md', '.converted.md'))
+        if dry_run:
+            print(f"\n--- {path} ---")
+            for line in difflib.unified_diff(
+                original.splitlines(),
+                updated.splitlines(),
+                lineterm="",
+                fromfile="original",
+                tofile="updated",
+            ):
+                print(line)
+        else:
+            out_path = path.parent / (path.stem + ".converted.md")
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(updated)
             print(f"Converted file written to: {out_path}")
