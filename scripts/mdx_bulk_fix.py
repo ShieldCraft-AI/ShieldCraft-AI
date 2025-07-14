@@ -175,7 +175,7 @@ def convert_block(tag, unhandled_tags=None, indent_level=0, asset_copier=None, s
         return tag.get_text(strip=True)
 
 def asset_copier(src, src_path, out_dir):
-    # Centralize all assets in docs-site/docs/converted/assets
+    # Centralize all assets in docs-site/docs/site/assets
     if not src or src.startswith('http'):
         return src
     assets_dir = Path('docs-site/docs/converted/assets')

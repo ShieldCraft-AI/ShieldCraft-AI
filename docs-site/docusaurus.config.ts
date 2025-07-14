@@ -41,10 +41,10 @@ const config: Config = {
       'classic',
       {
         docs: {
-          path: 'docs/converted', // Serve converted docs for the website
+          path: 'docs/site', // Serve converted docs for the website
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/converted/',
+          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/site/',
         },
         blog: {
           showReadingTime: true,
