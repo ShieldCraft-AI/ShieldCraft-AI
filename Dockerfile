@@ -1,6 +1,6 @@
 # --- Base image for all environments ---
 # Using official Python base image for maximum compatibility
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.12
 FROM python:${PYTHON_VERSION}-slim AS base
 
 # Set environment variables
