@@ -134,48 +134,48 @@ networking_stack
   ├─▶ cloud_native_hardening_stack
   └─▶ compliance_stack
 
-s3\_stack
-├─▶ lakeformation_stack
-├─▶ glue_stack
-├─▶ dataquality_stack
-└─▶ sagemaker_stack
+s3_stack
+  ├─▶ lakeformation_stack
+  ├─▶ glue_stack
+  ├─▶ dataquality_stack
+  └─▶ sagemaker_stack
 
 iam_role_stack
-├─▶ lambda_stack
-├─▶ glue_stack
-├─▶ msk_stack
-├─▶ airbyte_stack
-├─▶ opensearch_stack
-├─▶ lakeformation_stack
-├─▶ sagemaker_stack
-├─▶ cloud_native_hardening_stack
-└─▶ compliance_stack
+  ├─▶ lambda_stack
+  ├─▶ glue_stack
+  ├─▶ msk_stack
+  ├─▶ airbyte_stack
+  ├─▶ opensearch_stack
+  ├─▶ lakeformation_stack
+  ├─▶ sagemaker_stack
+  ├─▶ cloud_native_hardening_stack
+  └─▶ compliance_stack
 
 glue_stack
-├─▶ dataquality_stack
-└─▶ lakeformation_stack
+  ├─▶ dataquality_stack
+  └─▶ lakeformation_stack
 
 lambda_stack
-├─▶ dataquality_stack
-└─▶ compliance_stack
+  ├─▶ dataquality_stack
+  └─▶ compliance_stack
 
 msk_stack
-├─▶ cloud_native_hardening_stack
+  ├─▶ cloud_native_hardening_stack
 
 opensearch_stack
-├─▶ cloud_native_hardening_stack
+  ├─▶ cloud_native_hardening_stack
 
 cloud_native_hardening_stack
-└─▶ (monitors all critical stacks)
+  └─▶ (monitors all critical stacks)
 
 compliance_stack
-└─▶ (reports on all critical stacks)
+  └─▶ (reports on all critical stacks)
 
 sagemaker_stack
-(consumes VPC, S3, IAM)
+  (consumes VPC, S3, IAM)
 
 budget_stack
-(depends on all other stacks; provides cost guardrails and notifications)
+  (depends on all other stacks; provides cost guardrails and notifications)
 
 </pre>
 </section>

@@ -142,10 +142,6 @@ build/
 *.log
 logs/
 
-# Ignore Poetry and pip artifacts
-# (Do NOT ignore pyproject.toml or poetry.lock, needed for Docker builds)
-requirements.txt
-
 # Ignore Docker and Compose files (except main Dockerfiles)
 docker-compose.*
 Dockerfile.*.bak
