@@ -12,7 +12,7 @@ def force_utf8():
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    except Exception:
+    except (AttributeError, ValueError):
         # Fallback for older Python or redirected output
         try:
             import io
@@ -23,5 +23,5 @@ def force_utf8():
             sys.stderr = io.TextIOWrapper(
                 sys.stderr.detach(), encoding="utf-8", errors="replace"
             )
-        except Exception:
+        except (AttributeError, io.UnsupportedOperation, ValueError):
             pass

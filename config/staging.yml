@@ -57,7 +57,7 @@ lambda_:
     - id: MskTopicCreator
       description: Lambda to create Kafka topics after MSK cluster is ready
       handler: msk_topic_creator.lambda_handler
-      runtime: python3.11
+      runtime: python{{ PYTHON_VERSION }}
       memory_size: 256
       timeout: 60
       environment:

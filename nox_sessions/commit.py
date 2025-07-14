@@ -7,6 +7,7 @@ import concurrent.futures
 import os
 from nox_sessions.utils import nox_session_guard
 from nox_sessions.utils_encoding import force_utf8
+from nox_sessions.utils import now_str, validate_poetry_marker, write_debug_log
 
 force_utf8()
 
@@ -26,9 +27,6 @@ def matrix_log(session, msg, color="green"):
     session.log(f"{colors['black_bg']}{c}{msg}{colors['reset']}")
 
 
-from nox_sessions.utils import now_str
-
-
 def log_debug(msg):
     with open(DEBUG_LOG_FILE, "a") as f:
         f.write(f"[commit_flow] {now_str()} {msg}\n")
@@ -37,6 +35,21 @@ def log_debug(msg):
 @nox.session(name="commit_flow")
 @nox_session_guard
 def commit_flow(session):
+    # Validate poetry marker before running any orchestration
+    marker_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), ".nox-poetry-installed"
+    )
+    if not validate_poetry_marker(marker_file):
+        write_debug_log(
+            "[pre_nox] Poetry environment not bootstrapped or out of date. Run 'nox -s bootstrap' first."
+        )
+        matrix_log(
+            session,
+            "🟥 Nox commit_flow session failed. No commit performed.",
+            color="red",
+        )
+        log_debug("[ERROR] Nox commit_flow session failed. No commit performed.")
+        return
     # Use shared virtualenv for all sessions
     nox.options.reuse_existing_virtualenv = True
     # Auto-clear and re-execute all notebooks before running checks
