@@ -30,7 +30,7 @@ ARG BUILDKIT_INLINE_CACHE=1
 COPY pyproject.toml poetry.lock ./
 RUN python -m pip install --upgrade pip
 # Export requirements using Poetry (only main dependencies)
-RUN pip install poetry && poetry export -f requirements.txt --output requirements.txt --without-hashes
+RUN pip install "poetry>=1.2.0" && poetry export -f requirements.txt --output requirements.txt --without-hashes
 RUN python -m pip install --no-cache-dir -r requirements.txt
 COPY src/ /app/src/
 RUN rm -rf tests/ docs/ .git/ .github/ .vscode/ .env *.pyc *.pyo __pycache__ /root/.cache/pip /root/.cache/pypoetry /root/.local/pipx
