@@ -11,11 +11,11 @@ async function convertFile() {
     try {
         await fs.ensureDir(path.dirname(OUT_FILE));
         const input = await fs.readFile(SRC_FILE, 'utf8');
-        const output = await unified()
+        const processor = unified()
             .use(remarkParse)
-            .use(remarkStringify)
-            .process(input);
-        await fs.writeFile(OUT_FILE, output.value);
+            .use(remarkStringify);
+        const result = await processor.process(input);
+        await fs.writeFile(OUT_FILE, result.value);
         console.log(`✅ Converted: ${SRC_FILE} -> ${OUT_FILE}`);
     } catch (err) {
         console.error(`Error converting ${SRC_FILE}:`, err.message);

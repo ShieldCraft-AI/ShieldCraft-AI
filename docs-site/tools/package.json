@@ -7,9 +7,9 @@
         "convert": "node convert-mdx.js"
     },
     "dependencies": {
-        "unified": "^11.0.0",
-        "remark-parse": "^10.0.0",
-        "remark-stringify": "^10.0.0",
+        "unified": "10.1.2",
+        "remark-parse": "9.0.0",
+        "remark-stringify": "9.0.1",
         "fs-extra": "^11.2.0"
     },
     "author": "ShieldCraft AI Team",
