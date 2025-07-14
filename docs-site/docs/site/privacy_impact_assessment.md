@@ -1,14 +1,14 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<section>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🔏 Privacy Impact Assessment & Compliance Review</h1>
-<div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
+<h1 align="center">🔏 Privacy Impact Assessment & Compliance Review</h1>
+<div>
   This document details the privacy impact assessment (PIA) process and outlines the regular compliance review schedule for ShieldCraft AI, ensuring alignment with GDPR, SOC2, POPIA, and other relevant frameworks.
 </div>
 </section>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 1. Privacy Impact Assessment (PIA)
@@ -35,53 +35,53 @@
 *   Initial PIA completed (see [Risk Log](./risk_log.md)).
 *   Ongoing reviews scheduled (see below).
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 2. Regular Compliance Reviews
 
-<table style="width:100%; color:#fff; background:#222; border-collapse:collapse;">
-  <thead style="background:#333; color:#a5b4fc;">
+<table>
+  <thead>
     <tr>
-      <th style="padding:8px; border:1px solid #444;">Framework</th>
-      <th style="padding:8px; border:1px solid #444;">Frequency</th>
-      <th style="padding:8px; border:1px solid #444;">Responsible</th>
-      <th style="padding:8px; border:1px solid #444;">Last Review</th>
-      <th style="padding:8px; border:1px solid #444;">Next Review</th>
+      <th>Framework</th>
+      <th>Frequency</th>
+      <th>Responsible</th>
+      <th>Last Review</th>
+      <th>Next Review</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="padding:8px; border:1px solid #444;">GDPR</td>
-      <td style="padding:8px; border:1px solid #444;">Quarterly</td>
-      <td style="padding:8px; border:1px solid #444;">DPO</td>
-      <td style="padding:8px; border:1px solid #444;">2024-04-01</td>
-      <td style="padding:8px; border:1px solid #444;">2024-07-01</td>
+      <td>GDPR</td>
+      <td>Quarterly</td>
+      <td>DPO</td>
+      <td>2024-04-01</td>
+      <td>2024-07-01</td>
     </tr>
     <tr>
-      <td style="padding:8px; border:1px solid #444;">SOC2</td>
-      <td style="padding:8px; border:1px solid #444;">Annually</td>
-      <td style="padding:8px; border:1px solid #444;">Compliance</td>
-      <td style="padding:8px; border:1px solid #444;">2024-01-15</td>
-      <td style="padding:8px; border:1px solid #444;">2025-01-15</td>
+      <td>SOC2</td>
+      <td>Annually</td>
+      <td>Compliance</td>
+      <td>2024-01-15</td>
+      <td>2025-01-15</td>
     </tr>
     <tr>
-      <td style="padding:8px; border:1px solid #444;">POPIA</td>
-      <td style="padding:8px; border:1px solid #444;">Quarterly</td>
-      <td style="padding:8px; border:1px solid #444;">DPO</td>
-      <td style="padding:8px; border:1px solid #444;">2024-04-01</td>
-      <td style="padding:8px; border:1px solid #444;">2024-07-01</td>
+      <td>POPIA</td>
+      <td>Quarterly</td>
+      <td>DPO</td>
+      <td>2024-04-01</td>
+      <td>2024-07-01</td>
     </tr>
   </tbody>
 </table>
 
-<div style="margin-top:1em;">
+<div>
 <strong>Review Process:</strong>
 <ul>
 </ul>
 </div>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 3. Data Subject Rights & Requests
@@ -89,7 +89,7 @@
 <ul>
 </ul>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 4. Cross-References
@@ -97,6 +97,6 @@
 <ul>
 </ul>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./security_governance.md" style="color:#a5b4fc;">Security & Governance</a> | <a href="./privacy_impact_assessment.md" style="color:#a5b4fc;">Privacy Impact Assessment</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a></em>
+<section>
+  <em>Related: <a href="./security_governance.md">Security & Governance</a> | <a href="./privacy_impact_assessment.md">Privacy Impact Assessment</a> | <a href="./ethics_compliance.md">Ethics & Compliance</a></em>
 </section>
