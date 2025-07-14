@@ -17,17 +17,6 @@
   <div style="color:#a5b4fc; font-size:1.05em; margin-top:0.7em; letter-spacing:0.01em;">Figure: Modular MLOps flow showing data, model, and governance layers</div>
 </div>
 
-
-<div style="margin:2em 0 1.5em 0; padding:1.2em 1.5em; background:#23234a; border-radius:10px; border:1px solid #a5b4fc; color:#e0e0e0;">
-  <ul style="margin:0 0 1.2em 0.5em; padding:0 0 0 1.2em;">
-  </ul>
-  <div style="margin-top:0.5em; color:#a5b4fc; font-size:1em;">
-    <b>Benefits:</b>
-    <ul style="margin:0.5em 0 0 1.2em; color:#b3b3b3;">
-    </ul>
-  </div>
-</div>
-
 ---
 
 ## 2. MLOps Flow

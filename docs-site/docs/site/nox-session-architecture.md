@@ -4,7 +4,7 @@
 
 <section>
 <div>
-  <a href="../../README.md">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md">⬅️ Back to Project Overview</a>
 </div>
 <h1 align="center">🛠️ Nox Session Architecture & CI/CD Integration</h1>
 <div id="progress-bar" align="center">

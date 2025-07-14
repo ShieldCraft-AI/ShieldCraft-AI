@@ -3,7 +3,7 @@
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em;">⚠️ ShieldCraft AI: Technical, Ethical & Operational Risks</h1>
-
+</section>
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
 ## Overview

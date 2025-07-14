@@ -1,6 +1,6 @@
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <div style="margin-bottom:1.5em;">
-  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
 </div>
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
@@ -8,7 +8,7 @@
   </h2>
   <div style="border-left:4px solid #a5b4fc; padding-left:1em; margin-bottom:1em;">
     <b>Purpose:</b> This guide details the end-to-end lifecycle and best practices for implementing Generative AI in ShieldCraft AI, from use case discovery to production MLOps. It is focused, actionable, and tailored for high-assurance, enterprise-grade security applications.
-  </div>
+  </div></section>
 
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
@@ -22,7 +22,7 @@
       <ul>
       </ul>
   </ul>
-
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.25em;gap:0.5em;">
@@ -33,7 +33,7 @@
   </div>
   <ul style="margin-bottom:0.5em;">
   </ul>
-
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.25em;gap:0.5em;">
@@ -44,7 +44,7 @@
   </div>
   <ul style="margin-bottom:0.5em;">
   </ul>
-
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.25em;gap:0.5em;">
@@ -55,7 +55,7 @@
   </div>
   <ul style="margin-bottom:0.5em;">
   </ul>
-
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.25em;gap:0.5em;">
@@ -66,7 +66,7 @@
   </div>
   <ul style="margin-bottom:0.5em;">
   </ul>
-
+</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
   <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.25em;gap:0.5em;">
@@ -76,11 +76,4 @@
     Operationalize GenAI for reliability, scalability, and security in production.
   </div>
   <ul style="margin-bottom:0.5em;">
-  </ul>
-
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:2em 0 0 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#181818; color:#fff;">
-  <h3 style="margin-top:0;display:flex;align-items:center;font-size:1.1em;gap:0.5em;">
-    <span style="font-size:1.2em;">🔗</span> See Also
-  </h3>
-  <ul style="margin-bottom:0.5em;">
-  </ul>
+  </ul></section>

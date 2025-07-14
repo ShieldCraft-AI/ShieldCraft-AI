@@ -1,6 +1,6 @@
 <section>
 <div>
-  <a href="../../README.md">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md">⬅️ Back to Project Overview</a>
 </div>
 <h1 align="center">🛡️ ShieldCraft AI Implementation Checklist</h1>
 <div id="progress-bar" align="center">

@@ -1,6 +1,6 @@
 <section>
 <div>
-  <a href="../../README.md">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md">⬅️ Back to Project Overview</a>
 </div>
 <h1 align="center">⚡ Automated Alert Triage, Investigation, and Remediation</h1>
 <div>
