@@ -5,15 +5,12 @@
 <h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Implementation Checklist</h1>
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
-  <a href="./docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;"></a><br/>
   <progress id="shieldcraft-progress" value="32" max="100" style="width: 60%; height: 18px;"></progress>
   <div id="progress-label">32% Complete</div>
 </div>
-</section>
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 
 <div style="margin-bottom:1em;">
-  <strong style="font-size:1.25em; color:#a5b4fc;">🧭 Foundation & Planning</strong><br/><br/>
   <span style="color:#b3b3b3; font-size:1em;">Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.</span>
 </div>
 
@@ -115,7 +112,6 @@
     - 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 
 </details>
- </section>
 
  <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">☁️ AWS Cloud Foundation & Architecture</strong>
@@ -149,7 +145,6 @@
 - 🟩 Continuous compliance monitoring (<a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, custom rules) and regular security architecture reviews.
 
 </details>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🧠 AI Core Development & Experimentation</strong>
@@ -197,7 +192,6 @@
 - 🟥 Implement canary and shadow testing for new models/prompts
 
 </details>
- </section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🚀 Application Layer & Integration</strong>
@@ -225,7 +219,6 @@
 - 🟥 Automated API documentation generation (e.g., OpenAPI/Swagger)
 
 </details>
- </section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">✅ Evaluation & Continuous Improvement</strong>
@@ -250,7 +243,6 @@
 - 🟥 Regular stakeholder feedback sessions and roadmap alignment
 
 </details>
- </section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">⚙️ MLOps, Deployment & Monitoring</strong>
@@ -295,7 +287,6 @@
     - 🟥 Define release management and versioning policies for all major components
 
 </details>
- </section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">🔒 Security & Governance (Overarching)</strong>
@@ -324,7 +315,6 @@
 - 🟥 Regularly monitor for Infrastructure drift and automated remediation for security configurations
 
 </details>
- </section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">📚 Documentation & Enablement</strong>
@@ -359,4 +349,3 @@
 - 🟥 Fuzz testing for API and prompt inputs
 
 </details>
- </section>

@@ -6,7 +6,6 @@
 <div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
   This document details the modular architecture, MLOps lifecycle, and security/data governance design for ShieldCraft AI.
 </div>
-</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
@@ -21,18 +20,10 @@
 
 <div style="margin:2em 0 1.5em 0; padding:1.2em 1.5em; background:#23234a; border-radius:10px; border:1px solid #a5b4fc; color:#e0e0e0;">
   <ul style="margin:0 0 1.2em 0.5em; padding:0 0 0 1.2em;">
-    <li style="margin-bottom:0.7em;"><b>Ingestion Layer:</b> Handles data collection from logs, threat feeds, APIs, and user input. Supports batch and streaming.</li>
-    <li style="margin-bottom:0.7em;"><b>Processing Layer:</b> Cleans, normalizes, and enriches data. Includes privacy controls and versioning.</li>
-    <li style="margin-bottom:0.7em;"><b>AI/Analytics Layer:</b> Hosts GenAI models, RAG, and analytics. Modular for easy model swaps and upgrades.</li>
-    <li style="margin-bottom:0.7em;"><b>Application Layer:</b> API endpoints, UI, and integrations. Stateless, scalable, and secure.</li>
-    <li><b>Storage Layer:</b> Data lake, vector DB, and metadata stores. Encryption and access controls enforced.</li>
   </ul>
   <div style="margin-top:0.5em; color:#a5b4fc; font-size:1em;">
     <b>Benefits:</b>
     <ul style="margin:0.5em 0 0 1.2em; color:#b3b3b3;">
-      <li>Separation of concerns for maintainability and scalability</li>
-      <li>Each layer can be developed, tested, and deployed independently</li>
-      <li>Security boundaries between layers</li>
     </ul>
   </div>
 </div>
@@ -79,8 +70,6 @@
   - Automated vulnerability scanning in CI/CD
   - Incident response plan and runbooks
 
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a> | <a href="./privacy_impact_assessment.md" style="color:#a5b4fc;">Privacy Impact Assessment</a> | <a href="./threat_modeling.md" style="color:#a5b4fc;">Threat Modeling</a></em>
-</section>

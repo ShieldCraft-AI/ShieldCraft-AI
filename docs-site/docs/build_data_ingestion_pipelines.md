@@ -74,4 +74,3 @@ This document details the strategy, design, and implementation steps for the **B
 4. Document integration patterns for Airbyte, Lambda, Glue, and OpenSearch.
 5. Add governance, data quality, and compliance automation.
 
-</section>

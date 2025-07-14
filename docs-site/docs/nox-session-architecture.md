@@ -15,16 +15,12 @@ description: "Comprehensive overview of ShieldCraft AI's Nox-powered automation,
   <strong>Automation Progress</strong>
   <div id="progress-label">100% Session Review Complete</div>
 </div>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🔎</span> Overview
 </h2>
-<p>
 ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to automate all aspects of code quality, security, documentation, testing, and deployment. This ensures that every CI/CD run is reproducible, traceable, and production-grade.
-</p>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
@@ -69,42 +65,24 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 <tr><td>nox_session_guard</td><td>utils.py</td><td>Decorator for robust error handling</td><td>Yes</td><td>Yes</td><td>All sessions</td></tr>
 </tbody>
 </table>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🔄</span> Session Sequencing & Best Practices
 </h2>
 <ul>
-  <li><b>Run all quality gates (lint, typecheck, docs_lint, security, notebooks, tests) in parallel</b> for fast feedback and fail-fast behavior.</li>
-  <li><b>Only proceed to docker_build and docker_scan if all gates pass.</b></li>
-  <li>Meta-sessions (check, ci, all) are for local/dev use and orchestration, not for CI/CD parallel jobs.</li>
-  <li>Release and version bump sessions are manual and should be restricted to authorized users.</li>
-  <li>Utility functions enforce reproducibility, fail-fast, and robust error handling across all sessions.</li>
 </ul>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🧠</span> Architectural Insights
 </h2>
 <ul>
-  <li>All sessions are single-responsibility, parallel-safe, and reproducible, enabling scalable, production-grade automation.</li>
-  <li>Hash-based dependency checks and marker files ensure environments are only rebuilt when necessary.</li>
-  <li>Centralized error handling and logging make debugging in CI/CD straightforward.</li>
-  <li>Meta-sessions provide local developer convenience without sacrificing CI/CD speed or reliability.</li>
-  <li>Security gates are pragmatic, allowing deploys only when vulnerabilities are unfixable and documented (e.g., mlflow).</li>
 </ul>
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🚀</span> Next Steps
 </h2>
 <ul>
-  <li>Upload test, lint, and security artifacts in CI for traceability and compliance.</li>
-  <li>Further tune Poetry and Docker caching for even faster builds.</li>
-  <li>Integrate CDK deploy/config sync into CI/CD for full infra automation.</li>
-  <li>Expand onboarding docs for contributors, referencing this session architecture.</li>
 </ul>
-</section>

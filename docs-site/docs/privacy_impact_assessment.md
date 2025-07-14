@@ -6,7 +6,6 @@
 <div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
   This document details the privacy impact assessment (PIA) process and outlines the regular compliance review schedule for ShieldCraft AI, ensuring alignment with GDPR, SOC2, POPIA, and other relevant frameworks.
 </div>
-</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
@@ -30,7 +29,6 @@
 - Initial PIA completed (see [Risk Log](./risk_log.md)).
 - Ongoing reviews scheduled (see below).
 
-</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
@@ -74,35 +72,23 @@
 <div style="margin-top:1em;">
 <strong>Review Process:</strong>
 <ul>
-  <li>Audit data processing and storage practices.</li>
-  <li>Update documentation and controls as needed.</li>
-  <li>Log findings and actions in <a href="./risk_log.md" style="color:#a5b4fc;">Risk Log</a>.</li>
 </ul>
 </div>
 
-</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
 ## 3. Data Subject Rights & Requests
 <ul>
-  <li>Mechanisms in place for data access, correction, and deletion requests.</li>
-  <li>Contact: <a href="mailto:privacy@shieldcraft.ai" style="color:#a5b4fc;">privacy@shieldcraft.ai</a></li>
 </ul>
 
-</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
 ## 4. Cross-References
 <ul>
-  <li><a href="./security_governance.md" style="color:#a5b4fc;">Security & Governance</a></li>
-  <li><a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics, Safety, and Compliance</a></li>
-  <li><a href="./risk_log.md" style="color:#a5b4fc;">Risk Log</a></li>
 </ul>
 
-</section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./security_governance.md" style="color:#a5b4fc;">Security & Governance</a> | <a href="./privacy_impact_assessment.md" style="color:#a5b4fc;">Privacy Impact Assessment</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a></em>
-</section>
