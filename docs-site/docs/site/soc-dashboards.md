@@ -1,6 +1,6 @@
 <section>
 <div>
-  <a href="../../README.md">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md">⬅️ Back to Project Overview</a>
 </div>
 <h1 align="center">📊 Real-Time, Actionable Dashboards for SOC Teams</h1>
 <div>

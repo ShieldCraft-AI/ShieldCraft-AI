@@ -8,13 +8,13 @@ description: "Comprehensive overview of ShieldCraft AI's Nox-powered automation,
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <div style="margin-bottom:1.5em;">
-  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em;">🛠️ Nox Session Architecture & CI/CD Integration</h1>
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Automation Progress</strong>
-  <div id="progress-label">100% Session Review Complete</div>
-</div>
+  <div id="progress-label">100% Complete</div>
+</div></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
@@ -64,25 +64,25 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 <tr><td>file_hash</td><td>utils.py</td><td>Compute SHA256 hash of a file</td><td>Yes</td><td>Yes</td><td>Dependency change detection</td></tr>
 <tr><td>nox_session_guard</td><td>utils.py</td><td>Decorator for robust error handling</td><td>Yes</td><td>Yes</td><td>All sessions</td></tr>
 </tbody>
-</table>
+</table></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🔄</span> Session Sequencing & Best Practices
 </h2>
 <ul>
-</ul>
+</ul></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🧠</span> Architectural Insights
 </h2>
 <ul>
-</ul>
+</ul></section>
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
   <span style="font-size:1.2em;">🚀</span> Next Steps
 </h2>
 <ul>
-</ul>
+</ul></section>

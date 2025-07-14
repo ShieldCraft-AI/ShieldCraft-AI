@@ -22,7 +22,7 @@
 
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
-  <a href="./docs-site/docs/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
+  <a href="./docs-site/docs/github/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
   <progress id="shieldcraft-progress" value="32" max="100" style="width: 60%; height: 18px;"></progress>
   <div id="progress-label">32% Complete</div>
 </div>
@@ -52,14 +52,14 @@ ShieldCraft AI leverages a multi-faceted AI approach to deliver solutions that g
     </span>
   </li>
   <li style="margin-top:1em;">
-    <a href="./docs-site/docs/attack-simulation.md" style="color:#a5b4fc;"><b>Generative Attack Emulation (Next-Gen BAS):</b></a><br/>
+    <a href="./docs-site/docs/github/attack-simulation.md" style="color:#a5b4fc;"><b>Generative Attack Emulation (Next-Gen BAS):</b></a><br/>
     <span style="font-size:0.95em;">
       The Challenge: Legacy Breach & Attack Simulation (BAS) often relies on known attack patterns, leaving organizations vulnerable to novel, unseen threats.
       Our Solution: Utilizing advanced Generative AI, ShieldCraft AI creates novel, polymorphic attack scenarios and multi-stage campaigns specifically tailored to your cloud environment. This capability uncovers "unknown unknowns," validates your defenses against future zero-days, and cultivates truly adaptive resilience against the most sophisticated adversaries.
     </span>
   </li>
   <li style="margin-top:1em;">
-    <a href="./docs-site/docs/threat-detection.md" style="color:#a5b4fc;"><b>Predictive Threat Intelligence & Prioritization:</b></a><br/>
+    <a href="./docs-site/docs/github/threat-detection.md" style="color:#a5b4fc;"><b>Predictive Threat Intelligence & Prioritization:</b></a><br/>
     <span style="font-size:0.95em;">
       The Challenge: Security teams face alert fatigue, struggling to prioritize the most critical vulnerabilities amidst a deluge of data.
       Our Solution: ShieldCraft AI's intelligent engine correlates your specific AWS posture with global threat intelligence to predict which vulnerabilities are most likely to be exploited in your unique environment and by which threat actors. We provide crystal-clear, data-driven priorities, enabling your team to focus resources where they deliver maximum impact and prevent costly breaches before they occur.
@@ -102,11 +102,11 @@ ShieldCraft AI's power is rooted in a meticulously engineered, scalable, and sec
   <span style="font-size:1.2em;">📚</span> Documentation & Deep Dive
 </h2>
 <ul style="margin-bottom:0.5em;">
-  <li><a href="./docs-site/docs/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
-  <li><a href="./docs-site/docs/attack-simulation.md" style="color:#a5b4fc;"><b>🧪 Simulated Attack Testing & BAS</b></a> Automated attack simulation, breach and attack simulation and continuous validation strategies</li>
-  <li><a href="./docs-site/docs/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout</li>
-  <li><a href="./docs-site/docs/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tech Stack and Utilities</b></a> Tech, tools and libraries used</li>
-  <li><a href="./docs-site/docs/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
+  <li><a href="./docs-site/docs/github/spec.md" style="color:#a5b4fc;"><b>📝 Platform Architecture</b></a> Business case, architecture, and technical blueprint</li>
+  <li><a href="./docs-site/docs/github/attack-simulation.md" style="color:#a5b4fc;"><b>🧪 Simulated Attack Testing & BAS</b></a> Automated attack simulation, breach and attack simulation and continuous validation strategies</li>
+  <li><a href="./docs-site/docs/github/poa.md" style="color:#a5b4fc;"><b>🔄 GenAI Implementation Lifecycle</b></a> Step-by-step GenAI buildout</li>
+  <li><a href="./docs-site/docs/github/tooling.md" style="color:#a5b4fc;"><b>🛠️ Tech Stack and Utilities</b></a> Tech, tools and libraries used</li>
+  <li><a href="./docs-site/docs/github/checklist.md" style="color:#a5b4fc;"><b>✅ Project Checklist</b></a> Key milestones and action items</li>
 </ul>
 </section>
 
@@ -118,7 +118,7 @@ ShieldCraft AI's power is rooted in a meticulously engineered, scalable, and sec
 
 <b>⚡️ AWS Infrastructure Deployment Modernization (2025):</b><br>
 All AWS infrastructure is now deployed using <b>AWS CDK v2</b> and <b>AWS CLI v2</b> only. <b>IAM Identity Center (formerly SSO)</b> is required for all developer and CI/CD authentication. Static AWS credentials and CDK v1 are no longer supported.<br>
-See <a href="./docs-site/docs/developer-workflow.md" style="color:#a5b4fc;"><b>🛠️ Developer Workflow</b></a> for onboarding and SSO/OIDC setup instructions.
+See <a href="./docs-site/docs/github/developer-workflow.md" style="color:#a5b4fc;"><b>🛠️ Developer Workflow</b></a> for onboarding and SSO/OIDC setup instructions.
 </div>
 </section>
 

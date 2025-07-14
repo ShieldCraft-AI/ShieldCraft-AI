@@ -6,7 +6,7 @@
 <div style="margin-top:2em;">
   <a href="./security_governance.md" style="color:#a5b4fc; font-weight:bold;">See also: Security & Governance</a>
 </div>
-
+</section>
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
 

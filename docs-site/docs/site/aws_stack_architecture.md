@@ -1,6 +1,6 @@
 <section>
 <div>
-  <a href="../../README.md">⬅️ Back to Project Overview</a>
+  <a href="../../../README.md">⬅️ Back to Project Overview</a>
 </div>
 <div>
   <a href="./checklist.md">⬅️ Back to Checklist</a>
