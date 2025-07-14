@@ -245,25 +245,29 @@ def convert_html_to_markdown(html, src_path=None, out_dir=None):
         logging.warning("Unclosed <progress> tag detected after conversion. Please check the source file.")
     return markdown
 
-def verify_mdx_compatibility(markdown, path):
-    errors = []
-    # Check for unclosed <progress> tags
+def autocorrect_mdx_compatibility(markdown, path):
+    corrections = []
+    # Auto-correct unclosed <progress> tags
     if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
-        errors.append("Unclosed <progress> tag detected.")
-    # Check for other common MDX-incompatible patterns (add more as needed)
-    # Example: unclosed <img> tags (should be self-closing)
+        markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', r'<progress\1 />', markdown)
+        corrections.append("Auto-corrected unclosed <progress> tag.")
+    # Auto-correct unclosed <img> tags
     if re.search(r'<img([^>]*)>(?!.*?/>)', markdown):
-        errors.append("Unclosed <img> tag detected.")
-    # Example: stray <br> tags
+        markdown = re.sub(r'<img([^>]*)>(?!.*?/>)', r'<img\1 />', markdown)
+        corrections.append("Auto-corrected unclosed <img> tag.")
+    # Auto-correct unclosed <br> tags
     if re.search(r'<br([^>]*)>(?!.*?/>)', markdown):
-        errors.append("Unclosed <br> tag detected.")
-    # Log errors and optionally halt
-    if errors:
-        logging.error(f"MDX compatibility errors in {path}:")
-        for err in errors:
-            logging.error(f"  - {err}")
-        return False
-    return True
+        markdown = re.sub(r'<br([^>]*)>(?!.*?/>)', r'<br\1 />', markdown)
+        corrections.append("Auto-corrected unclosed <br> tag.")
+    # Final sweep: ensure all self-closing tags use <tag .../> (no space before slash)
+    markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s+/\s*>', r'<\1\2/>', markdown)
+    corrections.append("Normalized self-closing tag syntax for MDX.")
+    # Log corrections
+    if corrections:
+        logging.info(f"MDX auto-corrections applied to {path}:")
+        for corr in corrections:
+            logging.info(f"  - {corr}")
+    return markdown
 
 def process_file(path, dry_run=False):
     try:
@@ -272,10 +276,8 @@ def process_file(path, dry_run=False):
         out_dir = path.parent / "converted"
         out_dir.mkdir(parents=True, exist_ok=True)
         updated = convert_html_to_markdown(original, src_path=path, out_dir=out_dir)
-        # Verify MDX compatibility before writing
-        if not verify_mdx_compatibility(updated, path):
-            logging.error(f"Skipping write for {path} due to MDX errors.")
-            return
+        # Auto-correct MDX compatibility before writing
+        updated = autocorrect_mdx_compatibility(updated, path)
         if original != updated:
             if not dry_run:
                 out_path = out_dir / path.name.replace('.md', '.converted.md')

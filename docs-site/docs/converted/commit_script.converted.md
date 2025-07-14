@@ -18,7 +18,7 @@ Why a Unified Commit Script?A robust, unified commit script is essential for mai
 1. Script Location & StructureLocated at the project root:commit.sh(Bash) andcommit.ps1(PowerShell)Modular functions for each check, versioning, and checklist updateCross-platform compatibility
 1. Pre-commit ChecksLinting:ruff check .andblack --check .Type Checking:mypy .Security:bandit -r .Tests:pytestDependencies:poetry checkandpip-auditFail on first error, print summary
 1. Versioning AutomationParses commit message forfeat,fix,chore, etc.Bumps version inpyproject.toml(major/minor/patch)Appends toCHANGELOG.mdwith commit summary
-1. Progress Bar UpdateParseschecklist.mdfor completed items (🟩)Updates<progress>value and percentage labelEnsures checklist always reflects latest project state
+1. Progress Bar UpdateParseschecklist.mdfor completed items (🟩)Updates<progress / />value and percentage labelEnsures checklist always reflects latest project state
 
 ---
 
