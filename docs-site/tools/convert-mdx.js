@@ -4,12 +4,15 @@ const { unified } = require('unified');
 const remarkParse = require('remark-parse');
 const remarkStringify = require('remark-stringify');
 
-const SRC_FILE = path.resolve(__dirname, '../docs/aws_stack_architecture.md');
-const OUT_FILE = path.resolve(__dirname, '../docs/converted/aws_stack_architecture.converted.md');
+// Use absolute paths so script can be run from any folder
+const BASE_DIR = path.resolve(__dirname, '../docs');
+const SRC_FILE = path.join(BASE_DIR, 'aws_stack_architecture.md');
+const OUT_DIR = path.join(BASE_DIR, 'converted');
+const OUT_FILE = path.join(OUT_DIR, 'aws_stack_architecture.converted.md');
 
 async function convertFile() {
     try {
-        await fs.ensureDir(path.dirname(OUT_FILE));
+        await fs.ensureDir(OUT_DIR);
         const input = await fs.readFile(SRC_FILE, 'utf8');
         const processor = unified()
             .use(remarkParse)
