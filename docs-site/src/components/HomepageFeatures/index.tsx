@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
@@ -11,38 +11,42 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Proactive, Adaptive, Autonomous Security',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        ShieldCraft AI empowers enterprises to counter modern threats like AI-augmented attacks and subtle insider risks with speed, precision, and efficiency.<br />
+        <b>Next-Gen Cloud Cybersecurity</b>: Autonomous remediation, generative attack emulation, and predictive threat intelligence.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Enterprise-Grade MLOps & AWS Foundation',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Built on a scalable, secure cloud-native architecture leveraging AWS services and MLOps best practices.<br />
+        <b>Key Technologies</b>: Amazon Bedrock, SageMaker, OpenSearch, MSK, Kinesis, Airbyte, S3, Lake Formation, Glue, EKS, ECS, Lambda, Step Functions, CDK, Terraform, Poetry, pre-commit, GuardDuty, Security Hub, Config, CloudTrail, VPC, WAF, CloudWatch, X-Ray, Prometheus, Grafana, Sentry, OPA, Cost Explorer, Docusaurus, Jupyter.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Transformative Value & Innovations',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        <ul style={{ textAlign: 'left' }}>
+          <li><b>Autonomous Remediation & Self-Healing:</b> Intelligent agents analyze risks and execute AWS-native fixes, reducing MTTR and breach impact.</li>
+          <li><b>Generative Attack Emulation:</b> Polymorphic attack scenarios tailored to your cloud, uncovering unknown unknowns and validating defenses.</li>
+          <li><b>Predictive Threat Intelligence:</b> Correlates AWS posture with global threat data to prioritize vulnerabilities and prevent breaches.</li>
+          <li><b>Operational Efficiency:</b> Automates repetitive tasks, boosts resilience, reduces risk and cost, and enables proactive insight.</li>
+        </ul>
       </>
     ),
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({ title, Svg, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
