@@ -1,61 +1,61 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+<section>
+<div>
+  <a href="../../README.md">⬅️ Back to Project Overview</a>
 </div>
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
-<div style="color:#b3b3b3; text-align:center; font-size:1.1em; margin-bottom:1em;">
+<h1 align="center">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
+<div>
 </div></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#181818; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Recent Architectural Improvements & Best Practices</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>Recent Architectural Improvements & Best Practices</h2>
+<ul>
 </ul>
-<h3 style="color:#a5b4fc; margin-top:1.5em;">Learnings & Best Practices</h3>
-<ul style="color:#b3b3b3;">
+<h3>Learnings & Best Practices</h3>
+<ul>
 </ul></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Stack Roles & Responsibilities</h2>
-<table style="width:100%; background:#181818; color:#fff; border-radius:8px; border-collapse:collapse;">
-  <thead style="background:#232323; color:#a5b4fc;">
+<section>
+<h2>Stack Roles & Responsibilities</h2>
+<table>
+  <thead>
     <tr>
-      <th style="text-align:left; padding:0.5em 1em;">Stack</th>
-      <th style="text-align:left; padding:0.5em 1em;">Role</th>
-      <th style="text-align:left; padding:0.5em 1em;">Key Resources</th>
+      <th>Stack</th>
+      <th>Role</th>
+      <th>Key Resources</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td><b>networking</b></td><td>Foundational network isolation and security</td><td>VPC, subnets, security groups, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>s3</b></td><td>Centralized object storage for all data and artifacts</td><td>S3 buckets, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>lakeformation</b></td><td>Data governance and fine-grained access control</td><td>Lake Formation resources, permissions, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>glue</b></td><td>ETL, data cataloging, and analytics</td><td>Glue jobs, crawlers, catalog, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>lambda</b></td><td>Event-driven compute and orchestration</td><td>Lambda functions, triggers, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>dataquality</b></td><td>Automated data quality checks and validation</td><td>Quality rules, validation jobs, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>airbyte</b></td><td>Connector-based data ingestion and movement</td><td>ECS services, connectors, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>opensearch</b></td><td>Search and analytics for logs and data</td><td>OpenSearch domains, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>cloud_native_hardening</b></td><td>Cross-cutting security, monitoring, compliance</td><td>CloudWatch alarms, Config rules, IAM boundaries, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>attack_simulation</b></td><td>Automated attack simulation and security validation</td><td>Lambda functions, CloudWatch alarms, imported secret ARN, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+    <tr><td><b>networking</b></td><td>Foundational network isolation and security</td><td>VPC, subnets, security groups, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>s3</b></td><td>Centralized object storage for all data and artifacts</td><td>S3 buckets, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>lakeformation</b></td><td>Data governance and fine-grained access control</td><td>Lake Formation resources, permissions, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>glue</b></td><td>ETL, data cataloging, and analytics</td><td>Glue jobs, crawlers, catalog, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>lambda</b></td><td>Event-driven compute and orchestration</td><td>Lambda functions, triggers, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>dataquality</b></td><td>Automated data quality checks and validation</td><td>Quality rules, validation jobs, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>airbyte</b></td><td>Connector-based data ingestion and movement</td><td>ECS services, connectors, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>opensearch</b></td><td>Search and analytics for logs and data</td><td>OpenSearch domains, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>cloud_native_hardening</b></td><td>Cross-cutting security, monitoring, compliance</td><td>CloudWatch alarms, Config rules, IAM boundaries, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>attack_simulation</b></td><td>Automated attack simulation and security validation</td><td>Lambda functions, CloudWatch alarms, imported secret ARN, <span>vault secret (imported)</span></td></tr>
     <tr><td><b>secrets_manager</b></td><td>Centralized secrets management for all environments</td><td>AWS Secrets Manager secrets, resource policies, cross-stack exports</td></tr>
-    <tr><td><b>msk</b></td><td>Managed streaming for Kafka workloads</td><td>MSK clusters, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>sagemaker</b></td><td>Model training, deployment, and monitoring</td><td>SageMaker endpoints, models, monitoring, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, and multi-channel notifications</td><td>AWS Budgets, SNS topics, email alerts, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+    <tr><td><b>msk</b></td><td>Managed streaming for Kafka workloads</td><td>MSK clusters, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>sagemaker</b></td><td>Model training, deployment, and monitoring</td><td>SageMaker endpoints, models, monitoring, <span>vault secret (imported)</span></td></tr>
+    <tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, and multi-channel notifications</td><td>AWS Budgets, SNS topics, email alerts, <span>vault secret (imported)</span></td></tr>
   </tbody>
 </table>
 </section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Expanded Dependency Matrix (Outputs & Inputs)</h2>
-<div style="overflow-x:auto;">
-<table style="width:100%; background:#181818; color:#fff; border-radius:8px; border-collapse:collapse;">
-  <thead style="background:#232323; color:#a5b4fc;">
+<section>
+<h2>Expanded Dependency Matrix (Outputs & Inputs)</h2>
+<div>
+<table>
+  <thead>
     <tr>
-      <th style="text-align:left; padding:0.5em 1em;">Stack</th>
-      <th style="text-align:left; padding:0.5em 1em;">Exports (CfnOutput)</th>
-      <th style="text-align:left; padding:0.5em 1em;">Consumed By (Fn.import_value)</th>
-      <th style="text-align:left; padding:0.5em 1em;">Notes on Parallelism</th>
+      <th>Stack</th>
+      <th>Exports (CfnOutput)</th>
+      <th>Consumed By (Fn.import_value)</th>
+      <th>Notes on Parallelism</th>
     </tr>
   </thead>
   <tbody>
@@ -80,14 +80,14 @@
 </div>
 </section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">How the Stacks Interact</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>How the Stacks Interact</h2>
+<ul>
 </ul></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Textual Overview</h2>
-<pre style="background:#181818; color:#fff; padding:1em; border-radius:8px; font-size:1em;">
+<section>
+<h2>Textual Overview</h2>
+<pre>
 networking_stack
   ├─▶ msk_stack
   ├─▶ lambda_stack
@@ -144,24 +144,24 @@ budget_stack
 
 </pre></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Architectural Insights</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>Architectural Insights</h2>
+<ul>
 </ul></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Legend & Guidance</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>Legend & Guidance</h2>
+<ul>
 </ul></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">IAM Role Management & Config-Driven Permissions</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>IAM Role Management & Config-Driven Permissions</h2>
+<ul>
 </ul></section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="color:#a5b4fc; margin-top:0;">Compliance Stack Extensibility</h2>
-<ul style="color:#b3b3b3;">
+<section>
+<h2>Compliance Stack Extensibility</h2>
+<ul>
 </ul></section>
 
 ## Graphical Stack Dependency Diagram (Mermaid)

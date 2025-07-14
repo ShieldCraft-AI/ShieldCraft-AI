@@ -1,14 +1,14 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<section>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">📁 Project Structure, Version Control & Docusaurus Docs</h1>
-<div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
+<h1 align="center">📁 Project Structure, Version Control & Docusaurus Docs</h1>
+<div>
   This document describes the initial setup of the ShieldCraft AI project structure, version control strategy, and documentation system using Docusaurus.
 </div>
 </section>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 1. Project Structure
@@ -35,7 +35,7 @@ The repository uses a monorepo layout, grouping all code, documentation, and inf
 
 *   **Security:** Secrets and environment files are excluded via `.gitignore`.
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 2. Version Control
@@ -47,7 +47,7 @@ The repository uses a monorepo layout, grouping all code, documentation, and inf
 *   **Pull request workflow:** All changes reviewed before merge
 *   **Automated checks:** CI runs tests, lint, and build on PRs
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 3. Docusaurus Documentation
@@ -59,6 +59,6 @@ The repository uses a monorepo layout, grouping all code, documentation, and inf
 *   **Checklist integration:** Implementation checklist auto-updates progress
 *   **Cross-linking:** All docs interlinked for seamless navigation
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./adrs.md" style="color:#a5b4fc;">ADRs</a> | <a href="./risk_log.md" style="color:#a5b4fc;">Risk Log</a> | <a href="./project_structure.md" style="color:#a5b4fc;">Project Structure</a></em>
+<section>
+  <em>Related: <a href="./adrs.md">ADRs</a> | <a href="./risk_log.md">Risk Log</a> | <a href="./project_structure.md">Project Structure</a></em>
   </section>

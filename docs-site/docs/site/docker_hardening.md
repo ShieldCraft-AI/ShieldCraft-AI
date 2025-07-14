@@ -1,14 +1,14 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<section>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
 </section>
-<h1 align="center" style="margin-top:0; font-size:2em;">🐳 Dockerfiles & Compose: Security, Reproducibility, Best Practices</h1>
-<div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
+<h1 align="center">🐳 Dockerfiles & Compose: Security, Reproducibility, Best Practices</h1>
+<div>
   This document details the hardening and best practices applied to all Dockerfiles, Compose files, and related automation for ShieldCraft AI.
 </div>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 1. Hardened Dockerfiles
@@ -77,6 +77,6 @@
 *   **Documentation** for onboarding, troubleshooting, and environment setup
 *   **Incident response:** Documented process for patching and rolling out new images in case of CVEs
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./modular_mlops_governance.md" style="color:#a5b4fc;">Modular System & MLOps</a> | <a href="./project_structure.md" style="color:#a5b4fc;">Project Structure</a> | <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a></em>
+<section>
+  <em>Related: <a href="./modular_mlops_governance.md">Modular System & MLOps</a> | <a href="./project_structure.md">Project Structure</a> | <a href="./infra_estimate.md">Infrastructure Estimate</a></em>
 </section>

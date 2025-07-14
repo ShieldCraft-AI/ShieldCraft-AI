@@ -1,11 +1,11 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<section>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI: Data Sources & Expected Outputs</h1>
+<h1 align="center">🛡️ ShieldCraft AI: Data Sources & Expected Outputs</h1>
 </section>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 📥 Data Sources
@@ -40,6 +40,6 @@
 *   Prioritize integrations for MVP
 *   Proceed to: **Baseline infrastructure and cloud usage estimated** in the [Checklist](./checklist.md)
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./project_objective.md" style="color:#a5b4fc;">Project Objective</a> | <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a></em>
+<section>
+  <em>Related: <a href="./project_objective.md">Project Objective</a> | <a href="./infra_estimate.md">Infrastructure Estimate</a> | <a href="./ethics_compliance.md">Ethics & Compliance</a></em>
 </section>

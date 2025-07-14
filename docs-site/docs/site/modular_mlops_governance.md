@@ -1,29 +1,29 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
+<section>
+<div>
+  <a href="./checklist.md">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🧩 Modular System Layers, MLOps Flow & Security/Data Governance</h1>
-<div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
+<h1 align="center">🧩 Modular System Layers, MLOps Flow & Security/Data Governance</h1>
+<div>
   This document details the modular architecture, MLOps lifecycle, and security/data governance design for ShieldCraft AI.
 </div>
 </section>
 
-<section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+<section>
 </section>
 
 ## 1. Modular System Architecture & MLOps Diagram
 
-<div style="display:flex; flex-direction:column; align-items:center; margin:2.5em 0 2em 0; padding:1.5em 0 1em 0;">
-  <img src="./_assets/mlops_flow.svg" alt="ShieldCraft AI Modular MLOps Flow Diagram" style="max-width:92%; border:1.5px solid #a5b4fc; border-radius:12px; box-shadow:0 4px 18px #222b; background:#181825; padding:1.5em 1.5em 1em 1.5em; margin-bottom:0.5em;" />
-  <div style="color:#a5b4fc; font-size:1.05em; margin-top:0.7em; letter-spacing:0.01em;">Figure: Modular MLOps flow showing data, model, and governance layers</div>
+<div>
+  <img src="./_assets/mlops_flow.svg" alt="ShieldCraft AI Modular MLOps Flow Diagram" />
+  <div>Figure: Modular MLOps flow showing data, model, and governance layers</div>
 </div>
 
-<div style="margin:2em 0 1.5em 0; padding:1.2em 1.5em; background:#23234a; border-radius:10px; border:1px solid #a5b4fc; color:#e0e0e0;">
-  <ul style="margin:0 0 1.2em 0.5em; padding:0 0 0 1.2em;">
+<div>
+  <ul>
   </ul>
-  <div style="margin-top:0.5em; color:#a5b4fc; font-size:1em;">
+  <div>
     <b>Benefits:</b>
-    <ul style="margin:0.5em 0 0 1.2em; color:#b3b3b3;">
+    <ul>
     </ul>
   </div>
 </div>
@@ -70,6 +70,6 @@
     *   Automated vulnerability scanning in CI/CD
     *   Incident response plan and runbooks
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
-  <em>Related: <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a> | <a href="./privacy_impact_assessment.md" style="color:#a5b4fc;">Privacy Impact Assessment</a> | <a href="./threat_modeling.md" style="color:#a5b4fc;">Threat Modeling</a></em>
+<section>
+  <em>Related: <a href="./infra_estimate.md">Infrastructure Estimate</a> | <a href="./ethics_compliance.md">Ethics & Compliance</a> | <a href="./privacy_impact_assessment.md">Privacy Impact Assessment</a> | <a href="./threat_modeling.md">Threat Modeling</a></em>
 </section>

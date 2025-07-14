@@ -2,27 +2,27 @@
 
 ## id: nox-session-architecture&#xA;slug: nox-session-architecture&#xA;sidebar_position: 2&#xA;title: "🛠️ Nox Session Architecture & CI/CD Integration"&#xA;description: "Comprehensive overview of ShieldCraft AI's Nox-powered automation, session sequencing, and best practices for production-grade MLOps."
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+<section>
+<div>
+  <a href="../../README.md">⬅️ Back to Project Overview</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🛠️ Nox Session Architecture & CI/CD Integration</h1>
-<div id="progress-bar" align="center" style="margin-bottom:1.5em;">
+<h1 align="center">🛠️ Nox Session Architecture & CI/CD Integration</h1>
+<div id="progress-bar" align="center">
   <strong>Automation Progress</strong>
   <div id="progress-label">100% Session Review Complete</div>
 </div>
 </section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🔎</span> Overview
+<section>
+<h2>
+  <span>🔎</span> Overview
 </h2>
 </section>
 ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to automate all aspects of code quality, security, documentation, testing, and deployment. This ensures that every CI/CD run is reproducible, traceable, and production-grade.
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">📋</span> Session Table & Responsibilities
+<section>
+<h2>
+  <span>📋</span> Session Table & Responsibilities
 </h2>
 </section>
 <table>
@@ -64,25 +64,25 @@ ShieldCraft AI leverages a modular, parallel-safe Nox session architecture to au
 </tbody>
 </table>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🔄</span> Session Sequencing & Best Practices
+<section>
+<h2>
+  <span>🔄</span> Session Sequencing & Best Practices
 </h2>
 <ul>
 </ul>
 </section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🧠</span> Architectural Insights
+<section>
+<h2>
+  <span>🧠</span> Architectural Insights
 </h2>
 <ul>
 </ul>
 </section>
 
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<h2 style="margin-top:0;display:flex;align-items:center;font-size:1.35em;gap:0.5em;">
-  <span style="font-size:1.2em;">🚀</span> Next Steps
+<section>
+<h2>
+  <span>🚀</span> Next Steps
 </h2>
 <ul>
 </ul>
