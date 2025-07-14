@@ -6,8 +6,10 @@
 <div style="margin-top:2em;">
   <a href="./security_governance.md" style="color:#a5b4fc; font-weight:bold;">See also: Security & Governance</a>
 </div>
+</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+</section>
 
 <table style="width:100%; text-align:left; background:#181818; color:#fff; border-radius:8px;">
   <thead style="background:#232323; color:#a5b4fc;">
@@ -39,3 +41,4 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./risks_mitigation.md" style="color:#a5b4fc;">Risk Mitigation</a> | <a href="./adrs.md" style="color:#a5b4fc;">ADRs</a> | <a href="./security_governance.md" style="color:#a5b4fc;">Security & Governance</a></em>
+</section>

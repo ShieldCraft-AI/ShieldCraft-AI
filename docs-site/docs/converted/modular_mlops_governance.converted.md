@@ -6,8 +6,10 @@
 <div style="margin-bottom:1.2em; color:#b3b3b3; font-size:1em;">
   This document details the modular architecture, MLOps lifecycle, and security/data governance design for ShieldCraft AI.
 </div>
+</section>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
+</section>
 
 ## 1. Modular System Architecture & MLOps Diagram
 
@@ -70,3 +72,4 @@
 
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1em; background:#181825; color:#a5b4fc; font-size:0.95em; text-align:center;">
   <em>Related: <a href="./infra_estimate.md" style="color:#a5b4fc;">Infrastructure Estimate</a> | <a href="./ethics_compliance.md" style="color:#a5b4fc;">Ethics & Compliance</a> | <a href="./privacy_impact_assessment.md" style="color:#a5b4fc;">Privacy Impact Assessment</a> | <a href="./threat_modeling.md" style="color:#a5b4fc;">Threat Modeling</a></em>
+</section>
