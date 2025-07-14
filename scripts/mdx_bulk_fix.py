@@ -43,21 +43,26 @@ def html_table_to_markdown(table_tag):
     return "\n".join(md_rows)
 
 def convert_admonition(section_tag):
-    # Gather block-level children for proper separation and Markdown rendering
+    # Convert Markdown admonition blocks to Docusaurus Admonition syntax
     blocks = []
+    admonition_type = None
     for child in section_tag.children:
         if getattr(child, 'name', None) in ["ul", "ol"]:
-            # Add blank line before and after lists
             blocks.append("")
             blocks.append(convert_list(child))
             blocks.append("")
         elif getattr(child, 'name', None) in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-            # Add blank line before and after headings
             blocks.append("")
             blocks.append(convert_heading(child))
             blocks.append("")
         elif getattr(child, 'name', None) == "p":
-            blocks.append(child.get_text(strip=True))
+            txt = child.get_text(strip=True)
+            # Detect admonition type from first paragraph
+            m = re.match(r'^(Note|Warning|Tip|Info|Danger|Caution|Important):', txt, re.I)
+            if m:
+                admonition_type = m.group(1).lower()
+                txt = re.sub(r'^(Note|Warning|Tip|Info|Danger|Caution|Important):', '', txt, flags=re.I).strip()
+            blocks.append(txt)
         elif getattr(child, 'name', None) == "div":
             blocks.append(child.get_text(strip=True))
         elif isinstance(child, str):
@@ -65,10 +70,10 @@ def convert_admonition(section_tag):
                 blocks.append(child.strip())
         else:
             blocks.append(convert_block(child))
-    # Remove leading/trailing blank lines and join with double newlines
     text = "\n\n".join([b for b in blocks if b.strip() or b == ""])
     text = re.sub(r'(\n\n)+', '\n\n', text).strip()
-    # Do not wrap in Docusaurus admonition blocks
+    if admonition_type:
+        return f'<Admonition type="{admonition_type}">\n{text}\n</Admonition>'
     return text
 
 def convert_list(list_tag):
@@ -267,17 +272,15 @@ def load_tree(tree_path):
 
 import os
 def rewrite_links(markdown, src_path, tree_files, converted_map):
-    """Rewrite internal links to point to converted files and correct relative paths, including anchors and query params."""
+    """Rewrite internal links to point to converted files and correct relative paths, including anchors and query params. Insert warnings for broken links."""
+    broken_links = []
     def link_replacer(match):
         text, url = match.group(1), match.group(2)
-        # Only rewrite relative links to .md files
         if url.startswith('http'):
             return match.group(0)
-        # Split anchor/query
         base_url, anchor = re.match(r'([^#?]+)([#?].*)?', url).groups() if re.match(r'([^#?]+)([#?].*)?', url) else (url, '')
         if not base_url.endswith('.md'):
             return match.group(0)
-        # Find the target in tree_files
         for tree_file in tree_files:
             if tree_file.endswith(base_url):
                 new_url = converted_map.get(tree_file, tree_file)
@@ -290,8 +293,12 @@ def rewrite_links(markdown, src_path, tree_files, converted_map):
                     rel_path = new_url
                 return f'[{text}]({rel_path}{anchor or ""})'
         logging.warning(f"Unresolved link: {url} in {src_path}")
-        return match.group(0)
+        broken_links.append(url)
+        return f'{match.group(0)} <!-- BROKEN LINK -->'
     markdown = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link_replacer, markdown)
+    # Insert summary of broken links at the end
+    if broken_links:
+        markdown += f"\n\n<!-- Broken links detected: {', '.join(broken_links)} -->"
     return markdown
 def autocorrect_mdx_compatibility(markdown, path):
     corrections = []
