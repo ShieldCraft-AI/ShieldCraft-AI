@@ -244,7 +244,8 @@ def convert_html_to_markdown(html, src_path=None, out_dir=None):
     markdown = re.sub(r'\n{3,}', '\n\n', markdown)
     # Final sweep: ensure all <progress> tags are MDX-compatible
     markdown = re.sub(r'<progress([^>]*)>(?!.*?</progress>)', lambda m: f'<progress{m.group(1).rstrip()} />', markdown)
-    markdown = re.sub(r'(<progress[^>]*/>)\s*/', r'\1', markdown)
+    markdown = re.sub(r'(<progress[^>]*/>)\s*/+', r'\1', markdown)
+    markdown = re.sub(r'<progress([^>]*)\s*/+\s*>', lambda m: f'<progress{m.group(1).rstrip()} />', markdown)
     if re.search(r'<progress([^>]*)>(?!.*?</progress>)', markdown):
         logging.warning("Unclosed <progress> tag detected after conversion. Please check the source file.")
     return markdown
@@ -310,9 +311,12 @@ def autocorrect_mdx_compatibility(markdown, path):
         markdown = re.sub(r'<br([^>]*)>(?!.*?/>)', lambda m: f'<br{m.group(1).rstrip()} />', markdown)
         corrections.append("Auto-corrected unclosed <br> tag.")
     # Strictly normalize all self-closing tags to <tag ... /> (no trailing slash or space)
+    # This regex matches any tag with one or more slashes before > and replaces with a single space and slash
     markdown = re.sub(r'<([a-zA-Z0-9]+)([^>]*)\s*/+\s*>', lambda m: f'<{m.group(1)}{m.group(2).rstrip()} />', markdown)
     # Remove any accidental trailing slash after />
-    markdown = re.sub(r'(<[a-zA-Z0-9]+[^>]*/>)\s*/', r'\1', markdown)
+    markdown = re.sub(r'(<[a-zA-Z0-9]+[^>]*/>)\s*/+', r'\1', markdown)
+    # Specifically fix any <progress ... //> or <progress ... / > to <progress ... />
+    markdown = re.sub(r'<progress([^>]*)\s*/+\s*>', lambda m: f'<progress{m.group(1).rstrip()} />', markdown)
     corrections.append("Strictly normalized self-closing tag syntax for MDX.")
     # Decode HTML entities
     markdown = html.unescape(markdown)
