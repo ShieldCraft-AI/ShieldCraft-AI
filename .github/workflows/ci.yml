@@ -17,6 +17,7 @@ jobs:
     env:
       AWS_PROFILE_NAME: ${{ vars.AWS_PROFILE_NAME }}
       AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION || 'af-south-1' }}
+    # Always enabled, no restrictive 'if:' condition
     steps:
       - uses: actions/checkout@v4
         with:
