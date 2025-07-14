@@ -41,8 +41,10 @@ const config: Config = {
       'classic',
       {
         docs: {
+          path: 'docs', // Use docs-site/docs for both GitHub and Amplify
+          routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/', // TODO DP -> fix
+          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/',
         },
         blog: {
           showReadingTime: true,
@@ -50,13 +52,16 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/blog/',
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            require.resolve('./static/css/shieldcraft-docs.css'),
+            require.resolve('./static/css/shieldcraft-docs-dark.css'),
+          ],
         },
       } satisfies Preset.Options,
     ],
