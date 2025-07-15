@@ -32,7 +32,7 @@ const config: Config = {
           path: 'docs/site',
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/site/',
+          editUrl: undefined,
         },
         theme: {
           customCss: [
