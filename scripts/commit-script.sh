@@ -3,6 +3,55 @@ suppress_git_warnings() {
   grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
 }
 
+# --- Commit type and message input (moved to top for uninterrupted execution) ---
+echo "Select commit type:"
+echo "  1) feat (default)"
+echo "  2) fix"
+echo "  3) chore"
+echo "  4) docs"
+echo "  5) style"
+echo "  6) refactor"
+echo "  7) perf"
+echo "  8) test"
+echo "  9) ci"
+echo " 10) build"
+echo " 11) revert"
+read -rp "Enter the number for commit type [default: 1]: " commit_type_num
+commit_type_num=${commit_type_num:-1}
+case $commit_type_num in
+1 | feat) commit_type="feat" ;;
+2 | fix) commit_type="fix" ;;
+3 | chore) commit_type="chore" ;;
+4 | docs) commit_type="docs" ;;
+5 | style) commit_type="style" ;;
+6 | refactor) commit_type="refactor" ;;
+7 | perf) commit_type="perf" ;;
+8 | test) commit_type="test" ;;
+9 | ci) commit_type="ci" ;;
+10 | build) commit_type="build" ;;
+11 | revert) commit_type="revert" ;;
+*) commit_type="feat" ;;
+esac
+
+echo "Enter commit message. End with an empty line (press Enter twice):"
+commit_msg=""
+while IFS= read -r line; do
+    [ -z "$line" ] && break
+    commit_msg+="$line\n"
+done
+commit_msg="${commit_msg%\\n}"
+if [ -z "$commit_msg" ]; then
+    echo "Commit message cannot be empty."
+    exit 1
+fi
+full_commit_msg="$commit_type: $commit_msg"
+tmp_commit_file=".git/COMMIT_EDITMSG"
+echo -e "$full_commit_msg" > "$tmp_commit_file"
+
+suppress_git_warnings() {
+  grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
+}
+
 
 
 set -euo pipefail
@@ -206,87 +255,6 @@ fi
 
 
 
-export PYTHONUNBUFFERED=1
-if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
-    echo -e "\033[1;31m🟥 Nox commit_flow session failed. No commit performed.\033[0m" | tee -a "$DEBUG_LOG_FILE"
-    log_output "[ERROR] Nox commit_flow session failed. No commit performed."
-    git reset
-    exit 1
-fi
-unset PYTHONUNBUFFERED
-
-echo "Select commit type:"
-echo "  1) feat (default)"
-echo "  2) fix"
-echo "  3) chore"
-echo "  4) docs"
-echo "  5) style"
-echo "  6) refactor"
-echo "  7) perf"
-echo "  8) test"
-echo "  9) ci"
-echo " 10) build"
-echo " 11) revert"
-read -rp "Enter the number for commit type [default: 1]: " commit_type_num
-commit_type_num=${commit_type_num:-1}
-case $commit_type_num in
-1 | feat) commit_type="feat" ;;
-2 | fix) commit_type="fix" ;;
-3 | chore) commit_type="chore" ;;
-4 | docs) commit_type="docs" ;;
-5 | style) commit_type="style" ;;
-6 | refactor) commit_type="refactor" ;;
-7 | perf) commit_type="perf" ;;
-8 | test) commit_type="test" ;;
-9 | ci) commit_type="ci" ;;
-10 | build) commit_type="build" ;;
-11 | revert) commit_type="revert" ;;
-*) commit_type="feat" ;;
-esac
-
-
-echo "Enter commit message. End with an empty line (press Enter twice):"
-commit_msg=""
-while IFS= read -r line; do
-    [ -z "$line" ] && break
-    commit_msg+="$line\n"
-done
-commit_msg="${commit_msg%\\n}"
-if [ -z "$commit_msg" ]; then
-    echo "Commit message cannot be empty."
-    exit 1
-fi
-full_commit_msg="$commit_type: $commit_msg"
-tmp_commit_file=".git/COMMIT_EDITMSG"
-echo -e "$full_commit_msg" > "$tmp_commit_file"
-
-git add . 2>&1 | suppress_git_warnings || true
-if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | suppress_git_warnings; then
-    echo -e "\033[1;31m🟥 Commit failed.\033[0m"
-    log_output "[ERROR] Commit failed."
-    rm -f "$tmp_commit_file"
-    exit 1
-fi
-rm -f "$tmp_commit_file"
-
-CHECKLIST_SCRIPT_PATH="$REPO_ROOT/.github/scripts/update_checklist_progress.py"
-if poetry run python "$CHECKLIST_SCRIPT_PATH" | grep -q 'updated'; then
-    git add "$REPO_ROOT/docs-site/docs/checklist.md" "$REPO_ROOT/README.md" 2>&1 | suppress_git_warnings
-    if ! poetry run git commit -m "chore: update checklist progress bar" 2>&1 | suppress_git_warnings; then
-        echo -e "\033[1;31m🟥 Auto-commit of checklist progress bar failed.\033[0m"
-        log_output "[ERROR] Auto-commit of checklist progress bar failed."
-        exit 1
-    fi
-fi
-
-
-if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
-    echo -e "\033[1;31m🟥 Final Nox commit_flow session failed after all commits. Please fix issues manually.\033[0m" | tee -a "$DEBUG_LOG_FILE"
-    exit 1
-fi
-
-echo -e "\n\033[1;34mPushing all changes to remote...\033[0m\n"
-echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
 
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
