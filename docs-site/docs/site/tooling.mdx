@@ -1,0 +1,53 @@
+---
+title: "Tooling & Libraries"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Tooling & Libraries Applied to Generative AI Implementation Lifecycle for ShieldCraft
+
+Key tools and libraries, and how they apply to the various steps in the Generative AI implementation lifecycle for ShieldCraft.
+
+---
+
+## Tools & Libraries
+- [LangChain](https://langchain.com/): Orchestration and chaining of LLMs and tools
+- [Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html): AWS managed GenAI service
+- [SageMaker](https://aws.amazon.com/sagemaker/): Model training, deployment, and monitoring
+- [MLflow](https://mlflow.org/): Experiment tracking and model registry
+- [Poetry](https://python-poetry.org/): Dependency management and packaging
+- [Pandas](https://pandas.pydata.org/), [PyArrow](https://arrow.apache.org/): Data preparation and transformation
+- [FastAPI](https://fastapi.tiangolo.com/): API development and integration
+- [nbval](https://nbval.readthedocs.io/en/latest/), [pytest](https://docs.pytest.org/en/latest/): Notebook and code testing
+- [ruff](https://docs.astral.sh/ruff/), [black](https://black.readthedocs.io/en/stable/), [mypy](https://mypy.readthedocs.io/en/stable/): Linting and static analysis
+
+---
+
+## Application to Generative AI Implementation Lifecycle Steps
+
+### 1. Discovery & Use Case Definition
+- Use [LangChain](https://langchain.com/) and [Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html) to prototype and validate use cases.
+- Document requirements and success criteria.
+
+### 2. Data Preparation & Retrieval Strategy
+- Use [Pandas](https://pandas.pydata.org/), [PyArrow](https://arrow.apache.org/) for data cleaning and transformation.
+- Integrate with cloud storage and data lakes.
+
+### 3. Model Selection, Prompt Engineering & Initial Prototyping
+- Rapid prototyping with [Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html), [SageMaker](https://aws.amazon.com/sagemaker/), and [LangChain](https://langchain.com/).
+- Experiment with prompt engineering and model selection.
+
+### 4. Application Integration & Orchestration
+- Build APIs with [FastAPI](https://fastapi.tiangolo.com/).
+- Orchestrate workflows with [LangChain](https://langchain.com/).
+
+### 5. Evaluation, Testing & Refinement
+- Use [nbval](https://nbval.readthedocs.io/en/latest/) and [pytest](https://docs.pytest.org/en/latest/) for testing notebooks and code.
+- Track experiments and results with [MLflow](https://mlflow.org/).
+
+### 6. Deployment, MLOps & Monitoring
+- Deploy models with [SageMaker](https://aws.amazon.com/sagemaker/) and [MLflow](https://mlflow.org/).
+- Monitor performance and drift.
+- Manage dependencies and packaging with [Poetry](https://python-poetry.org/).
+
+---

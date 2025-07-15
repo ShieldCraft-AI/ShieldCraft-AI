@@ -1,0 +1,84 @@
+---
+title: "Dockerfiles & Compose: Security"
+---
+
+[⬅️ Back to Project Overview](/)
+# Dockerfiles & Compose: Security, Reproducibility, Best Practices
+This document details the hardening and best practices applied to all Dockerfiles, Compose files, and related automation for ShieldCraft AI.
+
+## 1. Hardened Dockerfiles
+- **Multiple Dockerfiles:**
+  - [`Dockerfile`](https://docs.docker.com/engine/reference/builder/) (base), [`Dockerfile.api`](https://docs.docker.com/engine/reference/builder/), [`Dockerfile.ingestion`](https://docs.docker.com/engine/reference/builder/) for separation of concerns
+  - Each service has a minimal, purpose-built image for its function (API, ingestion, etc.)
+- **Distroless & Minimal Images:**
+  - All production images use [Google Distroless](https://github.com/GoogleContainerTools/distroless) or [Alpine](https://hub.docker.com/_/alpine)/slim variants for minimal attack surface
+  - No shell or package manager in final images
+- **Multi-Stage Builds:**
+  - Build dependencies and tools are only present in intermediate stages ([Multi-stage Docker Builds](https://docs.docker.com/build/building/multi-stage/))
+  - Final images contain only runtime and app code
+- **Security:**
+  - Non-root users enforced in all images ([Docker Security Best Practices](https://docs.docker.com/engine/security/))
+  - Drop all Linux capabilities except those required ([Linux Capabilities](https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities))
+  - Regular vulnerability scanning ([Trivy](https://aquasecurity.github.io/trivy/), [Snyk](https://snyk.io/)) in CI/CD
+  - No secrets or credentials in images; use environment variables and [secrets management](https://aws.amazon.com/secrets-manager/)
+- **Reproducibility:**
+  - All base images and dependencies are pinned to specific versions
+  - [.dockerignore](https://docs.docker.com/engine/reference/builder/#dockerignore-file) excludes unnecessary files (tests, docs, local configs)
+  - Build args and environment variables for dev, staging, and prod
+- **Best Practices:**
+  - [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck) defined for all services (API, ingestion, etc.)
+  - Layer caching optimized for fast builds and CI/CD
+  - Image size minimized for fast deploys and reduced attack surface
+  - [Labels and metadata](https://docs.docker.com/engine/reference/builder/#label) for traceability
+
+---
+
+## 2. Docker Compose & Environments
+- **Three Environments:**
+  - `dev`: Local development with hot-reload, debug tools, and test data
+  - `staging`: Mirrors production, used for integration and pre-release testing
+  - `prod`: Hardened, minimal, and monitored for production workloads
+- **Service Isolation:**
+  - Separate services for API, ingestion, vector DB, etc.
+  - Network segmentation, explicit port mappings, and no unnecessary inter-service communication ([Docker Compose Networking](https://docs.docker.com/compose/networking/))
+- **Security:**
+  - No privileged containers; drop all unnecessary Linux capabilities
+  - Environment variables and secrets managed via [.env](https://docs.docker.com/compose/environment-variables/) and external secrets store
+  - Volumes and mounts restricted to only what is needed ([Docker Volumes](https://docs.docker.com/storage/volumes/))
+  - Read-only root filesystem where possible ([Read-only Filesystem](https://docs.docker.com/engine/reference/run/#read-only-filesystem))
+- **Reproducibility:**
+  - Compose files versioned, peer-reviewed, and environment-specific overrides
+  - Consistent local and CI/CD builds
+  - Automated smoke tests after build/deploy ([Smoke Testing](https://en.wikipedia.org/wiki/Smoke_testing_(software))
+
+---
+
+## 3. Nox & Automation
+- **Noxfile orchestrates:**
+  - [Nox](https://nox.thea.codes/) for linting, testing, building, and running containers for all environments
+  - Automated checks for Dockerfile and Compose best practices
+  - Integration with [pre-commit](https://pre-commit.com/) hooks and CI/CD pipelines
+  - Automated vulnerability scans and dependency updates
+
+---
+
+## 4. Continuous Improvement
+- **Regular reviews** of Dockerfiles and Compose for new vulnerabilities and optimizations
+- **Automated dependency updates** and security patching
+- **Documentation** for onboarding, troubleshooting, and environment setup
+- **Incident response:** Documented process for patching and rolling out new images in case of CVEs ([CVE Details](https://cve.mitre.org/))
+
+---
+
+## Next Steps
+- Review and update Dockerfiles and Compose files for new vulnerabilities and optimizations
+- Automate dependency updates and security patching in CI/CD
+- Document onboarding, troubleshooting, and environment setup
+- Maintain incident response process for CVEs and image patching
+
+---
+
+## Related Docs
+- [Modular System & MLOps](/modular_mlops_governance)
+- [Project Structure](/project_structure)
+- [Infrastructure Estimate](/infra_estimate)

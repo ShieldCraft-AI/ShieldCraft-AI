@@ -1,0 +1,31 @@
+.ctaSection {
+    padding: 3em 1em;
+    background: #18181b;
+}
+
+.center {
+    text-align: center;
+}
+
+.ctaRow {
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    margin-top: 1.5em;
+}
+
+.ctaButton {
+    background: #a5b4fc;
+    color: #232526;
+    padding: 0.75em 2em;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 2px 8px #23252633;
+    transition: background 0.2s;
+}
+
+.ctaButton:hover {
+    background: #7c3aed;
+    color: #fff;
+}

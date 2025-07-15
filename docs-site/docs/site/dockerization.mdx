@@ -1,0 +1,63 @@
+---
+title: "Docker & Chainguard"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Docker & Chainguard
+
+A comprehensive guide to containerization and secure image practices for ShieldCraft AI. This document is standardized for Docusaurus display and clarity, and aligns with MLOps and cloud-native best practices.
+
+---
+
+## Overview
+ShieldCraft AI uses a modern, multi-stage [Docker](https://www.docker.com/) build process for all core services (**main**, **api**, **ingestion**), leveraging [Chainguard Python](https://github.com/chainguard-images/images/tree/main/images/python) images for minimal attack surface and zero-known CVEs. This ensures secure, reproducible, and environment-specific containers for development, staging, and production. All images are built and published using [GitHub Actions](https://github.com/features/actions) CI/CD pipelines, with automated vulnerability scanning via [Trivy](https://aquasecurity.github.io/trivy/) and [Dependabot](https://github.com/dependabot).
+
+---
+
+## Build Stages & Process
+- **Base Image:** Start from [Chainguard Python](https://github.com/chainguard-images/images/tree/main/images/python) for security and compliance.
+- **Dependency Install:** Use [Poetry](https://python-poetry.org/) for Python dependency management, ensuring reproducible builds.
+- **Source Copy:** Copy only required source files and assets to minimize image size and attack surface.
+- **Build/Compile:** Compile assets, run tests ([pytest](https://docs.pytest.org/en/stable/)), and validate environment.
+- **Final Image:** Use multi-stage builds to produce a minimal, production-ready image.
+- **Tagging & Publishing:** Tag images by environment (dev, staging, prod) and publish to [Amazon ECR](https://aws.amazon.com/ecr/) or [Docker Hub](https://hub.docker.com/).
+
+---
+
+## Orchestration & CI
+- **Local Development:** Use [Docker Compose](https://docs.docker.com/compose/) for multi-service orchestration and local testing.
+- **Cloud Deployment:** Deploy containers to [Amazon ECS](https://aws.amazon.com/ecs/) or [EKS](https://aws.amazon.com/eks/) for scalable, managed orchestration.
+- **CI/CD:** Automate builds, tests, and deployments with [GitHub Actions](https://github.com/features/actions). Integrate security scans and image signing for supply chain integrity.
+
+---
+
+## Security & Best Practices
+- Use minimal base images ([Chainguard](https://www.chainguard.dev/)) to reduce vulnerabilities.
+- Scan images for CVEs with [Trivy](https://aquasecurity.github.io/trivy/) and [Dependabot](https://github.com/dependabot).
+- Store secrets securely using [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) and avoid hardcoding credentials.
+- Enable image signing and provenance tracking for compliance.
+- Regularly update dependencies and base images to patch vulnerabilities.
+- Use [IAM](https://aws.amazon.com/iam/) roles for least-privilege access in cloud deployments.
+
+---
+
+## Quick Reference
+- [Docker Documentation](https://docs.docker.com/)
+- [Chainguard Images](https://github.com/chainguard-images/images)
+- [Poetry](https://python-poetry.org/)
+- [GitHub Actions](https://github.com/features/actions)
+- [Trivy](https://aquasecurity.github.io/trivy/)
+- [Amazon ECR](https://aws.amazon.com/ecr/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Amazon ECS](https://aws.amazon.com/ecs/)
+- [Amazon EKS](https://aws.amazon.com/eks/)
+- [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
+- [IAM](https://aws.amazon.com/iam/)
+
+---
+
+## Further Reading
+- [Container Security Best Practices](https://docs.aws.amazon.com/whitepapers/latest/container-security/container-security-best-practices.html)
+- [Supply Chain Security](https://slsa.dev/)
+- [Multi-stage Docker Builds](https://docs.docker.com/build/building/multi-stage/)

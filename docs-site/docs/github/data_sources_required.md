@@ -1,6 +1,6 @@
-<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<div style="margin-bottom:1.5em;">
-  <a href="../../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
+<section style={{ border: '1px solid #a5b4fc', borderRadius: '10px', margin: '1.5em 0', boxShadow: '0 2px 8px #222', padding: '1.5em', background: '#111', color: '#fff' }}>
+<div style={{ marginBottom: '1.5em' }}>
+  <a href="../../../README.md" style={{ color: '#a5b4fc', fontWeight: 'bold', textDecoration: 'none', fontSize: '1.1em' }}>⬅️ Back to Project Overview</a>
 </div>
 
 # 📊 Required Data Sources

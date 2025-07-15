@@ -1,0 +1,45 @@
+---
+title: "Technical, Ethical & Operational Risks"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Technical, Ethical & Operational Risks
+
+This document identifies and tracks the major technical, ethical, and operational risks for ShieldCraft AI, along with mitigation strategies and status. Risks are reviewed at each milestone and updated as the project evolves.
+
+---
+
+## Risk Register
+| Risk | Category | Likelihood | Impact | Mitigation | Status |
+|---|---|---|---|---|---|
+| LLM hallucination or unsafe output | Technical/Ethical | High | High | Output validation, prompt engineering, human-in-the-loop review | Open |
+| Model bias or discrimination | Ethical | Medium | High | Bias audits, diverse data, explainability, regular reviews | Open |
+| Data privacy breach (PII/PHI) | Operational/Compliance | Medium | High | Encryption, access controls, privacy impact assessments | Open |
+| Cloud cost overrun | Operational | Medium | Medium | Cost monitoring, alerts, reserved/spot instances | Open |
+| Service downtime/outage | Operational | Low | High | Multi-AZ, backups, incident response plan | Open |
+| Regulatory non-compliance | Compliance | Low | High | Legal review, compliance matrix, regular audits | Open |
+| Data pipeline failure | Technical | Medium | Medium | Monitoring, retries, alerting | Open |
+| Model drift or performance degradation | Technical | Medium | Medium | Model monitoring, retraining, feedback loops | Open |
+| Insufficient documentation or onboarding | Operational | Medium | Medium | Continuous doc updates, onboarding guides, training | Open |
+
+---
+
+## How to Use
+- Review and update risks regularly as the project evolves.
+- Link mitigations to actionable tasks and ADRs.
+- Use this log to inform compliance, security, and operational reviews.
+
+---
+
+## Next Steps
+- Review and refine risk register with stakeholders.
+- Link risks to mitigation actions and ADRs.
+- Proceed to: [Risk Log](/risk_log) for ongoing updates.
+
+---
+
+## Related Docs
+- [Risk Mitigation](/risks_mitigation)
+- [ADRs](/adrs)
+- [Risk Log](/risk_log)
