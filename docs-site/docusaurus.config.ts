@@ -34,17 +34,6 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/docs/site/',
         },
-        // blog: {
-        //   showReadingTime: true,
-        //   feedOptions: {
-        //     type: ['rss', 'atom'],
-        //     xslt: true,
-        //   },
-        //   editUrl: 'https://github.com/Dee66/ShieldCraft-AI/tree/main/docs-site/blog/',
-        //   onInlineTags: 'warn',
-        //   onInlineAuthors: 'warn',
-        //   onUntruncatedBlogPosts: 'warn',
-        // },
         theme: {
           customCss: [
             require.resolve('./static/css/shieldcraft-docs.css'),
@@ -57,7 +46,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/shieldcraft-ai-preview.jpg',
     navbar: {
       title: 'ShieldCraft AI',
       logo: {
