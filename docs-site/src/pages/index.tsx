@@ -17,8 +17,8 @@ export default function Home(): ReactNode {
       description="Secure your future with Shieldcraft AI">
       <main>
         <LandingHero />
-        <StrategicAdvantage />
         <AdvantageCards />
+        <StrategicAdvantage />
         <ResilienceSection />
         <LicenseFooter />
       </main>

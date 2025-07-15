@@ -1,5 +1,3 @@
-import React from 'react';
-import Link from '@docusaurus/Link';
 import styles from './LandingHero.module.css';
 
 export default function LandingHero() {
@@ -13,9 +11,6 @@ export default function LandingHero() {
             </div>
             <h1 className={styles.title}>🛡️ Autonomous Cloud Security</h1>
             <p className={styles.subtitle}><em>From Reactive to Predictive: Proactive, Adaptive, Autonomous Cybersecurity for the Modern Enterprise.</em></p>
-            <div className={styles.ctaRow}>
-                <Link to="/intro" className={styles.ctaButton}>EXPLORE THE DOCS</Link>
-            </div>
         </div>
     );
 }
