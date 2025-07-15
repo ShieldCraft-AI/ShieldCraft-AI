@@ -10,9 +10,14 @@ ShieldCraft AI leverages AWS-native and GenAI-powered attack simulation to proac
 ## Key Features
 - Continuous, scheduled, and on-demand simulations using AWS services and custom playbooks
 - GenAI-driven scenario generation for novel, polymorphic attack chains
-- Integration with AWS Lambda, Step Functions, GuardDuty, Security Hub, and CloudWatch
-- Automated remediation for detected gaps
-- Reporting and audit trails for compliance
+- Deep integration with AWS security and automation services:
+  - [**AWS Lambda**](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html): Executes attack playbooks and remediation actions in isolated, ephemeral environments for safe testing.
+  - [**AWS Step Functions**](https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html): Orchestrates complex, multi-stage attack scenarios and response workflows, enabling parallel execution and granular control.
+  - [**Amazon GuardDuty**](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html): Detects simulated threats in real time, validating detection coverage and alerting efficacy.
+  - [**AWS Security Hub**](https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html): Aggregates findings from GuardDuty and other sources, providing unified visibility and compliance reporting.
+  - [**Amazon CloudWatch**](https://docs.aws.amazon.com/cloudwatch/): Monitors simulation activity, tracks metrics, and triggers automated responses or alerts based on defined thresholds.
+- Automated remediation for detected gaps, leveraging Lambda and native AWS controls
+- Comprehensive reporting and audit trails for compliance and continuous improvement
 
 ## How It Works
 1. Scenario selection from a library of AWS-specific attacks or custom GenAI-generated scenarios
@@ -21,7 +26,7 @@ ShieldCraft AI leverages AWS-native and GenAI-powered attack simulation to proac
 4. Automated remediation and detailed reporting
 
 ## Architectural Insights
-- Modular, cloud-native design built on AWS CDK, Lambda, and Step Functions
+- Modular, cloud-native design built on [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/home.html), Lambda, and Step Functions
 - Safe, isolated testing with no impact to production workloads
 - Extensible playbook library for evolving threat models
 - Continuous feedback loops for ongoing improvement
@@ -29,4 +34,7 @@ ShieldCraft AI leverages AWS-native and GenAI-powered attack simulation to proac
 ## Learn More
 - [AWS GuardDuty: Threat Detection](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html)
 - [AWS Step Functions: Orchestration](https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html)
-- [ShieldCraft AI Documentation](/)
+- [AWS Lambda: Serverless Compute](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+- [AWS Security Hub: Aggregated Security Findings](https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html)
+- [Amazon CloudWatch: Monitoring & Alerts](https://docs.aws.amazon.com/cloudwatch/)
+- [AWS CDK: Infrastructure as Code](https://docs.aws.amazon.com/cdk/latest/guide/home.html)
