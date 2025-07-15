@@ -1,0 +1,32 @@
+---
+title: "Automated Attack Simulation"
+---
+
+[⬅️ Back to Project Overview](/)
+# 🧪 Automated Attack Simulation
+
+ShieldCraft AI leverages AWS-native and GenAI-powered attack simulation to proactively validate your cloud security posture. By emulating real-world adversarial techniques—including ransomware, privilege escalation, lateral movement, and data exfiltration—ShieldCraft AI enables continuous control validation and rapid identification of gaps before they can be exploited.
+
+## Key Features
+- Continuous, scheduled, and on-demand simulations using AWS services and custom playbooks
+- GenAI-driven scenario generation for novel, polymorphic attack chains
+- Integration with AWS Lambda, Step Functions, GuardDuty, Security Hub, and CloudWatch
+- Automated remediation for detected gaps
+- Reporting and audit trails for compliance
+
+## How It Works
+1. Scenario selection from a library of AWS-specific attacks or custom GenAI-generated scenarios
+2. Simulation execution in isolated environments using AWS Lambda, Step Functions, and custom scripts
+3. Detection and response validation via GuardDuty, Security Hub, and CloudWatch
+4. Automated remediation and detailed reporting
+
+## Architectural Insights
+- Modular, cloud-native design built on AWS CDK, Lambda, and Step Functions
+- Safe, isolated testing with no impact to production workloads
+- Extensible playbook library for evolving threat models
+- Continuous feedback loops for ongoing improvement
+
+## Learn More
+- [AWS GuardDuty: Threat Detection](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html)
+- [AWS Step Functions: Orchestration](https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html)
+- [ShieldCraft AI Documentation](/)

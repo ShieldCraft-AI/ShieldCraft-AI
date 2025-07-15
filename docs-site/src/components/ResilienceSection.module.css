@@ -1,0 +1,22 @@
+.resilienceSection {
+    padding: 3em 1em;
+    background: #18181b;
+}
+
+.center {
+    text-align: center;
+}
+
+.resilienceList {
+    margin: 2em auto 0 auto;
+    max-width: 700px;
+    color: #eee;
+    font-size: 1.1em;
+    line-height: 1.7;
+    list-style-type: disc;
+    padding-left: 2em;
+}
+
+.resilienceList li {
+    margin-bottom: 1em;
+}

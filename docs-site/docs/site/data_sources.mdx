@@ -1,0 +1,51 @@
+---
+title: "Data Sources & Expected Outputs"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Data Sources & Expected Outputs
+
+A summary of key data sources and expected outputs for ShieldCraft AI. This document is standardized for Docusaurus display and clarity.
+
+---
+
+## Data Sources
+
+- **Security Logs:** [CloudTrail](https://aws.amazon.com/cloudtrail/), [VPC Flow Logs](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html), [GuardDuty](https://aws.amazon.com/guardduty/), [CloudWatch](https://aws.amazon.com/cloudwatch/), [Syslog](https://tools.ietf.org/html/rfc5424), [Windows Event Logs](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/basic-security-audit-events)
+- **Threat Feeds:** Open-source threat intelligence, commercial feeds, [STIX](https://oasis-open.github.io/cti-documentation/stix/intro), [TAXII](https://oasis-open.github.io/cti-documentation/taxii/intro), [OSINT](https://en.wikipedia.org/wiki/Open-source_intelligence)
+- **Cloud Events:** [AWS Config](https://aws.amazon.com/config/), [S3 events](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html), [IAM](https://aws.amazon.com/iam/) changes, [Lambda](https://aws.amazon.com/lambda/) logs
+- **Application Logs:** Web server logs, [API Gateway](https://aws.amazon.com/api-gateway/) logs, custom app logs
+- **Vulnerability Scans:** [Nessus](https://www.tenable.com/products/nessus), [AWS Inspector](https://aws.amazon.com/inspector/), [Snyk](https://snyk.io/), [Trivy](https://aquasecurity.github.io/trivy/)
+- **Asset Inventory:** [CMDB](https://en.wikipedia.org/wiki/Configuration_management_database), [AWS Resource Inventory](https://docs.aws.amazon.com/config/latest/developerguide/resource-inventory.html), network scans
+- **User/Identity Data:** [IAM](https://aws.amazon.com/iam/), [Okta](https://www.okta.com/), [Active Directory](https://learn.microsoft.com/en-us/windows-server/identity/active-directory-domain-services/active-directory-domain-services), SSO logs
+- **Ticketing/Workflow:** [Jira](https://www.atlassian.com/software/jira), [ServiceNow](https://www.servicenow.com/), incident response platforms
+
+---
+
+## Expected Outputs
+
+- **Enriched Alerts:** Prioritized, context-rich alerts for analyst review
+- **Incident Reports:** Automated, audit-ready incident summaries
+- **Dashboards:** Real-time and historical views of threats, trends, and KPIs
+- **Compliance Evidence:** Automated evidence packages for [SOC2](https://www.aicpa.org/resources/soc-2), [GDPR](https://gdpr-info.eu/), [HIPAA](https://www.hhs.gov/hipaa/index.html), etc.
+- **Threat Intelligence:** Curated, actionable threat intelligence for analysts
+- **Remediation Recommendations:** Automated or analyst-driven response playbooks
+- **Data Exports:** API and CSV/JSON exports for integration with other tools
+- **Audit Trails:** Immutable logs of all actions, decisions, and data flows
+
+---
+
+## Next Steps
+
+- Validate data sources and outputs with stakeholders
+- Prioritize integrations for MVP
+- Proceed to: Baseline infrastructure and cloud usage estimated in the [Checklist](./checklist.md)
+
+---
+
+## Related Docs
+
+- [Project Objective](/project_objective)
+- [Infrastructure Estimate](/infra_estimate)
+- [Ethics & Compliance](/ethics_compliance)

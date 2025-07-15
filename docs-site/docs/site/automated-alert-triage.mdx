@@ -1,0 +1,32 @@
+---
+title: "Automated Triage"
+---
+
+[⬅️ Back to Project Overview](/)
+# Automated Alert Triage, Investigation, and Remediation
+
+ShieldCraft AI transforms security operations by automating the entire alert lifecycle—from triage and investigation to remediation—using advanced GenAI and AWS-native integrations. This approach accelerates incident response, reduces false positives, and minimizes business disruption, empowering SOC teams to focus on strategic priorities.
+
+## Key Features
+- **Rapid Incident Triage:** Alerts are automatically ingested, classified, and prioritized based on risk, context, and business impact.
+- **Automated Investigation:** GenAI models analyze alert data, correlate with threat intelligence, and surface actionable insights for SOC analysts.
+- **False Positive Reduction:** Intelligent filtering and enrichment minimize noise, ensuring teams focus on genuine threats.
+- **Business Disruption Minimization:** Automated playbooks trigger remediation steps, containing threats before they escalate.
+
+## How It Works
+1. **Alert Ingestion:** ShieldCraft AI integrates with AWS security services (e.g., GuardDuty, Security Hub, CloudWatch) to collect and normalize alerts.
+2. **GenAI Analysis:** Alerts are analyzed using GenAI models, which assess severity, context, and potential impact.
+3. **Automated Playbooks:** Predefined and adaptive playbooks execute remediation actions (e.g., isolating resources, updating IAM policies) within secure guardrails.
+4. **SOC Review & Override:** Analysts can review, approve, or override automated actions, maintaining human-in-the-loop assurance.
+5. **Continuous Improvement:** Real-time feedback loops refine detection, response, and playbook logic for ongoing optimization.
+
+## Architectural Insights
+- **Modular, Cloud-Native Design:** Built on AWS CDK, Lambda, and Step Functions for scalable, maintainable automation.
+- **Deep AWS Integration:** Leverages GuardDuty, Security Hub, CloudWatch, and IAM for comprehensive coverage and rapid response.
+- **GenAI-Powered Automation:** Uses LLMs and custom models to drive intelligent triage, investigation, and remediation.
+- **Continuous Feedback:** Simulation and real-world outcomes feed into ShieldCraft AI’s risk engine, improving future responses.
+
+## Learn More
+- [ShieldCraft AI Documentation](/)
+- [Security Architecture](/security/architecture)
+- [Implementation Checklist](/checklist)

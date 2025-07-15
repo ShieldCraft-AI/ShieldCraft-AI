@@ -1,0 +1,59 @@
+---
+title: "Developer Workflow"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Developer Workflow (Best-in-Class)
+
+A guide to rapid onboarding, cloud-native development, and best practices for ShieldCraft AI engineers. This document is standardized for Docusaurus display and clarity.
+
+---
+
+## Getting Started
+
+ShieldCraft AI is designed for rapid onboarding and cloud-native development. Follow these steps to get started:
+
+1. **Clone the repository** and install dependencies using Poetry:
+   ```bash
+   git clone https://github.com/Dee66/ShieldCraft-AI
+   cd shieldcraft-ai
+   poetry install
+   ```
+
+2. **Configure AWS SSO/Identity Center:**
+   - All region/account selection is dynamic and environment-driven.
+   - If you encounter authentication issues, ensure your SSO session is active:
+     ```bash
+     aws sso login --profile <your-profile>
+     ```
+   - Set your AWS profile and region as needed:
+     ```bash
+     export AWS_PROFILE=<your-profile>
+     export AWS_REGION=<your-region>
+     ```
+
+3. **Run the developer automation scripts:**
+   - Use `./scripts/commit-script.sh` for standardized commits and CI/CD integration.
+   - For more details, see comments in `scripts/commit-script.sh` and `noxfile.py`.
+
+4. **Follow MLOps best practices:**
+   - Use infrastructure-as-code (CDK) for stack deployments.
+   - Validate configuration files before pushing changes.
+   - Run tests and linting via Nox sessions:
+     ```bash
+     poetry run nox -s test
+     poetry run nox -s lint
+     ```
+
+5. **Collaborate and contribute:**
+   - All code reviews and merges follow GitHub flow.
+   - Document architectural decisions in ADRs.
+
+---
+
+## Troubleshooting & Tips
+
+- If you encounter AWS authentication issues, always check your SSO session and environment variables.
+- For parallel development, leverage branch-based workflows and CI/CD automation.
+- Reference the [Checklist](/checklist) and [Security & Governance](/security_governance) docs for compliance and onboarding guidance.

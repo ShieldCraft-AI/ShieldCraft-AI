@@ -75,4 +75,3 @@ This document details the strategy, design, and implementation steps for the **B
 3. Define standard topic names/configs and parameterize for environments.
 4. Document integration patterns for Airbyte, Lambda, Glue, and OpenSearch.
 5. Add governance, data quality, and compliance automation.
-

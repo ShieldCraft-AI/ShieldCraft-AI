@@ -1,0 +1,45 @@
+---
+title: "Automating Checks & Versioning"
+---
+
+
+[⬅️ Back to Project Overview](/)
+# Automating Checks & Versioning
+
+A robust, unified commit script is essential for maintaining code quality, enforcing standards, and ensuring project progress is tracked automatically. This document details the design, implementation, and usage of the ShieldCraft AI commit script, which automates pre-commit checks, semantic versioning, and progress bar updates in the project checklist.
+
+## Key Features
+- Automated pre-commit checks for code quality and standards
+- Semantic versioning enforcement
+- Progress bar updates in the project checklist
+- Cross-platform support (Linux/macOS/Windows)
+
+## Implementation Overview
+- Written in Bash (Linux/macOS) and PowerShell (Windows)
+- Integrates with CI/CD pipelines
+- Extensible for future checks and workflows
+
+## Usage
+### Linux/macOS
+```bash
+./commit-script.sh "feat: add new data pipeline"
+```
+### Windows
+```powershell
+./commit.ps1 "fix: correct Dockerfile permissions"
+```
+The script will:
+- Run linting and tests
+- Enforce commit message standards
+- Update semantic versioning
+- Update progress bars in the checklist
+
+## Extensibility & Best Practices
+- Modular design for easy addition of new checks
+- Follows MLOps and cloud-native principles
+- Document changes and enhancements in ADRs
+
+## Related Docs
+- [Project Structure](/project_structure)
+- [Noxfile & Workflow](/noxfile_workflow)
+- [Security & Governance](/security_governance)

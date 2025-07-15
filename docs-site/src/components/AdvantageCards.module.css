@@ -1,0 +1,39 @@
+.cardsSection {
+    padding: 3em 1em;
+    background: #111;
+}
+
+.center {
+    text-align: center;
+}
+
+.cardsRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2em;
+    margin-top: 2em;
+}
+
+.card {
+    flex: 1 1 300px;
+    max-width: 350px;
+    background: #1a1a1a;
+    border: 1px solid #282c34;
+    border-radius: 8px;
+    padding: 1.5em;
+    text-align: center;
+    color: #eee;
+    box-shadow: 0 2px 8px #23252633;
+    margin: 1em;
+}
+
+.card h3 {
+    margin-bottom: 0.5em;
+    font-size: 1.15em;
+}
+
+.card p {
+    font-size: 1em;
+    line-height: 1.5;
+}

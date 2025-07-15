@@ -1,0 +1,48 @@
+---
+title: "Threat Modeling & Adversarial Testing"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Threat Modeling & Adversarial Testing
+
+This document outlines the threat modeling and adversarial testing (including red teaming of GenAI outputs) for ShieldCraft AI. These activities are essential to proactively identify, assess, and mitigate security, safety, and ethical risks in GenAI systems.
+
+---
+
+## Threat Modeling Approach
+- Identify assets, attack surfaces, and potential adversaries.
+- Use STRIDE, DREAD, or similar frameworks to assess risks.
+- Document threats, vulnerabilities, and mitigations for each system component.
+
+---
+
+## Adversarial Testing & Red Teaming
+- Simulate real-world attacks against GenAI outputs and system interfaces.
+- Conduct regular red teaming exercises to uncover new vulnerabilities.
+- Test for prompt injection, jailbreaks, data leakage, and bias exploitation.
+
+---
+
+## Key Risks & Mitigations
+| Threat | Example | Mitigation |
+|---|---|---|
+| Prompt injection | Adversary manipulates LLM output via crafted input | Input validation, output filtering, prompt hardening, allow-listing |
+| Jailbreaks | Bypass model safety guardrails | Regular red teaming, update prompts, monitor for new attack patterns |
+| Data leakage | Model reveals sensitive or proprietary info | Prompt engineering, output review, data masking, access controls |
+| Bias exploitation | Adversary triggers biased or harmful outputs | Bias audits, adversarial prompt testing, explainability tools |
+| Denial of Service | Flooding API/model with requests | Rate limiting, authentication, anomaly detection |
+
+---
+
+## Next Steps
+- Schedule ongoing threat modeling and adversarial testing sessions.
+- Update risk register and mitigation actions based on findings.
+- Link findings to ADRs and compliance reviews.
+
+---
+
+## Related Docs
+- [ADRs](/adrs)
+- [Security & Governance](/security_governance)
+- [Privacy Impact Assessment](/privacy_impact_assessment)

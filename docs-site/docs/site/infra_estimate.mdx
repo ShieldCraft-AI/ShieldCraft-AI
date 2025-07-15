@@ -1,0 +1,83 @@
+---
+title: "Cloud Usage Estimate"
+---
+
+[⬅️ Back to Project Overview](/)
+# Baseline Infrastructure & Cloud Usage Estimate
+
+## Baseline Infrastructure
+- **Cloud Provider:** [AWS](https://aws.amazon.com/) (primary), with multi-cloud/pluggable support in roadmap
+- **Core Services:**
+  - [Amazon ECS](https://aws.amazon.com/ecs/)/[EKS](https://aws.amazon.com/eks/) (container orchestration)
+  - [S3](https://aws.amazon.com/s3/) (object storage)
+  - [RDS](https://aws.amazon.com/rds/)/[Postgres](https://www.postgresql.org/) (relational DB, vector DB via [pgvector](https://github.com/pgvector/pgvector))
+  - [Lambda](https://aws.amazon.com/lambda/) (serverless tasks)
+  - [CloudWatch](https://aws.amazon.com/cloudwatch/) (logging/monitoring)
+  - [VPC](https://aws.amazon.com/vpc/), [Security Groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html), [IAM](https://aws.amazon.com/iam/) (networking/security)
+  - [Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html) (GenAI/LLM)
+  - [SQS](https://aws.amazon.com/sqs/)/[SNS](https://aws.amazon.com/sns/) (eventing/notifications)
+  - [Secrets Manager](https://aws.amazon.com/secrets-manager/) (secrets management)
+- **DevOps:**
+  - [GitHub Actions](https://github.com/features/actions) (CI/CD)
+  - [Poetry](https://python-poetry.org/)/[Nox](https://nox.thea.codes/) (Python env & automation)
+  - [Docker](https://www.docker.com/) Compose (local/dev)
+
+---
+
+## Cloud Usage Estimate (MVP Phase)
+All pricing is estimated in South African Rand (ZAR/R), based on AWS public pricing as of July 2025. Actual costs may vary by region, usage, and discounts. Exchange rate used: 1 USD ≈ R18.50.
+
+| Service/Resource         | Usage/Notes                                 | Unit Price (R)    | Monthly Qty   | Est. Monthly (R) |
+|-------------------------|---------------------------------------------|------------------:|-------------:|----------------:|
+| **Compute**             | 2-3 t3.medium EC2/ECS/EKS nodes (24/7)      |        R1,200/node |          2.5 |         R3,000  |
+| **Storage: S3**         | 100GB (Standard)                            |           R0.45/GB |          100 |            R45  |
+| **Storage: RDS/Postgres**| 50GB + db.t3.medium (HA)                   |        R1,400/inst |            1 |         R1,400  |
+|                         | Storage (50GB)                             |           R0.50/GB |           50 |            R25  |
+| **Networking**          | 1TB egress                                 |           R1.80/GB |        1,000 |         R1,800  |
+| **Bedrock/LLM**         | 100K tokens (pilot)                        |     R0.15/1K tokens |          100 |            R15  |
+| **Monitoring**          | CloudWatch (basic)                         |              R200 |            1 |           R200  |
+| **Lambda**              | 100K invocations                           |          R0.40/1K |          100 |            R40  |
+| **SQS/SNS**             | 1M messages                                |         R0.08/10K |          100 |             R8  |
+| **Other (IAM, VPC, etc)**| Misc. baseline infra                       |                 - |            - |           R150  |
+| **Support/Buffer**      | Unforeseen, price fluctuation              |                 - |            - |           R300  |
+| **Total (Est.)**        |                                             |                  |              |     **R6,991**  |
+
+**Notes:**
+- Compute: t3.medium on-demand, average 2.5 nodes (mix of [ECS](https://aws.amazon.com/ecs/)/[EKS](https://aws.amazon.com/eks/)/[EC2](https://aws.amazon.com/ec2/))
+- RDS: Single db.t3.medium instance, 50GB storage, multi-AZ not included
+- S3: Standard storage, excludes infrequent access/archive
+- Networking: 1TB egress, intra-AWS traffic not included
+- Bedrock/LLM: Based on pilot usage, may increase with scale
+- Lambda/SQS/SNS: Within free tier for most months, but included for buffer
+- Support/Buffer: For minor services, price changes, or overages
+
+---
+
+## DevOps
+- **CI/CD:** [GitHub Actions](https://github.com/features/actions) for automated testing, build, and deployment
+- **Infrastructure as Code:** [Terraform](https://www.terraform.io/) (planned), [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/home.html) (roadmap)
+- **Secrets Management:** [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/), [GitHub OIDC](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
+- **Containerization:** [Docker](https://www.docker.com/), Docker Compose for local/dev
+- **Monitoring & Alerting:** [CloudWatch](https://aws.amazon.com/cloudwatch/), custom dashboards, Slack/Teams integration (future)
+- **Automated Security Scans:** [Dependabot](https://github.com/dependabot), [Trivy](https://aquasecurity.github.io/trivy/) (container scanning)
+
+## MLOps
+- **Experiment Tracking:** [MLflow](https://mlflow.org/) (planned), [Weights & Biases](https://wandb.ai/) (optional)
+- **Model Registry:** [MLflow Model Registry](https://mlflow.org/docs/latest/model-registry.html) (future)
+- **Model Deployment:** CI/CD integration for model serving ([ECS](https://aws.amazon.com/ecs/)/[EKS](https://aws.amazon.com/eks/), [Lambda](https://aws.amazon.com/lambda/))
+- **Data Versioning:** [DVC](https://dvc.org/) (Data Version Control) or [S3](https://aws.amazon.com/s3/) versioning
+- **Automated Retraining:** Scheduled retraining pipelines (future)
+- **Monitoring:** Model drift, data quality, and performance monitoring (roadmap)
+
+---
+
+## Next Steps
+- Set up cost monitoring and alerting
+- Proceed to: Address ethics, safety, and compliance requirements in the [Checklist](./checklist.md)
+
+---
+
+## Related Docs
+- [Infrastructure Estimate](/infra_estimate)
+- [ADRs](/adrs)
+- [Project Structure](/project_structure)

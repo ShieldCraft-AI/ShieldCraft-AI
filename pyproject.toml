@@ -52,6 +52,7 @@ pytest-cov = "^4.1.0"
 nbval = ">=0.11.0,<0.12.0"
 nbqa = "^1.8.5"
 
+
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.2.0"
 nox = { version = "2023.4.22", python = ">=3.7,<3.13" }
@@ -63,6 +64,7 @@ autoflake = "^2.3.1"
 pytest-forked = "^1.6.0"
 pyyaml = "^6.0.0"
 nbformat = "^5.10.4"
+beautifulsoup4 = "^4.12.3"
 
 [tool.poetry.group.security.dependencies]
 safety = "^3.2.0"

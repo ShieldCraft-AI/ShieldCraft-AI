@@ -1,0 +1,128 @@
+---
+title: "AWS Stack Architecture"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# AWS Stack Architecture & Dependency Map
+
+A comprehensive overview of the AWS stack architecture, roles, dependencies, and best practices for ShieldCraft AI. This document is standardized for Docusaurus display and clarity.
+
+---
+
+## Recent Architectural Improvements & Best Practices
+
+- Improved stack isolation and security boundaries
+- Enhanced data governance and access controls
+- Automated data quality validation
+- Centralized secrets management
+- Cost guardrails and budget alerts
+
+---
+
+## Stack Roles & Responsibilities
+
+| Stack | Role | Key Resources |
+|---|---|---|
+| **networking** | Foundational network isolation and security | VPC, subnets, security groups, vault secret (imported) |
+| **s3** | Centralized object storage for all data and artifacts | S3 buckets, vault secret (imported) |
+| **lakeformation** | Data governance and fine-grained access control | Lake Formation resources, permissions, vault secret (imported) |
+| **glue** | ETL, data cataloging, and analytics | Glue jobs, crawlers, catalog, vault secret (imported) |
+| **lambda** | Event-driven compute and orchestration | Lambda functions, triggers, vault secret (imported) |
+| **dataquality** | Automated data quality checks and validation | Quality rules, validation jobs, vault secret (imported) |
+| **airbyte** | Connector-based data ingestion and movement | ECS services, connectors, vault secret (imported) |
+| **opensearch** | Search and analytics for logs and data | OpenSearch domains, vault secret (imported) |
+| **cloud_native_hardening** | Cross-cutting security, monitoring, compliance | CloudWatch alarms, Config rules, IAM boundaries, vault secret (imported) |
+| **attack_simulation** | Automated attack simulation and security validation | Lambda functions, CloudWatch alarms, imported secret ARN, vault secret (imported) |
+| **secrets_manager** | Centralized secrets management for all environments | AWS Secrets Manager secrets, resource policies, cross-stack exports |
+| **msk** | Managed streaming for Kafka workloads | MSK clusters, vault secret (imported) |
+| **sagemaker** | Model training, deployment, and monitoring | SageMaker endpoints, models, monitoring, vault secret (imported) |
+| **budget** | Cost guardrails, budget alerts, and multi-channel notifications | AWS Budgets, SNS topics, email alerts, vault secret (imported) |
+
+---
+
+## Expanded Dependency Matrix (Outputs & Inputs)
+
+| Stack | Exports (CfnOutput) | Consumed By (Fn.import_value) | Notes on Parallelism |
+|---|---|---|---|
+| **IamRoleStack** | All required IAM role ARNs | All stacks needing roles | Deploy first or in parallel, outputs must exist before import |
+| **NetworkingStack** | VPC ID, SG IDs, Flow Logs ARN, vault secret ARN | All compute/data stacks | Same as above |
+| **S3Stack** | data_bucket name/ARN, vault secret ARN | GlueStack, LakeFormationStack, etc. | S3Stack must finish before dependent stacks |
+| **GlueStack** | Glue DB/catalog name, vault secret ARN | LakeFormationStack, DataQualityStack | GlueStack must finish before dependents |
+| **LakeFormationStack** | Admin role, permissions, vault secret ARN | (If needed by other stacks) |  |
+| **MskStack** | Broker info, client/producer/consumer roles, vault secret ARN | LambdaStack, AirbyteStack, etc. |  |
+| **LambdaStack** | Lambda ARNs, vault secret ARN | DataQualityStack, ComplianceStack, AttackSimulationStack |  |
+| **AttackSimulationStack** | Lambda ARN, alarm ARN, imported secret ARN | Security, audit, downstream consumers | Can run in parallel with other compute stacks |
+| **SecretsManagerStack** | Secret ARNs, resource policies | All stacks needing secrets | Deploy first for secret availability |
+| **AirbyteStack** | Endpoints, role ARN, vault secret ARN | (If needed by other stacks) |  |
+| **OpenSearchStack** | Endpoint, role ARN, vault secret ARN | Analytics, LambdaStack |  |
+| **DataQualityStack** | Metrics, alerts, vault secret ARN | (If needed by other stacks) |  |
+| **SageMakerStack** | Endpoint, role ARN, vault secret ARN | ML pipeline, LambdaStack |  |
+| **CloudNativeHardeningStack** | Security findings, config rules, vault secret ARN | (If needed by other stacks) |  |
+| **ComplianceStack** | Compliance reports, Lambda ARNs, vault secret ARN | (If needed by other stacks) |  |
+| **BudgetStack** | Budget ARNs, SNS topic ARN, vault secret ARN | All teams, FinOps, notifications | Deployed last, depends on all infra |
+
+---
+
+## How the Stacks Interact
+
+A summary of stack relationships and dependencies in the ShieldCraft AI AWS architecture.
+
+---
+
+## Textual Overview
+
+```text
+networking_stack
+  ├─▶ msk_stack
+  ├─▶ lambda_stack
+  ├─▶ airbyte_stack
+  ├─▶ opensearch_stack
+  ├─▶ glue_stack
+  ├─▶ sagemaker_stack
+  ├─▶ dataquality_stack
+  ├─▶ cloud_native_hardening_stack
+  └─▶ compliance_stack
+
+s3_stack
+  ├─▶ lakeformation_stack
+  ├─▶ glue_stack
+  ├─▶ dataquality_stack
+  └─▶ sagemaker_stack
+
+iam_role_stack
+  ├─▶ lambda_stack
+  ├─▶ glue_stack
+  ├─▶ msk_stack
+  ├─▶ airbyte_stack
+  ├─▶ opensearch_stack
+  ├─▶ lakeformation_stack
+  ├─▶ sagemaker_stack
+  ├─▶ cloud_native_hardening_stack
+  └─▶ compliance_stack
+
+glue_stack
+  ├─▶ dataquality_stack
+  └─▶ lakeformation_stack
+
+lambda_stack
+  ├─▶ dataquality_stack
+  └─▶ compliance_stack
+
+msk_stack
+  ├─▶ cloud_native_hardening_stack
+
+opensearch_stack
+  ├─▶ cloud_native_hardening_stack
+
+cloud_native_hardening_stack
+  └─▶ (monitors all critical stacks)
+
+compliance_stack
+  └─▶ (reports on all critical stacks)
+
+sagemaker_stack
+  (consumes VPC, S3, IAM)
+
+budget_stack
+  (depends on all other stacks; provides cost guardrails and notifications)

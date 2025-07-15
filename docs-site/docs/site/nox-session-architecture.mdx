@@ -1,0 +1,76 @@
+---
+title: "Nox Session Architecture & CI/CD Integration"
+---
+
+[⬅️ Back to Project Overview](/)
+
+# Nox Session Architecture & CI/CD Integration
+
+A comprehensive overview of ShieldCraft AI's Nox-powered automation, session sequencing, and best practices for production-grade MLOps.
+
+---
+
+## Automation Progress
+100% Session Review Complete
+
+---
+
+## Overview
+ShieldCraft AI leverages a modular, parallel-safe [Nox](https://nox.thea.codes/) session architecture to automate all aspects of code quality, security, documentation, testing, and deployment. This ensures that every CI/CD run is reproducible, traceable, and production-grade.
+
+---
+
+## Session Table & Responsibilities
+| Session/Function | File | Purpose | Parallel-Safe | CI/CD | Notes |
+|---|---|---|---|---|---|
+| docker_build | docker.py | Builds all Docker images (main, api, ingestion) | Yes | Yes | Run after all quality gates |
+| docker_scan | docker.py | Scans Docker images for vulnerabilities | Yes | Yes | Run after docker_build |
+| docs | docs.py | Builds Docusaurus documentation | Yes | Yes | Parallel with other checks |
+| docs_dev | docs.py | Runs Docusaurus dev server (local) | Yes | No | Local only |
+| docs_lint | docs.py | Lints Markdown docs | Yes | Yes | Quality gate |
+| lint | lint.py | Lint code with [ruff](https://docs.astral.sh/ruff/) and [black](https://black.readthedocs.io/en/stable/) | Yes | Yes | Quality gate |
+| format_check | lint.py | Check code formatting | Yes | Yes | Parallel with lint |
+| format | lint.py | Auto-format code (local) | Yes | No | Local only |
+| typecheck | lint.py | Run [mypy](https://mypy.readthedocs.io/en/stable/) for static type checking | Yes | Yes | Quality gate |
+| precommit | lint.py | Run all [pre-commit](https://pre-commit.com/) hooks | Yes | Yes | Ensures local/CI parity |
+| notebooks | notebook.py | Test Jupyter notebooks with [nbval](https://nbval.readthedocs.io/en/latest/) | Yes | Yes | Quality gate |
+| notebook_lint | notebook.py | Lint/format notebooks | Yes | Yes | Parallel with other gates |
+| bump_version | release.py | Bump project version and commit | Yes | No | Manual release only |
+| release | release.py | Automate version bump, changelog, tag, push | Yes | No | Manual release only |
+| checklist | release.py | Update checklist progress bar | Yes | No | Project management |
+| security | security.py | Run [safety](https://pyup.io/safety/) and [bandit](https://bandit.readthedocs.io/en/latest/) security checks | Yes | Yes | Quality gate |
+| safety | security.py | Run only safety vulnerability scan | Yes | Yes | Parallel with other gates |
+| tests | test.py | Run all tests with [pytest](https://docs.pytest.org/en/stable/) and coverage | Yes | Yes | Quality gate |
+| test_fast | test.py | Run only fast/unit tests | Yes | Yes | Quick feedback |
+| check | test.py | Meta-session: lint, typecheck, tests, safety, precommit | Yes | Yes | Meta-session |
+| ci | test.py | Meta-session: all CI-required sessions | Yes | Yes | Meta-session |
+| all | test.py | Meta-session: everything (local/dev) | Yes | No | Meta-session |
+| file_hash | utils.py | Compute SHA256 hash of a file | Yes | Yes | Dependency change detection |
+| nox_session_guard | utils.py | Decorator for robust error handling | Yes | Yes | All sessions |
+
+---
+
+## Session Sequencing & Best Practices
+ShieldCraft AI's Nox sessions are designed for parallel execution, enabling rapid feedback and efficient CI/CD pipelines. Quality gates (lint, typecheck, security, tests) run before build and deploy steps. Meta-sessions (check, ci, all) orchestrate groups of sessions for local and CI workflows. Always ensure session dependencies are explicit and reproducible.
+
+---
+
+## Architectural Insights
+- Modular session design enables easy extension and maintenance.
+- Parallel-safe sessions maximize CI/CD throughput and developer productivity.
+- Integration with pre-commit and coverage tools ensures code quality and security.
+- Robust error handling via decorators and meta-sessions supports reliable automation.
+
+---
+
+## Next Steps
+- Review session definitions and dependencies for completeness.
+- Integrate new quality gates or automation as needed.
+- Document session usage for onboarding and troubleshooting.
+
+---
+
+## Related Docs
+- [Modular System & MLOps](/modular_mlops_governance)
+- [Project Structure](/project_structure)
+- [Infrastructure Estimate](/infra_estimate)

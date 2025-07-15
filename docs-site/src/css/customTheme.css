@@ -1,0 +1,31 @@
+:root {
+  --sc-primary: #a5b4fc;
+  --sc-bg: #111;
+  --sc-font: 'Inter', 'Roboto', sans-serif;
+  --sc-heading-size: 2em;
+  --sc-body-size: 1em;
+  --sc-table-bg: #181818;
+  --sc-table-header-bg: #232323;
+  --sc-table-radius: 8px;
+}
+body {
+  background: var(--sc-bg);
+  color: var(--sc-primary);
+  font-family: var(--sc-font);
+}
+h1, h2, h3 {
+  color: var(--sc-primary);
+  font-size: var(--sc-heading-size);
+}
+p, li, td, th {
+  font-size: var(--sc-body-size);
+}
+table {
+  background: var(--sc-table-bg);
+  border-radius: var(--sc-table-radius);
+  color: var(--sc-primary);
+}
+thead {
+  background: var(--sc-table-header-bg);
+  color: var(--sc-primary);
+}

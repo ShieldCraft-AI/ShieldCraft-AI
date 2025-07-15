@@ -4,18 +4,22 @@ frontend:
     preBuild:
       commands:
         # Navigate into the Docusaurus project directory
-        - cd docs-site 
+        - cd docs-site
+        # Ensure Node.js 20+ is used for build
+        - nvm install 20
+        - nvm use 20
+        - node -v # Confirm version
         # Install dependencies for your Docusaurus site
-        - npm ci 
+        - npm ci
     build:
       commands:
         # Build your Docusaurus site
-        - npm run build 
+        - npm run build
   artifacts:
     # This is where Docusaurus outputs its static build files (typically 'build' directory inside 'docs-site')
-    baseDirectory: docs-site/build 
+    baseDirectory: docs-site/build
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       # Cache node_modules to speed up subsequent builds
@@ -38,6 +42,10 @@ applications:
       phases:
         preBuild:
           commands:
+            # Ensure Node.js 20+ is used for build
+            - nvm install 20
+            - nvm use 20
+            - node -v # Confirm version
             - npm ci # This will run inside 'docs-site'
         build:
           commands:
@@ -45,7 +53,7 @@ applications:
       artifacts:
         baseDirectory: build # This is relative to appRoot: docs-site
         files:
-          - '**/*'
+          - "**/*"
       cache:
         paths:
           - node_modules/**/*
