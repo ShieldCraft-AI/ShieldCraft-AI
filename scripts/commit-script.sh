@@ -286,50 +286,32 @@ if ! python3 scripts/pre_nox.py commit_flow 2>&1 | tee -a "$DEBUG_LOG_FILE"; the
 fi
 
 echo -e "\n\033[1;34mPushing all changes to remote...\033[0m\n"
+echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
 
-# --- Commit type and message input (moved to top for uninterrupted execution) ---
-echo "Select commit type:"
-echo "  1) feat (default)"
-echo "  2) fix"
-echo "  3) chore"
-echo "  4) docs"
-echo "  5) style"
-echo "  6) refactor"
-echo "  7) perf"
-echo "  8) test"
-echo "  9) ci"
-echo " 10) build"
-echo " 11) revert"
-read -rp "Enter the number for commit type [default: 1]: " commit_type_num
-commit_type_num=${commit_type_num:-1}
-case $commit_type_num in
-1 | feat) commit_type="feat" ;;
-2 | fix) commit_type="fix" ;;
-3 | chore) commit_type="chore" ;;
-4 | docs) commit_type="docs" ;;
-5 | style) commit_type="style" ;;
-6 | refactor) commit_type="refactor" ;;
-7 | perf) commit_type="perf" ;;
-8 | test) commit_type="test" ;;
-9 | ci) commit_type="ci" ;;
-10 | build) commit_type="build" ;;
-11 | revert) commit_type="revert" ;;
-*) commit_type="feat" ;;
-esac
 
-echo "Enter commit message. End with an empty line (press Enter twice):"
-commit_msg=""
-while IFS= read -r line; do
-    [ -z "$line" ] && break
-    commit_msg+="$line\n"
-done
-commit_msg="${commit_msg%\\n}"
-if [ -z "$commit_msg" ]; then
-    echo "Commit message cannot be empty."
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo -e "\033[1;33m[INFO] Detected unstaged or staged changes after main commit. Auto-staging and committing as 'chore: auto-format/fix after commit'.\033[0m"
+    git add . 2>&1 | suppress_git_warnings || true
+    if ! poetry run git commit -m "chore: auto-format/fix after commit" 2>&1 | suppress_git_warnings; then
+        echo -e "\033[1;31m🟥 Auto-commit of post-commit changes failed. Please resolve manually.\033[0m"
+        log_output "[ERROR] Auto-commit of post-commit changes failed."
+        exit 1
+    fi
+fi
+
+echo -e "\n\033[1;34mAll checks passed. Pushing changes to remote...\033[0m\n"
+if ! git pull --rebase 2>&1 | suppress_git_warnings; then
+    echo -e "\033[1;31m🟥 Pull (rebase) failed. Resolve conflicts before pushing.\033[0m"
+    log_output "[ERROR] Pull (rebase) failed."
     exit 1
 fi
-full_commit_msg="$commit_type: $commit_msg"
-tmp_commit_file=".git/COMMIT_EDITMSG"
-echo -e "$full_commit_msg" > "$tmp_commit_file"
+if ! poetry run git push 2>&1 | suppress_git_warnings; then
+    echo -e "\033[1;31m🟥 Push failed.\033[0m"
+    log_output "[ERROR] Push failed."
+    exit 1
+fi
+echo -e "\n\033[1;32m╔════════════════════════════════════════════════════════════════════════════════════════════╗\033[0m"
+echo -e "\033[1;32m║  ✅ All changes committed, version bumped, checklist updated, and pushed successfully.     ║\033[0m"
+echo -e "\033[1;32m╚════════════════════════════════════════════════════════════════════════════════════════════╝\033[0m\n"
 
-...existing code...
+echo -e "\n\033[1;36mMonitor CI for a few cycles to ensure all jobs pass and no edge cases are missed.\033[0m\n"
