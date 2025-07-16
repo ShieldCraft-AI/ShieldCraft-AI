@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3em 1em 2em 1em;
+    padding: 3em 0em 2em 1em;
     background: linear-gradient(90deg, #232526 0%, #414345 100%);
 }
 
@@ -27,11 +27,11 @@
     color: #a5b4fc;
 }
 
-.subtitle {
+ .subtitle {
     text-align: center;
     font-size: 1.15em;
     color: #eee;
-    margin-bottom: 2em;
+    margin-bottom: 0.8em;
 }
 
 .ctaRow {
