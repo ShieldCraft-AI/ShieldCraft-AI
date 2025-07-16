@@ -9,8 +9,17 @@ export default function LandingHero() {
                     <img src="https://github.com/Dee66/shieldcraft-ai/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
                 </a>
             </div>
-            <h1 className={styles.title}>🛡️ Autonomous Cloud Security</h1>
-            <p className={styles.subtitle}><em>From Reactive to Predictive: Proactive, Adaptive, Autonomous Cybersecurity for the Modern Enterprise.</em></p>
+            <h1 className={styles.title}>
+                <img
+                    src="/img/favicon.ico"
+                    alt="ShieldCraft AI Logo"
+                    style={{ width: 36, height: 36, verticalAlign: 'middle', marginRight: 12, borderRadius: 8 }}
+                />
+                Autonomous Cloud Security
+            </h1>
+            <p className={styles.subtitle}>
+                <em>From Reactive to Predictive: Unrivaled Cloud Defense for the Modern Enterprise.</em>
+            </p>
         </div>
     );
 }
