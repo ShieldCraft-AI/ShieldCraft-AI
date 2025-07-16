@@ -11,7 +11,6 @@ const config: Config = {
     v4: true,
   },
 
-  // TODO DP -> fix
   url: 'https://shieldcraft-ai.com',
   baseUrl: '/',
 
@@ -53,14 +52,7 @@ const config: Config = {
         alt: 'My Site Logo',
         src: 'img/logo.png',
       },
-      items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Tutorial',
-        },
-      ],
+      items: [],
     },
     prism: {
       theme: prismThemes.github,
