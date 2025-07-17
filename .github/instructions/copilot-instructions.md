@@ -22,4 +22,4 @@ When responding:
 - Always ensure answers match the versions of libraries and dependencies, search the internet for updated information when necessary
 - If a question is asked and the content of a file is required, ask so I can assist
 - When there is potential for running code or jobs in parrallel, suggest as seasoned sage advice
-- Always use AWS ClI v2 commands for AWS interactions
+- Always use AWS ClI v2.27.50 commands for AWS CLI code

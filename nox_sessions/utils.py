@@ -12,8 +12,10 @@ from nox_sessions.utils_encoding import force_utf8
 
 force_utf8()
 
+
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def write_debug_log(message, log_file=None):
     """
@@ -28,11 +30,13 @@ def write_debug_log(message, log_file=None):
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(f"[{timestamp}] {message}\n")
 
+
 def file_hash(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
         h.update(f.read())
     return h.hexdigest()
+
 
 def validate_poetry_marker(
     marker_file=None, lock_file="poetry.lock", pyproject_file="pyproject.toml"
@@ -61,8 +65,10 @@ def validate_poetry_marker(
         return False
     return actual == expected
 
+
 def nox_session_guard(func):
     """Decorator to catch and log all exceptions in Nox sessions, printing tracebacks and exiting with error."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -77,4 +83,5 @@ def nox_session_guard(func):
             traceback.print_exc()
             # Optionally, re-raise to let Nox handle exit code
             raise
+
     return wrapper

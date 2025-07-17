@@ -2,9 +2,9 @@
 This file defines the configuration schema for ShieldCraft, a cloud-native security framework.
 """
 
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 from typing import List, Optional, Dict, Any, Union
 import re
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 
 
 class CrawlerConfig(BaseModel):
@@ -64,19 +64,24 @@ class GlueConfig(BaseModel):
 class AppConfig(BaseModel):
     """Application-level configuration (env, region, resource prefix, etc)."""
 
-    env: str
-    region: str
-    resource_prefix: str
+    env: str = "dev"
+    region: str = "af-south-1"
+    account: str = "000000000000"
+    resource_prefix: str = "shieldcraft-dev"
     log_level: Optional[str] = None
     enable_feature_x: Optional[bool] = None
     config_version: Optional[str] = None
     last_modified: Optional[str] = None
     author: Optional[str] = None
     sns_topic_secret_arn: Optional[str] = Field(
-        default=None, description="ARN for SNS topic secret", secret=True
+        default=None,
+        description="ARN for SNS topic secret",
+        json_schema_extra={"secret": True},
     )
     external_api_key_arn: Optional[str] = Field(
-        default=None, description="ARN for external API key", secret=True
+        default=None,
+        description="ARN for external API key",
+        json_schema_extra={"secret": True},
     )
 
     model_config = ConfigDict(extra="ignore")
@@ -315,7 +320,7 @@ class SageMakerConfig(BaseModel):
 
 class CloudNativeHardeningConfig(BaseModel):
     @model_validator(mode="after")
-    def enforce_secret_fields_are_vault_refs(cls, self):
+    def enforce_secret_fields_are_vault_refs(self):
         secret_fields = ["sns_topic_secret_arn", "external_api_key_arn"]
         vault_pattern = re.compile(r"^(aws-vault:|arn:aws:secretsmanager:)")
         for field in secret_fields:
@@ -325,31 +330,64 @@ class CloudNativeHardeningConfig(BaseModel):
                     f"{field} must be a vault reference (aws-vault: or arn:aws:secretsmanager:), got: {value}"
                 )
         return self
-
-    @model_validator(mode="after")
-    def enforce_secret_fields_are_vault_refs(cls, self):
-        secret_fields = ["sns_topic_secret_arn", "external_api_key_arn"]
-        vault_pattern = re.compile(r"^(aws-vault:|arn:aws:secretsmanager:)")
-        for field in secret_fields:
-            value = getattr(self, field, None)
-            if value is not None and not vault_pattern.match(str(value)):
-                raise ValueError(
-                    f"{field} must be a vault reference (aws-vault: or arn:aws:secretsmanager:), got: {value}"
-                )
-        return self
-
-    """Cloud-native hardening and compliance configuration."""
 
     enable_cloudwatch_alarms: Optional[bool] = None
     alarm_email: Optional[str] = None
     config_rules: Optional[List[str]] = None
     sns_topic_secret_arn: Optional[str] = Field(
-        default=None, description="ARN for SNS topic secret", secret=True
+        default=None,
+        description="ARN for SNS topic secret",
+        json_schema_extra={"secret": True},
     )
     external_api_key_arn: Optional[str] = Field(
-        default=None, description="ARN for external API key", secret=True
+        default=None,
+        description="ARN for external API key",
+        json_schema_extra={"secret": True},
     )
 
+    model_config = ConfigDict(extra="ignore")
+
+
+class StepFunctionStateConfig(BaseModel):
+    """Step Function state configuration (Task, Choice, Parallel, etc.)."""
+
+    id: str
+    type: str  # 'Task', 'Choice', 'Parallel', etc.
+    resource: Optional[str] = None  # Lambda ARN, Glue Job name, etc.
+    next: Optional[str] = None
+    end: Optional[bool] = False
+    parameters: Optional[Dict[str, Any]] = None
+    catch: Optional[List[Dict[str, Any]]] = None
+    retry: Optional[List[Dict[str, Any]]] = None
+    comment: Optional[str] = None
+    model_config = ConfigDict(extra="ignore")
+
+
+class StepFunctionConfig(BaseModel):
+    """Step Function state machine configuration."""
+
+    id: str
+    name: str
+    role_arn: str
+    definition: List[StepFunctionStateConfig]
+    comment: Optional[str] = None
+    model_config = ConfigDict(extra="ignore")
+
+
+class StepFunctionsConfig(BaseModel):
+    """Step Functions configuration, including all state machines."""
+
+    state_machines: List[StepFunctionConfig]
+    model_config = ConfigDict(extra="ignore")
+
+
+class EventBridgeConfig(BaseModel):
+    """EventBridge configuration for event bus names, Lambda export, and event source."""
+
+    data_bus_name: str
+    security_bus_name: str
+    lambda_export_name: str
+    data_event_source: str
     model_config = ConfigDict(extra="ignore")
 
 
@@ -369,12 +407,14 @@ class ShieldCraftConfig(BaseModel):
     lakeformation: Optional["LakeFormationConfig"] = None
     sagemaker: Optional["SageMakerConfig"] = None
     cloud_native_hardening: Optional["CloudNativeHardeningConfig"] = None
+    eventbridge: Optional["EventBridgeConfig"] = None
+    stepfunctions: Optional[StepFunctionsConfig] = None
     secrets: Optional[Dict[str, Dict[str, Union[str, bool]]]] = None
     audit: Optional[Dict[str, Any]] = None
     overrides: Optional[Dict[str, Any]] = None
 
     @model_validator(mode="after")
-    def enforce_prod_bucket_removal_policy(cls, self):
+    def enforce_prod_bucket_removal_policy(self):
         # Enforce RETAIN for prod buckets if env is prod
         env = getattr(self.app, "env", None) if hasattr(self, "app") else None
         if env == "prod" and hasattr(self, "s3") and self.s3:
@@ -384,7 +424,7 @@ class ShieldCraftConfig(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def check_referential_integrity(cls, self):
+    def check_referential_integrity(self):
         # Collect all subnet and security group IDs from networking
         subnet_ids = set()
         sg_ids = set()
@@ -431,23 +471,14 @@ class ShieldCraftConfig(BaseModel):
                     f"lambda_.functions[{fn.id}]",
                 )
 
-        # Add similar checks for other sections as needed (e.g., opensearch, sagemaker)
-
         return self
 
-    @model_validator(mode="before")
-    def set_parent_on_sections(cls, values):
-        # Defensive: handle ValidationInfo or dict
-        if hasattr(values, "__dict__") and not isinstance(values, dict):
-            # Convert ValidationInfo or similar to dict
-            values = dict(getattr(values, "config", values))
-        s3 = values.get("s3") if isinstance(values, dict) else None
-        if s3 is not None:
-            try:
-                s3.parent = None  # Clear any previous parent
-                s3.parent = values
-            except AttributeError:
-                pass
-        return values
-
     model_config = ConfigDict(extra="ignore")
+
+
+# Register forward refs
+StepFunctionStateConfig.model_rebuild()
+StepFunctionConfig.model_rebuild()
+StepFunctionsConfig.model_rebuild()
+EventBridgeConfig.model_rebuild()
+ShieldCraftConfig.model_rebuild()

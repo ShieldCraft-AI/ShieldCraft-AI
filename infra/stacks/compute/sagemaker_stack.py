@@ -189,7 +189,6 @@ class SageMakerStack(Stack):
             "endpoint": endpoint,
             **alarm_resources,
         }
-        # ...existing code...
 
     def _validate_cross_stack_resources(self, sm_cfg):
         """

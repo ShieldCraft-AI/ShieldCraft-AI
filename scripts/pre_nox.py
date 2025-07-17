@@ -51,12 +51,19 @@ def ensure_bootstrap():
     # Preflight import check for nox_sessions
     try:
         import importlib.util
+
         spec = importlib.util.find_spec("nox_sessions")
         if spec is None:
-            print("[pre_nox] ERROR: 'nox_sessions' module not importable. Check PYTHONPATH and project structure.", file=sys.stderr)
+            print(
+                "[pre_nox] ERROR: 'nox_sessions' module not importable. Check PYTHONPATH and project structure.",
+                file=sys.stderr,
+            )
             sys.exit(1)
     except Exception as e:
-        print(f"[pre_nox] ERROR: Exception during import check for 'nox_sessions': {e}", file=sys.stderr)
+        print(
+            f"[pre_nox] ERROR: Exception during import check for 'nox_sessions': {e}",
+            file=sys.stderr,
+        )
         sys.exit(1)
     # Check both markers for full dev installs
     if marker_valid(MARKER, PYPROJECT, LOCKFILE) and marker_valid(

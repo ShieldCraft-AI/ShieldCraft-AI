@@ -1,4 +1,6 @@
-""" """
+"""
+Deploy AWS CDK stacks with robust dependency management and post-deploy validation.
+"""
 
 import os
 import nox
@@ -11,6 +13,18 @@ def cdk_deploy(session):
     Deploy AWS CDK stacks in parallel with robust dependency management and post-deploy validation.
     Ensures Poetry, AWS CDK v2 CLI, and all dependencies are installed. Supports local and CI/CD workflows.
     """
+    # Guardrail: block deploy unless SHIELDCRAFT_ALLOW_DEPLOY=1
+    if not os.environ.get("SHIELDCRAFT_ALLOW_DEPLOY"):
+        matrix_log(
+            session,
+            "[GUARDRAIL] AWS deploys are DISABLED. Set SHIELDCRAFT_ALLOW_DEPLOY=1 to enable.",
+            color="red",
+        )
+        session.error(
+            "[GUARDRAIL] AWS deploys are DISABLED. Set SHIELDCRAFT_ALLOW_DEPLOY=1 to enable."
+        )
+        return
+
     matrix_log(
         session,
         "[CDK_DEPLOY] Ensuring AWS CDK and dependencies are installed...",

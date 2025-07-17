@@ -11,14 +11,19 @@ force_utf8()
 
 # Dynamically read Python version from .python-version
 import os
+
+
 def get_python_versions():
-    version_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".python-version")
+    version_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), ".python-version"
+    )
     try:
         with open(version_file, "r") as f:
             version = f.read().strip()
             return [version]
     except Exception:
         return ["3.12"]  # Fallback to default
+
 
 PYTHON_VERSIONS = get_python_versions()
 
@@ -69,12 +74,16 @@ def bootstrap(session):
         for marker_path in marker_paths:
             with open(marker_path, "w") as f2:
                 f2.write(marker_value + "\n")
-            color_log(session, f"[DEBUG] Marker file written at: {marker_path}", "yellow")
+            color_log(
+                session, f"[DEBUG] Marker file written at: {marker_path}", "yellow"
+            )
             color_log(session, f"[DEBUG] Marker value: {marker_value}", "yellow")
             try:
                 with open(marker_path, "r", encoding="utf-8") as f2:
                     marker_content = f2.read().strip()
-                color_log(session, f"[DEBUG] Marker file content: {marker_content}", "yellow")
+                color_log(
+                    session, f"[DEBUG] Marker file content: {marker_content}", "yellow"
+                )
             except Exception as e:
                 color_log(session, f"[DEBUG] Error reading marker file: {e}", "red")
         color_log(session, "Environment setup complete. Marker files written.", "green")

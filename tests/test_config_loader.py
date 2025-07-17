@@ -1,20 +1,26 @@
 # Advanced/production-grade tests
+import os
+import tempfile
 import threading
 import time
-
+import yaml
+import pytest
+import sys
 from infra.utils.config_backends import ConfigBackend
+from infra.utils.config_backends import S3Backend, SSMBackend
+from infra.utils.config_backends import LocalYamlBackend
+from infra.utils.config_loader import get_config_loader
+from infra.utils.config_loader import ConfigLoader
 
 
 def test_thread_safety_singleton(monkeypatch, tmp_path):
     # Singleton should be thread-safe and always return the same instance
     config = {"app": {"env": "dev"}, "s3": {}, "glue": {}, "msk": {}}
     config_path = tmp_path / "dev.yml"
-    import yaml
 
-    with open(config_path, "w") as f:
+    with open(config_path, "w", encoding="utf-8") as f:
         yaml.dump(config, f)
     # Patch CONFIG_DIR in the loader module to point to tmp_path
-    import sys
 
     loader_mod = sys.modules["infra.utils.config_loader"]
     old_config_dir = loader_mod.CONFIG_DIR
@@ -22,7 +28,6 @@ def test_thread_safety_singleton(monkeypatch, tmp_path):
     try:
         monkeypatch.setenv("CONFIG_BACKEND", "local")
         monkeypatch.setenv("ENV", "dev")
-        from infra.utils.config_loader import get_config_loader
 
         results = []
 
@@ -44,7 +49,6 @@ def test_large_config_performance(tmp_path):
     big_section = {f"key{i}": i for i in range(10000)}
     config = {"app": {"env": "dev"}, "s3": big_section, "glue": {}, "msk": {}}
     config_path = tmp_path / "dev.yml"
-    import yaml
 
     with open(config_path, "w") as f:
         yaml.dump(config, f)
@@ -109,10 +113,6 @@ def test_reload_consistency():
 
 # Additional comprehensive tests for config loader and backends
 
-import pytest
-from infra.utils.config_loader import ConfigLoader
-from infra.utils.config_backends import LocalYamlBackend
-
 
 class DummyBackend(ConfigBackend):
     def __init__(self, config):
@@ -137,7 +137,6 @@ def test_strict_mode_invalid_type():
 def test_backend_selection_env(monkeypatch, tmp_path):
     config = {"app": {"env": "dev"}, "s3": {}, "glue": {}, "msk": {}}
     config_path = tmp_path / "dev.yml"
-    import yaml
 
     with open(config_path, "w") as f:
         yaml.dump(config, f)
@@ -207,7 +206,6 @@ def test_singleton_behavior(monkeypatch, tmp_path):
     # Singleton only applies when no backend is provided
     config = {"app": {"env": "dev"}, "s3": {}, "glue": {}, "msk": {}}
     config_path = tmp_path / "dev.yml"
-    import yaml
 
     with open(config_path, "w") as f:
         yaml.dump(config, f)
@@ -224,10 +222,37 @@ def test_singleton_behavior(monkeypatch, tmp_path):
 def test_optional_sections():
     config = {
         "app": {"env": "dev", "region": "us-west-2", "resource_prefix": "test"},
-        "s3": {"buckets": [{"id": "b1", "name": "bucket1"}]},
+        "s3": {
+            "buckets": [{"id": "b1", "name": "bucket1", "removal_policy": "DESTROY"}]
+        },
         "glue": {"database_name": "db1"},
-        "msk": {},
+        "msk": {
+            "cluster": {
+                "id": "dummy-msk-id",
+                "name": "dummy-msk-cluster",
+                "kafka_version": "2.8.1",
+                "number_of_broker_nodes": 2,
+                "instance_type": "kafka.t3.small",
+                "vpc_subnet_ids": ["subnet-12345"],
+                "security_group_ids": ["sg-12345"],
+            }
+        },
+        "eventbridge": {
+            "data_bus_name": "test-data-bus",
+            "security_bus_name": "test-security-bus",
+            "lambda_export_name": "TestLambdaArn",
+            "data_event_source": "test.source",
+        },
+        "networking": {
+            "vpc_id": "vpc-12345",
+            "cidr": "10.0.0.0/16",
+            "subnets": [
+                {"id": "subnet-12345", "cidr": "10.0.1.0/24", "type": "private"}
+            ],
+            "security_groups": [{"id": "sg-12345", "description": "test sg"}],
+        },
     }
+    print("test_optional_sections config:", config)
     loader = ConfigLoader(env="dev", backend=DummyBackend(config), strict=True)
     # Optional sections should be missing but not raise
     assert "lambda_" not in loader.config or loader.config["lambda_"] is None
@@ -236,11 +261,38 @@ def test_optional_sections():
 def test_extra_keys_ignored():
     config = {
         "app": {"env": "dev", "region": "us-west-2", "resource_prefix": "test"},
-        "s3": {"buckets": [{"id": "b1", "name": "bucket1"}]},
+        "s3": {
+            "buckets": [{"id": "b1", "name": "bucket1", "removal_policy": "DESTROY"}]
+        },
         "glue": {"database_name": "db1"},
-        "msk": {},
+        "msk": {
+            "cluster": {
+                "id": "dummy-msk-id",
+                "name": "dummy-msk-cluster",
+                "kafka_version": "2.8.1",
+                "number_of_broker_nodes": 2,
+                "instance_type": "kafka.t3.small",
+                "vpc_subnet_ids": ["subnet-12345"],
+                "security_group_ids": ["sg-12345"],
+            }
+        },
+        "eventbridge": {
+            "data_bus_name": "test-data-bus",
+            "security_bus_name": "test-security-bus",
+            "lambda_export_name": "TestLambdaArn",
+            "data_event_source": "test.source",
+        },
+        "networking": {
+            "vpc_id": "vpc-12345",
+            "cidr": "10.0.0.0/16",
+            "subnets": [
+                {"id": "subnet-12345", "cidr": "10.0.1.0/24", "type": "private"}
+            ],
+            "security_groups": [{"id": "sg-12345", "description": "test sg"}],
+        },
         "extra": 123,
     }
+    print("test_extra_keys_ignored config:", config)
     loader = ConfigLoader(env="dev", backend=DummyBackend(config), strict=True)
     assert loader.get("app.env") == "dev"
 
@@ -267,12 +319,6 @@ def test_nonexistent_env():
 
     with pytest.raises(Exception):
         ConfigLoader(env="nonexistent", backend=FailingBackend(), strict=True)
-
-
-import os
-import tempfile
-import yaml
-from infra.utils.config_backends import S3Backend, SSMBackend
 
 
 class DummyS3Backend(S3Backend):

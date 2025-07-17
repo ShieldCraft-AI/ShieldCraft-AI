@@ -11,24 +11,22 @@ from aws_cdk import aws_secretsmanager as secretsmanager
 
 class SecretsManagerStack(Stack):
     def __init__(self, scope, construct_id, *args, **kwargs):
-        """
-        ShieldCraftAI SecretsManagerStack: Centralized secrets management using AWS Secrets Manager.
-        Creates and exports secrets for cross-stack consumption.
-        """
         secrets_config = kwargs.pop("secrets_config", None)
         shared_tags = kwargs.pop("shared_tags", None)
-        env = kwargs.pop("env", None)
+        environment = kwargs.pop("environment", None)
         if secrets_config is None:
             secrets_config = {}
         super().__init__(scope, construct_id, *args, **kwargs)
-        # Centralized tagging (Project, Environment, Owner, etc.)
         tags_to_apply = {"Project": "ShieldCraftAI"}
-        if env:
-            tags_to_apply["Environment"] = env
+        if environment:
+            # Use region if available, else fallback to string
+            region = getattr(environment, "region", None)
+            env_tag = region if region else str(environment)
+            tags_to_apply["Environment"] = env_tag
         if shared_tags:
             tags_to_apply.update(shared_tags)
         for k, v in tags_to_apply.items():
-            self.tags.set_tag(k, v)
+            self.tags.set_tag(str(k), str(v))
 
         self.secrets = {}
         for secret_name, secret_props in secrets_config.items():
@@ -39,8 +37,8 @@ class SecretsManagerStack(Stack):
             if not name:
                 raise ValueError(f"Secret {secret_name} must have a name.")
             description = secret_props.get("description", f"Secret for {secret_name}")
-            # Prefix secret name with env/project for uniqueness
-            full_name = f"{env or 'dev'}-{name}"
+            # Prefix secret name with environment/project for uniqueness
+            full_name = f"{environment or 'dev'}-{name}"
             # Resource policy support (optional)
             resource_policy = secret_props.get("resource_policy")
             secret = secretsmanager.Secret(

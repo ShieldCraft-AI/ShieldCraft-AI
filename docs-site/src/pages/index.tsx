@@ -5,7 +5,9 @@ import AdvantageCards from '../components/AdvantageCards';
 import LandingHero from '../components/LandingHero';
 import LicenseFooter from '../components/LicenseFooter';
 import ResilienceSection from '../components/ResilienceSection';
-import StrategicAdvantage from '../components/StrategicAdvantage';
+import InfoCardsRow from '../components/InfoCardsRow';
+import AwsStack from '../components/AwsStack';
+import IconCarousel from '../components/IconCarousel';
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
@@ -16,8 +18,10 @@ export default function Home(): ReactNode {
       <main>
         <LandingHero />
         <AdvantageCards />
-        <StrategicAdvantage />
+        <InfoCardsRow />
+        <AwsStack />
         <ResilienceSection />
+        <IconCarousel />
         <LicenseFooter />
       </main>
     </Layout>

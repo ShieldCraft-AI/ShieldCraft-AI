@@ -54,10 +54,16 @@ const config: Config = {
       },
       items: [],
     },
+    colorMode: {
+      disableSwitch: true,
+    },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
+    themes: [
+      '@docusaurus/theme-mermaid',
+    ]
   } satisfies Preset.ThemeConfig,
   plugins: [require.resolve('./plugins/suppressWebpackVFileMessageWarnings')],
 };

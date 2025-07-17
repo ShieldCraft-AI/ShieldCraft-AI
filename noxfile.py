@@ -21,10 +21,10 @@ from nox_sessions.deploy import cdk_deploy
 import nox
 
 
-
 project_root = os.path.abspath(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+
 
 # Dynamically read Python version from .python-version
 def get_python_versions():
@@ -36,8 +36,8 @@ def get_python_versions():
     except Exception:
         return ["3.12"]  # Fallback to default
 
-PYTHON_VERSIONS = get_python_versions()
 
+PYTHON_VERSIONS = get_python_versions()
 
 
 __all__ = [
@@ -62,6 +62,7 @@ nox.options.reuse_existing_virtualenvs = True
 def session_audit():
     """Print all registered Nox sessions and their docstrings for audit purposes."""
     import importlib
+
     session_names = __all__
     print("\nRegistered Nox sessions:")
     for name in session_names:

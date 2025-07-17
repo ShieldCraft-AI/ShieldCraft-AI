@@ -46,9 +46,7 @@ class DataQualityStack(Stack):
         secrets_manager_arn: Optional[str] = None,
         **kwargs,
     ):
-        stack_kwargs = {
-            k: kwargs[k] for k in ("env", "tags", "description") if k in kwargs
-        }
+        stack_kwargs = {k: kwargs[k] for k in ("env", "description") if k in kwargs}
         super().__init__(scope, construct_id, **stack_kwargs)
         # Vault integration: import the main secrets manager secret if provided
         self.secrets_manager_arn = secrets_manager_arn

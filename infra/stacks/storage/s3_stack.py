@@ -87,9 +87,16 @@ class S3Stack(Stack):
         secrets_manager_arn: Optional[str] = None,
         **kwargs,
     ):
-        stack_kwargs = {
-            k: kwargs[k] for k in ("env", "tags", "description") if k in kwargs
-        }
+        # Only pass env if it is a dict or aws_cdk.Environment, not a string
+        env_from_config = config.get("app", {}).get("env")
+        stack_kwargs = {k: kwargs[k] for k in ("env", "description") if k in kwargs}
+        from aws_cdk import Environment
+
+        if env_from_config and "env" not in stack_kwargs:
+            if isinstance(env_from_config, dict) or isinstance(
+                env_from_config, Environment
+            ):
+                stack_kwargs["env"] = env_from_config
         super().__init__(scope, construct_id, **stack_kwargs)
         self._validate_cross_stack_resources(config)
         # Vault integration: import the main secrets manager secret if provided
@@ -111,18 +118,27 @@ class S3Stack(Stack):
             self.shared_resources["vault_secret"] = self.secrets_manager_secret
         s3_cfg = config.get("s3", {})
         env = config.get("app", {}).get("env", "dev")
-        self.tags.set_tag("Project", "ShieldCraftAI")
-        self.tags.set_tag("Environment", env)
-        for k, v in s3_cfg.get("tags", {}).items():
-            self.tags.set_tag(k, v)
-        if shared_tags:
-            for k, v in shared_tags.items():
-                self.tags.set_tag(k, v)
+        # Apply tags to the stack using Tags.of(self)
+        from aws_cdk import Tags
+
+        tags_manager = Tags.of(self)
+        if tags_manager is not None:
+            try:
+                tags_manager.add("Project", "ShieldCraftAI")
+                tags_manager.add("Environment", env)
+                for k, v in s3_cfg.get("tags", {}).items():
+                    if v is not None:
+                        tags_manager.add(str(k), str(v))
+                if shared_tags:
+                    for k, v in shared_tags.items():
+                        if v is not None:
+                            tags_manager.add(str(k), str(v))
+            except Exception as e:
+                print(f"[WARNING] Could not apply tags to stack: {e}")
         buckets_cfg = s3_cfg.get("buckets", [])
         bucket_ids = set()
         self.buckets: Dict[str, s3.Bucket] = {}
         referenced_bucket_ids = set()
-        # ...existing code...
         from aws_cdk import Tags
 
         for bucket_cfg in buckets_cfg:
@@ -195,8 +211,9 @@ class S3Stack(Stack):
             self.buckets[bucket_id] = bucket
 
             # Propagate stack and shared tags to each bucket resource for auditability
-            for tag_key, tag_value in self.tags.render_tags():
-                Tags.of(bucket).add(tag_key, tag_value)
+            if getattr(self, "tags", None) is not None:
+                for tag_key, tag_value in self.tags.render_tags():
+                    Tags.of(bucket).add(tag_key, tag_value)
 
             self._export_resource(
                 f"{construct_id}S3Bucket{bucket_id}Name", bucket.bucket_name

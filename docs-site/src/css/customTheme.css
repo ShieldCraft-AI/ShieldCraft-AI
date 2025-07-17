@@ -8,23 +8,45 @@
   --sc-table-header-bg: #232323;
   --sc-table-radius: 8px;
 }
+
+html,
 body {
   background: var(--sc-bg);
   color: var(--sc-primary);
   font-family: var(--sc-font);
+  /* Hide all scrollbars but allow scrolling */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
 }
-h1, h2, h3 {
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+h1,
+h2,
+h3 {
   color: var(--sc-primary);
   font-size: var(--sc-heading-size);
 }
-p, li, td, th {
+
+p,
+li,
+td,
+th {
   font-size: var(--sc-body-size);
 }
+
 table {
   background: var(--sc-table-bg);
   border-radius: var(--sc-table-radius);
   color: var(--sc-primary);
 }
+
 thead {
   background: var(--sc-table-header-bg);
   color: var(--sc-primary);

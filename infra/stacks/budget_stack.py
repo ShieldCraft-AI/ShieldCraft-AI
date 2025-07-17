@@ -26,7 +26,7 @@ class BudgetStack(Stack):
 
         # Only pass CDK-supported args to super().__init__
         stack_args = {}
-        for k in ("env", "tags", "description"):
+        for k in ("env", "description"):
             if k in kwargs:
                 stack_args[k] = kwargs[k]
         super().__init__(scope, construct_id, **stack_args)

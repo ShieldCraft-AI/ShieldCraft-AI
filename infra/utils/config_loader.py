@@ -1,3 +1,34 @@
+"""
+ConfigLoader for ShieldCraft AI
+This module provides a singleton ConfigLoader class that loads configuration
+"""
+
+import os
+import logging
+from typing import Any, Dict, Optional
+from threading import Lock
+import re
+import pathlib
+import boto3
+import botocore
+from pydantic import ValidationError, BaseModel
+from infra.utils.config_backends import (
+    ConfigBackend,
+    LocalYamlBackend,
+    S3Backend,
+    SSMBackend,
+)
+from infra.utils.config_schema import ShieldCraftConfig
+
+# Use project root /config directory, not infra/config
+CONFIG_DIR = str(pathlib.Path(__file__).parent.parent.parent / "config")
+_VALID_ENVS = {"dev", "staging", "prod"}
+_DEFAULT_ENV = "dev"
+_SECRET_PATTERN = re.compile(r"^aws-vault:(.+)$")
+_CONFIG_LOADER_SINGLETON = None
+_CONFIG_LOADER_LOCK = Lock()
+
+
 def _normalize_empty_dicts(config, model):
     """
     Recursively convert empty dicts for optional model fields to None.
@@ -41,36 +72,6 @@ def _ensure_plain_dict(obj):
     if isinstance(obj, list):
         return [_ensure_plain_dict(v) for v in obj]
     return obj
-
-
-"""
-ConfigLoader for ShieldCraft AI
-This module provides a singleton ConfigLoader class that loads configuration
-"""
-
-import os
-import logging
-import re
-import pathlib
-
-from typing import Any, Dict, Optional
-from threading import Lock
-from pydantic import ValidationError, BaseModel
-from infra.utils.config_backends import (
-    ConfigBackend,
-    LocalYamlBackend,
-    S3Backend,
-    SSMBackend,
-)
-from infra.utils.config_schema import ShieldCraftConfig
-
-# Use project root /config directory, not infra/config
-CONFIG_DIR = str(pathlib.Path(__file__).parent.parent.parent / "config")
-_VALID_ENVS = {"dev", "staging", "prod"}
-_DEFAULT_ENV = "dev"
-_SECRET_PATTERN = re.compile(r"^aws-vault:(.+)$")
-_CONFIG_LOADER_SINGLETON = None
-_CONFIG_LOADER_LOCK = Lock()
 
 
 class ConfigLoader:
@@ -166,21 +167,27 @@ class ConfigLoader:
         config = _normalize_empty_dicts(cleaned, ShieldCraftConfig)
         # Ensure config is a plain dict before validation (handles nested models)
         config = _ensure_plain_dict(config)
-        # Only enforce presence of core required fields
+        # Enforce presence of core required fields (add eventbridge if you want it required)
         required_fields = ["app", "s3", "glue"]
+        # Optionally require eventbridge config for event-driven stacks
+        # required_fields.append("eventbridge")
         missing = [k for k in required_fields if k not in config]
         if missing:
             raise ValueError(f"Missing required config sections: {missing}")
+        # Optionally: warn if eventbridge is missing but not required
+        if "eventbridge" not in config:
+            logging.getLogger("shieldcraft").warning(
+                "eventbridge config section is missing. Event-driven stacks may fail if this is required."
+            )
         validated = None
         try:
             validated = ShieldCraftConfig.model_validate(config)
         except ValidationError as e:
             if self.strict:
-                raise ValueError(f"Config schema validation failed: {e}")
-            import logging
+                raise ValueError(f"Config schema validation failed: {e}") from e
 
             logging.getLogger("shieldcraft").warning(
-                f"Config schema validation failed, using raw config: {e}"
+                "Config schema validation failed, using raw config: %s", e
             )
             return config
         return validated.model_dump() if validated is not None else config
@@ -193,7 +200,10 @@ class ConfigLoader:
         value = os.environ.get(env_key)
         if value is not None:
             logging.getLogger("shieldcraft.audit").info(
-                f"[AUDIT] ENV override accessed: key={key_path}, env_key={env_key}, value=REDACTED, env={self.env}"
+                "[AUDIT] ENV override accessed: key=%s, env_key=%s, value=REDACTED, env=%s",
+                key_path,
+                env_key,
+                self.env,
             )
         return value
 
@@ -203,11 +213,11 @@ class ConfigLoader:
             if match:
                 secret_name = match.group(1)
                 logging.getLogger("shieldcraft.audit").info(
-                    f"[AUDIT] Secret access: secret_name={secret_name}, env={self.env}"
+                    "[AUDIT] Secret access: secret_name=%s, env=%s",
+                    secret_name,
+                    self.env,
                 )
                 try:
-                    import boto3
-
                     client = boto3.client("secretsmanager")
                     response = client.get_secret_value(SecretId=secret_name)
                     secret_val = response.get("SecretString")
@@ -215,18 +225,19 @@ class ConfigLoader:
                         return secret_val
                     if "SecretBinary" in response:
                         return response["SecretBinary"].decode()
-                except Exception as e:
+                except (
+                    botocore.exceptions.BotoCoreError,
+                    botocore.exceptions.ClientError,
+                ) as e:
                     logging.getLogger("shieldcraft").warning(
-                        f"Failed to fetch secret '{secret_name}': {e}"
+                        "Failed to fetch secret '%s': %s", secret_name, e
                     )
                     return f"[REDACTED:{secret_name}]"
             if value.startswith("arn:aws:secretsmanager:"):
                 logging.getLogger("shieldcraft.audit").info(
-                    f"[AUDIT] Secret access by ARN: arn={value}, env={self.env}"
+                    "[AUDIT] Secret access by ARN: arn=%s, env=%s", value, self.env
                 )
                 try:
-                    import boto3
-
                     client = boto3.client("secretsmanager")
                     response = client.get_secret_value(SecretId=value)
                     secret_val = response.get("SecretString")
@@ -234,9 +245,12 @@ class ConfigLoader:
                         return secret_val
                     if "SecretBinary" in response:
                         return response["SecretBinary"].decode()
-                except Exception as e:
+                except (
+                    botocore.exceptions.BotoCoreError,
+                    botocore.exceptions.ClientError,
+                ) as e:
                     logging.getLogger("shieldcraft").warning(
-                        f"Failed to fetch secret by ARN '{value}': {e}"
+                        "Failed to fetch secret by ARN '%s': %s", value, e
                     )
                     return f"[REDACTED:{value}]"
         return value
@@ -252,7 +266,9 @@ class ConfigLoader:
                 env_override = self._resolve_env_override(key)
                 if env_override is not None:
                     logging.getLogger("shieldcraft.audit").info(
-                        f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+                        "[AUDIT] Config access: key=%s, value=REDACTED, env=%s",
+                        key,
+                        self.env,
                     )
                     return env_override
                 if strict if strict is not None else self.strict:
@@ -261,11 +277,11 @@ class ConfigLoader:
         env_override = self._resolve_env_override(key)
         if env_override is not None:
             logging.getLogger("shieldcraft.audit").info(
-                f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+                "[AUDIT] Config access: key=%s, value=REDACTED, env=%s", key, self.env
             )
             return env_override
         logging.getLogger("shieldcraft.audit").info(
-            f"[AUDIT] Config access: key={key}, value=REDACTED, env={self.env}"
+            "[AUDIT] Config access: key=%s, value=REDACTED, env=%s", key, self.env
         )
         return self._resolve_secret(value)
 
@@ -305,7 +321,7 @@ def get_logger(name: str = "shieldcraft") -> logging.Logger:
         try:
             config = ConfigLoader().get_section("app")
             log_level = config.get("log_level", "INFO")
-        except Exception:
+        except (KeyError, ValueError):
             log_level = "INFO"
     logger.setLevel(log_level.upper())
     return logger
