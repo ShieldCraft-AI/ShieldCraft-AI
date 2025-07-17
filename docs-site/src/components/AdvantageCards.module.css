@@ -3,8 +3,10 @@
  }
 
  .cardsSection {
-     padding: 3em 1em;
+     padding: 3em 0;
      background: #111;
+     width: 100%;
+     box-sizing: border-box;
  }
 
  .cardsRow {
@@ -12,12 +14,14 @@
      flex-wrap: wrap;
      justify-content: center;
      gap: 2em;
-     padding: 1em;
+     padding: 0 2em 2em 2em;
+     width: 100%;
+     box-sizing: border-box;
  }
 
  .card {
-     flex: 1 1 300px;
-     max-width: 350px;
+     flex: 1 1 350px;
+     max-width: 420px;
      background: #1a1a1a;
      border: 1px solid #282c34;
      border-radius: 8px;

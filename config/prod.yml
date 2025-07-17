@@ -237,3 +237,19 @@ stepfunctions:
         - id: HandleValidationError
           type: Pass
           end: true
+ai_core:
+  model_name: "mistralai/Mistral-7B-v0.1"
+  quantize: true
+  device: "cuda"
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  quantize: true
+  device: "cuda"
+vector_store:
+  db_host: "prod-db-host"
+  db_port: 5432
+  db_name: "shieldcraft_vectors_prod"
+  db_user: "postgres"
+  db_password: "aws-vault:prod/vector_store/db_password"
+  table_name: "embeddings"
+  batch_size: 100

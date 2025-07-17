@@ -16,13 +16,15 @@ export default function Home(): ReactNode {
       title={`${siteConfig.title}`}
       description="Secure your future with Shieldcraft AI">
       <main>
-        <LandingHero />
-        <AdvantageCards />
-        <InfoCardsRow />
-        <AwsStack />
-        <ResilienceSection />
-        <IconCarousel />
-        <LicenseFooter />
+        <div>
+          <LandingHero />
+          <AdvantageCards />
+          <InfoCardsRow />
+          <AwsStack />
+          <ResilienceSection />
+          <IconCarousel />
+          <LicenseFooter />
+        </div>
       </main>
     </Layout>
   );
