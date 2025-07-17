@@ -39,6 +39,9 @@ class IamRoleStack(Stack):
             ValueError: If required config keys are missing or malformed.
         """
         super().__init__(scope, construct_id, **kwargs)
+        print(
+            f"[DEBUG] IamRoleStack region/account: {self.region} ({type(self.region)}), {self.account} ({type(self.account)})"
+        )
         # Vault integration: import the main secrets manager secret if provided
         self.secrets_manager_arn = secrets_manager_arn
         self.secrets_manager_secret = None
@@ -59,12 +62,10 @@ class IamRoleStack(Stack):
             raise ValueError("IamRoleStack requires a valid config dict.")
         env = config.get("app", {}).get("env", "dev")
         # Defensive: ensure region/account are available for ARN construction
-        if (
-            not hasattr(self, "region")
-            or not hasattr(self, "account")
-            or self.region is None
-            or self.account is None
-        ):
+        if self.region in (None, "") or self.account in (None, ""):
+            print(
+                f"[ERROR] region/account missing or empty: region={self.region}, account={self.account}"
+            )
             raise ValueError(
                 "Stack must have region and account context for ARN construction."
             )

@@ -1,6 +1,7 @@
 app:
   env: prod
   region: af-south-1
+  account: "879584803102"
   resource_prefix: shieldcraft-prod
   log_level: WARN
   enable_feature_x: false
@@ -44,15 +45,18 @@ networking:
   vpc_id: vpc-shieldcraft-prod
   cidr: "10.2.0.0/16"
   subnets:
+    - id: subnet-pub-a
+      cidr: "10.2.10.0/24"
+      type: PUBLIC
     - id: subnet-priv-a
       cidr: "10.2.1.0/24"
-      type: private
+      type: PRIVATE
     - id: subnet-priv-b
       cidr: "10.2.2.0/24"
-      type: private
+      type: PRIVATE
     - id: subnet-priv-c
       cidr: "10.2.3.0/24"
-      type: private
+      type: PRIVATE
   security_groups:
     - id: sg-msk
       description: Security group for MSK brokers
@@ -153,6 +157,13 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-prod-analytics
+  buckets:
+    - id: AnalyticsDataBucket
+      name: shieldcraft-prod-analytics
+    - id: RawDataBucket
+      name: shieldcraft-prod-raw
+    - id: ProcessedDataBucket
+      name: shieldcraft-prod-processed
   permissions:
     - template: etl
       principal: GLUE_EXECUTION_ROLE_ARN
@@ -170,15 +181,6 @@ lakeformation:
       resource:
         arn: arn:aws:s3:::shieldcraft-prod-analytics
       actions: ["DATA_LOCATION_ACCESS"]
-
-sagemaker:
-  training_instance_type: ml.m5.2xlarge
-  inference_instance_type: ml.m5.xlarge
-  endpoint_auto_scaling: true
-  model_registry: shieldcraft-model-registry-prod
-
-cloud_native_hardening:
-
 tags:
   project: shieldcraft-ai
   environment: prod
@@ -186,8 +188,52 @@ tags:
   cost_center: RND
   team: mlops
   compliance: standard
+cloud_native_hardening:
   enable_cloudwatch_alarms: true
   alarm_email: ops@shieldcraft.ai
   config_rules:
     - s3-bucket-public-read-prohibited
     - iam-user-no-policies-check
+eventbridge:
+  data_bus_name: shieldcraft-prod-data-bus
+  security_bus_name: shieldcraft-prod-security-bus
+  lambda_export_name: ProdMskTopicCreatorLambdaArn
+  data_event_source: shieldcraft.data.prod
+
+stepfunctions:
+  state_machines:
+    - id: DataIngestAndValidate
+      name: shieldcraft-prod-data-ingest-validate
+      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
+      comment: "Orchestrates data ingestion, validation, and error handling"
+      definition:
+        - id: IngestData
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:IngestDataLambda
+          next: ValidateData
+          catch:
+            - handler: HandleIngestError
+              errors: ["States.ALL"]
+        - id: ValidateData
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:ValidateDataLambda
+          next: IsValid
+        - id: IsValid
+          type: Choice
+          choices:
+            - condition: string_equals
+              args: ["$.validationResult", "PASS"]
+              next: Success
+            - condition: string_equals
+              args: ["$.validationResult", "FAIL"]
+              next: HandleValidationError
+          default: HandleValidationError
+        - id: Success
+          type: Pass
+          end: true
+        - id: HandleIngestError
+          type: Pass
+          end: true
+        - id: HandleValidationError
+          type: Pass
+          end: true

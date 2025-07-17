@@ -101,29 +101,32 @@ class NetworkingStack(Stack):
                         f"LakeFormation permission references unknown bucket: {bucket_arn}"
                     )
 
-    def __init__(self, scope, construct_id, *args, **kwargs):
-        # Pop custom arguments before calling super().__init__
-        config = kwargs.pop("config", None) or {}
-        shared_tags = kwargs.pop("shared_tags", None)
-        flow_logs_bucket = kwargs.pop("flow_logs_bucket", None)
-        vpc_flow_logs_role_arn = kwargs.pop("vpc_flow_logs_role_arn", None)
-        secrets_manager_arn = kwargs.pop("secrets_manager_arn", None)
-        # Only CDK-supported kwargs remain
-        super().__init__(scope, construct_id, *args, **kwargs)
-        """
-        NetworkingStack for ShieldCraft AI: VPC, subnets, security groups, flow logs,
-        and NAT monitoring.
-        Args:
-            scope: CDK construct scope.
-            construct_id: Unique stack name.
-            *args, **kwargs: All stack arguments, including config, shared_tags, flow_logs_bucket, vpc_flow_logs_role_arn, secrets_manager_arn, and any additional CDK stack args.
-        Raises:
-            ValueError: If required config keys are missing or malformed.
-        """
-        super().__init__(scope, construct_id, *args, **kwargs)
-        # ...existing code...
-        net_cfg = config.get("networking", {})
-        env = config.get("app", {}).get("env", "dev")
+    def __init__(
+        self,
+        scope,
+        construct_id,
+        config=None,
+        shared_tags=None,
+        flow_logs_bucket=None,
+        vpc_flow_logs_role_arn=None,
+        secrets_manager_arn=None,
+        eventbridge_bus_arn=None,
+        stepfunctions_state_machine_arn=None,
+        **kwargs,
+    ):
+        if config is None:
+            config = {}
+        super().__init__(scope, construct_id, **kwargs)
+        # Accept config as the full config dict, not just networking
+        net_cfg = config.get("networking", {}) if isinstance(config, dict) else {}
+        env = (
+            config.get("app", {}).get("env", "dev")
+            if isinstance(config, dict)
+            else "dev"
+        )
+        # Store EventBridge and Step Functions ARNs for downstream use
+        self.eventbridge_bus_arn = eventbridge_bus_arn
+        self.stepfunctions_state_machine_arn = stepfunctions_state_machine_arn
         # Centralized tagging
         tags_to_apply = {"Project": "ShieldCraftAI", "Environment": env}
         tags_to_apply.update(net_cfg.get("tags", {}))

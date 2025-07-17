@@ -17,8 +17,8 @@ export default function LandingHero() {
                 />
                 Autonomous Cloud Security
             </h1>
-            <p className={styles.subtitle}>
-                <em>Stop Reacting. Start Predicting.</em>
+            <p className={styles.tagline}>
+                Stop Reacting. Start Predicting.
             </p>
         </div>
     );

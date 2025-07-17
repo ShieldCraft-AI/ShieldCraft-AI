@@ -1,6 +1,7 @@
 app:
   env: dev
   region: af-south-1
+  account: "879584803102"
   resource_prefix: shieldcraft-dev
   log_level: DEBUG
   enable_feature_x: true
@@ -9,13 +10,22 @@ networking:
   vpc_id: vpc-shieldcraft-dev
   cidr: "10.0.0.0/16"
   subnets:
+    - id: subnet-pub-a
+      cidr: "10.0.10.0/24"
+      type: PUBLIC
     - id: subnet-priv-a
       cidr: "10.0.1.0/24"
-      type: private
+      type: PRIVATE
     - id: subnet-priv-b
       cidr: "10.0.2.0/24"
-      type: private
+      type: PRIVATE
   security_groups:
+    - id: sg-msk
+      description: Security group for MSK brokers
+      allow_all_outbound: true
+    - id: sg-lambda
+      description: Security group for Lambda functions
+      allow_all_outbound: true
     - id: sg-default
       description: Default security group for ShieldCraft dev VPC
       allow_all_outbound: true
@@ -147,6 +157,13 @@ data_quality:
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-dev-analytics
+  buckets:
+    - id: AnalyticsDataBucket
+      name: shieldcraft-dev-analytics
+    - id: RawDataBucket
+      name: shieldcraft-dev-raw
+    - id: ProcessedDataBucket
+      name: shieldcraft-dev-processed
   permissions:
     - template: etl
       principal: GLUE_EXECUTION_ROLE_ARN
@@ -184,3 +201,46 @@ tags:
   cost_center: RND
   team: mlops
   compliance: standard
+eventbridge:
+  data_bus_name: shieldcraft-dev-data-bus
+  security_bus_name: shieldcraft-dev-security-bus
+  lambda_export_name: DevMskTopicCreatorLambdaArn
+  data_event_source: shieldcraft.data.dev
+
+stepfunctions:
+  state_machines:
+    - id: DataIngestAndValidate
+      name: shieldcraft-dev-data-ingest-validate
+      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
+      comment: "Orchestrates data ingestion, validation, and error handling"
+      definition:
+        - id: IngestData
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:IngestDataLambda
+          next: ValidateData
+          catch:
+            - handler: HandleIngestError
+              errors: ["States.ALL"]
+        - id: ValidateData
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:ValidateDataLambda
+          next: IsValid
+        - id: IsValid
+          type: Choice
+          choices:
+            - condition: string_equals
+              args: ["$.validationResult", "PASS"]
+              next: Success
+            - condition: string_equals
+              args: ["$.validationResult", "FAIL"]
+              next: HandleValidationError
+          default: HandleValidationError
+        - id: Success
+          type: Pass
+          end: true
+        - id: HandleIngestError
+          type: Pass
+          end: true
+        - id: HandleValidationError
+          type: Pass
+          end: true

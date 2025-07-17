@@ -40,17 +40,29 @@ def commit_flow(session):
 
     def run_once(session_name, notify=True, parallel=False):
         if session_registry.get(session_name):
-            matrix_log(session, f"[REGISTRY] Skipping already completed session: {session_name}", color="yellow")
+            matrix_log(
+                session,
+                f"[REGISTRY] Skipping already completed session: {session_name}",
+                color="yellow",
+            )
             return True
         try:
             if notify:
                 if parallel:
-                    matrix_log(session, f"▶ {session_name.upper()} running (parallel)...", color="green")
+                    matrix_log(
+                        session,
+                        f"▶ {session_name.upper()} running (parallel)...",
+                        color="green",
+                    )
                 else:
-                    matrix_log(session, f"▶ {session_name.upper()} running...", color="green")
+                    matrix_log(
+                        session, f"▶ {session_name.upper()} running...", color="green"
+                    )
                 log_debug(f"Notifying session: {session_name}")
                 session.notify(session_name)
-                matrix_log(session, f"✅ {session_name.upper()} complete.", color="green")
+                matrix_log(
+                    session, f"✅ {session_name.upper()} complete.", color="green"
+                )
             session_registry[session_name] = True
             return True
         except Exception as e:
@@ -85,11 +97,20 @@ def commit_flow(session):
 
     # 2. Code quality sessions in parallel
     code_quality_sessions = ["lint", "format", "typecheck", "precommit"]
-    matrix_log(session, f"Running Code quality sessions: {', '.join(code_quality_sessions)}", color="green")
+    matrix_log(
+        session,
+        f"Running Code quality sessions: {', '.join(code_quality_sessions)}",
+        color="green",
+    )
     log_debug(f"Running Code quality sessions: {code_quality_sessions}")
     failed = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(code_quality_sessions)) as executor:
-        future_to_session = {executor.submit(run_once, s, parallel=True): s for s in code_quality_sessions}
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(code_quality_sessions)
+    ) as executor:
+        future_to_session = {
+            executor.submit(run_once, s, parallel=True): s
+            for s in code_quality_sessions
+        }
         for future in concurrent.futures.as_completed(future_to_session):
             s = future_to_session[future]
             ok = future.result()
@@ -103,11 +124,20 @@ def commit_flow(session):
 
     # 3. Tests and notebooks sessions in parallel
     test_and_notebook_sessions = ["tests", "notebooks"]
-    matrix_log(session, f"Running Test and notebook sessions: {', '.join(test_and_notebook_sessions)}", color="green")
+    matrix_log(
+        session,
+        f"Running Test and notebook sessions: {', '.join(test_and_notebook_sessions)}",
+        color="green",
+    )
     log_debug(f"Running Test and notebook sessions: {test_and_notebook_sessions}")
     failed = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(test_and_notebook_sessions)) as executor:
-        future_to_session = {executor.submit(run_once, s, parallel=True): s for s in test_and_notebook_sessions}
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(test_and_notebook_sessions)
+    ) as executor:
+        future_to_session = {
+            executor.submit(run_once, s, parallel=True): s
+            for s in test_and_notebook_sessions
+        }
         for future in concurrent.futures.as_completed(future_to_session):
             s = future_to_session[future]
             ok = future.result()
@@ -127,11 +157,20 @@ def commit_flow(session):
 
     # 5. Docs and docker build sessions in parallel
     docs_and_docker_sessions = ["docs", "docker_build"]
-    matrix_log(session, f"Running Docs and docker build sessions: {', '.join(docs_and_docker_sessions)}", color="green")
+    matrix_log(
+        session,
+        f"Running Docs and docker build sessions: {', '.join(docs_and_docker_sessions)}",
+        color="green",
+    )
     log_debug(f"Running Docs and docker build sessions: {docs_and_docker_sessions}")
     failed = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(docs_and_docker_sessions)) as executor:
-        future_to_session = {executor.submit(run_once, s, parallel=True): s for s in docs_and_docker_sessions}
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(docs_and_docker_sessions)
+    ) as executor:
+        future_to_session = {
+            executor.submit(run_once, s, parallel=True): s
+            for s in docs_and_docker_sessions
+        }
         for future in concurrent.futures.as_completed(future_to_session):
             s = future_to_session[future]
             ok = future.result()
@@ -141,7 +180,9 @@ def commit_flow(session):
         for s in failed:
             matrix_log(session, f"❌ {s.upper()} failed.", color="red")
             log_debug(f"[FAIL] Session {s} failed.")
-        raise RuntimeError(f"Critical Docs and docker build session(s) failed: {failed}")
+        raise RuntimeError(
+            f"Critical Docs and docker build session(s) failed: {failed}"
+        )
 
     matrix_log(session, "🟩 commit_flow session finished.", color="green")
     log_debug("Session finished.")

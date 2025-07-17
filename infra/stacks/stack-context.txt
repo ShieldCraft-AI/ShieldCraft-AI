@@ -1,0 +1,61 @@
+Foundational Stacks
+
+networking_stack: Provisions VPC, subnets, security groups, and foundational network isolation. Exports VPC and SG IDs, consumed by all compute/data stacks.
+iam_role_stack: Centralizes creation of all required IAM roles and policies. Exports role ARNs for use by Lambda, Glue, SageMaker, MSK, etc.
+s3_stack: Manages centralized S3 buckets for data, artifacts, and logs. Exports bucket names/ARNs for downstream data and ML stacks.
+secrets_manager_stack: Handles all secrets (e.g., credentials, ARNs) and resource policies. Exports secret ARNs for secure cross-stack consumption.
+Data & Compute Stacks
+
+glue_stack: Provides ETL, data cataloging, and analytics (Glue jobs, crawlers, catalog). Consumes S3, IAM, networking; exports DB/catalog for LakeFormation and DataQuality.
+lakeformation_stack: Implements data governance and fine-grained access control. Consumes S3, Glue, IAM; exports admin roles and permissions.
+airbyte_stack: Manages connector-based data ingestion and movement (ECS services, connectors). Consumes networking, IAM, secrets.
+msk_stack: Provisions managed Kafka clusters for streaming workloads. Consumes networking, IAM, secrets; exports broker info and roles.
+lambda_stack: Hosts event-driven compute and orchestration (Lambdas, triggers). Consumes networking, IAM, secrets, MSK, S3; exports Lambda ARNs for DataQuality, Compliance, AttackSimulation.
+opensearch_stack: Provides search and analytics for logs/data. Consumes networking, IAM, secrets; exports endpoints and roles.
+dataquality_stack: Automates data quality checks and validation. Consumes S3, Glue, Lambda, IAM, secrets; exports metrics and alerts.
+sagemaker_stack: Manages model training, deployment, and monitoring. Consumes VPC, S3, IAM, secrets; exports endpoints and roles.
+Security & Compliance Stacks
+
+cloud_native_hardening_stack: Implements cross-cutting security, monitoring, and compliance (CloudWatch alarms, Config rules, IAM boundaries). Consumes networking, IAM, secrets, MSK, OpenSearch; exports findings and config rules.
+attack_simulation_stack: Automates attack simulation and security validation (Lambdas, alarms). Consumes Lambda, IAM, secrets; exports Lambda and alarm ARNs.
+compliance_stack: Aggregates compliance reporting, Lambda ARNs, and vault secrets. Consumes outputs from all critical stacks.
+budget_stack: Provides cost guardrails, budget alerts, and notifications (Budgets, SNS, email). Consumes outputs from all other stacks; deployed last.
+Cross-Stack Relationships & Patterns
+
+Outputs (CfnOutput) and imports (Fn.import_value) are used extensively for passing resource identifiers and ARNs between stacks.
+Secrets are centrally managed and imported as needed, ensuring secure, least-privilege access.
+Stacks are grouped by domain for clarity and maintainability, supporting parallel deployment where dependencies allow.
+Security, monitoring, and compliance are cross-cutting, with dedicated stacks for each.
+Architectural Insights
+
+The architecture is modular, extensible, and production-grade, following AWS and MLOps best practices.
+All critical resources (network, IAM, storage, compute, data, security, compliance) are managed as code, supporting robust CI/CD and auditability.
+The design is ready for event-driven and workflow-based orchestration (e.g., EventBridge, Step Functions) with clear boundaries and integration points.
+
+Config System Overview
+
+The configuration system is built around a singleton ConfigLoader class, which loads, validates, and provides access to all runtime configuration for the platform.
+Configs can be loaded from local YAML, S3, or SSM Parameter Store, with the backend selectable via environment variables.
+The config loader enforces schema validation using Pydantic models defined in config_schema.py, ensuring only valid, well-structured config is used throughout the stack.
+2. Schema (config_schema.py)
+
+The schema is highly modular and production-grade, covering all major AWS and MLOps resources: S3, Glue, Lambda, MSK, OpenSearch, Airbyte, DataQuality, LakeFormation, SageMaker, networking, tagging, and more.
+Each section (e.g., S3Config, GlueConfig, LambdaConfig) is a Pydantic model with field validation, type hints, and cross-references.
+The top-level ShieldCraftConfig model aggregates all sections and enforces referential integrity (e.g., subnet and security group IDs must match those defined in networking).
+Secret values are referenced by vault patterns (aws-vault: or arn:aws:secretsmanager:), and the loader can resolve these at runtime.
+3. ConfigLoader (config_loader.py)
+
+Handles environment selection, backend selection, and config loading.
+Normalizes and validates config, removing empty/optional sections and ensuring required fields are present.
+Provides methods for nested key access, environment variable overrides, and secret resolution (via AWS Secrets Manager).
+Exposes a singleton accessor for global use, and supports testability via backend injection.
+4. Integration with Stacks
+
+All foundational, data, compute, and security stacks are expected to consume configuration via the loader, ensuring environment-specific, validated, and secure config is always used.
+The schema ensures that all cross-stack references (e.g., subnet IDs, security group IDs, ARNs) are valid and consistent, reducing runtime errors and improving auditability.
+The config system is designed for extensibility, supporting new services and fields as the platform evolves.
+5. Best Practices Reflected
+
+Centralized, schema-driven config management is a best-in-class MLOps and cloud-native pattern.
+The use of Pydantic for validation, secret resolution, and environment overrides ensures both security and operational flexibility.
+The config system is tightly integrated with the stack context, supporting robust CI/CD, testability, and production readiness.

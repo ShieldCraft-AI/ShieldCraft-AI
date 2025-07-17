@@ -183,9 +183,7 @@ class LakeFormationStack(Stack):
         secrets_manager_arn: Optional[str] = None,
         **kwargs,
     ):
-        stack_kwargs = {
-            k: kwargs[k] for k in ("env", "tags", "description") if k in kwargs
-        }
+        stack_kwargs = {k: kwargs[k] for k in ("env", "description") if k in kwargs}
         super().__init__(scope, construct_id, **stack_kwargs)
         self._validate_cross_stack_resources(config)
         self.logger = logging.getLogger(f"LakeFormationStack-{construct_id}")
