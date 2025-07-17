@@ -244,3 +244,19 @@ stepfunctions:
         - id: HandleValidationError
           type: Pass
           end: true
+ai_core:
+  model_name: "gpt2"
+  quantize: false
+  device: "cpu"
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  quantize: false
+  device: "cpu"
+vector_store:
+  db_host: "localhost"
+  db_port: 5432
+  db_name: "shieldcraft_vectors"
+  db_user: "postgres"
+  db_password: "aws-vault:dev/vector_store/db_password"
+  table_name: "embeddings"
+  batch_size: 100

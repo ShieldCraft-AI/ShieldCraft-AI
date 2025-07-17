@@ -4,9 +4,10 @@
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Implementation Checklist</h1>
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
-  <progress id="shieldcraft-progress" value="32" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">32% Complete</div>
+  <progress id="shieldcraft-progress" value="41" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">41% Complete</div>
 </div>
+</section>
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 
 <div style="margin-bottom:1em;">
@@ -69,7 +70,7 @@
  </details></section>
 
  <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
-<strong style="font-size:1.25em; color:#a5b4fc;">💾 Data Preparatione</strong>
+<strong style="font-size:1.25em; color:#a5b4fc;">💾 Data Preparation</strong>
 
 <div>
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
@@ -82,7 +83,7 @@
 
 - 🟩 [Identify and document all required data sources (logs, threat feeds, reports, configs)](./data_sources_required.md)
 - 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
-    - 🟥 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
+    - 🟩 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
         - 🟩 Set up Amazon MSK (Kafka) cluster with topic creation
         - 🟥 Integrate Airbyte for connector-based data integration
         - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing
@@ -91,25 +92,25 @@
         - 🟥 Store raw and processed data in Amazon S3 data lake
         - 🟥 Enforce governance and privacy with AWS Lake Formation
         - 🟥 Add data quality checks (Great Expectations, Deequ)
-    - 🟥 Implement data cleaning, normalization, and structuring
-    - 🟥 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
-    - 🟥 Establish data versioning for reproducibility
-    - 🟥 Design and implement data retention policies
-    - 🟥 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
+    - 🟩 Implement data cleaning, normalization, and structuring
+    - 🟩 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
+    - 🟩 Establish data versioning for reproducibility
+    - 🟩 Design and implement data retention policies
+    - 🟩 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
     - 🟩 [Modular data flows and schemas for different data sources](./data_prep/data_inputs_overview.md)
-- 🟥 Data lineage and audit trails for all data flows and model decisions
-    - 🟥 Define and test disaster recovery, backup, and restore procedures for all critical data and services
+- 🟩 Data lineage and audit trails for all data flows and model decisions
+    - 🟩 Define and test disaster recovery, backup, and restore procedures for all critical data and services
 - 🟥 Text chunking strategy defined and implemented for RAG
     - 🟥 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
     - 🟥 Handle metadata preservation during chunking
 - 🟥 Embedding model selection and experimentation for relevant data types
-    - 🟥 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
+    - 🟩 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
     - 🟥 Establish benchmarking for embedding quality
-- 🟥 Vector database (or `pgvector`) setup and population
-    - 🟥 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
-    - 🟥 Implement ingestion pipeline for creating and storing embeddings
-    - 🟥 Optimize vector indexing for retrieval speed
-    - 🟥 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
+- 🟩 Vector database (or `pgvector`) setup and population
+    - 🟩 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
+    - 🟩 Implement ingestion pipeline for creating and storing embeddings
+    - 🟩 Optimize vector indexing for retrieval speed
+    - 🟩 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 
 </details></section>
 
@@ -124,25 +125,39 @@
 <details>
 <summary>Show AWS checklist…</summary>
 
-<!-- Expanded AWS Cloud Foundation & Architecture achievements -->
-- 🟩 <a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html" style="color:#a5b4fc;">Multi-account, multi-environment AWS Organization structure</a> with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
-- 🟩 Modular <a href="https://docs.aws.amazon.com/cdk/latest/guide/resources.html" style="color:#a5b4fc;">CDK stacks</a> for all major AWS services (<a href="https://docs.aws.amazon.com/vpc/latest/userguide/" style="color:#a5b4fc;">VPC</a>, <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3</a>, <a href="https://docs.aws.amazon.com/glue/latest/dg/" style="color:#a5b4fc;">Glue</a>, <a href="https://docs.aws.amazon.com/msk/latest/developerguide/" style="color:#a5b4fc;">MSK</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" style="color:#a5b4fc;">Lambda</a>, <a href="https://docs.airbyte.com/" style="color:#a5b4fc;">Airbyte</a>, <a href="https://opensearch.org/docs/latest/" style="color:#a5b4fc;">OpenSearch</a>, <a href="https://docs.aws.amazon.com/lake-formation/latest/dg/" style="color:#a5b4fc;">Lake Formation</a>, <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/" style="color:#a5b4fc;">SageMaker</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html" style="color:#a5b4fc;">SNS</a>, <a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM</a>, <a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>), each refactored for maintainability and extensibility.
-- 🟩 Advanced cross-stack resource sharing and dependency injection, enabling secure, DRY, and scalable infrastructure composition.
-- 🟩 <a href="https://docs.pydantic.dev/" style="color:#a5b4fc;">Pydantic</a>-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
+- 🟩 Multi-account, multi-environment AWS Organization structure with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
+- 🟩 Networking (VPC, subnets, security groups, vault secret import)
+- 🟩 EventBridge (central event bus, rules, targets)
+- 🟩 Step Functions (workflow orchestration, state machines, IAM roles)
+- 🟩 S3 (object storage, vault secret import)
+- 🟩 Lake Formation (data governance, fine-grained access control)
+- 🟩 Glue (ETL, cataloging, analytics)
+- 🟩 Lambda (event-driven compute, triggers)
+- 🟩 Data Quality (automated validation, Great Expectations/Deequ)
+- 🟩 Airbyte (connector-based ingestion, ECS services)
+- 🟩 OpenSearch (search, analytics)
+- 🟩 Cloud Native Hardening (CloudWatch alarms, Config rules, IAM boundaries)
+- 🟩 Attack Simulation (automated security validation, Lambda, alarms)
+- 🟩 Secrets Manager (centralized secrets, cross-stack exports)
+- 🟩 MSK (Kafka streaming, broker info, roles)
+- 🟩 SageMaker (model training, deployment, monitoring)
+- 🟩 Budget (cost guardrails, alerts, notifications)
+- 🟩 Advanced cross-stack resource sharing and dependency injection (CfnOutput/Fn.import_value), enabling secure, DRY, and scalable infrastructure composition.
+- 🟩 Pydantic-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
 - 🟩 Automated tagging and metadata propagation across all resources for cost allocation, compliance, and auditability.
-- 🟩 Hardened <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" style="color:#a5b4fc;">IAM roles</a>, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html" style="color:#a5b4fc;">AWS Secrets Manager</a>.
-- 🟩 <a href="https://github.com/99designs/aws-vault" style="color:#a5b4fc;">AWS Vault</a> integration for secure credential management and developer onboarding.
-- 🟩 Automated <a href="https://docs.aws.amazon.com/s3/index.html" style="color:#a5b4fc;">S3</a> lifecycle policies, encryption, and access controls for all data lake buckets.
-- 🟩 End-to-end cost controls and budget alarms, with <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a> and <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html" style="color:#a5b4fc;">SNS</a> integration for real-time alerting.
-- 🟩 Cloud-native hardening stack (<a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html" style="color:#a5b4fc;">GuardDuty</a>, <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html" style="color:#a5b4fc;">Security Hub</a>, <a href="https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html" style="color:#a5b4fc;">Inspector</a>) with automated findings aggregation and remediation hooks.
-- 🟩 Automated <a href="https://docs.aws.amazon.com/cdk/latest/guide/testing.html" style="color:#a5b4fc;">integration tests</a> for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
+- 🟩 Hardened IAM roles, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via AWS Secrets Manager.
+- 🟩 AWS Vault integration for secure credential management and developer onboarding.
+- 🟩 Automated S3 lifecycle policies, encryption, and access controls for all data lake buckets.
+- 🟩 End-to-end cost controls and budget alarms, with CloudWatch and SNS integration for real-time alerting.
+- 🟩 Cloud-native hardening stack (GuardDuty, Security Hub, Inspector) with automated findings aggregation and remediation hooks.
+- 🟩 Automated integration tests for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
 - 🟩 Comprehensive documentation for stack interactions, outputs, and architectural decisions, supporting onboarding and audit requirements.
-- 🟩 <a href="https://docs.github.com/en/actions" style="color:#a5b4fc;">GitHub Actions CI/CD pipeline</a> for automated build, test, and deployment of all infrastructure code.
-- 🟩 Automated dependency management and patching via <a href="https://python-poetry.org/" style="color:#a5b4fc;">Poetry</a>, ensuring reproducible builds and secure supply chain.
+- 🟩 GitHub Actions CI/CD pipeline for automated build, test, and deployment of all infrastructure code.
+- 🟩 Automated dependency management and patching via Poetry, ensuring reproducible builds and secure supply chain.
 - 🟩 Modular, environment-parameterized deployment scripts and commit automation for rapid iteration and rollback.
 - 🟩 Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
-- 🟩 Secure, reproducible <a href="https://docs.docker.com/" style="color:#a5b4fc;">Dockerfiles</a> and <a href="https://docs.docker.com/compose/" style="color:#a5b4fc;">Compose files</a> for local and cloud development, with best practices enforced.
-- 🟩 Continuous compliance monitoring (<a href="https://docs.aws.amazon.com/config/latest/developerguide/" style="color:#a5b4fc;">Config</a>, <a href="https://docs.aws.amazon.com/cloudwatch/" style="color:#a5b4fc;">CloudWatch</a>, custom rules) and regular security architecture reviews.
+- 🟩 Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
+- 🟩 Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
 
 </details></section>
 
@@ -155,12 +170,21 @@
   <span style="color:#a5b4fc; font-weight:bold;">Definition of Done:</span> <span style="color:#e0e0e0;">Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to <code>ai_core/</code> for model code and experiments.</span>
 </div>
 <details>
+<div style="border:2px solid #a5b4fc; border-radius:8px; background:#222; color:#a5b4fc; padding:1em; margin-bottom:1em; text-align:center; font-size:1.1em;">
+🎉 <strong>Milestone:</strong> <span style="color:#fff;">ShieldCraft AI has selected <strong>Mistral-7B</strong> as its inaugural foundational model!<br>
+This model was chosen for its cost-efficiency, strong performance on security/NLP tasks, and seamless AWS integration.<br>
+Future iterations will orchestrate multiple AIs for even greater capability.</span>
+</div>
 <summary>Show checklist…</summary>
 
-- 🟥 Select primary and secondary Foundation Models (FMs) from Amazon Bedrock
-- 🟥 Define core AI strategy (RAG, fine-tuning, hybrid approach)
-- 🟥 LangChain integration for orchestration and prompt management
-- 🟥 Prompt Engineering lifecycle implemented:
+- 🟩 Selected <strong>Mistral-7B</strong> as the primary Foundation Model for ShieldCraft AI
+    - 🟥 Select secondary Foundation Models (FMs) from Amazon Bedrock or Hugging Face (Phase 2 - multi-agent orchestration)
+    - 🟩 Implement model loading, inference, and resource optimization
+    - � Build and validate text encoders/embedding pipeline for RAG/vector search
+    - � Implement data preprocessing, cleaning, and validation for model inputs and retrieval corpus
+    - 🟥 Expose model inference via API (FastAPI/Flask), support batch/streaming modes
+    - 🟥 Define core AI strategy (RAG, fine-tuning, hybrid approach)
+    - 🟥 Prompt Engineering lifecycle implemented:
     - 🟥 Prompt versioning and prompt registry
     - 🟥 Prompt approval workflow
     - 🟥 Prompt experimentation framework
@@ -170,18 +194,21 @@
         - 🟥 Implement content moderation APIs/filters
         - 🟥 Define toxicity thresholds and response strategies
         - 🟥 Establish mechanisms for red-teaming GenAI outputs (e.g., adversarial prompt generation and testing)
+- 🟥 LangChain integration for orchestration and prompt management
 - 🟥 RAG pipeline prototyping and optimization:
     - 🟥 Implement efficient retrieval from vector store
     - 🟥 Context window management for LLMs
 - 🟥 LLM output parsing and validation (e.g., Pydantic for structured output)
+- 🟥 Implement robust error handling and logging for all AI components
+- 🟥 Enforce privacy and security controls for model inputs/outputs
 - 🟥 Address bias, fairness, and transparency in model outputs
 - 🟥 Implement explainability for key AI decisions where possible
 - 🟥 Automated prompt evaluation metrics and frameworks
-- 🟥 Model loading, inference, and resource optimization
 - 🟥 Experiment tracking and versioning (MLflow/SageMaker Experiments)
 - 🟥 Model registry and rollback capabilities (SageMaker Model Registry)
 - 🟥 Establish baseline metrics for model performance
 - 🟥 Cost tracking and optimization for LLM inference (per token, per query)
+- 🟥 Design for resource scaling and cost optimization
 - 🟥 LLM-specific evaluation metrics:
     - 🟥 Hallucination rate (quantified)
     - 🟥 Factuality score
@@ -189,6 +216,7 @@
     - 🟥 Response latency per token
     - 🟥 Relevance to query
 - 🟥 Model and Prompt card generation for documentation
+- 🟥 Automate integration tests for AI components and include in CI/CD
 - 🟥 Implement canary and shadow testing for new models/prompts
 
 </details></section>

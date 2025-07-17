@@ -85,24 +85,40 @@ Definition of Done: Data pipelines are operational, data is clean and indexed fo
 ## AWS Cloud Foundation and Architecture
 Guiding Question: Is the AWS environment production-grade, modular, secure, and cost-optimized for MLOps and GenAI workloads?
 Definition of Done: All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls. Architecture is modular, extensible, and supports rapid iteration and rollback.
-* [Multi-account, multi-environment AWS Organization structure](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html) with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
-* Modular [CDK stacks](https://docs.aws.amazon.com/cdk/latest/guide/resources.html) for all major AWS services ([VPC](https://docs.aws.amazon.com/vpc/latest/userguide/), [S3](https://docs.aws.amazon.com/s3/index.html), [Glue](https://docs.aws.amazon.com/glue/latest/dg/), [MSK](https://docs.aws.amazon.com/msk/latest/developerguide/), [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html), [Airbyte](https://docs.airbyte.com/), [OpenSearch](https://opensearch.org/docs/latest/), [Lake Formation](https://docs.aws.amazon.com/lake-formation/latest/dg/), [SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/), [CloudWatch](https://docs.aws.amazon.com/cloudwatch/), [SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html), [Config](https://docs.aws.amazon.com/config/latest/developerguide/), [IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/), [GuardDuty](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html), [Security Hub](https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html), [Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html)), each refactored for maintainability and extensibility.
-* Advanced cross-stack resource sharing and dependency injection, enabling secure, DRY, and scalable infrastructure composition.
-* [Pydantic](https://docs.pydantic.dev/)-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
+* Multi-account, multi-environment AWS Organization structure with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
+* Modular AWS CDK v2 stacks for all major AWS services:
+    * 🟩 Networking (VPC, subnets, security groups, vault secret import)
+    * 🟩 EventBridge (central event bus, rules, targets)
+    * 🟩 Step Functions (workflow orchestration, state machines, IAM roles)
+    * 🟩 S3 (object storage, vault secret import)
+    * 🟩 Lake Formation (data governance, fine-grained access control)
+    * 🟩 Glue (ETL, cataloging, analytics)
+    * 🟩 Lambda (event-driven compute, triggers)
+    * 🟩 Data Quality (automated validation, Great Expectations/Deequ)
+    * 🟩 Airbyte (connector-based ingestion, ECS services)
+    * 🟩 OpenSearch (search, analytics)
+    * 🟩 Cloud Native Hardening (CloudWatch alarms, Config rules, IAM boundaries)
+    * 🟩 Attack Simulation (automated security validation, Lambda, alarms)
+    * 🟩 Secrets Manager (centralized secrets, cross-stack exports)
+    * 🟩 MSK (Kafka streaming, broker info, roles)
+    * 🟩 SageMaker (model training, deployment, monitoring)
+    * 🟩 Budget (cost guardrails, alerts, notifications)
+* Advanced cross-stack resource sharing and dependency injection (CfnOutput/Fn.import_value), enabling secure, DRY, and scalable infrastructure composition.
+* Pydantic-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
 * Automated tagging and metadata propagation across all resources for cost allocation, compliance, and auditability.
-* Hardened [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/), policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via [AWS Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html).
-* [AWS Vault](https://github.com/99designs/aws-vault) integration for secure credential management and developer onboarding.
-* Automated [S3](https://docs.aws.amazon.com/s3/index.html) lifecycle policies, encryption, and access controls for all data lake buckets.
-* End-to-end cost controls and budget alarms, with [CloudWatch](https://docs.aws.amazon.com/cloudwatch/) and [SNS](https://docs.aws.amazon.com/sns/latest/dg/sns-getting-started.html) integration for real-time alerting.
-* Cloud-native hardening stack ([GuardDuty](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html), [Security Hub](https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html), [Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/what-is-inspector.html)) with automated findings aggregation and remediation hooks.
-* Automated [integration tests](https://docs.aws.amazon.com/cdk/latest/guide/testing.html) for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
+* Hardened IAM roles, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via AWS Secrets Manager.
+* AWS Vault integration for secure credential management and developer onboarding.
+* Automated S3 lifecycle policies, encryption, and access controls for all data lake buckets.
+* End-to-end cost controls and budget alarms, with CloudWatch and SNS integration for real-time alerting.
+* Cloud-native hardening stack (GuardDuty, Security Hub, Inspector) with automated findings aggregation and remediation hooks.
+* Automated integration tests for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
 * Comprehensive documentation for stack interactions, outputs, and architectural decisions, supporting onboarding and audit requirements.
-* [GitHub Actions CI/CD pipeline](https://docs.github.com/en/actions) for automated build, test, and deployment of all infrastructure code.
-* Automated dependency management and patching via [Poetry](https://python-poetry.org/), ensuring reproducible builds and secure supply chain.
+* GitHub Actions CI/CD pipeline for automated build, test, and deployment of all infrastructure code.
+* Automated dependency management and patching via Poetry, ensuring reproducible builds and secure supply chain.
 * Modular, environment-parameterized deployment scripts and commit automation for rapid iteration and rollback.
 * Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
-* Secure, reproducible [Dockerfiles](https://docs.docker.com/) and [Compose files](https://docs.docker.com/compose/) for local and cloud development, with best practices enforced.
-* Continuous compliance monitoring ([Config](https://docs.aws.amazon.com/config/latest/developerguide/), [CloudWatch](https://docs.aws.amazon.com/cloudwatch/), custom rules) and regular security architecture reviews.
+* Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
+* Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
 ## AI Core Development and Experimentation
 Guiding Question: Are our models accurately solving the problem, and is the GenAI output reliable and safe?
 Definition of Done: Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to ai_core/ for model code and experiments.
