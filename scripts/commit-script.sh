@@ -211,9 +211,6 @@ if [ "$NEED_HOOKS_INSTALL" -eq 1 ]; then
     sha256sum "$REPO_RaOOT/.pre-commit-config.yaml" | awk '{print $1}' > "$HOOKS_INSTALLED_MARKER"
 fi
 
-
-
-
 if ! poetry lock --check >/dev/null 2>&1; then
     poetry lock >/dev/null 2>&1
     if [ $? -ne 0 ]; then
