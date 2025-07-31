@@ -6,87 +6,128 @@
     padding: 3em 0em 0em 1em;
     position: relative;
     min-height: 32vh;
-}
 
-.heroBackground {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    background: url('/img/logo.png') center center no-repeat;
-    background-size: contain;
-    opacity: 0.15;
-    pointer-events: none;
-}
+    .heroBackground {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0;
+        background: url('/img/logo.png') center center no-repeat;
+        background-size: contain;
+        opacity: 0.15;
+        pointer-events: none;
+    }
 
-.heroContent {
-    position: relative;
-    z-index: 1;
-}
+    .heroContent {
+        position: relative;
+        z-index: 1;
+    }
 
-.badgeRow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2em;
-    gap: 1.5em;
-}
+    .badgeRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2em;
+        gap: 1.5em;
+    }
 
-.ciBadge img {
-    vertical-align: middle;
-}
+    .ciBadge img {
+        vertical-align: middle;
+    }
 
-.title {
-    text-align: center;
-    font-size: 3.2em;
-    font-weight: 900;
-    margin-bottom: 0.25em;
-    color: #fff;
-    font-family: 'IBM Plex Sans', 'Inter', 'Roboto', sans-serif;
-    text-shadow: 0 4px 24px #232526cc, 0 1px 0 #a5b4fc;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    /* Removed background and border for cleaner impact */
-    padding: 0;
-    box-shadow: none;
-}
+    .title {
+        text-align: center;
+        font-size: 3.2em;
+        font-weight: 900;
+        margin-bottom: 0.25em;
+        color: #fff;
+        font-family: 'IBM Plex Sans', 'Inter', 'Roboto', sans-serif;
+        text-shadow: 0 4px 24px #232526cc, 0 1px 0 #a5b4fc;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
+        /* Removed background and border for cleaner impact */
+        padding: 0;
+        box-shadow: none;
+    }
 
-.tagline {
-    text-align: center;
-    font-size: 2em;
-    font-weight: 700;
-    color: #a5b4fc;
-    font-family: var(--sc-font);
-    margin: 0.5em 0 1.5em 0;
-    letter-spacing: 0.03em;
-    line-height: 1.2;
-    text-shadow: 0 2px 16px #23252699, 0 1px 0 #fff;
-    /* Removed background and border for cleaner impact */
-    padding: 0;
-    box-shadow: none;
-}
+    .tagline {
+        text-align: center;
+        font-size: 2em;
+        font-weight: 700;
+        color: #a5b4fc;
+        font-family: var(--sc-font);
+        margin: 0.5em 0 1.5em 0;
+        letter-spacing: 0.03em;
+        line-height: 1.2;
+        text-shadow: 0 2px 16px #23252699, 0 1px 0 #fff;
+        /* Removed background and border for cleaner impact */
+        padding: 0;
+        box-shadow: none;
+    }
 
-.ctaRow {
-    display: flex;
-    justify-content: center;
-    gap: 2em;
-    margin-bottom: 1em;
-}
+    .ctaRow {
+        display: flex;
+        justify-content: center;
+        gap: 2em;
+        margin-bottom: 1em;
+    }
 
-.ctaButton {
-    background: #a5b4fc;
-    color: #232526;
-    padding: 0.75em 2em;
-    border-radius: 6px;
-    font-weight: 600;
-    text-decoration: none;
-    box-shadow: 0 2px 8px #23252633;
-    transition: background 0.2s;
-}
+    .ctaButton {
+        background: #a5b4fc;
+        color: #232526;
+        padding: 0.75em 2em;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 2px 8px #23252633;
+        transition: background 0.2s;
+    }
 
-.ctaButton:hover {
-    background: #7c3aed;
-    color: #fff;
+    .ctaButton:hover {
+        background: #7c3aed;
+        color: #fff;
+    }
+
+    .awsBadgeContainer {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .awsBadgeDesktop {
+        display: block;
+    }
+
+    .awsBadgeMobile {
+        display: none;
+    }
+
+    @media (max-width: 600px) {
+        .awsBadgeContainer {
+            position: static;
+            margin: 16px auto 0 auto;
+            align-items: center;
+            width: 100%;
+            max-width: none;
+            min-height: 0;
+        }
+
+        .awsBadgeDesktop {
+            display: none;
+        }
+
+        .awsBadgeMobile {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-top: 0;
+        }
+    }
 }
