@@ -2,20 +2,20 @@
 ShieldCraft AI Core - Mistral-7B Model Loader Scaffold
 """
 
-import torch
 import time
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 MODEL_NAME = "mistralai/Mistral-7B-v0.1"
 
 
 class ShieldCraftAICore:
-    def __init__(self, config=None):
+    def __init__(self, config_section: str = "ai_core"):
         from infra.utils.config_loader import get_config_loader
 
         config_loader = get_config_loader()
-        if config is None:
-            config = config_loader.get_section("ai_core")
+        # Always load config from config_loader, prefer section override if provided
+        config = config_loader.get_section(config_section)
         self.model_name = config.get("model_name", MODEL_NAME)
         self.device = config.get("device") or (
             "cuda" if torch.cuda.is_available() else "cpu"

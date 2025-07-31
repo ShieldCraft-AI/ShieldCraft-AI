@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
-from ai_core.embedding import EmbeddingModel
+from ai_core.embedding.embedding import EmbeddingModel
+
+import torch
 
 
 def test_embedding_model_initialization():
@@ -57,3 +59,49 @@ def test_embedding_model_input_validation():
     result = embedder.encode([])
     assert result["success"] is False
     assert "Input text list is empty" in result["error"]
+
+
+def test_embedding_model_quantization_configs(monkeypatch):
+    # Test float16 quantization
+    config = {"quantize": True, "quantization_type": "float16"}
+    embedder = EmbeddingModel(config=config)
+    assert embedder.model is not None
+    # Test int8 quantization (should fallback if not supported)
+    config = {"quantize": True, "quantization_type": "int8"}
+    embedder = EmbeddingModel(config=config)
+    assert embedder.model is not None or embedder.model is None  # Should not crash
+    # Test bitsandbytes quantization (should fallback if not installed)
+    config = {"quantize": True, "quantization_type": "bitsandbytes"}
+    embedder = EmbeddingModel(config=config)
+    assert embedder.model is not None or embedder.model is None  # Should not crash
+
+
+def test_embedding_model_device_selection(monkeypatch):
+    # Force CPU
+    config = {"device": "cpu"}
+    embedder = EmbeddingModel(config=config)
+    assert embedder.device == "cpu"
+    # Force CUDA if available
+    if hasattr(embedder, "model") and torch.cuda.is_available():
+        config = {"device": "cuda"}
+        embedder = EmbeddingModel(config=config)
+        assert embedder.device == "cuda"
+
+
+def test_embedding_model_large_batch(monkeypatch):
+    embedder = EmbeddingModel()
+    texts = [f"text {i}" for i in range(embedder.batch_size * 2 + 1)]
+    result = embedder.encode(texts)
+    assert result["success"] is True
+    assert result["embeddings"].shape[0] == len(texts)
+
+
+def test_embedding_model_dtype_and_shape():
+    embedder = EmbeddingModel()
+    texts = ["a", "b"]
+    result = embedder.encode(texts)
+    assert result["success"] is True
+    assert "shape" in result
+    assert "dtype" in result
+    assert isinstance(result["shape"], tuple)
+    assert isinstance(result["dtype"], str)

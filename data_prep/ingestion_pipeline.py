@@ -4,6 +4,7 @@ ShieldCraft AI Data Ingestion Pipeline Scaffold
 
 import os
 from infra.utils.config_loader import get_config_loader
+from ai_core.chunking.chunking import Chunker, ChunkingConfig
 
 
 class DataIngestionPipeline:
@@ -22,12 +23,11 @@ class DataIngestionPipeline:
             "chunking",
             {"chunk_size": 512, "overlap": 32, "strategy": "fixed", "min_length": 128},
         )
-        from ai_core.chunking import Chunker, ChunkingConfig
 
         try:
             self.chunker = Chunker(ChunkingConfig(**chunking_cfg))
             print(f"[INFO] Chunker initialized | Config: {chunking_cfg}")
-        except Exception as e:
+        except (TypeError, ValueError) as e:
             print(f"[ERROR] Chunker initialization failed: {e}")
             self.chunker = None
         print(
@@ -52,18 +52,18 @@ class DataIngestionPipeline:
         all_chunks = []
         for f in files[: self.batch_size]:
             try:
-                with open(f, "r") as infile:
+                with open(f, "r", encoding="utf-8") as infile:
                     text = infile.read()
                     batch.append(text)
                     if self.chunker:
                         try:
                             chunks = self.chunker.chunk(text)
                             all_chunks.extend(chunks)
-                        except Exception as ce:
+                        except (ValueError, TypeError) as ce:
                             print(f"[ERROR] Chunking failed for {f}: {ce}")
                     else:
                         all_chunks.append(text)
-            except Exception as e:
+            except (OSError, UnicodeDecodeError) as e:
                 print(f"[ERROR] Failed to read {f}: {e}")
         print(
             f"[INFO] Read {len(batch)} files in batch. Produced {len(all_chunks)} chunks."

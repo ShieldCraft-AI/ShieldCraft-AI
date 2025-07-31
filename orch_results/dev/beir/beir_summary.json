@@ -1,0 +1,9 @@
+[
+  {
+    "cmd": "poetry run python ai_core/embedding/benchmark_beir.py --dataset scifact --output orch_results/dev/beir/beir_scifact.json --batch-size 32 --data-path ./beir_datasets",
+    "log": "orch_results/dev/beir/beir_scifact.log",
+    "returncode": 1,
+    "error": null,
+    "metrics": null
+  }
+]

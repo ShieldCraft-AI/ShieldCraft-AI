@@ -1,3 +1,34 @@
+orchestrator:
+  output_dir: orch_results/dev
+  max_workers: 2
+  retry: 1
+  log_level: INFO
+chunking:
+  strategy: fixed
+  fixed:
+    chunk_size: 256
+    overlap: 16
+    min_length: 64
+  semantic:
+    min_length: 64
+  recursive:
+    max_chunk_size: 256
+    min_length: 64
+  sentence:
+    min_length: 32
+  token_based:
+    chunk_size: 128
+    overlap: 8
+    min_length: 32
+    tokenizer: dummy
+  sliding_window:
+    window_size: 128
+    step_size: 64
+    min_length: 32
+  custom_heuristic:
+    delimiter: "\n---\n"
+    min_length: 32
+    rules: {}
 app:
   env: dev
   region: af-south-1
@@ -260,3 +291,12 @@ vector_store:
   db_password: "aws-vault:dev/vector_store/db_password"
   table_name: "embeddings"
   batch_size: 100
+beir:
+  datasets: ["scifact"]
+  data_path: "./beir_datasets"
+  output_path: "beir_results.json"
+  batch_size: 32
+mteb:
+  tasks: null
+  output_path: "mteb_results.json"
+  batch_size: 32
