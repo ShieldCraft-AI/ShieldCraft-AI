@@ -24,6 +24,6 @@ When responding:
 - When there is potential for running code or jobs in parrallel, suggest as seasoned sage advice
 - Always use AWS ClI v2.27.50 commands for AWS CLI code
 - Parallelize workstreams where possible (data, model, API, infra) to accelerate delivery and uncover integration issues early.
-- Always design for both happy and unhappy paths—robust error handling and validation are non-negotiable for production systems.
+- Always design for both happy and unhappy paths robust error handling and validation are non-negotiable for production systems.
 - Use AWS CLI v2.27.50 for all automation to ensure compatibility and security.
 - Maintain a pragmatic, iterative approach: deliver value in small, testable increments.

@@ -2,9 +2,32 @@
 This file defines the configuration schema for ShieldCraft, a cloud-native security framework.
 """
 
-from typing import List, Optional, Dict, Any, Union
 import re
+from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
+
+
+class BeirConfig(BaseModel):
+    datasets: List[str] = Field(default_factory=lambda: ["scifact"])
+    data_path: Optional[str] = "./beir_datasets"
+    output_path: Optional[str] = "beir_results.json"
+    batch_size: Optional[int] = 32
+    model_config = ConfigDict(extra="ignore")
+
+
+class MtebConfig(BaseModel):
+    tasks: Optional[List[str]] = None  # null = all tasks
+    output_path: Optional[str] = "mteb_results.json"
+    batch_size: Optional[int] = 32
+    model_config = ConfigDict(extra="ignore")
+
+
+class OrchestratorConfig(BaseModel):
+    output_dir: Optional[str] = None
+    max_workers: Optional[int] = 2
+    retry: Optional[int] = 1
+    log_level: Optional[str] = "INFO"
+    model_config = ConfigDict(extra="ignore")
 
 
 class CrawlerConfig(BaseModel):
@@ -397,6 +420,7 @@ class ShieldCraftConfig(BaseModel):
     app: "AppConfig"
     s3: "S3Config"
     glue: "GlueConfig"
+    orchestrator: Optional[OrchestratorConfig] = None
     networking: Optional["NetworkingConfig"] = None
     tags: Optional["TagConfig"] = None
     msk: Optional["MSKConfig"] = None
@@ -409,6 +433,8 @@ class ShieldCraftConfig(BaseModel):
     cloud_native_hardening: Optional["CloudNativeHardeningConfig"] = None
     eventbridge: Optional["EventBridgeConfig"] = None
     stepfunctions: Optional[StepFunctionsConfig] = None
+    beir: Optional[BeirConfig] = None
+    mteb: Optional[MtebConfig] = None
     secrets: Optional[Dict[str, Dict[str, Union[str, bool]]]] = None
     audit: Optional[Dict[str, Any]] = None
     overrides: Optional[Dict[str, Any]] = None

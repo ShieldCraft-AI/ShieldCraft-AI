@@ -28,7 +28,7 @@ export default function StrategicAdvantage() {
                 </div>
                 <div style={{ maxWidth: 1100, margin: '0 auto 0.7em auto' }}>
                     <p className={styles.center} style={{ fontSize: '1.1em', color: '#eee' }}>
-                        ShieldCraft AI empowers your enterprise to anticipate, adapt, and autonomously defeat threats—delivering the speed, intelligence, and control needed to stay ahead in the modern cloud.
+                        ShieldCraft AI empowers your enterprise to anticipate, adapt, and autonomously defeat threats, delivering the speed, intelligence, and control needed to stay ahead in the modern cloud.
                     </p>
                 </div>
             </div>

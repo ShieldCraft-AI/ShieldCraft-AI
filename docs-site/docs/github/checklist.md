@@ -52,20 +52,9 @@
     - 🟩 Cross-stack resource sharing and dependency injection established
     - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
     - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
-    - 🟩 404+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - 🟩 500+ automated tests covering happy/unhappy paths, config validation, and outputs
     - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
----
-### MSK + Lambda Integration To-Do List
-
-- 🟥 Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
-- 🟥 Deploy Lambda in private subnets with correct security group(s)
-- 🟥 Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
-- 🟥 Set up CloudWatch alarms for Lambda errors, throttles, and duration
-- 🟥 Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
-- 🟥 Route alarm notifications to the correct email/SNS topic
-- 🟥 Implement and test the end-to-end MSK + Lambda topic creation flow
-- 🟥 Update documentation for MSK + Lambda integration, including troubleshooting steps
 
  </details></section>
 
@@ -158,6 +147,16 @@
 - 🟩 Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
 - 🟩 Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
 - 🟩 Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
+- ### MSK + Lambda Integration To-Do List
+
+- 🟥 Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
+- 🟥 Deploy Lambda in private subnets with correct security group(s)
+- 🟥 Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
+- 🟥 Set up CloudWatch alarms for Lambda errors, throttles, and duration
+- 🟥 Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
+- 🟥 Route alarm notifications to the correct email/SNS topic
+- 🟥 Implement and test the end-to-end MSK + Lambda topic creation flow
+- 🟥 Update documentation for MSK + Lambda integration, including troubleshooting steps
 
 </details></section>
 
@@ -180,8 +179,8 @@ Future iterations will orchestrate multiple AIs for even greater capability.</sp
 - 🟩 Selected <strong>Mistral-7B</strong> as the primary Foundation Model for ShieldCraft AI
     - 🟥 Select secondary Foundation Models (FMs) from Amazon Bedrock or Hugging Face (Phase 2 - multi-agent orchestration)
     - 🟩 Implement model loading, inference, and resource optimization
-    - � Build and validate text encoders/embedding pipeline for RAG/vector search
-    - � Implement data preprocessing, cleaning, and validation for model inputs and retrieval corpus
+    - 🟥 Build and validate text encoders/embedding pipeline for RAG/vector search
+    - 🟥 Implement data preprocessing, cleaning, and validation for model inputs and retrieval corpus
     - 🟥 Expose model inference via API (FastAPI/Flask), support batch/streaming modes
     - 🟥 Define core AI strategy (RAG, fine-tuning, hybrid approach)
     - 🟥 Prompt Engineering lifecycle implemented:
