@@ -1,3 +1,7 @@
+"""
+This file contains unit tests for the EmbeddingModel class in the ai_core.embedding module.
+"""
+
 import pytest
 import numpy as np
 from ai_core.embedding.embedding import EmbeddingModel
@@ -46,7 +50,9 @@ def test_embedding_model_error_handling():
     result = embedder.encode("Test text")
     assert result["success"] is False
     assert "error" in result
-    assert "model not loaded" in result["error"] or "failed" in result["error"].lower()
+    error_val = result["error"]
+    assert isinstance(error_val, str)
+    assert "model not loaded" in error_val or "failed" in error_val.lower()
 
 
 def test_embedding_model_input_validation():
@@ -54,11 +60,15 @@ def test_embedding_model_input_validation():
     # Non-string input
     result = embedder.encode([123, None])
     assert result["success"] is False
-    assert "Input must be a string or list of strings" in result["error"]
+    error_val = result["error"]
+    assert isinstance(error_val, str)
+    assert "Input must be a string or list of strings" in error_val
     # Empty list
     result = embedder.encode([])
     assert result["success"] is False
-    assert "Input text list is empty" in result["error"]
+    error_val = result["error"]
+    assert isinstance(error_val, str)
+    assert "Input text list is empty" in error_val
 
 
 def test_embedding_model_quantization_configs(monkeypatch):

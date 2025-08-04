@@ -64,12 +64,14 @@ class FixedChunkingStrategy(ChunkingStrategy):
 # 2. Semantic Chunking: split by paragraphs (double newline) as a simple semantic proxy
 class SemanticChunkingStrategy(ChunkingStrategy):
     @staticmethod
-    def chunk(text: str, doc_id: str = "") -> List[Chunk]:
+    def chunk(text: str, doc_id: str = "", min_length: int = 0) -> List[Chunk]:
         if not isinstance(text, str) or not text:
             raise ValueError("Input text must be a non-empty string.")
         paragraphs = [p for p in text.split("\n\n") if p.strip()]
         chunks = []
         for idx, para in enumerate(paragraphs):
+            if len(para) < min_length:
+                continue
             start_offset = text.find(para)
             end_offset = start_offset + len(para)
             chunks.append(
@@ -116,7 +118,7 @@ import re
 
 class SentenceChunkingStrategy(ChunkingStrategy):
     @staticmethod
-    def chunk(text: str, doc_id: str = "") -> List[Chunk]:
+    def chunk(text: str, doc_id: str = "", min_length: int = 0) -> List[Chunk]:
         if not isinstance(text, str) or not text:
             raise ValueError("Input text must be a non-empty string.")
         sentences = re.split(r"(?<=[.!?])\s+", text)
@@ -124,7 +126,7 @@ class SentenceChunkingStrategy(ChunkingStrategy):
         offset = 0
         for idx, sent in enumerate(sentences):
             sent = sent.strip()
-            if not sent:
+            if not sent or len(sent) < min_length:
                 continue
             start_offset = text.find(sent, offset)
             end_offset = start_offset + len(sent)
@@ -218,13 +220,32 @@ class SlidingWindowChunkingStrategy(ChunkingStrategy):
 class CustomHeuristicChunkingStrategy(ChunkingStrategy):
     @staticmethod
     def chunk(
-        text: str, doc_id: str = "", delimiter: str = "\n---\n", rules: dict = None
+        text: str,
+        doc_id: str = "",
+        delimiter: str = "\n---\n",
+        min_length: int = 0,
+        rules: dict = None,
     ) -> List[Chunk]:
         if not isinstance(text, str) or not text:
             raise ValueError("Input text must be a non-empty string.")
+        # If delimiter is empty, treat the whole text as one chunk
+        if delimiter == "":
+            if len(text) < min_length:
+                return []
+            return [
+                Chunk(
+                    text=text,
+                    doc_id=doc_id,
+                    chunk_index=0,
+                    start_offset=0,
+                    end_offset=len(text),
+                )
+            ]
         parts = [p for p in text.split(delimiter) if p.strip()]
         chunks = []
         for idx, part in enumerate(parts):
+            if len(part) < min_length:
+                continue
             start_offset = text.find(part)
             end_offset = start_offset + len(part)
             chunks.append(

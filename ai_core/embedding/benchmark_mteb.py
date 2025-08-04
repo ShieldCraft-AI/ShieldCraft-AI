@@ -8,12 +8,13 @@ import logging
 import concurrent.futures
 import json
 from datetime import datetime
+import argparse
+import contextlib
 from mteb import MTEB
 from sentence_transformers import SentenceTransformer
 from ai_core.embedding.embedding import EmbeddingModel
 from infra.utils.config_loader import get_config_loader
-import argparse
-import contextlib
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,14 +36,15 @@ class ShieldCraftEmbeddingAdapter:
         else:
             self.model = SentenceTransformer(self.model_name)
 
-    def encode(self, sentences, batch_size=32, **kwargs):
-        if self.use_custom:
-            result = self.model.encode(sentences)
-            if not result["success"]:
-                raise RuntimeError(f"Embedding failed: {result['error']}")
-            return result["embeddings"]
-        else:
-            return self.model.encode(sentences, batch_size=batch_size, **kwargs)
+
+def encode(self, sentences, batch_size=32, **kwargs):
+    if self.use_custom:
+        result = self.model.encode(sentences)
+        if not result["success"]:
+            raise RuntimeError(f"Embedding failed: {result['error']}")
+        return result["embeddings"]
+    else:
+        return self.model.encode(sentences, batch_size=batch_size, **kwargs)
 
 
 def run_mteb(
@@ -56,10 +58,9 @@ def run_mteb(
     """
 
     logging.info("Loading embedding model via config for MTEB...")
-    model = ShieldCraftEmbeddingAdapter()
     suite = MTEB(tasks=tasks)
     all_tasks = suite.tasks if tasks is None else tasks
-    logging.info(f"Running MTEB benchmark in parallel (tasks: {all_tasks})")
+    logging.info("Running MTEB benchmark in parallel (tasks: %s)", all_tasks)
 
     def run_single_task(task_name):
         try:
@@ -68,8 +69,11 @@ def run_mteb(
             local_suite = MTEB(tasks=[task_name])
             result = local_suite.run(local_model, output_folder=None)
             return {"task": task_name, "result": result, "success": True}
+        except RuntimeError as e:
+            logging.error("Task %s failed: %s", task_name, e)
+            return {"task": task_name, "error": str(e), "success": False}
         except Exception as e:
-            logging.error(f"Task {task_name} failed: {e}")
+            logging.error("Task %s failed with unexpected error: %s", task_name, e)
             return {"task": task_name, "error": str(e), "success": False}
 
     results = {}
@@ -84,6 +88,8 @@ def run_mteb(
                     results[task] = res["result"]
                 else:
                     errors[task] = res["error"]
+            except RuntimeError as exc:
+                errors[task] = str(exc)
             except Exception as exc:
                 errors[task] = str(exc)
 
@@ -94,11 +100,11 @@ def run_mteb(
         "errors": errors,
         "tasks": all_tasks,
     }
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2)
-    logging.info(f"MTEB parallel benchmark complete. Results saved to {output_path}")
+    logging.info("MTEB parallel benchmark complete. Results saved to %s", output_path)
     if errors:
-        logging.warning(f"Some tasks failed: {list(errors.keys())}")
+        logging.warning("Some tasks failed: %s", list(errors.keys()))
     return output
 
 
@@ -126,9 +132,7 @@ if __name__ == "__main__":
         help="Log file to capture all output",
     )
     args = parser.parse_args()
-    with (
-        open(args.log, "w") as log_file,
-        contextlib.redirect_stdout(log_file),
-        contextlib.redirect_stderr(log_file),
-    ):
-        run_mteb(tasks=args.tasks, output_path=args.output)
+    with open(args.log, "w", encoding="utf-8") as log_file:
+        with contextlib.redirect_stdout(log_file):
+            with contextlib.redirect_stderr(log_file):
+                run_mteb(tasks=args.tasks, output_path=args.output)

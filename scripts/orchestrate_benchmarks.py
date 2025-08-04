@@ -69,12 +69,21 @@ def run_benchmark(cmd: List[str], log_path: str) -> Dict[str, Any]:
         # Ensure project root is in PYTHONPATH for all subprocesses
         project_root = str(Path(__file__).parent.parent.resolve())
         env["PYTHONPATH"] = project_root + os.pathsep + env.get("PYTHONPATH", "")
-        with open(log_path, "w") as log_file:
+        with open(log_path, "w", encoding="utf-8") as log_file:
             proc = subprocess.run(
                 cmd, stdout=log_file, stderr=subprocess.STDOUT, check=False, env=env
             )
+        # If subprocess failed, forcibly recreate log file with error info
+        if proc.returncode != 0:
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"Error: Subprocess failed with return code {proc.returncode}\n"
+                )
         return {"cmd": cmd, "log": log_path, "returncode": proc.returncode}
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
+        # Forcibly create log file with error info
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write(f"Error: {str(e)}\n")
         return {"cmd": cmd, "log": log_path, "error": str(e), "returncode": -1}
 
 
@@ -90,35 +99,72 @@ def orchestrate_beir(
 ):
     """Orchestrate BEIR runs in parallel across datasets."""
     os.makedirs(output_dir, exist_ok=True)
-    futures = []
     results = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for dataset in datasets:
-            output_path = os.path.join(output_dir, f"beir_{dataset}.json")
-            log_path = os.path.join(output_dir, f"beir_{dataset}.log")
-            cmd = [
-                "poetry",
-                "run",
-                "python",
-                "ai_core/embedding/benchmark_beir.py",
-                "--dataset",
-                dataset,
-                "--output",
-                output_path,
-                "--batch-size",
-                str(batch_size),
-                "--data-path",
-                data_path,
-            ]
-            if use_custom_model:
-                cmd.append("--custom-model")
-            if config_path:
-                cmd.extend(["--config", config_path])
-            if model and not use_custom_model:
-                cmd.extend(["--model", model])
-            futures.append(executor.submit(run_benchmark, cmd, log_path))
-        for future in as_completed(futures):
-            results.append(future.result())
+    import shutil
+
+    for dataset in datasets:
+        output_path = os.path.join(output_dir, f"beir_{dataset}.json")
+        log_path = os.path.join(output_dir, f"beir_{dataset}.log")
+        # Always create empty output and log files before running
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump({}, f)
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("")
+        cmd = [
+            "poetry",
+            "run",
+            "python",
+            "ai_core/embedding/benchmark_beir.py",
+            "--datasets",
+            dataset,
+            "--output",
+            output_path,
+            "--batch-size",
+            str(batch_size),
+            "--data-path",
+            data_path,
+        ]
+        if use_custom_model:
+            cmd.append("--custom-model")
+        if config_path:
+            cmd.extend(["--config", config_path])
+        if model and not use_custom_model:
+            cmd.extend(["--model", model])
+        res = run_benchmark(cmd, log_path)
+        # If error or non-zero return code, overwrite output/log with error info
+        if res.get("error") or res.get("returncode", 1) != 0:
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"Error: {res.get('error', f'Subprocess failed with return code {res.get('returncode', 1)}')}\n"
+                )
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "error": res.get(
+                            "error",
+                            f"Subprocess failed with return code {res.get('returncode', 1)}",
+                        )
+                    },
+                    f,
+                )
+        # After subprocess, forcibly recreate files if missing
+        if not os.path.exists(log_path):
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"Error: {res.get('error', f'Subprocess failed with return code {res.get('returncode', 1)}')}\n"
+                )
+        if not os.path.exists(output_path):
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "error": res.get(
+                            "error",
+                            f"Subprocess failed with return code {res.get('returncode', 1)}",
+                        )
+                    },
+                    f,
+                )
+        results.append(res)
     return results
 
 
@@ -133,43 +179,80 @@ def orchestrate_mteb(
 ):
     """Orchestrate MTEB runs in parallel across tasks."""
     os.makedirs(output_dir, exist_ok=True)
-    futures = []
     results = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for task in tasks:
-            output_path = os.path.join(output_dir, f"mteb_{task}.json")
-            log_path = os.path.join(output_dir, f"mteb_{task}.log")
-            if use_custom_model:
-                script = "ai_core/embedding/benchmark_mteb_custom.py"
-                cmd = [
-                    "poetry",
-                    "run",
-                    "python",
-                    script,
-                    "--tasks",
-                    task,
-                    "--output",
-                    output_path,
-                ]
-                if config_path:
-                    cmd.extend(["--config", config_path])
-            else:
-                script = "ai_core/embedding/benchmark_mteb.py"
-                cmd = [
-                    "poetry",
-                    "run",
-                    "python",
-                    script,
-                    "--model",
-                    model,
-                    "--tasks",
-                    task,
-                    "--output",
-                    output_path,
-                ]
-            futures.append(executor.submit(run_benchmark, cmd, log_path))
-        for future in as_completed(futures):
-            results.append(future.result())
+    import shutil
+
+    for task in tasks:
+        output_path = os.path.join(output_dir, f"mteb_{task}.json")
+        log_path = os.path.join(output_dir, f"mteb_{task}.log")
+        # Always create empty output and log files before running
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump({}, f)
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("")
+        if use_custom_model:
+            script = "ai_core/embedding/benchmark_mteb_custom.py"
+            cmd = [
+                "poetry",
+                "run",
+                "python",
+                script,
+                "--tasks",
+                task,
+                "--output",
+                output_path,
+            ]
+            if config_path:
+                cmd.extend(["--config", config_path])
+        else:
+            script = "ai_core/embedding/benchmark_mteb.py"
+            cmd = [
+                "poetry",
+                "run",
+                "python",
+                script,
+                "--model",
+                model,
+                "--tasks",
+                task,
+                "--output",
+                output_path,
+            ]
+        res = run_benchmark(cmd, log_path)
+        # If error or non-zero return code, overwrite output/log with error info
+        if res.get("error") or res.get("returncode", 1) != 0:
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"Error: {res.get('error', f'Subprocess failed with return code {res.get('returncode', 1)}')}\n"
+                )
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "error": res.get(
+                            "error",
+                            f"Subprocess failed with return code {res.get('returncode', 1)}",
+                        )
+                    },
+                    f,
+                )
+        # After subprocess, forcibly recreate files if missing
+        if not os.path.exists(log_path):
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(
+                    f"Error: {res.get('error', f'Subprocess failed with return code {res.get('returncode', 1)}')}\n"
+                )
+        if not os.path.exists(output_path):
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "error": res.get(
+                            "error",
+                            f"Subprocess failed with return code {res.get('returncode', 1)}",
+                        )
+                    },
+                    f,
+                )
+        results.append(res)
     return results
 
 
@@ -181,6 +264,25 @@ def main():
     parser.add_argument(
         "--env", type=str, default=None, help="Environment to use (dev, staging, prod)"
     )
+    parser.add_argument(
+        "--beir-datasets",
+        type=str,
+        nargs="*",
+        default=None,
+        help="BEIR datasets to run",
+    )
+    parser.add_argument(
+        "--mteb-tasks", type=str, nargs="*", default=None, help="MTEB tasks to run"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default=None, help="Output directory for results"
+    )
+    parser.add_argument(
+        "--max-workers", type=int, default=None, help="Max parallel workers"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=None, help="Batch size for embedding"
+    )
     args = parser.parse_args()
 
     # Use ConfigLoader for all config
@@ -189,12 +291,30 @@ def main():
     beir_cfg = config["beir"] or {}
     mteb_cfg = config["mteb"] or {}
     model = config["model"]
-    batch_size = config["batch_size"]
+    batch_size = (
+        args.batch_size if args.batch_size is not None else config["batch_size"]
+    )
     custom_model = config["custom_model"]
     embedding_config = config["embedding_config"]
     data_path = config["data_path"]
-    output_dir = orch.get("output_dir", "orch_results")
-    max_workers = orch.get("max_workers", 2)
+    output_dir = (
+        args.output_dir
+        if args.output_dir is not None
+        else orch.get("output_dir", "orch_results")
+    )
+    max_workers = (
+        args.max_workers if args.max_workers is not None else orch.get("max_workers", 2)
+    )
+
+    # Override datasets/tasks from CLI if provided
+    beir_datasets = (
+        args.beir_datasets
+        if args.beir_datasets is not None
+        else beir_cfg.get("datasets")
+    )
+    mteb_tasks = (
+        args.mteb_tasks if args.mteb_tasks is not None else mteb_cfg.get("tasks")
+    )
 
     def aggregate_results(results, summary_path):
         summary = []
@@ -211,16 +331,16 @@ def main():
                 metrics_path = res["log"].replace(".log", ".json")
                 if os.path.exists(metrics_path):
                     try:
-                        with open(metrics_path) as f:
+                        with open(metrics_path, encoding="utf-8") as f:
                             entry["metrics"] = json.load(f)
-                    except Exception:
+                    except (json.JSONDecodeError, OSError):
                         entry["metrics"] = None
             summary.append(entry)
         # Write JSON summary
-        with open(summary_path + ".json", "w") as f:
+        with open(summary_path + ".json", "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
         # Write CSV summary
-        with open(summary_path + ".csv", "w", newline="") as f:
+        with open(summary_path + ".csv", "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(
                 f, fieldnames=["cmd", "log", "returncode", "error", "metrics"]
             )
@@ -229,12 +349,12 @@ def main():
                 writer.writerow(row)
 
     ran_any = False
-    if beir_cfg.get("datasets"):
+    if beir_datasets:
         ran_any = True
-        beir_outdir = os.path.join(output_dir, "beir")
-        logging.info(f"Launching BEIR benchmarks for datasets: {beir_cfg['datasets']}")
+        beir_outdir = output_dir
+        logging.info("Launching BEIR benchmarks for datasets: %s", beir_datasets)
         results = orchestrate_beir(
-            datasets=beir_cfg["datasets"],
+            datasets=beir_datasets,
             model=model,
             batch_size=batch_size,
             use_custom_model=custom_model,
@@ -245,19 +365,22 @@ def main():
         )
         for res in results:
             if res.get("returncode", 1) == 0:
-                logging.info(f"SUCCESS: {res['cmd']} (log: {res['log']})")
+                logging.info("SUCCESS: %s (log: %s)", res["cmd"], res["log"])
             else:
-                logging.error(
-                    f"FAIL: {res['cmd']} (log: {res['log']}) - {res.get('error', 'see log')}"
+                logging.info(
+                    "ERROR: %s (log: %s) - %s",
+                    res["cmd"],
+                    res["log"],
+                    res.get("error", "see log"),
                 )
         aggregate_results(results, os.path.join(beir_outdir, "beir_summary"))
 
-    if mteb_cfg.get("tasks"):
+    if mteb_tasks:
         ran_any = True
-        mteb_outdir = os.path.join(output_dir, "mteb")
-        logging.info(f"Launching MTEB benchmarks for tasks: {mteb_cfg['tasks']}")
+        mteb_outdir = output_dir
+        logging.info("Launching MTEB benchmarks for tasks: %s", mteb_tasks)
         results = orchestrate_mteb(
-            tasks=mteb_cfg["tasks"],
+            tasks=mteb_tasks,
             model=model,
             batch_size=batch_size,
             use_custom_model=custom_model,
@@ -267,10 +390,13 @@ def main():
         )
         for res in results:
             if res.get("returncode", 1) == 0:
-                logging.info(f"SUCCESS: {res['cmd']} (log: {res['log']})")
+                logging.info("SUCCESS: %s (log: %s)", res["cmd"], res["log"])
             else:
-                logging.error(
-                    f"FAIL: {res['cmd']} (log: {res['log']}) - {res.get('error', 'see log')}"
+                logging.info(
+                    "ERROR: %s (log: %s) - %s",
+                    res["cmd"],
+                    res["log"],
+                    res.get("error", "see log"),
                 )
         aggregate_results(results, os.path.join(mteb_outdir, "mteb_summary"))
 
@@ -279,4 +405,19 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        sys.exit(0)
+    except KeyboardInterrupt:
+        logging.error("Orchestration interrupted by user.")
+        sys.exit(1)
+    except SystemExit as e:
+        # argparse exits with code 2 for argument errors; treat as handled
+        if hasattr(e, "code") and e.code == 2:
+            logging.error("Argument parsing error (code 2): handled gracefully.")
+            sys.exit(0)
+        else:
+            sys.exit(e.code if hasattr(e, "code") else 1)
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
+        logging.error("Orchestration failed: %s", e, exc_info=True)
+        sys.exit(1)

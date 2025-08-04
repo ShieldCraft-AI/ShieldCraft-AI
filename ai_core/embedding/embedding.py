@@ -23,8 +23,11 @@ class EmbeddingModel:
             "quantization_type", "float16"
         )  # float16, int8, bitsandbytes
         self.batch_size = config.get("batch_size", 32)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = None
+        self.tokenizer = None
+        self._init_error = None
         try:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             quant_kwargs = {}
             quant_status = "none"
             if self.quantize:
@@ -59,16 +62,19 @@ class EmbeddingModel:
                 f"[INFO] Loaded embedding model: {self.model_name} | Env: {env} | Device: {self.device} | Quantized: {self.quantize} | Type: {quant_status}"
             )
         except Exception as e:
-            print(f"[ERROR] Embedding model loading failed: {e}")
+            print(f"[ERROR] Embedding model or tokenizer loading failed: {e}")
             self.model = None
+            self.tokenizer = None
+            self._init_error = str(e)
 
     def encode(self, texts):
         """
         Encode a batch of texts into embeddings. Returns dict with 'success', 'embeddings', 'error'.
         """
         result = {"success": False, "embeddings": None, "error": None}
-        if self.model is None:
-            result["error"] = "Embedding model not loaded."
+        if self.model is None or self.tokenizer is None:
+            err_msg = self._init_error or "Embedding model not loaded."
+            result["error"] = f"Embedding model not loaded: {err_msg}"
             return result
         if isinstance(texts, str):
             texts = [texts]

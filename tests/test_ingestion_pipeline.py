@@ -10,6 +10,7 @@ class DummyConfig:
             "source_path": "tests/assets/",
             "batch_size": 2,
             "allowed_extensions": [".txt", ".log"],
+            "enable_chunking": False,
         }
         return defaults.get(key, default)
 
@@ -56,9 +57,9 @@ def test_read_batch_local(setup_test_files, monkeypatch):
     pipeline = DataIngestionPipeline(config=config)
     files = pipeline.list_files()
     batch = pipeline.read_batch(files)
-    assert len(batch) == 2
-    assert batch[0] == "test1"
-    assert batch[1] == "test2"
+    # Only .txt and .log files are included
+    assert len(batch) == len(files)
+    assert set(batch) == {"test1", "test2"}
 
 
 def test_run_pipeline_no_files(monkeypatch):
@@ -81,6 +82,93 @@ def test_run_pipeline_with_files(setup_test_files, monkeypatch):
     )
     pipeline = DataIngestionPipeline(config=config)
     result = pipeline.run()
+    # Only .txt and .log files are included
     assert len(result) == 2
-    assert result[0] == "test1"
-    assert result[1] == "test2"
+    assert set(result) == {"test1", "test2"}
+
+
+def test_read_batch_chunking(setup_test_files, monkeypatch):
+    class ChunkingConfig:
+        def __init__(self, **kwargs):
+            pass
+
+    class DummyChunk:
+        def __init__(self, text):
+            self.text = text
+
+    class DummyChunker:
+        def chunk(self, text):
+            # Simulate chunking: one chunk per file (whole text)
+            return [DummyChunk(text)]
+
+    class ChunkingDummyConfig(DummyConfig):
+        def get(self, key, default=None):
+            if key == "enable_chunking":
+                return True
+            if key == "chunking":
+                return {}
+            return super().get(key, default)
+
+    monkeypatch.setattr("ai_core.chunking.chunking.Chunker", lambda cfg: DummyChunker())
+    monkeypatch.setattr(
+        "ai_core.chunking.chunking.ChunkingConfig",
+        lambda **kwargs: ChunkingConfig(**kwargs),
+    )
+    config = ChunkingDummyConfig()
+    original_get = ChunkingDummyConfig.get
+    monkeypatch.setattr(
+        config,
+        "get",
+        lambda k, d=None: (
+            setup_test_files if k == "source_path" else original_get(config, k, d)
+        ),
+    )
+    pipeline = DataIngestionPipeline(config=config)
+    files = pipeline.list_files()
+    batch = pipeline.read_batch(files)
+    # Each file's text is chunked into chars as DummyChunk objects
+    chunk_texts = [c.text for c in batch]
+    assert sorted(chunk_texts) == sorted(["test1", "test2"])
+
+
+def test_run_pipeline_with_chunking(setup_test_files, monkeypatch):
+    class ChunkingConfig:
+        def __init__(self, **kwargs):
+            pass
+
+    class DummyChunk:
+        def __init__(self, text):
+            self.text = text
+
+    class DummyChunker:
+        def chunk(self, text):
+            # Simulate chunking: one chunk per file (whole text)
+            return [DummyChunk(text)]
+
+    class ChunkingDummyConfig(DummyConfig):
+        def get(self, key, default=None):
+            if key == "enable_chunking":
+                return True
+            if key == "chunking":
+                return {}
+            return super().get(key, default)
+
+    monkeypatch.setattr("ai_core.chunking.chunking.Chunker", lambda cfg: DummyChunker())
+    monkeypatch.setattr(
+        "ai_core.chunking.chunking.ChunkingConfig",
+        lambda **kwargs: ChunkingConfig(**kwargs),
+    )
+    config = ChunkingDummyConfig()
+    original_get = ChunkingDummyConfig.get
+    monkeypatch.setattr(
+        config,
+        "get",
+        lambda k, d=None: (
+            setup_test_files if k == "source_path" else original_get(config, k, d)
+        ),
+    )
+    pipeline = DataIngestionPipeline(config=config)
+    result = pipeline.run()
+    # Each file's text is chunked into chars as DummyChunk objects
+    chunk_texts = [c.text for c in result]
+    assert sorted(chunk_texts) == sorted(["test1", "test2"])

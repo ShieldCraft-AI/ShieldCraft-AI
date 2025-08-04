@@ -58,17 +58,47 @@ s3:
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
       removal_policy: RETAIN
+      lifecycle_rules:
+        - id: transition-raw-prod
+          enabled: true
+          transitions:
+            - days: 90
+              storage_class: STANDARD_IA
+            - days: 180
+              storage_class: GLACIER
+          expiration_days: 1095
+          abort_incomplete_multipart_upload_days: 7
     - id: ProcessedDataBucket
       name: shieldcraft-prod-processed
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
       removal_policy: RETAIN
+      lifecycle_rules:
+        - id: transition-processed-prod
+          enabled: true
+          transitions:
+            - days: 90
+              storage_class: STANDARD_IA
+            - days: 180
+              storage_class: GLACIER
+          expiration_days: 1095
+          abort_incomplete_multipart_upload_days: 7
     - id: AnalyticsDataBucket
       name: shieldcraft-prod-analytics
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
+      lifecycle_rules:
+        - id: transition-analytics-prod
+          enabled: true
+          transitions:
+            - days: 90
+              storage_class: STANDARD_IA
+            - days: 180
+              storage_class: GLACIER
+          expiration_days: 1095
+          abort_incomplete_multipart_upload_days: 7
   lifecycle_policy_days: 90
   enable_access_logs: true
 

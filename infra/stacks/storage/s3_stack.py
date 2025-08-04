@@ -1,4 +1,11 @@
+"""
+S3Stack for ShieldCraftAI
+"""
+
+import re
 from typing import Any, Dict, Optional
+from aws_cdk import Tags
+from aws_cdk import Environment
 from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
 from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import (
@@ -9,6 +16,10 @@ from constructs import Construct
 
 
 class S3Stack(Stack):
+    def get_stack_tags(self):
+        # Always return the internal tag list for testability and auditability
+        return list(self._sc_tag_list)
+
     """
     ShieldCraftAI S3Stack
 
@@ -46,7 +57,6 @@ class S3Stack(Stack):
             if bucket_id in bucket_ids:
                 raise ValueError(f"Duplicate bucket id: {bucket_id}")
             bucket_ids.add(bucket_id)
-            import re
 
             if not isinstance(bucket_name, str) or not re.match(
                 r"^[a-z0-9.-]{3,63}$", bucket_name
@@ -65,7 +75,6 @@ class S3Stack(Stack):
 
     @staticmethod
     def sanitize_export_name(name: str) -> str:
-        import re
 
         # Only allow alphanumeric, colons, and hyphens
         return re.sub(r"[^A-Za-z0-9:-]", "-", name)
@@ -90,7 +99,6 @@ class S3Stack(Stack):
         # Only pass env if it is a dict or aws_cdk.Environment, not a string
         env_from_config = config.get("app", {}).get("env")
         stack_kwargs = {k: kwargs[k] for k in ("env", "description") if k in kwargs}
-        from aws_cdk import Environment
 
         if env_from_config and "env" not in stack_kwargs:
             if isinstance(env_from_config, dict) or isinstance(
@@ -99,7 +107,6 @@ class S3Stack(Stack):
                 stack_kwargs["env"] = env_from_config
         super().__init__(scope, construct_id, **stack_kwargs)
         self._validate_cross_stack_resources(config)
-        # Vault integration: import the main secrets manager secret if provided
         self.secrets_manager_arn = secrets_manager_arn
         self.secrets_manager_secret = None
         self.shared_resources = {}
@@ -118,28 +125,38 @@ class S3Stack(Stack):
             self.shared_resources["vault_secret"] = self.secrets_manager_secret
         s3_cfg = config.get("s3", {})
         env = config.get("app", {}).get("env", "dev")
-        # Apply tags to the stack using Tags.of(self)
-        from aws_cdk import Tags
 
+        tags_cfg = s3_cfg.get("tags") or {}
+        # Maintain an internal tag list for testability and auditability
+        self._sc_tag_list = []  # List of {"Key": ..., "Value": ...}
+        tag_dict = {}
+        # Add required tags first (order: Project, Environment)
+        tag_dict["Project"] = "ShieldCraftAI"
+        tag_dict["Environment"] = env
+        # Add config tags
+        for k, v in tags_cfg.items():
+            if v is not None:
+                tag_dict[str(k)] = str(v)
+        # Add shared_tags, deduplicating (shared_tags take precedence)
+        if shared_tags:
+            for k, v in shared_tags.items():
+                if v is not None:
+                    tag_dict[str(k)] = str(v)
+        # Build the tag list
+        for k, v in tag_dict.items():
+            self._sc_tag_list.append({"Key": k, "Value": v})
+        # For CDK, still add tags to the stack for resource propagation
         tags_manager = Tags.of(self)
-        if tags_manager is not None:
-            try:
-                tags_manager.add("Project", "ShieldCraftAI")
-                tags_manager.add("Environment", env)
-                for k, v in s3_cfg.get("tags", {}).items():
-                    if v is not None:
-                        tags_manager.add(str(k), str(v))
-                if shared_tags:
-                    for k, v in shared_tags.items():
-                        if v is not None:
-                            tags_manager.add(str(k), str(v))
-            except Exception as e:
-                print(f"[WARNING] Could not apply tags to stack: {e}")
+        self._sc_tags = tags_manager
+        try:
+            for tag in self._sc_tag_list:
+                tags_manager.add(tag["Key"], tag["Value"])
+        except Exception as e:
+            print(f"[WARNING] Could not apply tags to stack: {e}")
         buckets_cfg = s3_cfg.get("buckets", [])
         bucket_ids = set()
         self.buckets: Dict[str, s3.Bucket] = {}
         referenced_bucket_ids = set()
-        from aws_cdk import Tags
 
         for bucket_cfg in buckets_cfg:
             if not isinstance(bucket_cfg, dict):
@@ -156,7 +173,6 @@ class S3Stack(Stack):
                 raise ValueError(f"Duplicate bucket id: {bucket_id}")
             bucket_ids.add(bucket_id)
             referenced_bucket_ids.add(bucket_id)
-            import re
 
             if not isinstance(bucket_name, str) or not re.match(
                 r"^[a-z0-9.-]{3,63}$", bucket_name
@@ -198,6 +214,80 @@ class S3Stack(Stack):
                 versioned = True
                 if kms_key is None:
                     encryption = s3.BucketEncryption.S3_MANAGED
+
+            # --- LIFECYCLE RULES SUPPORT ---
+            lifecycle_rules_cfg = bucket_cfg.get("lifecycle_rules", [])
+            lifecycle_rules = []
+            for rule_cfg in lifecycle_rules_cfg:
+                if not isinstance(rule_cfg, dict):
+                    continue
+                rule_kwargs = {
+                    "id": rule_cfg.get("id"),
+                    "enabled": rule_cfg.get("enabled", True),
+                }
+                if rule_cfg.get("prefix") is not None:
+                    rule_kwargs["prefix"] = rule_cfg.get("prefix")
+                if rule_cfg.get("tag_filters") is not None:
+                    rule_kwargs["tag_filters"] = rule_cfg.get("tag_filters")
+                # Transitions
+                transitions = []
+                # Map legacy/common S3 storage class names to CDK enums for robust compatibility
+                storage_class_map = {
+                    "STANDARD_IA": "INFREQUENT_ACCESS",
+                    "ONEZONE_IA": "ONE_ZONE_INFREQUENT_ACCESS",
+                    # Add more aliases as needed
+                }
+                for t in rule_cfg.get("transitions", []):
+                    if not isinstance(t, dict):
+                        continue
+                    storage_class_str = t.get("storage_class", "GLACIER").upper()
+                    # Map legacy/common names to CDK enum names
+                    mapped_storage_class_str = storage_class_map.get(
+                        storage_class_str, storage_class_str
+                    )
+                    storage_class = getattr(
+                        s3.StorageClass, mapped_storage_class_str, None
+                    )
+                    if storage_class is None:
+                        available = [
+                            a for a in dir(s3.StorageClass) if not a.startswith("_")
+                        ]
+                        raise ValueError(
+                            f"Unknown or unsupported storage_class '{storage_class_str}' for transition. "
+                            f"Available enums in this CDK version: {available}"
+                        )
+                    transition = s3.Transition(
+                        storage_class=storage_class,
+                        transition_after=(
+                            Duration.days(t.get("days", 30))
+                            if t.get("days") is not None
+                            else None
+                        ),
+                        transition_date=None,
+                    )
+                    transitions.append(transition)
+                if transitions:
+                    rule_kwargs["transitions"] = transitions
+                # Expiration
+                if rule_cfg.get("expiration_days") is not None:
+                    rule_kwargs["expiration"] = Duration.days(
+                        rule_cfg["expiration_days"]
+                    )
+                # Abort incomplete multipart upload
+                if rule_cfg.get("abort_incomplete_multipart_upload_days") is not None:
+                    rule_kwargs["abort_incomplete_multipart_upload_after"] = (
+                        Duration.days(
+                            rule_cfg["abort_incomplete_multipart_upload_days"]
+                        )
+                    )
+                # Only add the rule if at least one actionable field is present
+                if (
+                    "transitions" in rule_kwargs
+                    or "expiration" in rule_kwargs
+                    or "abort_incomplete_multipart_upload_after" in rule_kwargs
+                ):
+                    lifecycle_rules.append(s3.LifecycleRule(**rule_kwargs))
+
             bucket = s3.Bucket(
                 self,
                 bucket_id,
@@ -207,12 +297,15 @@ class S3Stack(Stack):
                 encryption_key=kms_key if kms_key is not None else None,
                 block_public_access=block_public_access,
                 removal_policy=removal_policy,
+                lifecycle_rules=lifecycle_rules if lifecycle_rules else None,
             )
             self.buckets[bucket_id] = bucket
 
             # Propagate stack and shared tags to each bucket resource for auditability
-            if getattr(self, "tags", None) is not None:
-                for tag_key, tag_value in self.tags.render_tags():
+            for tag in self._sc_tag_list:
+                tag_key = tag.get("Key")
+                tag_value = tag.get("Value")
+                if tag_key is not None and tag_value is not None:
                     Tags.of(bucket).add(tag_key, tag_value)
 
             self._export_resource(

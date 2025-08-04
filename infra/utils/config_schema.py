@@ -450,6 +450,18 @@ class ShieldCraftConfig(BaseModel):
         return self
 
     @model_validator(mode="after")
+    def enforce_multi_az_in_prod(self):
+        # Enforce at least two subnets for multi-AZ in production
+        env = getattr(self.app, "env", None) if hasattr(self, "app") else None
+        if env == "prod" and hasattr(self, "networking") and self.networking:
+            subnets = getattr(self.networking, "subnets", [])
+            if len(subnets) < 2:
+                raise ValueError(
+                    "In production, networking.subnets must define at least two subnets for multi-AZ support."
+                )
+        return self
+
+    @model_validator(mode="after")
     def check_referential_integrity(self):
         # Collect all subnet and security group IDs from networking
         subnet_ids = set()
@@ -499,7 +511,7 @@ class ShieldCraftConfig(BaseModel):
 
         return self
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="allow")
 
 
 # Register forward refs

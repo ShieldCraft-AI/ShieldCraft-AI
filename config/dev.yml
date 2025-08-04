@@ -73,6 +73,16 @@ s3:
       crawler:
         schedule: "cron(0 2 * * ? *)"
         table_prefix: "raw_"
+      lifecycle_rules:
+        - id: transition-raw-dev
+          enabled: true
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
+          expiration_days: 365
+          abort_incomplete_multipart_upload_days: 7
     - id: ProcessedDataBucket
       name: shieldcraft-dev-processed
       versioned: true
@@ -83,6 +93,16 @@ s3:
       crawler:
         schedule: "cron(0 3 * * ? *)"
         table_prefix: "processed_"
+      lifecycle_rules:
+        - id: transition-processed-dev
+          enabled: true
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
+          expiration_days: 365
+          abort_incomplete_multipart_upload_days: 7
     - id: AnalyticsDataBucket
       name: shieldcraft-dev-analytics
       versioned: true
@@ -93,6 +113,16 @@ s3:
       crawler:
         schedule: "cron(0 4 * * ? *)"
         table_prefix: "analytics_"
+      lifecycle_rules:
+        - id: transition-analytics-dev
+          enabled: true
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
+          expiration_days: 365
+          abort_incomplete_multipart_upload_days: 7
   lifecycle_policy_days: 30
   enable_access_logs: true
 

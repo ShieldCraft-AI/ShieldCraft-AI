@@ -24,7 +24,6 @@ class IamRoleStack(Stack):
         scope,
         construct_id,
         config=None,
-        *args,
         secrets_manager_arn=None,
         **kwargs,
     ):
@@ -61,6 +60,30 @@ class IamRoleStack(Stack):
         if not isinstance(config, dict):
             raise ValueError("IamRoleStack requires a valid config dict.")
         env = config.get("app", {}).get("env", "dev")
+        # --- IAM Role Tagging: propagate standard tags for auditability ---
+        tags_cfg = config.get("tags") or {}
+        # Standard tags: Project, Environment, Owner, CostCenter, Team, Compliance
+        standard_tags = {
+            "Project": config.get("project", "shieldcraft-ai"),
+            "Environment": env,
+            "Owner": config.get("owner", "mlops-team"),
+            "CostCenter": config.get("cost_center", "RND"),
+            "Team": config.get("team", "mlops"),
+            "Compliance": config.get("compliance", "standard"),
+        }
+        # Merge in config tags (config tags take precedence)
+        for k, v in tags_cfg.items():
+            if v is not None:
+                standard_tags[str(k)] = str(v)
+        # Convert to tag list for application
+        iam_tags = [(k, v) for k, v in standard_tags.items() if v is not None]
+
+        def apply_iam_tags(role):
+            from aws_cdk import Tags
+
+            for k, v in iam_tags:
+                Tags.of(role).add(k, v)
+
         # Defensive: ensure region/account are available for ARN construction
         if self.region in (None, "") or self.account in (None, ""):
             print(
@@ -105,6 +128,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(opensearch_role)
         opensearch_domain_name = (
             config.get("opensearch", {})
             .get("domain", {})
@@ -152,6 +176,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(msk_client_role)
         msk_client_role.add_to_policy(
             iam.PolicyStatement(
                 actions=[
@@ -179,6 +204,7 @@ class IamRoleStack(Stack):
                 iam.ManagedPolicy.from_aws_managed_policy_name("AmazonMSKFullAccess")
             ],
         )
+        apply_iam_tags(msk_producer_role)
         msk_producer_role.add_to_policy(
             iam.PolicyStatement(
                 actions=[
@@ -210,6 +236,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(msk_consumer_role)
         msk_consumer_role.add_to_policy(
             iam.PolicyStatement(
                 actions=[
@@ -240,6 +267,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(lambda_role)
         # Attach least-privilege inline policies as needed
         # Use the same manual ARN construction as in MskStack for the cluster
         cluster_name = (
@@ -281,6 +309,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(sagemaker_role)
         s3_buckets = [b.get("name") for b in config.get("s3", {}).get("buckets", [])]
         # Defensive: Ensure all buckets referenced in downstream stacks are created and exported
         for bucket_name in s3_buckets:
@@ -313,6 +342,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(glue_role)
         # Attach least-privilege inline policies for Glue (S3, Glue, Lake Formation, Logs)
         for bucket_name in s3_buckets:
             glue_role.add_to_policy(
@@ -379,6 +409,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(airbyte_role)
         # Attach least-privilege inline policies for Airbyte (S3, MSK, etc.)
         for bucket_name in s3_buckets:
             airbyte_role.add_to_policy(
@@ -421,6 +452,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(lakeformation_admin_role)
         for bucket_name in s3_buckets:
             lakeformation_admin_role.add_to_policy(
                 iam.PolicyStatement(
@@ -450,6 +482,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(vpc_flow_logs_role)
         CfnOutput(
             self,
             f"{env.capitalize()}VpcFlowLogsRoleArn",
@@ -469,6 +502,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(dq_lambda_role)
         CfnOutput(
             self,
             f"{env.capitalize()}DataQualityLambdaRoleArn",
@@ -488,6 +522,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(dq_glue_role)
         CfnOutput(
             self,
             f"{env.capitalize()}DataQualityGlueRoleArn",
@@ -507,6 +542,7 @@ class IamRoleStack(Stack):
                 )
             ],
         )
+        apply_iam_tags(compliance_lambda_role)
 
         # Grant read access to all major IAM roles if vault secret is imported
         if self.secrets_manager_secret:

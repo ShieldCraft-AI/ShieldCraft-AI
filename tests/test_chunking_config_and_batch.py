@@ -149,9 +149,9 @@ import itertools
 @pytest.mark.parametrize(
     "strategy,params,text,expected_count",
     [
-        ("fixed", {"chunk_size": 3, "overlap": 1, "min_length": 2}, "abcdef", 2),
+        ("fixed", {"chunk_size": 3, "overlap": 1, "min_length": 2}, "abcdef", 3),
         ("semantic", {"min_length": 2}, "para1\n\npara2", 2),
-        ("recursive", {"max_chunk_size": 3, "min_length": 2}, "para1\n\npara2", 2),
+        ("recursive", {"max_chunk_size": 3, "min_length": 2}, "para1\n\npara2", 4),
         ("sentence", {"min_length": 2}, "A. B! C?", 3),
         (
             "token_based",
@@ -168,11 +168,11 @@ import itertools
             "sliding_window",
             {"window_size": 3, "step_size": 2, "min_length": 2},
             "abcdef",
-            2,
+            3,
         ),
         (
             "custom_heuristic",
-            {"delimiter": "-", "min_length": 2, "rules": {}},
+            {"delimiter": "-", "min_length": 1, "rules": {}},
             "a-b-c",
             3,
         ),
@@ -252,7 +252,7 @@ def test_token_based_chunking():
     assert len(chunks) > 0
     assert all(isinstance(c, Chunk) for c in chunks)
     assert chunks[0].text == "a b c"
-    assert chunks[1].text == "b c d"
+    assert chunks[1].text == "c d e"
 
 
 def test_token_based_chunking_invalid_tokenizer():

@@ -5,6 +5,7 @@ ShieldCraft AI Core - Mistral-7B Model Loader Scaffold
 import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from huggingface_hub.errors import HFValidationError
 
 MODEL_NAME = "mistralai/Mistral-7B-v0.1"
 
@@ -21,11 +22,13 @@ class ShieldCraftAICore:
             "cuda" if torch.cuda.is_available() else "cpu"
         )
         self.quantize = config.get("quantize", False)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        model_kwargs = {}
-        if self.quantize:
-            model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
         try:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            model_kwargs = {}
+            if self.quantize:
+                model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                    load_in_4bit=True
+                )
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name, **model_kwargs
             )
@@ -34,6 +37,9 @@ class ShieldCraftAICore:
             print(
                 f"[INFO] Loaded model: {self.model_name} | Env: {env} | Device: {self.device} | Quantized: {self.quantize}"
             )
+        except HFValidationError as e:
+            print(f"[ERROR] Model loading failed: {e}")
+            self.model = None
         except Exception as e:
             print(f"[ERROR] Model loading failed: {e}")
             self.model = None
@@ -51,6 +57,9 @@ class ShieldCraftAICore:
                 f"[INFO] Inference latency: {latency:.2f}s | Device: {self.device} | Quantized: {self.quantize}"
             )
             return result
+        except HFValidationError as e:
+            print(f"[ERROR] Inference validation error: {e}")
+            return "[ERROR] Inference validation error."
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 print(
