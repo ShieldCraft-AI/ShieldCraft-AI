@@ -52,7 +52,7 @@
     - 🟩 Cross-stack resource sharing and dependency injection established
     - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
     - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
-    - 🟩 500+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - 🟩 536+ automated tests covering happy/unhappy paths, config validation, and outputs
     - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
 

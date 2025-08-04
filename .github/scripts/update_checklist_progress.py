@@ -6,9 +6,11 @@ Run this script after a successful push (e.g., as a post-push hook or in CI).
 import re
 from pathlib import Path
 
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CHECKLIST_PATH = REPO_ROOT / "docs-site" / "docs" / "checklist.md"
+CHECKLIST_PATH = REPO_ROOT / "docs-site" / "docs" / "github" / "checklist.md"
 README_PATH = REPO_ROOT / "README.md"
+MDX_PATH = REPO_ROOT / "docs-site" / "docs" / "site" / "checklist.mdx"
 
 PROGRESS_BAR_PATTERN = re.compile(
     r'(<progress[^>]+id="shieldcraft-progress"[^>]+value=")\d+("[^>]+max=")\d+("[^>]*>)',
@@ -17,6 +19,18 @@ PROGRESS_BAR_PATTERN = re.compile(
 PROGRESS_LABEL_PATTERN = re.compile(
     r'(<div id="progress-label">)\d+% Complete(</div>)', re.MULTILINE
 )
+
+
+if not CHECKLIST_PATH.exists():
+    print(
+        f"[update_checklist_progress] ERROR: Checklist file not found: {CHECKLIST_PATH}"
+    )
+    exit(1)
+if not README_PATH.exists():
+    print(f"[update_checklist_progress] ERROR: README file not found: {README_PATH}")
+    exit(1)
+if not MDX_PATH.exists():
+    print(f"[update_checklist_progress] WARNING: MDX file not found: {MDX_PATH}")
 
 with CHECKLIST_PATH.open("r", encoding="utf-8") as f:
     checklist_content = f.read()
@@ -45,6 +59,9 @@ else:
     )
 
 # Update <progress> value and label in README
+# Update <progress> value and label in README
+
+# Update <progress> value and label in README
 with README_PATH.open("r", encoding="utf-8") as f:
     readme_content = f.read()
 
@@ -61,3 +78,20 @@ else:
     print(
         f"[update_checklist_progress] Progress bar already up-to-date in README.md: {percent}%."
     )
+
+# Update percentage in checklist.mdx
+if MDX_PATH.exists():
+    with MDX_PATH.open("r", encoding="utf-8") as f:
+        mdx_content = f.read()
+    # Replace the line with '% Complete' (e.g., '32% Complete')
+    mdx_new = re.sub(r"\d+% Complete", f"{percent}% Complete", mdx_content)
+    if mdx_new != mdx_content:
+        with MDX_PATH.open("w", encoding="utf-8") as f:
+            f.write(mdx_new)
+        print(
+            f"[update_checklist_progress] Progress percentage updated in checklist.mdx: {percent}% complete."
+        )
+    else:
+        print(
+            f"[update_checklist_progress] Progress percentage already up-to-date in checklist.mdx: {percent}%."
+        )
