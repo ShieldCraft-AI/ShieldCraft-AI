@@ -36,8 +36,6 @@ app:
   resource_prefix: shieldcraft-staging
   log_level: INFO
   enable_feature_x: false
-  # Cost and governance controls
-
 networking:
   vpc_id: vpc-shieldcraft-staging
   cidr: "10.1.0.0/16"
@@ -61,7 +59,62 @@ networking:
     - id: sg-default
       description: Default security group for ShieldCraft staging VPC
       allow_all_outbound: true
-
+s3:
+  buckets:
+    - id: RawDataBucket
+      name: shieldcraft-staging-raw
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+      lifecycle_rules:
+        - id: transition-raw-staging
+          enabled: true
+          transitions:
+            - days: 60
+              storage_class: STANDARD_IA
+            - days: 120
+              storage_class: GLACIER
+          expiration_days: 730
+          abort_incomplete_multipart_upload_days: 7
+    - id: ProcessedDataBucket
+      name: shieldcraft-staging-processed
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+      lifecycle_rules:
+        - id: transition-processed-staging
+          enabled: true
+          transitions:
+            - days: 60
+              storage_class: STANDARD_IA
+            - days: 120
+              storage_class: GLACIER
+          expiration_days: 730
+          abort_incomplete_multipart_upload_days: 7
+    - id: AnalyticsDataBucket
+      name: shieldcraft-staging-analytics
+      versioned: true
+      encryption: S3_MANAGED
+      block_public_access: BLOCK_ALL
+      removal_policy: DESTROY
+      lifecycle_rules:
+        - id: transition-analytics-staging
+          enabled: true
+          transitions:
+            - days: 60
+              storage_class: STANDARD_IA
+            - days: 120
+              storage_class: GLACIER
+          expiration_days: 730
+          abort_incomplete_multipart_upload_days: 7
+  lifecycle_policy_days: 60
+  enable_access_logs: true
+glue:
+  database_name: shieldcraft_staging_db
+  crawler_schedule: cron(0 2 * * ? *)
+  enable_data_quality: true
 msk:
   security_group:
     id: MskSecurityGroup
@@ -86,7 +139,6 @@ msk:
       - subnet-priv-b
     security_group_ids:
       - sg-msk
-
 lambda_:
   functions:
     - id: MskTopicCreator
@@ -115,7 +167,6 @@ lambda_:
         - kafka:CreateTopic
         - kafka:ListTopics
         - kafka:DescribeTopic
-
 opensearch:
   security_group:
     id: OpenSearchSecurityGroup
@@ -136,22 +187,23 @@ opensearch:
       ebsEnabled: true
       volumeSize: 20
       volumeType: gp3
-
 airbyte:
   deployment_type: ecs
   min_task_count: 1
   max_task_count: 3
-
 data_quality:
   dq_framework: deequ
   dq_schedule: cron(0 3 * * ? *)
-
 lakeformation:
   admin_role: ShieldCraftLakeAdmin
   data_lake_location: s3://shieldcraft-staging-analytics
   buckets:
     - id: AnalyticsDataBucket
       name: shieldcraft-staging-analytics
+    - id: RawDataBucket
+      name: shieldcraft-staging-raw
+    - id: ProcessedDataBucket
+      name: shieldcraft-staging-processed
   permissions:
     - template: etl
       principal: GLUE_EXECUTION_ROLE_ARN
@@ -169,13 +221,11 @@ lakeformation:
       resource:
         arn: arn:aws:s3:::shieldcraft-staging-analytics
       actions: ["DATA_LOCATION_ACCESS"]
-
 sagemaker:
   training_instance_type: ml.m5.xlarge
   inference_instance_type: ml.m5.large
   endpoint_auto_scaling: true
   model_registry: shieldcraft-model-registry-staging
-
 cloud_native_hardening:
   enable_cloudwatch_alarms: true
   alarm_email: devops@shieldcraft.ai
@@ -194,7 +244,6 @@ eventbridge:
   security_bus_name: shieldcraft-staging-security-bus
   lambda_export_name: StagingMskTopicCreatorLambdaArn
   data_event_source: shieldcraft.data.staging
-
 stepfunctions:
   state_machines:
     - id: DataIngestAndValidate

@@ -1,3 +1,120 @@
+# --- Happy path: Lifecycle rules propagate to template ---
+def test_s3_stack_lifecycle_rules_propagation():
+    app = App()
+    config = {
+        "s3": {
+            "buckets": [
+                {
+                    "id": "RawDataBucket",
+                    "name": "test-raw",
+                    "lifecycle_rules": [
+                        {
+                            "id": "transition-raw",
+                            "enabled": True,
+                            "transitions": [
+                                {"days": 30, "storage_class": "STANDARD_IA"},
+                                {"days": 60, "storage_class": "GLACIER"},
+                            ],
+                            "expiration_days": 365,
+                            "abort_incomplete_multipart_upload_days": 7,
+                        }
+                    ],
+                }
+            ]
+        },
+        "app": {"env": "test"},
+    }
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::S3::Bucket")
+    found_lifecycle = False
+    for r in resources.values():
+        props = r["Properties"]
+        if "LifecycleConfiguration" in props:
+            rules = props["LifecycleConfiguration"].get("Rules", [])
+            assert any(rule.get("Status") == "Enabled" for rule in rules)
+            assert any(
+                any(
+                    t.get("StorageClass") == "GLACIER"
+                    for t in rule.get("Transitions", [])
+                )
+                for rule in rules
+            )
+            found_lifecycle = True
+    assert found_lifecycle
+
+
+# --- Unhappy path: Invalid lifecycle_rules type (should skip, not raise) ---
+def test_s3_stack_invalid_lifecycle_rules_type():
+    app = App()
+    config = {
+        "s3": {
+            "buckets": [
+                {
+                    "id": "BadLifecycle",
+                    "name": "bad-lifecycle-bucket",
+                    "lifecycle_rules": ["notadict", 123, None],
+                }
+            ]
+        },
+        "app": {"env": "test"},
+    }
+    # Should not raise, just skip invalid rules
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::S3::Bucket")
+    for r in resources.values():
+        props = r["Properties"]
+        # No valid rules, so LifecycleConfiguration may be missing or empty
+        if "LifecycleConfiguration" in props:
+            rules = props["LifecycleConfiguration"].get("Rules", [])
+            assert rules == []
+
+
+# --- Edge case: Multiple lifecycle rules, partial fields ---
+def test_s3_stack_multiple_lifecycle_rules_partial_fields():
+    app = App()
+    config = {
+        "s3": {
+            "buckets": [
+                {
+                    "id": "MultiRule",
+                    "name": "multi-rule-bucket",
+                    "lifecycle_rules": [
+                        {"id": "rule1", "enabled": True, "expiration_days": 30},
+                        {
+                            "id": "rule2",
+                            "transitions": [
+                                {"days": 15, "storage_class": "STANDARD_IA"}
+                            ],
+                        },
+                    ],
+                }
+            ]
+        },
+        "app": {"env": "test"},
+    }
+    stack = S3Stack(app, "TestS3Stack", config=config)
+    template = assertions.Template.from_stack(stack)
+    resources = template.find_resources("AWS::S3::Bucket")
+    found = False
+    for r in resources.values():
+        props = r["Properties"]
+        if "LifecycleConfiguration" in props:
+            rules = props["LifecycleConfiguration"].get("Rules", [])
+            print("[DEBUG] Synthesized Lifecycle Rules:", rules)
+            assert any(rule.get("ExpirationInDays") == 30 for rule in rules)
+            assert any(
+                any(
+                    t.get("StorageClass") == "STANDARD_IA"
+                    for t in rule.get("Transitions", [])
+                )
+                for rule in rules
+            )
+            found = True
+    assert found
+
+
 # --- Integration test guidance ---
 import pytest
 from aws_cdk import App, assertions
@@ -18,10 +135,9 @@ def test_s3_stack_bucket_tags_propagation():
     stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
     expected_keys = {"Project", "Environment", "Owner", "CostCenter"}
     for bucket in stack.buckets.values():
-        tags = [t[0] for t in bucket.node.try_get_context("@aws-cdk/core:tags") or []]
-        # Fallback to Tags.of(bucket).has_tag if available
+        # tags = [t[0] for t in bucket.node.try_get_context("@aws-cdk/core:tags") or []]
         for key in expected_keys:
-            assert any(key == tag.get("Key") for tag in stack.tags.render_tags())
+            assert any(key == tag.get("Key") for tag in stack.get_stack_tags())
 
 
 # --- Supplementary: Unhappy path - missing required tag ---
@@ -30,7 +146,7 @@ def test_s3_stack_missing_shared_tag():
     config = minimal_s3_config()
     # No shared_tags, only config tags
     stack = S3Stack(app, "TestS3Stack", config=config)
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
     assert "Owner" in tag_keys
     assert "CostCenter" not in tag_keys
@@ -42,7 +158,7 @@ def test_s3_stack_no_duplicate_tags():
     config = minimal_s3_config()
     shared_tags = {"Owner": "S3Team"}
     stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     owner_tags = [tag for tag in tags if tag.get("Key") == "Owner"]
     assert len(owner_tags) == 1
 
@@ -57,8 +173,7 @@ def test_s3_stack_tags_scalability_large_bucket_count():
     }
     stack = S3Stack(app, "TestS3StackScale", config=config, shared_tags=shared_tags)
     for bucket in stack.buckets.values():
-        # Validate that Audit tag is present in stack tags
-        tags = stack.tags.render_tags() or []
+        tags = stack.get_stack_tags() or []
         assert any(tag.get("Key") == "Audit" for tag in tags)
 
 
@@ -67,12 +182,11 @@ def test_s3_stack_stack_level_tags_present_in_buckets():
     app = App()
     config = minimal_s3_config()
     stack = S3Stack(app, "TestS3Stack", config=config)
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     stack_tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
     for bucket in stack.buckets.values():
-        # Validate that all stack-level tag keys are present in stack.tags
         for key in stack_tag_keys:
-            assert any(tag.get("Key") == key for tag in stack.tags.render_tags())
+            assert any(tag.get("Key") == key for tag in stack.get_stack_tags())
 
 
 def minimal_s3_config():
@@ -109,7 +223,7 @@ def test_s3_stack_synthesizes():
 def test_s3_stack_tags():
     app = App()
     stack = S3Stack(app, "TestS3Stack", config=minimal_s3_config())
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     assert any(
         tag.get("Key") == "Project" and tag.get("Value") == "ShieldCraftAI"
         for tag in tags
@@ -305,7 +419,7 @@ def test_s3_stack_shared_tags():
     stack = S3Stack(
         app, "TestS3Stack", config=minimal_s3_config(), shared_tags=shared_tags
     )
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     assert any(
         tag.get("Key") == "CostCenter" and tag.get("Value") == "1234" for tag in tags
     )
@@ -435,7 +549,7 @@ def test_s3_stack_shared_and_per_bucket_tags_merge():
     config["s3"]["buckets"][0]["tags"] = {"Env": "dev"}
     shared_tags = {"CostCenter": "5678"}
     stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     # Only shared tags are present at stack level
     assert any(tag.get("Key") == "CostCenter" for tag in tags)
     # Per-bucket tags are not merged at stack level (CDK default)
@@ -487,7 +601,7 @@ def test_s3_stack_bucket_resource_tags():
     shared_tags = {"CostCenter": "9999"}
     config = minimal_s3_config()
     stack = S3Stack(app, "TestS3Stack", config=config, shared_tags=shared_tags)
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
     assert "Project" in tag_keys
     assert "Owner" in tag_keys
@@ -599,7 +713,7 @@ def test_s3_stack_scalability_tags():
     stack = S3Stack(app, "TestS3StackScale", config=config, shared_tags=shared_tags)
     resources = stack.buckets
     assert len(resources) == 100
-    tags = stack.tags.render_tags() or []
+    tags = stack.get_stack_tags() or []
     tag_keys = [tag.get("Key") for tag in tags if isinstance(tag, dict)]
     assert "Team" in tag_keys
     assert "Project" in tag_keys

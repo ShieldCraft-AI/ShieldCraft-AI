@@ -70,7 +70,7 @@ def run_beir(
             dataset_path = util.download_and_unzip(url, data_path)
             corpus, queries, qrels = GenericDataLoader(dataset_path).load(split="test")
             logging.info("Loading embedding model via config for BEIR...")
-            model = DRES(ShieldCraftEmbeddingAdapter(), batch_size=batch_size)
+            model = DRES(ShieldCraftEmbeddingAdapter())
             retriever = EvaluateRetrieval(model, score_function="cos_sim")
             logging.info(f"Running BEIR retrieval benchmark on {dataset}")
             results = retriever.retrieve(corpus, queries)

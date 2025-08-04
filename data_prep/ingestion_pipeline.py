@@ -18,6 +18,7 @@ class DataIngestionPipeline:
         self.allowed_extensions = config.get(
             "allowed_extensions", [".txt", ".log", ".json"]
         )
+        self.enable_chunking = config.get("enable_chunking", True)
         # Chunking config
         chunking_cfg = config.get(
             "chunking",
@@ -25,13 +26,18 @@ class DataIngestionPipeline:
         )
 
         try:
-            self.chunker = Chunker(ChunkingConfig(**chunking_cfg))
-            print(f"[INFO] Chunker initialized | Config: {chunking_cfg}")
+            self.chunker = (
+                Chunker(ChunkingConfig(**chunking_cfg))
+                if self.enable_chunking
+                else None
+            )
+            if self.enable_chunking:
+                print(f"[INFO] Chunker initialized | Config: {chunking_cfg}")
         except (TypeError, ValueError) as e:
             print(f"[ERROR] Chunker initialization failed: {e}")
             self.chunker = None
         print(
-            f"[INFO] DataIngestionPipeline initialized | Source: {self.source_type} | Path: {self.source_path} | Batch size: {self.batch_size}"
+            f"[INFO] DataIngestionPipeline initialized | Source: {self.source_type} | Path: {self.source_path} | Batch size: {self.batch_size} | Chunking: {self.enable_chunking}"
         )
 
     def list_files(self):
@@ -55,7 +61,7 @@ class DataIngestionPipeline:
                 with open(f, "r", encoding="utf-8") as infile:
                     text = infile.read()
                     batch.append(text)
-                    if self.chunker:
+                    if self.enable_chunking and self.chunker:
                         try:
                             chunks = self.chunker.chunk(text)
                             all_chunks.extend(chunks)
@@ -68,16 +74,16 @@ class DataIngestionPipeline:
         print(
             f"[INFO] Read {len(batch)} files in batch. Produced {len(all_chunks)} chunks."
         )
-        return all_chunks
+        return batch if not self.enable_chunking else all_chunks
 
     def run(self):
         files = self.list_files()
         if not files:
             print("[ERROR] No files to ingest.")
             return []
-        chunks = self.read_batch(files)
+        output = self.read_batch(files)
         # Placeholder for downstream processing (embedding, vector store, etc.)
         print(
-            f"[INFO] Ingestion pipeline completed for batch. Total chunks: {len(chunks)}"
+            f"[INFO] Ingestion pipeline completed for batch. Total output: {len(output)}"
         )
-        return chunks
+        return output

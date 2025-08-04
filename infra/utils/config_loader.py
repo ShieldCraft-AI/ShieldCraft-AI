@@ -146,25 +146,28 @@ class ConfigLoader:
                 config = config.model_dump()
             else:
                 config = dict(config)
-        # Only keep allowed keys and remove optional sections with empty dicts
-        allowed_keys = set(ShieldCraftConfig.model_fields.keys())
-        cleaned = {}
-        for k, v in config.items():
-            if k not in allowed_keys:
-                continue
-            field_info = ShieldCraftConfig.model_fields.get(k)
-            annotation = field_info.annotation if field_info else None
-            # Remove key if optional section and value is empty dict
-            if (
-                field_info
-                and hasattr(annotation, "__mro__")
-                and issubclass(annotation.__mro__[0], BaseModel)
-                and (field_info.is_required is False or field_info.default is None)
-                and v == {}
-            ):
-                continue
-            cleaned[k] = v
-        config = _normalize_empty_dicts(cleaned, ShieldCraftConfig)
+        # If schema allows extra fields, preserve all keys; else filter
+        if getattr(ShieldCraftConfig, "model_config", {}).get("extra", None) == "allow":
+            config = _normalize_empty_dicts(config, ShieldCraftConfig)
+        else:
+            allowed_keys = set(ShieldCraftConfig.model_fields.keys())
+            cleaned = {}
+            for k, v in config.items():
+                if k not in allowed_keys:
+                    continue
+                field_info = ShieldCraftConfig.model_fields.get(k)
+                annotation = field_info.annotation if field_info else None
+                # Remove key if optional section and value is empty dict
+                if (
+                    field_info
+                    and hasattr(annotation, "__mro__")
+                    and issubclass(annotation.__mro__[0], BaseModel)
+                    and (field_info.is_required is False or field_info.default is None)
+                    and v == {}
+                ):
+                    continue
+                cleaned[k] = v
+            config = _normalize_empty_dicts(cleaned, ShieldCraftConfig)
         # Ensure config is a plain dict before validation (handles nested models)
         config = _ensure_plain_dict(config)
         # Enforce presence of core required fields (add eventbridge if you want it required)

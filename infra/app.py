@@ -3,8 +3,9 @@ ShieldCraft AI Infrastructure Deployment Script
 """
 
 import os
-import yaml
+import ast
 from concurrent.futures import ThreadPoolExecutor
+from logging import getLogger, ERROR
 import aws_cdk as cdk
 from aws_cdk import Fn
 from aws_cdk import Environment
@@ -31,9 +32,7 @@ from infra.stacks.compliance_stack import (
 )  # pylint: disable=unused-import
 from infra.stacks.budget_stack import BudgetStack
 from infra.stacks.security.secrets_manager_stack import SecretsManagerStack
-
-# ShieldCraft AI Infrastructure Deployment Script (CDK synth always enabled)
-from logging import getLogger, ERROR
+import yaml
 
 logger = getLogger("shieldcraft-ai")
 logger.setLevel(ERROR)
@@ -113,7 +112,6 @@ try:
         if tags is None:
             return {}
         if isinstance(tags, str):
-            import ast
 
             try:
                 parsed = ast.literal_eval(tags)
@@ -136,8 +134,6 @@ try:
     stack_results["networking"] = networking
 
     with ThreadPoolExecutor() as executor:
-        import pprint
-
         futures = {
             "iam_roles": executor.submit(
                 IamRoleStack, app, "IamRoleStack", config=config, env=cdk_env
