@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Cloud Native Hardening Service Template
+Parameters:
+  ConfigRuleName:
+    Type: String
+    Description: Name of the AWS Config rule
+  IAMBoundaryPolicyName:
+    Type: String
+    Description: Name of the IAM boundary policy
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  ConfigRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: !Ref ConfigRuleName
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_PASSWORD_POLICY
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  IAMBoundaryPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Ref IAMBoundaryPolicyName
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "*"
+            Resource: "*"
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref ConfigRuleName
+      Description: Cloud native hardening secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  ConfigRuleName:
+    Description: Name of the AWS Config rule
+    Value: !Ref ConfigRule
+  IAMBoundaryPolicyArn:
+    Description: ARN of the IAM boundary policy
+    Value: !Ref IAMBoundaryPolicy
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

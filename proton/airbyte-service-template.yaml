@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Airbyte Service Template
+Parameters:
+  ConnectorName:
+    Type: String
+    Description: Name of the Airbyte connector
+  ECSClusterName:
+    Type: String
+    Description: Name of the ECS cluster for Airbyte
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  AirbyteECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSClusterName
+      ServiceName: !Ref ConnectorName
+      LaunchType: FARGATE
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref ConnectorName
+      Description: Airbyte connector secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  AirbyteServiceName:
+    Description: Name of the Airbyte ECS service
+    Value: !Ref AirbyteECSService
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

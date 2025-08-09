@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Attack Simulation Service Template
+Parameters:
+  FunctionName:
+    Type: String
+    Description: Name of the Lambda function
+  AlarmName:
+    Type: String
+    Description: Name of the CloudWatch alarm
+  SecretArn:
+    Type: String
+    Description: ARN of the imported secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  AttackSimulationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      Handler: index.handler
+      Runtime: python3.12
+      Role: !Ref SecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  AttackSimulationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmName
+      MetricName: Invocations
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions: []
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref FunctionName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  LambdaFunctionName:
+    Description: Name of the attack simulation Lambda function
+    Value: !Ref AttackSimulationLambda
+  AlarmName:
+    Description: Name of the CloudWatch alarm
+    Value: !Ref AttackSimulationAlarm
+  SecretArn:
+    Description: ARN of the imported secret
+    Value: !Ref SecretArn

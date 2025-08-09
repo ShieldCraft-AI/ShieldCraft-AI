@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Glue Service Template
+Parameters:
+  DatabaseName:
+    Type: String
+    Description: Name of the Glue database
+  CrawlerName:
+    Type: String
+    Description: Name of the Glue crawler
+  CrawlerRoleArn:
+    Type: String
+    Description: ARN of the IAM role for the crawler
+  TargetPath:
+    Type: String
+    Description: S3 path to crawl (e.g., s3://bucket/prefix)
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseInput:
+        Name: !Ref DatabaseName
+        Description: Glue database for ShieldCraft AI
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  GlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Ref CrawlerName
+      Role: !Ref CrawlerRoleArn
+      DatabaseName: !Ref DatabaseName
+      Targets:
+        S3Targets:
+          - Path: !Ref TargetPath
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  GlueDatabaseName:
+    Description: Name of the Glue database
+    Value: !Ref GlueDatabase
+  GlueCrawlerName:
+    Description: Name of the Glue crawler
+    Value: !Ref GlueCrawler

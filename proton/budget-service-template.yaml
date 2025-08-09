@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Budget Service Template
+Parameters:
+  BudgetName:
+    Type: String
+    Description: Name of the AWS Budget
+  BudgetLimit:
+    Type: Number
+    Description: Monthly budget limit (USD)
+  SNSAlertTopicArn:
+    Type: String
+    Description: ARN of the SNS topic for alerts
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  Budget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Ref BudgetName
+        BudgetLimit:
+          Amount: !Ref BudgetLimit
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+            NotificationState: ACTIVE
+          Subscribers:
+            - SubscriptionType: SNS
+              Address: !Ref SNSAlertTopicArn
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref BudgetName
+      Description: Budget alert secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  BudgetName:
+    Description: Name of the AWS Budget
+    Value: !Ref Budget
+  SNSAlertTopicArn:
+    Description: ARN of the SNS topic for alerts
+    Value: !Ref SNSAlertTopicArn
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

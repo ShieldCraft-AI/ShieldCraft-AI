@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Lambda Service Template
+Parameters:
+  FunctionName:
+    Type: String
+    Description: Name of the Lambda function
+  Handler:
+    Type: String
+    Default: index.handler
+    Description: Lambda handler
+  Runtime:
+    Type: String
+    Default: python3.12
+    Description: Lambda runtime
+  CodeS3Bucket:
+    Type: String
+    Description: S3 bucket containing Lambda code
+  CodeS3Key:
+    Type: String
+    Description: S3 key for Lambda code zip
+  RoleArn:
+    Type: String
+    Description: IAM role ARN for Lambda execution
+  VpcId:
+    Type: String
+    Description: VPC ID for Lambda networking
+  SubnetIds:
+    Type: List<String>
+    Description: Subnet IDs for Lambda networking
+  SecurityGroupIds:
+    Type: List<String>
+    Description: Security group IDs for Lambda networking
+Resources:
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      Handler: !Ref Handler
+      Runtime: !Ref Runtime
+      Code:
+        S3Bucket: !Ref CodeS3Bucket
+        S3Key: !Ref CodeS3Key
+      Role: !Ref RoleArn
+      VpcConfig:
+        SubnetIds: !Ref SubnetIds
+        SecurityGroupIds: !Ref SecurityGroupIds
+      Timeout: 900
+      MemorySize: 2048
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref FunctionName
+Outputs:
+  LambdaFunctionArn:
+    Description: ARN of the deployed Lambda function
+    Value: !GetAtt LambdaFunction.Arn

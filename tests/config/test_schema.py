@@ -14,6 +14,14 @@ from infra.utils.config_schema import (
     SecurityGroupConfig,
     NetworkingConfig,
     GlueConfig,
+    AICoreConfig,
+    EmbeddingConfig,
+    VectorStoreConfig,
+    ChunkingConfig,
+    MSKConfig,
+    MSKClusterConfig,
+    LambdaConfig,
+    LambdaFunctionConfig,
 )
 
 
@@ -119,6 +127,67 @@ def test_bucket_removal_policy_prod_enforced():
         )
 
 
+# Additional tests for new config models
+def test_ai_core_config_valid():
+    ai_core = AICoreConfig(model_name="gpt-4", quantize=True, device="cuda")
+    assert ai_core.model_name == "gpt-4"
+
+
+def test_embedding_config_valid():
+    embedding = EmbeddingConfig(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        quantize=False,
+        device="cpu",
+        batch_size=64,
+    )
+    assert embedding.batch_size == 64
+
+
+def test_vector_store_config_valid():
+    vector_store = VectorStoreConfig(
+        db_host="localhost",
+        db_port=5432,
+        db_name="testdb",
+        db_user="user",
+        db_password="pass",
+        table_name="vectors",
+        batch_size=200,
+    )
+    assert vector_store.table_name == "vectors"
+
+
+def test_chunking_config_valid():
+    chunking = ChunkingConfig(
+        strategy="sliding_window", sliding_window={"size": 128, "step": 64}
+    )
+    assert chunking.strategy == "sliding_window"
+
+
+def test_shieldcraft_config_sections_present():
+    config = ShieldCraftConfig(
+        app=AppConfig(env="dev", region="us-east-1", resource_prefix="prefix"),
+        s3=S3Config(
+            buckets=[BucketConfig(id="b1", name="bucket1", removal_policy="DESTROY")]
+        ),
+        glue=GlueConfig(database_name="db"),
+        ai_core=AICoreConfig(model_name="gpt-4"),
+        embedding=EmbeddingConfig(model_name="sentence-transformers/all-MiniLM-L6-v2"),
+        vector_store=VectorStoreConfig(
+            db_host="localhost",
+            db_port=5432,
+            db_name="testdb",
+            db_user="user",
+            db_password="pass",
+            table_name="vectors",
+        ),
+        chunking=ChunkingConfig(strategy="fixed", fixed={"size": 256}),
+    )
+    assert config.ai_core is not None
+    assert config.embedding is not None
+    assert config.vector_store is not None
+    assert config.chunking is not None
+
+
 # Test for valid and invalid principal in LakeFormationPermissionConfig
 def test_lakeformation_permission_principal_valid():
     from infra.utils.config_schema import LakeFormationPermissionConfig
@@ -195,3 +264,131 @@ def test_sagemaker_model_registry_none():
         model_registry=None,
     )
     assert sm.model_registry is None
+
+
+def test_prod_multi_az_enforced():
+    """Should fail if prod networking.subnets < 2."""
+    with pytest.raises(ValidationError):
+        ShieldCraftConfig(
+            app=AppConfig(env="prod", region="us-east-1", resource_prefix="prefix"),
+            s3=S3Config(
+                buckets=[BucketConfig(id="b1", name="bucket1", removal_policy="RETAIN")]
+            ),
+            glue=GlueConfig(database_name="db"),
+            networking=NetworkingConfig(
+                vpc_id="vpc-1",
+                cidr="10.0.0.0/16",
+                subnets=[SubnetConfig(id="a", cidr="10.0.1.0/24", type="private")],
+                security_groups=[SecurityGroupConfig(id="sg-1")],
+            ),
+        )
+
+
+def test_msk_subnet_referential_integrity():
+    """Should fail if MSK cluster references missing subnet IDs."""
+
+    class DummyMSKCluster:
+        vpc_subnet_ids = ["missing-subnet"]
+        security_group_ids = ["sg-1"]
+
+    class DummyMSK:
+        cluster = DummyMSKCluster()
+
+    with pytest.raises(ValidationError):
+        ShieldCraftConfig(
+            app=AppConfig(env="dev", region="us-east-1", resource_prefix="prefix"),
+            s3=S3Config(
+                buckets=[
+                    BucketConfig(id="b1", name="bucket1", removal_policy="DESTROY")
+                ]
+            ),
+            glue=GlueConfig(database_name="db"),
+            networking=NetworkingConfig(
+                vpc_id="vpc-1",
+                cidr="10.0.0.0/16",
+                subnets=[SubnetConfig(id="a", cidr="10.0.1.0/24", type="private")],
+                security_groups=[SecurityGroupConfig(id="sg-1")],
+            ),
+            msk=DummyMSK(),
+        )
+
+
+def test_lambda_security_group_referential_integrity():
+    """Should fail if Lambda function references missing security group IDs."""
+
+    class DummyLambdaFunction:
+        id = "fn1"
+        vpc_subnet_ids = ["a"]
+        security_group_ids = ["missing-sg"]
+
+    class DummyLambda:
+        functions = [DummyLambdaFunction()]
+
+    with pytest.raises(ValidationError):
+        ShieldCraftConfig(
+            app=AppConfig(env="dev", region="us-east-1", resource_prefix="prefix"),
+            s3=S3Config(
+                buckets=[
+                    BucketConfig(id="b1", name="bucket1", removal_policy="DESTROY")
+                ]
+            ),
+            glue=GlueConfig(database_name="db"),
+            networking=NetworkingConfig(
+                vpc_id="vpc-1",
+                cidr="10.0.0.0/16",
+                subnets=[SubnetConfig(id="a", cidr="10.0.1.0/24", type="private")],
+                security_groups=[SecurityGroupConfig(id="sg-1")],
+            ),
+            lambda_=DummyLambda(),
+        )
+
+
+def test_happy_path_prod_config():
+    """Should succeed for valid prod config (RETAIN, multi-AZ, referential integrity)."""
+
+    msk = MSKConfig(
+        cluster=MSKClusterConfig(
+            id="ShieldCraftMskCluster",
+            name="shieldcraft-msk-cluster",
+            kafka_version="3.5.1",
+            number_of_broker_nodes=3,
+            instance_type="kafka.m5.large",
+            vpc_subnet_ids=["a", "b"],
+            security_group_ids=["sg-1"],
+        )
+    )
+    lambda_ = LambdaConfig(
+        functions=[
+            LambdaFunctionConfig(
+                id="fn1",
+                handler="handler",
+                runtime="python3.12",
+                memory_size=128,
+                timeout=30,
+                vpc_subnet_ids=["a"],
+                security_group_ids=["sg-1"],
+            )
+        ]
+    )
+    config = ShieldCraftConfig(
+        app=AppConfig(env="prod", region="us-east-1", resource_prefix="prefix"),
+        s3=S3Config(
+            buckets=[BucketConfig(id="b1", name="bucket1", removal_policy="RETAIN")]
+        ),
+        glue=GlueConfig(database_name="db"),
+        networking=NetworkingConfig(
+            vpc_id="vpc-1",
+            cidr="10.0.0.0/16",
+            subnets=[
+                SubnetConfig(id="a", cidr="10.0.1.0/24", type="private"),
+                SubnetConfig(id="b", cidr="10.0.2.0/24", type="private"),
+            ],
+            security_groups=[
+                SecurityGroupConfig(id="sg-1"),
+                SecurityGroupConfig(id="sg-2"),
+            ],
+        ),
+        msk=msk,
+        lambda_=lambda_,
+    )
+    assert config.app.env == "prod"

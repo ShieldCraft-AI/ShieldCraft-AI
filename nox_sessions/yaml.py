@@ -1,3 +1,7 @@
+"""
+yaml.py
+"""
+
 import nox
 from nox_sessions.utils import nox_session_guard
 from nox_sessions.utils_encoding import force_utf8

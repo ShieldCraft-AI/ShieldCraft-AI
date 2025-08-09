@@ -414,63 +414,71 @@ class EventBridgeConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class ChunkingConfig(BaseModel):
+    strategy: Optional[str] = None
+    fixed: Optional[Dict[str, Any]] = None
+    semantic: Optional[Dict[str, Any]] = None
+    recursive: Optional[Dict[str, Any]] = None
+    sentence: Optional[Dict[str, Any]] = None
+    token_based: Optional[Dict[str, Any]] = None
+    sliding_window: Optional[Dict[str, Any]] = None
+    custom_heuristic: Optional[Dict[str, Any]] = None
+    model_config = ConfigDict(extra="ignore")
+
+
+class AICoreConfig(BaseModel):
+    model_name: str
+    quantize: Optional[bool] = False
+    device: Optional[str] = "cpu"
+    model_config = ConfigDict(extra="ignore", protected_namespaces=())
+
+
+class EmbeddingConfig(BaseModel):
+    model_name: str
+    quantize: Optional[bool] = False
+    device: Optional[str] = "cpu"
+    batch_size: Optional[int] = 32
+    model_config = ConfigDict(extra="ignore", protected_namespaces=())
+
+
+class VectorStoreConfig(BaseModel):
+    db_host: str
+    db_port: int
+    db_name: str
+    db_user: str
+    db_password: str
+    table_name: str
+    batch_size: Optional[int] = 100
+    model_config = ConfigDict(extra="ignore")
+
+    model_config = ConfigDict(extra="allow")
+
+
 class ShieldCraftConfig(BaseModel):
-    """Top-level ShieldCraft configuration, aggregating all sections."""
-
-    app: "AppConfig"
-    s3: "S3Config"
-    glue: "GlueConfig"
-    orchestrator: Optional[OrchestratorConfig] = None
-    networking: Optional["NetworkingConfig"] = None
-    tags: Optional["TagConfig"] = None
-    msk: Optional["MSKConfig"] = None
-    lambda_: Optional["LambdaConfig"] = None
-    opensearch: Optional["OpenSearchConfig"] = None
-    airbyte: Optional["AirbyteConfig"] = None
-    data_quality: Optional["DataQualityConfig"] = None
-    lakeformation: Optional["LakeFormationConfig"] = None
-    sagemaker: Optional["SageMakerConfig"] = None
-    cloud_native_hardening: Optional["CloudNativeHardeningConfig"] = None
-    eventbridge: Optional["EventBridgeConfig"] = None
-    stepfunctions: Optional[StepFunctionsConfig] = None
-    beir: Optional[BeirConfig] = None
-    mteb: Optional[MtebConfig] = None
-    secrets: Optional[Dict[str, Dict[str, Union[str, bool]]]] = None
-    audit: Optional[Dict[str, Any]] = None
-    overrides: Optional[Dict[str, Any]] = None
-
     @model_validator(mode="after")
-    def enforce_prod_bucket_removal_policy(self):
-        # Enforce RETAIN for prod buckets if env is prod
-        env = getattr(self.app, "env", None) if hasattr(self, "app") else None
-        if env == "prod" and hasattr(self, "s3") and self.s3:
-            for bucket in self.s3.buckets:
-                if getattr(bucket, "removal_policy", None) != "RETAIN":
-                    raise ValueError("In production, S3 removal_policy must be RETAIN.")
-        return self
+    def enforce_prod_invariants_and_referential_integrity(self):
+        # Enforce RETAIN for prod buckets
+        if self.app and getattr(self.app, "env", None) == "prod":
+            if self.s3 and hasattr(self.s3, "buckets"):
+                for bucket in self.s3.buckets:
+                    if getattr(bucket, "removal_policy", None) != "RETAIN":
+                        raise ValueError(
+                            "In production, S3 removal_policy must be RETAIN."
+                        )
+            if self.networking and hasattr(self.networking, "subnets"):
+                subnets = getattr(self.networking, "subnets", [])
+                if len(subnets) < 2:
+                    raise ValueError(
+                        "In production, networking.subnets must define at least two subnets for multi-AZ support."
+                    )
 
-    @model_validator(mode="after")
-    def enforce_multi_az_in_prod(self):
-        # Enforce at least two subnets for multi-AZ in production
-        env = getattr(self.app, "env", None) if hasattr(self, "app") else None
-        if env == "prod" and hasattr(self, "networking") and self.networking:
-            subnets = getattr(self.networking, "subnets", [])
-            if len(subnets) < 2:
-                raise ValueError(
-                    "In production, networking.subnets must define at least two subnets for multi-AZ support."
-                )
-        return self
-
-    @model_validator(mode="after")
-    def check_referential_integrity(self):
-        # Collect all subnet and security group IDs from networking
+        # Referential integrity for subnet and security group IDs
         subnet_ids = set()
         sg_ids = set()
         if self.networking:
             subnet_ids = {s.id for s in getattr(self.networking, "subnets", [])}
             sg_ids = {sg.id for sg in getattr(self.networking, "security_groups", [])}
 
-        # Helper to check references
         def check_ids(ref_ids, valid_ids, ref_type, section):
             for rid in ref_ids:
                 if rid not in valid_ids:
@@ -511,7 +519,31 @@ class ShieldCraftConfig(BaseModel):
 
         return self
 
-    model_config = ConfigDict(extra="allow")
+    app: "AppConfig"
+    s3: "S3Config"
+    glue: "GlueConfig"
+    orchestrator: Optional[OrchestratorConfig] = None
+    networking: Optional["NetworkingConfig"] = None
+    tags: Optional["TagConfig"] = None
+    msk: Optional["MSKConfig"] = None
+    lambda_: Optional["LambdaConfig"] = None
+    opensearch: Optional["OpenSearchConfig"] = None
+    airbyte: Optional["AirbyteConfig"] = None
+    data_quality: Optional["DataQualityConfig"] = None
+    lakeformation: Optional["LakeFormationConfig"] = None
+    sagemaker: Optional["SageMakerConfig"] = None
+    cloud_native_hardening: Optional["CloudNativeHardeningConfig"] = None
+    eventbridge: Optional["EventBridgeConfig"] = None
+    stepfunctions: Optional[StepFunctionsConfig] = None
+    beir: Optional[BeirConfig] = None
+    mteb: Optional[MtebConfig] = None
+    secrets: Optional[Dict[str, Dict[str, Union[str, bool]]]] = None
+    audit: Optional[Dict[str, Any]] = None
+    overrides: Optional[Dict[str, Any]] = None
+    ai_core: Optional[AICoreConfig] = None
+    embedding: Optional[EmbeddingConfig] = None
+    vector_store: Optional[VectorStoreConfig] = None
+    chunking: Optional[ChunkingConfig] = None
 
 
 # Register forward refs

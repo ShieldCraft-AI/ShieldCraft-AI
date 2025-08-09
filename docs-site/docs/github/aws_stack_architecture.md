@@ -20,22 +20,23 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td><b>networking</b></td><td>Foundational network isolation and security</td><td>VPC, subnets, security groups, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>eventbridge</b></td><td>Central event bus for orchestration and integration</td><td>EventBridge bus, rules, targets</td></tr>
-    <tr><td><b>stepfunctions</b></td><td>Workflow orchestration for AI/ML pipelines</td><td>State machines, workflow definitions, IAM roles</td></tr>
-    <tr><td><b>s3</b></td><td>Centralized object storage for all data and artifacts</td><td>S3 buckets, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>lakeformation</b></td><td>Data governance and fine-grained access control</td><td>Lake Formation resources, permissions, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>glue</b></td><td>ETL, data cataloging, and analytics</td><td>Glue jobs, crawlers, catalog, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>lambda</b></td><td>Event-driven compute and orchestration</td><td>Lambda functions, triggers, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>dataquality</b></td><td>Automated data quality checks and validation</td><td>Quality rules, validation jobs, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>airbyte</b></td><td>Connector-based data ingestion and movement</td><td>ECS services, connectors, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>opensearch</b></td><td>Search and analytics for logs and data</td><td>OpenSearch domains, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>cloud_native_hardening</b></td><td>Cross-cutting security, monitoring, compliance</td><td>CloudWatch alarms, Config rules, IAM boundaries, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>attack_simulation</b></td><td>Automated attack simulation and security validation</td><td>Lambda functions, CloudWatch alarms, imported secret ARN, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>secrets_manager</b></td><td>Centralized secrets management for all environments</td><td>AWS Secrets Manager secrets, resource policies, cross-stack exports</td></tr>
-    <tr><td><b>msk</b></td><td>Managed streaming for Kafka workloads</td><td>MSK clusters, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>sagemaker</b></td><td>Model training, deployment, and monitoring</td><td>SageMaker endpoints, models, monitoring, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
-    <tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, and multi-channel notifications</td><td>AWS Budgets, SNS topics, email alerts, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>airbyte</b></td><td>Connector-based data ingestion and movement</td><td>ECS services, connectors, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>attack_simulation</b></td><td>Automated attack simulation and security validation</td><td>Lambda functions, CloudWatch alarms, imported secret ARN, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, and multi-channel notifications</td><td>AWS Budgets, SNS topics, email alerts, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>cloud_native_hardening</b></td><td>Cross-cutting security, monitoring, compliance</td><td>CloudWatch alarms, Config rules, IAM boundaries, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>cloudformation</b></td><td>Orchestration and lifecycle management of all AWS stacks</td><td>CloudFormation stacks, stack outputs, cross-stack references</td></tr>
+<tr><td><b>dataquality</b></td><td>Automated data quality checks and validation</td><td>Quality rules, validation jobs, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>eventbridge</b></td><td>Central event bus for orchestration and integration</td><td>EventBridge bus, rules, targets</td></tr>
+<tr><td><b>glue</b></td><td>ETL, data cataloging, and analytics</td><td>Glue jobs, crawlers, catalog, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>lakeformation</b></td><td>Data governance and fine-grained access control</td><td>Lake Formation resources, permissions, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>lambda</b></td><td>Event-driven compute and orchestration</td><td>Lambda functions, triggers, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>msk</b></td><td>Managed streaming for Kafka workloads</td><td>MSK clusters, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>networking</b></td><td>Foundational network isolation and security</td><td>VPC, subnets, security groups, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>opensearch</b></td><td>Search and analytics for logs and data</td><td>OpenSearch domains, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>s3</b></td><td>Centralized object storage for all data and artifacts</td><td>S3 buckets, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>sagemaker</b></td><td>Model training, deployment, and monitoring</td><td>SageMaker endpoints, models, monitoring, <span style="color:#a5b4fc;">vault secret (imported)</span></td></tr>
+<tr><td><b>secrets_manager</b></td><td>Centralized secrets management for all environments</td><td>AWS Secrets Manager secrets, resource policies, cross-stack exports</td></tr>
+<tr><td><b>stepfunctions</b></td><td>Workflow orchestration for AI/ML pipelines</td><td>State machines, workflow definitions, IAM roles</td></tr>
   </tbody>
 </table></section>
 
@@ -53,24 +54,25 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td><b>IamRoleStack</b></td><td>All required IAM role ARNs</td><td>All stacks needing roles</td><td>Deploy first or in parallel, outputs must exist before import</td></tr>
-    <tr><td><b>EventBridgeStack</b></td><td>Event bus ARN, rule ARNs</td><td>LambdaStack, StepFunctionsStack, other integration stacks</td><td>Can run in parallel with other integration stacks</td></tr>
-    <tr><td><b>StepFunctionsStack</b></td><td>State machine ARN, workflow outputs</td><td>LambdaStack, SageMakerStack, DataQualityStack</td><td>Can run in parallel with other workflow stacks</td></tr>
-    <tr><td><b>NetworkingStack</b></td><td>VPC ID, SG IDs, Flow Logs ARN, vault secret ARN</td><td>All compute/data stacks</td><td>Same as above</td></tr>
-    <tr><td><b>S3Stack</b></td><td>data_bucket name/ARN, vault secret ARN</td><td>GlueStack, LakeFormationStack, etc.</td><td>S3Stack must finish before dependent stacks</td></tr>
-    <tr><td><b>GlueStack</b></td><td>Glue DB/catalog name, vault secret ARN</td><td>LakeFormationStack, DataQualityStack</td><td>GlueStack must finish before dependents</td></tr>
-    <tr><td><b>LakeFormationStack</b></td><td>Admin role, permissions, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
-    <tr><td><b>MskStack</b></td><td>Broker info, client/producer/consumer roles, vault secret ARN</td><td>LambdaStack, AirbyteStack, etc.</td><td></td></tr>
-    <tr><td><b>LambdaStack</b></td><td>Lambda ARNs, vault secret ARN</td><td>DataQualityStack, ComplianceStack, AttackSimulationStack</td><td></td></tr>
-    <tr><td><b>AttackSimulationStack</b></td><td>Lambda ARN, alarm ARN, imported secret ARN</td><td>Security, audit, downstream consumers</td><td>Can run in parallel with other compute stacks</td></tr>
-    <tr><td><b>SecretsManagerStack</b></td><td>Secret ARNs, resource policies</td><td>All stacks needing secrets</td><td>Deploy first for secret availability</td></tr>
-    <tr><td><b>AirbyteStack</b></td><td>Endpoints, role ARN, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
-    <tr><td><b>OpenSearchStack</b></td><td>Endpoint, role ARN, vault secret ARN</td><td>Analytics, LambdaStack</td><td></td></tr>
-    <tr><td><b>DataQualityStack</b></td><td>Metrics, alerts, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
-    <tr><td><b>SageMakerStack</b></td><td>Endpoint, role ARN, vault secret ARN</td><td>ML pipeline, LambdaStack</td><td></td></tr>
-    <tr><td><b>CloudNativeHardeningStack</b></td><td>Security findings, config rules, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
-    <tr><td><b>ComplianceStack</b></td><td>Compliance reports, Lambda ARNs, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
-    <tr><td><b>BudgetStack</b></td><td>Budget ARNs, SNS topic ARN, vault secret ARN</td><td>All teams, FinOps, notifications</td><td>Deployed last, depends on all infra</td></tr>
+  <tr><td><b>AirbyteStack</b></td><td>Endpoints, role ARN, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
+  <tr><td><b>AttackSimulationStack</b></td><td>Lambda ARN, alarm ARN, imported secret ARN</td><td>Security, audit, downstream consumers</td><td>Can run in parallel with other compute stacks</td></tr>
+  <tr><td><b>BudgetStack</b></td><td>Budget ARNs, SNS topic ARN, vault secret ARN</td><td>All teams, FinOps, notifications</td><td>Deployed last, depends on all infra</td></tr>
+  <tr><td><b>CloudFormationStack</b></td><td>Stack outputs, exported values, orchestration metadata</td><td>All stacks (as orchestrator)</td><td>Runs before/with all stacks, manages dependencies and lifecycle</td></tr>
+  <tr><td><b>CloudNativeHardeningStack</b></td><td>Security findings, config rules, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
+  <tr><td><b>ComplianceStack</b></td><td>Compliance reports, Lambda ARNs, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
+  <tr><td><b>DataQualityStack</b></td><td>Metrics, alerts, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
+  <tr><td><b>EventBridgeStack</b></td><td>Event bus ARN, rule ARNs</td><td>LambdaStack, StepFunctionsStack, other integration stacks</td><td>Can run in parallel with other integration stacks</td></tr>
+  <tr><td><b>GlueStack</b></td><td>Glue DB/catalog name, vault secret ARN</td><td>LakeFormationStack, DataQualityStack</td><td>GlueStack must finish before dependents</td></tr>
+  <tr><td><b>IamRoleStack</b></td><td>All required IAM role ARNs</td><td>All stacks needing roles</td><td>Deploy first or in parallel, outputs must exist before import</td></tr>
+  <tr><td><b>LakeFormationStack</b></td><td>Admin role, permissions, vault secret ARN</td><td>(If needed by other stacks)</td><td></td></tr>
+  <tr><td><b>LambdaStack</b></td><td>Lambda ARNs, vault secret ARN</td><td>DataQualityStack, ComplianceStack, AttackSimulationStack</td><td></td></tr>
+  <tr><td><b>MskStack</b></td><td>Broker info, client/producer/consumer roles, vault secret ARN</td><td>LambdaStack, AirbyteStack, etc.</td><td></td></tr>
+  <tr><td><b>NetworkingStack</b></td><td>VPC ID, SG IDs, Flow Logs ARN, vault secret ARN</td><td>All compute/data stacks</td><td>Same as above</td></tr>
+  <tr><td><b>OpenSearchStack</b></td><td>Endpoint, role ARN, vault secret ARN</td><td>Analytics, LambdaStack</td><td></td></tr>
+  <tr><td><b>S3Stack</b></td><td>data_bucket name/ARN, vault secret ARN</td><td>GlueStack, LakeFormationStack, etc.</td><td>S3Stack must finish before dependent stacks</td></tr>
+  <tr><td><b>SageMakerStack</b></td><td>Endpoint, role ARN, vault secret ARN</td><td>ML pipeline, LambdaStack</td><td></td></tr>
+  <tr><td><b>SecretsManagerStack</b></td><td>Secret ARNs, resource policies</td><td>All stacks needing secrets</td><td>Deploy first for secret availability</td></tr>
+  <tr><td><b>StepFunctionsStack</b></td><td>State machine ARN, workflow outputs</td><td>LambdaStack, SageMakerStack, DataQualityStack</td><td>Can run in parallel with other workflow stacks</td></tr>
   </tbody>
 </table>
 </div></section>
@@ -92,6 +94,10 @@ networking_stack
   ├─▶ cloud_native_hardening_stack
   └─▶ compliance_stack
 
+cloudformation_stack
+  ├─▶ orchestrates all stacks
+  ├─▶ manages stack dependencies, outputs, and lifecycle
+  └─▶ enables cross-stack references and automation
 eventbridge_stack
   ├─▶ lambda_stack
   ├─▶ stepfunctions_stack

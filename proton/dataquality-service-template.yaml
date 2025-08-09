@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Data Quality Service Template
+Parameters:
+  QualityJobName:
+    Type: String
+    Description: Name of the data quality job
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  DataQualityJob:
+    Type: AWS::Batch::JobDefinition
+    Properties:
+      JobDefinitionName: !Ref QualityJobName
+      Type: container
+      ContainerProperties:
+        Image: public.ecr.aws/dataquality/job:latest
+        Vcpus: 1
+        Memory: 2048
+        Command: ["run-quality-checks"]
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref QualityJobName
+      Description: Data quality job secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  DataQualityJobName:
+    Description: Name of the data quality job
+    Value: !Ref DataQualityJob
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret
