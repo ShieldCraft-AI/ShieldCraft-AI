@@ -1,8 +1,12 @@
+"""
+Test suite for configuration loading and validation.
+"""
+
 import pytest
 import yaml
 from pathlib import Path
 
-CONFIG_DIR = Path(__file__).parent.parent / "config"
+CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
 
 
 @pytest.mark.parametrize(
@@ -15,7 +19,7 @@ CONFIG_DIR = Path(__file__).parent.parent / "config"
 )
 def test_yaml_loads_without_error(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         try:
             yaml.safe_load(f)
         except yaml.YAMLError as e:
@@ -32,7 +36,7 @@ def test_yaml_loads_without_error(filename):
 )
 def test_stepfunctions_state_machines_present(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     assert "stepfunctions" in config, f"Missing 'stepfunctions' in {filename}"
     assert (
@@ -47,7 +51,7 @@ def test_stepfunctions_state_machines_present(filename):
 @pytest.mark.parametrize("filename", ["staging.yml", "prod.yml"])
 def test_parallelization_max_workers(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     assert (
         config["orchestrator"]["max_workers"] > 1
@@ -57,7 +61,7 @@ def test_parallelization_max_workers(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_glue_lakeformation_schema(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     assert "database_name" in config.get(
         "glue", {}
@@ -73,7 +77,7 @@ def test_glue_lakeformation_schema(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_model_embedding_config(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     for section in ["ai_core", "embedding"]:
         for key in ["model_name", "quantize", "device"]:
@@ -84,7 +88,7 @@ def test_model_embedding_config(filename):
 def test_s3_bucket_naming_convention(filename):
     config_path = CONFIG_DIR / filename
     env = filename.split(".")[0]
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     for bucket in config["s3"]["buckets"]:
         assert (
@@ -95,7 +99,7 @@ def test_s3_bucket_naming_convention(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_security_group_outbound_policy(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     for sg in config["networking"]["security_groups"]:
         assert (
@@ -106,7 +110,7 @@ def test_security_group_outbound_policy(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_lambda_timeout_memory(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     for fn in config["lambda_"]["functions"]:
         assert fn["timeout"] >= 30, f"Lambda {fn['id']} timeout too low in {filename}"
@@ -118,7 +122,7 @@ def test_lambda_timeout_memory(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_opensearch_encryption(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     domain = config["opensearch"]["domain"]
     assert (
@@ -132,7 +136,7 @@ def test_opensearch_encryption(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_airbyte_task_count(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     airbyte = config["airbyte"]
     assert airbyte["min_task_count"] >= 1, f"min_task_count < 1 in {filename}"
@@ -145,7 +149,7 @@ def test_airbyte_task_count(filename):
 def test_eventbridge_bus_names(filename):
     config_path = CONFIG_DIR / filename
     env = filename.split(".")[0]
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     assert (
         env in config["eventbridge"]["data_bus_name"]
@@ -158,7 +162,7 @@ def test_eventbridge_bus_names(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_lakeformation_bucket_reference(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     s3_bucket_names = {b["name"] for b in config["s3"]["buckets"]}
     for bucket in config["lakeformation"]["buckets"]:
@@ -170,7 +174,7 @@ def test_lakeformation_bucket_reference(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_stepfunctions_end_state_present(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     for sm in config["stepfunctions"]["state_machines"]:
         assert any(
@@ -181,7 +185,7 @@ def test_stepfunctions_end_state_present(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_vector_store_credentials(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     vs = config["vector_store"]
     assert vs["db_user"], f"vector_store.db_user missing or empty in {filename}"
@@ -191,7 +195,7 @@ def test_vector_store_credentials(filename):
 @pytest.mark.parametrize("filename", ["dev.yml", "staging.yml", "prod.yml"])
 def test_cloud_native_hardening(filename):
     config_path = CONFIG_DIR / filename
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     hardening = config["cloud_native_hardening"]
     assert (

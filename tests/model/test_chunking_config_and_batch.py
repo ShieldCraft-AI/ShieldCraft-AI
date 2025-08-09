@@ -1,3 +1,7 @@
+"""
+Test suite for chunking strategies.
+"""
+
 import pytest
 from ai_core.chunking.chunk import (
     Chunker,
