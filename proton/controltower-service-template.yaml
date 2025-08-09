@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Control Tower Service Template
+Parameters:
+  LandingZoneName:
+    Type: String
+    Description: Name of the Control Tower landing zone
+  OrganizationUnitName:
+    Type: String
+    Description: Name of the organizational unit
+  GuardrailName:
+    Type: String
+    Description: Name of the Control Tower guardrail
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  ControlTowerLandingZone:
+    Type: AWS::ControlTower::LandingZone
+    Properties:
+      Name: !Ref LandingZoneName
+      Description: ShieldCraft AI landing zone
+      OrganizationalUnits:
+        - Name: !Ref OrganizationUnitName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  ControlTowerGuardrail:
+    Type: AWS::ControlTower::Guardrail
+    Properties:
+      Name: !Ref GuardrailName
+      LandingZone: !Ref ControlTowerLandingZone
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  LandingZoneName:
+    Description: Name of the Control Tower landing zone
+    Value: !Ref ControlTowerLandingZone
+  GuardrailName:
+    Description: Name of the Control Tower guardrail
+    Value: !Ref ControlTowerGuardrail
