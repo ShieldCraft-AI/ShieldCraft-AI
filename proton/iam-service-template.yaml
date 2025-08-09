@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton IAM Service Template
+Parameters:
+  RoleName:
+    Type: String
+    Description: Name of the IAM role
+  PolicyName:
+    Type: String
+    Description: Name of the IAM policy
+  ServicePrincipal:
+    Type: String
+    Description: AWS service principal for role assumption (e.g., lambda.amazonaws.com)
+  PolicyDocument:
+    Type: Json
+    Description: IAM policy document (JSON)
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {"Service": "${ServicePrincipal}"},
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      Policies:
+        - PolicyName: !Ref PolicyName
+          PolicyDocument: !Ref PolicyDocument
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  IAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Ref PolicyName
+      PolicyDocument: !Ref PolicyDocument
+      Roles:
+        - !Ref IAMRole
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  IAMRoleName:
+    Description: Name of the IAM role
+    Value: !Ref IAMRole
+  IAMRoleArn:
+    Description: ARN of the IAM role
+    Value: !GetAtt IAMRole.Arn
+  IAMPolicyName:
+    Description: Name of the IAM policy
+    Value: !Ref IAMPolicy
+  IAMPolicyArn:
+    Description: ARN of the IAM policy
+    Value: !GetAtt IAMPolicy.Arn

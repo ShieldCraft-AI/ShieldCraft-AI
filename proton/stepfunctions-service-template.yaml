@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Step Functions Service Template
+Parameters:
+  StateMachineName:
+    Type: String
+    Description: Name of the Step Functions state machine
+  DefinitionString:
+    Type: String
+    Description: JSON definition of the state machine
+  RoleArn:
+    Type: String
+    Description: ARN of the IAM role for Step Functions
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Ref StateMachineName
+      DefinitionString: !Ref DefinitionString
+      RoleArn: !Ref RoleArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  StateMachineName:
+    Description: Name of the Step Functions state machine
+    Value: !Ref StateMachine
+  RoleArn:
+    Description: ARN of the IAM role for Step Functions
+    Value: !Ref RoleArn

@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton MSK Service Template
+Parameters:
+  ClusterName:
+    Type: String
+    Description: Name of the MSK cluster
+  BrokerNodeGroupInstanceType:
+    Type: String
+    Description: EC2 instance type for broker nodes
+    Default: kafka.m5.large
+  NumberOfBrokerNodes:
+    Type: Number
+    Description: Number of broker nodes
+    Default: 3
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  MSKCluster:
+    Type: AWS::MSK::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
+      KafkaVersion: 2.8.1
+      NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
+      BrokerNodeGroupInfo:
+        InstanceType: !Ref BrokerNodeGroupInstanceType
+        ClientSubnets: [subnet-xxxxxx]
+        SecurityGroups: [sg-xxxxxx]
+      EncryptionInfo:
+        EncryptionInTransit:
+          ClientBroker: TLS
+          InCluster: true
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref ClusterName
+      Description: MSK cluster secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  MSKClusterName:
+    Description: Name of the MSK cluster
+    Value: !Ref MSKCluster
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

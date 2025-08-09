@@ -9,81 +9,54 @@ The main workflow is `commit_flow`.
 
 import os
 import sys
-from nox_sessions.bootstrap import bootstrap
-from nox_sessions.lint import lint, format, typecheck, precommit
-from nox_sessions.test import tests
-from nox_sessions.notebook import notebooks
-from nox_sessions.docs import docs
-from nox_sessions.docker import docker_build
-from nox_sessions.security import security
-from nox_sessions.commit import commit_flow
-from nox_sessions.deploy import cdk_deploy
+import importlib
 import nox
+import types
+import inspect
 
-
+# Ensure both project root and nox_sessions are in sys.path for robust imports
 project_root = os.path.abspath(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+nox_sessions_path = os.path.join(project_root, "nox_sessions")
+if nox_sessions_path not in sys.path:
+    sys.path.insert(0, nox_sessions_path)
+
+
+# Automatically scan and register all @nox.session functions from nox_sessions modules
+def _auto_register_nox_sessions():
+    sessions_dir = os.path.join(project_root, "nox_sessions")
+    for fname in os.listdir(sessions_dir):
+        if fname.startswith("_") or not fname.endswith(".py"):
+            continue
+        mod_name = f"nox_sessions.{fname[:-3]}"
+        try:
+            mod = importlib.import_module(mod_name)
+        except ImportError as e:
+            print(f"[Nox Auto-Scan] Failed to import {mod_name}: {e}")
+            continue
+        for name, obj in inspect.getmembers(mod):
+            # Only register functions decorated with @nox.session
+            if isinstance(obj, types.FunctionType) and hasattr(obj, "__nox_session__"):
+                globals()[name] = obj
+
+
+_auto_register_nox_sessions()
 
 
 # Dynamically read Python version from .python-version
 def get_python_versions():
     version_file = os.path.join(project_root, ".python-version")
     try:
-        with open(version_file, "r") as f:
+        with open(version_file, "r", encoding="utf-8") as f:
             version = f.read().strip()
             return [version]
-    except Exception:
+    except (FileNotFoundError, OSError):
         return ["3.12"]  # Fallback to default
 
 
 PYTHON_VERSIONS = get_python_versions()
 
 
-__all__ = [
-    "bootstrap",
-    "lint",
-    "format",
-    "typecheck",
-    "precommit",
-    "tests",
-    "notebooks",
-    "docs",
-    "docker_build",
-    "security",
-    "commit_flow",
-    "cdk_deploy",
-]
-
 # Nox global options
 nox.options.reuse_existing_virtualenvs = True
-
-
-def session_audit():
-    """Print all registered Nox sessions and their docstrings for audit purposes."""
-    import importlib
-
-    session_names = __all__
-    print("\nRegistered Nox sessions:")
-    for name in session_names:
-        try:
-            for mod in [
-                "nox_sessions.bootstrap",
-                "nox_sessions.lint",
-                "nox_sessions.test",
-                "nox_sessions.notebook",
-                "nox_sessions.docs",
-                "nox_sessions.docker",
-                "nox_sessions.security",
-                "nox_sessions.commit",
-            ]:
-                m = importlib.import_module(mod)
-                if hasattr(m, name):
-                    func = getattr(m, name)
-                    doc = func.__doc__ or "(No docstring)"
-                    print(f"- {name}: {doc.strip().splitlines()[0]}")
-                    break
-            else:
-                print(f"- {name}: (Not found in modules)")
-        except Exception as e:
-            print(f"- {name}: (Error: {e})")

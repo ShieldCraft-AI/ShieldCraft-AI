@@ -281,6 +281,38 @@ stepfunctions:
         - id: HandleValidationError
           type: Pass
           end: true
+    - id: BenchmarkAndValidate
+      name: shieldcraft-staging-benchmark-validate
+      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
+      comment: "Orchestrates BEIR/MTEB benchmarking and model validation (staging: full orchestration)"
+      definition:
+        - id: RunBEIRBenchmark
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:RunBEIRBenchmarkLambda
+          next: RunMTEBBenchmark
+          catch:
+            - handler: HandleBenchmarkError
+              errors: ["States.ALL"]
+        - id: RunMTEBBenchmark
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:RunMTEBBenchmarkLambda
+          next: ValidateBenchmarkResults
+          catch:
+            - handler: HandleBenchmarkError
+              errors: ["States.ALL"]
+        - id: ValidateBenchmarkResults
+          type: Task
+          resource: arn:aws:lambda:af-south-1:123456789012:function:ValidateBenchmarkResultsLambda
+          next: Success
+          catch:
+            - handler: HandleBenchmarkError
+              errors: ["States.ALL"]
+        - id: Success
+          type: Pass
+          end: true
+        - id: HandleBenchmarkError
+          type: Pass
+          end: true
 ai_core:
   model_name: "mistralai/Mistral-7B-v0.1"
   quantize: true

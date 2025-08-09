@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Compliance Service Template
+Parameters:
+  ReportLambdaName:
+    Type: String
+    Description: Name of the Lambda function for compliance reports
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  ComplianceReportLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref ReportLambdaName
+      Handler: index.handler
+      Runtime: python3.12
+      Role: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref ReportLambdaName
+      Description: Compliance report secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  ComplianceReportLambdaName:
+    Description: Name of the compliance report Lambda function
+    Value: !Ref ComplianceReportLambda
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton SageMaker Service Template
+Parameters:
+  EndpointName:
+    Type: String
+    Description: Name of the SageMaker endpoint
+  ModelName:
+    Type: String
+    Description: Name of the SageMaker model
+  InstanceType:
+    Type: String
+    Description: EC2 instance type for endpoint
+    Default: ml.m5.large
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  SageMakerModel:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ModelName: !Ref ModelName
+      PrimaryContainer:
+        Image: public.ecr.aws/sagemaker/model:latest
+        ModelDataUrl: s3://bucket/model.tar.gz
+      ExecutionRoleArn: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  SageMakerEndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: !Ref EndpointName
+      ProductionVariants:
+        - VariantName: "AllTraffic"
+          ModelName: !Ref ModelName
+          InitialInstanceCount: 1
+          InstanceType: !Ref InstanceType
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  SageMakerEndpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointName: !Ref EndpointName
+      EndpointConfigName: !Ref EndpointName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref EndpointName
+      Description: SageMaker endpoint secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  SageMakerEndpointName:
+    Description: Name of the SageMaker endpoint
+    Value: !Ref SageMakerEndpoint
+  SageMakerModelName:
+    Description: Name of the SageMaker model
+    Value: !Ref SageMakerModel
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

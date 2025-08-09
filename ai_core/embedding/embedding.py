@@ -3,8 +3,10 @@ ShieldCraft AI Core - Embedding Pipeline Scaffold
 """
 
 import torch
+import numpy as np
 from transformers import AutoTokenizer, AutoModel
 from infra.utils.config_loader import get_config_loader
+
 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -67,9 +69,10 @@ class EmbeddingModel:
             self.tokenizer = None
             self._init_error = str(e)
 
-    def encode(self, texts):
+    def encode(self, texts, batch_size=None):
         """
         Encode a batch of texts into embeddings. Returns dict with 'success', 'embeddings', 'error'.
+        Supports dynamic batch sizing for benchmarking and inference.
         """
         result = {"success": False, "embeddings": None, "error": None}
         if self.model is None or self.tokenizer is None:
@@ -85,10 +88,18 @@ class EmbeddingModel:
             result["error"] = "Input text list is empty."
             return result
         try:
-            # Batch processing for large inputs
+            # Use provided batch_size if set, else fallback to self.batch_size
+            effective_batch_size = (
+                batch_size if batch_size is not None else self.batch_size
+            )
+            if effective_batch_size is not None and (
+                not isinstance(effective_batch_size, int) or effective_batch_size < 1
+            ):
+                result["error"] = f"Invalid batch_size: {effective_batch_size}"
+                return result
             all_embeddings = []
-            for i in range(0, len(texts), self.batch_size):
-                batch = texts[i : i + self.batch_size]
+            for i in range(0, len(texts), effective_batch_size):
+                batch = texts[i : i + effective_batch_size]
                 inputs = self.tokenizer(
                     batch, padding=True, truncation=True, return_tensors="pt"
                 ).to(self.device)
@@ -96,7 +107,6 @@ class EmbeddingModel:
                     outputs = self.model(**inputs)
                     embeddings = outputs.last_hidden_state.mean(dim=1)
                 all_embeddings.append(embeddings.cpu().numpy())
-            import numpy as np
 
             embeddings = np.vstack(all_embeddings)
             result["success"] = True

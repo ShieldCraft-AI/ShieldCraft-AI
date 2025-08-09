@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton EventBridge Service Template
+Parameters:
+  EventBusName:
+    Type: String
+    Description: Name of the EventBridge bus
+  RuleName:
+    Type: String
+    Description: Name of the EventBridge rule
+  TargetArn:
+    Type: String
+    Description: ARN of the rule target (e.g., Lambda, StepFunction)
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Ref EventBusName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Ref RuleName
+      EventBusName: !Ref EventBusName
+      EventPattern:
+        source:
+          - shieldcraft.ai
+      State: ENABLED
+      Targets:
+        - Arn: !Ref TargetArn
+          Id: "Target1"
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  EventBusName:
+    Description: Name of the EventBridge bus
+    Value: !Ref EventBus
+  EventRuleName:
+    Description: Name of the EventBridge rule
+    Value: !Ref EventRule

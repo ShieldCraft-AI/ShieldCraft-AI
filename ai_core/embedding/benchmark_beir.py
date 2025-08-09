@@ -1,11 +1,9 @@
 """
 ShieldCraft AI - BEIR Benchmarking Harness
-
 This script runs the BEIR benchmark suite on your embedding model for retrieval evaluation.
 """
 
 import concurrent.futures
-import os
 import argparse
 import json
 from datetime import datetime
@@ -24,25 +22,37 @@ class ShieldCraftEmbeddingAdapter:
     Config-driven adapter for BEIR. Uses EmbeddingModel if embedding.use_custom is True, else SentenceTransformer.
     """
 
-    def __init__(self):
+    def __init__(self, batch_size=32):
         config_loader = get_config_loader()
         config = config_loader.get_section("embedding")
         self.model_name = config.get(
             "model_name", "sentence-transformers/all-MiniLM-L6-v2"
         )
         self.use_custom = config.get("use_custom", False)
+        self.batch_size = batch_size
         if self.use_custom:
             self.model = EmbeddingModel(config=config)
         else:
             self.model = SentenceTransformer(self.model_name)
 
-    def encode(self, sentences, batch_size=32, **kwargs):
+    def encode(self, sentences, batch_size=None, **kwargs):
+        batch_size = batch_size if batch_size is not None else self.batch_size
+        if batch_size is not None and (
+            not isinstance(batch_size, int) or batch_size < 1
+        ):
+            raise ValueError(f"Invalid batch_size: {batch_size}")
         if self.use_custom:
-            result = self.model.encode(sentences)
+            # Only pass batch_size if EmbeddingModel.encode supports it
+            try:
+                result = self.model.encode(sentences, batch_size=batch_size)
+            except TypeError:
+                # Fallback for legacy signature
+                result = self.model.encode(sentences)
             if not result["success"]:
                 raise RuntimeError(f"Embedding failed: {result['error']}")
             return result["embeddings"]
         else:
+            # SentenceTransformer supports batch_size
             return self.model.encode(sentences, batch_size=batch_size, **kwargs)
 
 
@@ -70,7 +80,8 @@ def run_beir(
             dataset_path = util.download_and_unzip(url, data_path)
             corpus, queries, qrels = GenericDataLoader(dataset_path).load(split="test")
             logging.info("Loading embedding model via config for BEIR...")
-            model = DRES(ShieldCraftEmbeddingAdapter())
+            adapter = ShieldCraftEmbeddingAdapter(batch_size=batch_size)
+            model = DRES(adapter)
             retriever = EvaluateRetrieval(model, score_function="cos_sim")
             logging.info(f"Running BEIR retrieval benchmark on {dataset}")
             results = retriever.retrieve(corpus, queries)

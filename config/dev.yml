@@ -305,6 +305,26 @@ stepfunctions:
         - id: HandleValidationError
           type: Pass
           end: true
+    - id: BenchmarkAndValidate
+      name: shieldcraft-dev-benchmark-validate
+      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
+      comment: "Orchestrates BEIR/MTEB benchmarking and model validation (dev: costless)"
+      definition:
+        - id: RunBEIRBenchmark
+          type: Pass
+          next: RunMTEBBenchmark
+        - id: RunMTEBBenchmark
+          type: Pass
+          next: ValidateBenchmarkResults
+        - id: ValidateBenchmarkResults
+          type: Pass
+          next: Success
+        - id: Success
+          type: Pass
+          end: true
+        - id: HandleBenchmarkError
+          type: Pass
+          end: true
 ai_core:
   model_name: "gpt2"
   quantize: false

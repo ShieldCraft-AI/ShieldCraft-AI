@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "beir-benchmark-lambda"
+version = "0.1.0"
+description = "AWS Lambda for BEIR Benchmark orchestration in ShieldCraft AI"
+authors = ["ShieldCraft AI Team <team@shieldcraft.ai>"]
+packages = [
+  { include = "handler.py" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+beir = "*"
+sentence-transformers = "*"
+boto3 = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+flake8 = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

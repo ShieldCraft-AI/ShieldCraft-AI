@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton S3 Service Template
+Parameters:
+  BucketName:
+    Type: String
+    Description: Name of the S3 bucket
+  EnableVersioning:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+    Description: Enable versioning on the bucket
+  EnableEncryption:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+    Description: Enable server-side encryption
+  RemovalPolicy:
+    Type: String
+    AllowedValues: [RETAIN, DESTROY]
+    Default: RETAIN
+    Description: S3 bucket removal policy
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: !If [EnableVersioningTrue, Enabled, Suspended]
+      BucketEncryption:
+        Fn::If:
+          - EnableEncryptionTrue
+          - ServerSideEncryptionConfiguration:
+              - ServerSideEncryptionByDefault:
+                  SSEAlgorithm: AES256
+          - !Ref "AWS::NoValue"
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Conditions:
+  EnableVersioningTrue: !Equals [!Ref EnableVersioning, "true"]
+  EnableEncryptionTrue: !Equals [!Ref EnableEncryption, "true"]
+Outputs:
+  S3BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref S3Bucket
+  S3BucketArn:
+    Description: ARN of the S3 bucket
+    Value: !GetAtt S3Bucket.Arn

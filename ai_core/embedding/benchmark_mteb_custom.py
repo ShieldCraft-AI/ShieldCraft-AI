@@ -1,7 +1,7 @@
 """
 ShieldCraft AI - MTEB Benchmarking Harness (Custom Model Integration)
-
-This script allows benchmarking your custom EmbeddingModel (quantized, config-driven, etc.) with the MTEB suite.
+This script allows benchmarking your custom EmbeddingModel (quantized,
+config-driven, etc.) with the MTEB suite.
 """
 
 import sys

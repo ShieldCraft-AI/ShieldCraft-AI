@@ -9,29 +9,29 @@ from logging import getLogger, ERROR
 import aws_cdk as cdk
 from aws_cdk import Fn
 from aws_cdk import Environment
-from infra.stacks.networking.networking_stack import NetworkingStack
-from infra.stacks.compute.msk_stack import MskStack
-from infra.stacks.storage.s3_stack import S3Stack
-from infra.stacks.data.glue_stack import GlueStack
-from infra.stacks.compute.lambda_stack import LambdaStack
-from infra.stacks.data.airbyte_stack import AirbyteStack
-from infra.stacks.storage.lakeformation_stack import LakeFormationStack
-from infra.stacks.compute.opensearch_stack import OpenSearchStack
-from infra.stacks.data.dataquality_stack import DataQualityStack
-from infra.stacks.compute.sagemaker_stack import SageMakerStack
-from infra.stacks.cloud_native.cloud_native_hardening_stack import (
+from infra.stacks.networking.networking import NetworkingStack
+from infra.stacks.compute.msk_service import MskStack
+from infra.stacks.storage.s3_service import S3Stack
+from infra.stacks.data.glue_service import GlueStack
+from infra.stacks.compute.lambda_service import LambdaStack
+from infra.stacks.data.airbyte_service import AirbyteStack
+from infra.stacks.storage.lakeformation_service import LakeFormationStack
+from infra.stacks.compute.opensearch_service import OpenSearchStack
+from infra.stacks.data.dataquality_service import DataQualityStack
+from infra.stacks.compute.sagemaker_service import SageMakerStack
+from infra.stacks.cloud_native.cloud_native_hardening_service import (
     CloudNativeHardeningStack,
 )
 from infra.utils.config_loader import get_config_loader
 from infra.utils.cdk_tagging import apply_standard_tags
-from infra.stacks.iam.iam_role_stack import (
+from infra.stacks.iam.iam_role_service import (
     IamRoleStack,
 )  # pylint: disable=unused-import
-from infra.stacks.compliance_stack import (
+from infra.stacks.compliance_service import (
     ComplianceStack,
 )  # pylint: disable=unused-import
-from infra.stacks.budget_stack import BudgetStack
-from infra.stacks.security.secrets_manager_stack import SecretsManagerStack
+from infra.stacks.cost.budget_service import BudgetStack
+from infra.stacks.security.secrets_manager_service import SecretsManagerStack
 import yaml
 
 logger = getLogger("shieldcraft-ai")

@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Lake Formation Service Template
+Parameters:
+  DataLakeAdmins:
+    Type: List<String>
+    Description: List of IAM ARNs for Lake Formation admins
+  DatabaseName:
+    Type: String
+    Description: Name of the Glue database to register
+  S3Location:
+    Type: String
+    Description: S3 path for the data lake (e.g., s3://bucket/prefix)
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  LakeFormationDataLakeSettings:
+    Type: AWS::LakeFormation::DataLakeSettings
+    Properties:
+      Admins: !Ref DataLakeAdmins
+  LakeFormationResource:
+    Type: AWS::LakeFormation::Resource
+    Properties:
+      ResourceArn: !Sub arn:aws:s3:::${S3Location}
+      UseServiceLinkedRole: true
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseInput:
+        Name: !Ref DatabaseName
+        Description: Lake Formation database for ShieldCraft AI
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  LakeFormationAdmins:
+    Description: List of Lake Formation admin ARNs
+    Value: !Ref DataLakeAdmins
+  LakeFormationResourceArn:
+    Description: Registered S3 resource ARN
+    Value: !GetAtt LakeFormationResource.ResourceArn
+  GlueDatabaseName:
+    Description: Name of the Glue database
+    Value: !Ref GlueDatabase

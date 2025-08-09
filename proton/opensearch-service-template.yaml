@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton OpenSearch Service Template
+Parameters:
+  DomainName:
+    Type: String
+    Description: Name of the OpenSearch domain
+  InstanceType:
+    Type: String
+    Description: EC2 instance type for OpenSearch nodes
+    Default: t3.small.search
+  InstanceCount:
+    Type: Number
+    Description: Number of OpenSearch nodes
+    Default: 2
+  VaultSecretArn:
+    Type: String
+    Description: ARN of the imported vault secret
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  OpenSearchDomain:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: !Ref DomainName
+      EngineVersion: "OpenSearch_2.11"
+      ClusterConfig:
+        InstanceType: !Ref InstanceType
+        InstanceCount: !Ref InstanceCount
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 20
+        VolumeType: gp3
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      EncryptionAtRestOptions:
+        Enabled: true
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref DomainName
+      Description: OpenSearch domain secret
+      SecretString: !Ref VaultSecretArn
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+Outputs:
+  OpenSearchDomainName:
+    Description: Name of the OpenSearch domain
+    Value: !Ref OpenSearchDomain
+  VaultSecretArn:
+    Description: ARN of the imported vault secret
+    Value: !Ref VaultSecret

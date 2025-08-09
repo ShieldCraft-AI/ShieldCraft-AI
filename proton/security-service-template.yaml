@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ShieldCraft AI Proton Security Service Template
+Parameters:
+  LogGroupName:
+    Type: String
+    Description: Name of the CloudWatch log group
+  AlarmName:
+    Type: String
+    Description: Name of the CloudWatch alarm
+  AlarmThreshold:
+    Type: Number
+    Description: Threshold for triggering the alarm
+    Default: 1
+  GuardDutyEnable:
+    Type: String
+    AllowedValues: [true, false]
+    Default: true
+    Description: Enable GuardDuty detector
+  EnvironmentName:
+    Type: String
+    Description: Name of the Proton environment
+Resources:
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  CloudWatchAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmName
+      MetricName: IncomingLogEvents
+      Namespace: AWS/Logs
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: !Ref AlarmThreshold
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions: []
+      Dimensions:
+        - Name: LogGroupName
+          Value: !Ref LogGroupName
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  GuardDutyDetector:
+    Type: AWS::GuardDuty::Detector
+    Condition: EnableGuardDuty
+    Properties:
+      Enable: true
+Outputs:
+  LogGroupName:
+    Description: Name of the CloudWatch log group
+    Value: !Ref CloudWatchLogGroup
+  AlarmName:
+    Description: Name of the CloudWatch alarm
+    Value: !Ref CloudWatchAlarm
+  GuardDutyDetectorId:
+    Description: GuardDuty detector ID
+    Value: !Ref GuardDutyDetector
+Conditions:
+  EnableGuardDuty: !Equals [!Ref GuardDutyEnable, "true"]
