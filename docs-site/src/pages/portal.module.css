@@ -1,0 +1,117 @@
+:root {
+    --portal-primary-color: #25c2a0;
+    --portal-background-color: #1a1a1a;
+    --portal-sidebar-bg: #1f1f1f;
+    --portal-widget-bg: #2a2a2a;
+    --portal-text-color: #e0e0e0;
+    --portal-header-bg: #222222;
+    --portal-border-color: #333;
+}
+
+.container {
+    display: flex;
+    background-color: var(--portal-background-color);
+    color: var(--portal-text-color);
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--portal-sidebar-bg);
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.logo a {
+    color: var(--portal-primary-color);
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navigation ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 40px;
+}
+
+.navigation ul li {
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.navigation ul li a {
+    color: var(--portal-text-color);
+    text-decoration: none;
+    font-size: 16px;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.navigation ul li.active a,
+.navigation ul li a:hover {
+    background-color: var(--portal-widget-bg);
+    color: var(--portal-primary-color);
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: 250px; /* Same as sidebar width */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--portal-header-bg);
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.searchBar input {
+    background: var(--portal-widget-bg);
+    border: 1px solid var(--portal-border-color);
+    border-radius: 5px;
+    color: var(--portal-text-color);
+    padding: 8px 12px;
+    width: 300px;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+}
+
+.userInfo span {
+    margin-right: 20px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.widget {
+    background-color: var(--portal-widget-bg);
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--portal-border-color);
+    transition: transform 0.2s ease-in-out;
+}
+
+.widget:hover {
+    transform: translateY(-5px);
+}
+
+.widget h3 {
+    margin-top: 0;
+    color: var(--portal-primary-color);
+}
