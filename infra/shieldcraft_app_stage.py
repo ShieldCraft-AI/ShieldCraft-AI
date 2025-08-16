@@ -1,23 +1,27 @@
+"""
+Shieldcraft application stage.
+"""
+
+from aws_cdk import Fn
 from aws_cdk import Stage
 from constructs import Construct
-from infra.stacks.networking.networking import NetworkingStack
-from infra.stacks.compute.msk_service import MskStack
-from infra.stacks.storage.s3_service import S3Stack
-from infra.stacks.data.glue_service import GlueStack
-from infra.stacks.compute.lambda_service import LambdaStack
-from infra.stacks.data.airbyte_service import AirbyteStack
-from infra.stacks.storage.lakeformation_service import LakeFormationStack
-from infra.stacks.compute.opensearch_service import OpenSearchStack
-from infra.stacks.data.dataquality_service import DataQualityStack
-from infra.stacks.compute.sagemaker_service import SageMakerStack
-from infra.stacks.cloud_native.cloud_native_hardening_service import (
+from infra.domains.foundation.networking.networking_stack import NetworkingStack
+from infra.domains.data_platform.ingestion_streaming.msk_stack import MskStack
+from infra.domains.data_platform.storage.s3_stack import S3Stack
+from infra.domains.data_platform.catalog_etl.glue_stack import GlueStack
+from infra.domains.serverless_compute.lambda_stack import LambdaStack
+from infra.domains.data_platform.ingestion_streaming.airbyte_stack import AirbyteStack
+from infra.domains.data_platform.storage.lakeformation_stack import LakeFormationStack
+from infra.domains.analytics_search.opensearch_stack import OpenSearchStack
+from infra.domains.data_platform.catalog_etl.data_quality_stack import DataQualityStack
+from infra.domains.ml.sagemaker_stack import SageMakerStack
+from infra.domains.security_compliance.cloud_native_hardening_stack import (
     CloudNativeHardeningStack,
 )
-from infra.stacks.iam.iam_role_service import IamRoleStack
-from infra.stacks.compliance_service import ComplianceStack
+from infra.domains.foundation.identity_security.iam_stack import IamRoleStack
+from infra.domains.security_compliance.compliance_stack import ComplianceStack
 from infra.utils.config_loader import get_config_loader
 from infra.utils.cdk_tagging import apply_standard_tags
-from aws_cdk import Fn
 
 
 class ShieldcraftAppStage(Stage):

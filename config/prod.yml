@@ -130,6 +130,7 @@ networking:
       allow_all_outbound: true
 
 msk:
+  mode: managed # external (dev) | managed (staging/prod)
   security_group:
     id: sg-msk
     description: Security group for MSK brokers
@@ -140,10 +141,11 @@ msk:
     kafka_version: 3.5.1
     number_of_broker_nodes: 6
     instance_type: kafka.m5.large
-    enhanced_monitoring: PER_TOPIC_PER_BROKER
-    client_authentication:
-      sasl_scram: false
-      tls: true
+    mode: managed # local (dev) | managed
+    training_instance_type: ml.m5.xlarge
+    inference_instance_type: ml.m5.large
+    endpoint_auto_scaling: true
+    model_registry: shieldcraft-model-registry-staging
     encryption_in_transit:
       client_broker: TLS
       in_cluster: true
@@ -186,6 +188,7 @@ lambda_:
         - kafka:DescribeTopic
 
 opensearch:
+  mode: managed # none (dev) | managed | self_managed
   security_group:
     id: OpenSearchSecurityGroup
     description: Security group for OpenSearch
@@ -207,11 +210,13 @@ opensearch:
       volumeType: gp3
 
 airbyte:
+  mode: ecs_managed # local | ecs_scale_to_zero (dev) | ecs_managed
   deployment_type: ecs
   min_task_count: 2
   max_task_count: 6
 
 data_quality:
+  mode: managed # inline (dev) | managed
   dq_framework: deequ
   dq_schedule: cron(0 3 * * ? *)
 

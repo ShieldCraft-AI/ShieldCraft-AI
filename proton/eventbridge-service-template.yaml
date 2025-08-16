@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton EventBridge Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Application name for tagging
+  Domain:
+    Type: String
+    Description: Business domain for tagging
   EventBusName:
     Type: String
     Description: Name of the EventBridge bus
@@ -12,6 +18,10 @@ Parameters:
     Description: ARN of the rule target (e.g., Lambda, StepFunction)
   EnvironmentName:
     Type: String
+    AllowedValues:
+      - dev
+      - staging
+      - prod
     Description: Name of the Proton environment
 Resources:
   EventBus:
@@ -19,8 +29,16 @@ Resources:
     Properties:
       Name: !Ref EventBusName
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
   EventRule:
     Type: AWS::Events::Rule
     Properties:
@@ -34,12 +52,20 @@ Resources:
         - Arn: !Ref TargetArn
           Id: "Target1"
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
 Outputs:
   EventBusName:
     Description: Name of the EventBridge bus
-    Value: !Ref EventBus
+    Value: EventBus
   EventRuleName:
     Description: Name of the EventBridge rule
-    Value: !Ref EventRule
+    Value: EventRule

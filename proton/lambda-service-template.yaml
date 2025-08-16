@@ -1,6 +1,19 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton Lambda Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Application name for tagging
+  Domain:
+    Type: String
+    Description: Business domain for tagging
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Deployment environment
   FunctionName:
     Type: String
     Description: Name of the Lambda function
@@ -34,7 +47,7 @@ Resources:
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref FunctionName
+      FunctionName: !Sub "${FunctionName}-${EnvironmentName}"
       Handler: !Ref Handler
       Runtime: !Ref Runtime
       Code:
@@ -46,9 +59,20 @@ Resources:
         SecurityGroupIds: !Ref SecurityGroupIds
       Timeout: 900
       MemorySize: 2048
+      Tags:
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
+          Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
       Environment:
         Variables:
-          ENVIRONMENT: !Ref FunctionName
+          ENVIRONMENT: !Ref EnvironmentName
 Outputs:
   LambdaFunctionArn:
     Description: ARN of the deployed Lambda function

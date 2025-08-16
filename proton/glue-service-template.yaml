@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton Glue Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Logical application name (e.g., ShieldCraftAI)
+  Domain:
+    Type: String
+    Description: Functional domain (e.g., data)
   DatabaseName:
     Type: String
     Description: Name of the Glue database
@@ -16,6 +22,10 @@ Parameters:
   EnvironmentName:
     Type: String
     Description: Name of the Proton environment
+    AllowedValues:
+      - dev
+      - staging
+      - prod
 Resources:
   GlueDatabase:
     Type: AWS::Glue::Database
@@ -26,6 +36,14 @@ Resources:
         Description: Glue database for ShieldCraft AI
       Tags:
         - Key: Environment
+          Value: EnvironmentName
+        - Key: Project
+          Value: shieldcraft-ai
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
   GlueCrawler:
     Type: AWS::Glue::Crawler
@@ -38,6 +56,14 @@ Resources:
           - Path: !Ref TargetPath
       Tags:
         - Key: Environment
+          Value: EnvironmentName
+        - Key: Project
+          Value: shieldcraft-ai
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
 Outputs:
   GlueDatabaseName:

@@ -27,3 +27,4 @@ When responding:
 - Always design for both happy and unhappy paths robust error handling and validation are non-negotiable for production systems.
 - Use AWS CLI v2.27.50 for all automation to ensure compatibility and security.
 - Maintain a pragmatic, iterative approach: deliver value in small, testable increments.
+- When relevant, include a section for AWS-SAA-C03 exam preparation tips. Include likely 'gotchas' and generally assist with understanding key AWS concepts.

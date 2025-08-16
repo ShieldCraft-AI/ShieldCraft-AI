@@ -26,27 +26,23 @@ def test_parameters(opensearch_template):
         "DomainName",
         "InstanceType",
         "InstanceCount",
-        "VaultSecretArn",
+        "ExistingSecretArn",
         "EnvironmentName",
     ]:
         assert p in params
     assert params["DomainName"]["Type"] == "String"
     assert params["InstanceType"]["Type"] == "String"
     assert params["InstanceCount"]["Type"] == "Number"
-    assert params["VaultSecretArn"]["Type"] == "String"
+    assert params["ExistingSecretArn"]["Type"] == "String"
     assert params["EnvironmentName"]["Type"] == "String"
 
 
 def test_resources(opensearch_template):
     resources = opensearch_template["Resources"]
     assert "OpenSearchDomain" in resources
-    assert "VaultSecret" in resources
     domain = resources["OpenSearchDomain"]
-    secret = resources["VaultSecret"]
     assert domain["Type"] == "AWS::OpenSearchService::Domain"
-    assert secret["Type"] == "AWS::SecretsManager::Secret"
     domain_props = domain["Properties"]
-    secret_props = secret["Properties"]
     assert "DomainName" in domain_props
     assert "EngineVersion" in domain_props
     assert "ClusterConfig" in domain_props
@@ -70,16 +66,11 @@ def test_resources(opensearch_template):
     )
     assert "Tags" in domain_props
     assert any(tag["Key"] == "Environment" for tag in domain_props["Tags"])
-    assert "Name" in secret_props
-    assert "Description" in secret_props
-    assert "SecretString" in secret_props
-    assert "Tags" in secret_props
-    assert any(tag["Key"] == "Environment" for tag in secret_props["Tags"])
 
 
 def test_outputs(opensearch_template):
     outputs = opensearch_template["Outputs"]
-    for o in ["OpenSearchDomainName", "VaultSecretArn"]:
+    for o in ["OpenSearchDomainName", "DomainAdminSecretArn"]:
         assert o in outputs
         assert outputs[o]["Description"]
         assert outputs[o]["Value"]
@@ -89,14 +80,9 @@ def test_tags_environment(opensearch_template):
     domain_tags = opensearch_template["Resources"]["OpenSearchDomain"]["Properties"][
         "Tags"
     ]
-    secret_tags = opensearch_template["Resources"]["VaultSecret"]["Properties"]["Tags"]
     assert any(
         tag["Key"] == "Environment" and tag["Value"] == "EnvironmentName"
         for tag in domain_tags
-    )
-    assert any(
-        tag["Key"] == "Environment" and tag["Value"] == "EnvironmentName"
-        for tag in secret_tags
     )
 
 

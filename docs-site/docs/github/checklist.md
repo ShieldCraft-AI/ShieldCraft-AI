@@ -61,7 +61,7 @@
  <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">💾 Data Preparation</strong>
 
-<div>
+<div style="margin-top: 20px">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
 </div>
 <div style="margin-bottom: 1em;">

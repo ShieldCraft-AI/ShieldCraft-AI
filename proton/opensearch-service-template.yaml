@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton OpenSearch Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Logical application name (e.g., ShieldCraftAI)
+  Domain:
+    Type: String
+    Description: Functional domain (e.g., analytics_search)
   DomainName:
     Type: String
     Description: Name of the OpenSearch domain
@@ -12,17 +18,21 @@ Parameters:
     Type: Number
     Description: Number of OpenSearch nodes
     Default: 2
-  VaultSecretArn:
+  ExistingSecretArn:
     Type: String
-    Description: ARN of the imported vault secret
+    Description: Optional ARN of an existing admin credential secret for the domain
   EnvironmentName:
     Type: String
     Description: Name of the Proton environment
+    AllowedValues:
+      - dev
+      - staging
+      - prod
 Resources:
   OpenSearchDomain:
     Type: AWS::OpenSearchService::Domain
     Properties:
-      DomainName: !Ref DomainName
+      DomainName: !Sub "${DomainName}-${EnvironmentName}"
       EngineVersion: "OpenSearch_2.11"
       ClusterConfig:
         InstanceType: !Ref InstanceType
@@ -37,20 +47,19 @@ Resources:
         Enabled: true
       Tags:
         - Key: Environment
-          Value: !Ref EnvironmentName
-  VaultSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Ref DomainName
-      Description: OpenSearch domain secret
-      SecretString: !Ref VaultSecretArn
-      Tags:
-        - Key: Environment
+          Value: EnvironmentName
+        - Key: Project
+          Value: shieldcraft-ai
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
 Outputs:
   OpenSearchDomainName:
     Description: Name of the OpenSearch domain
-    Value: !Ref OpenSearchDomain
-  VaultSecretArn:
-    Description: ARN of the imported vault secret
-    Value: !Ref VaultSecret
+    Value: OpenSearchDomain
+  DomainAdminSecretArn:
+    Description: Existing admin secret ARN for the domain (if provided)
+    Value: ExistingSecretArn

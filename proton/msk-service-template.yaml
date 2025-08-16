@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton MSK Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Logical application name (e.g., ShieldCraftAI)
+  Domain:
+    Type: String
+    Description: Functional domain (e.g., data, ingestion)
   ClusterName:
     Type: String
     Description: Name of the MSK cluster
@@ -12,17 +18,34 @@ Parameters:
     Type: Number
     Description: Number of broker nodes
     Default: 3
-  VaultSecretArn:
-    Type: String
-    Description: ARN of the imported vault secret
   EnvironmentName:
     Type: String
     Description: Name of the Proton environment
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+  UseManagedKafka:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Whether to create an MSK cluster (set to false in dev to use external/custom Kafka)
+  ExternalBootstrapBrokers:
+    Type: String
+    Default: ""
+    Description: Optional bootstrap servers when UseManagedKafka=false (dev)
+  ExistingScramSecretArn:
+    Type: String
+    Default: ""
+    Description: Optional ARN of existing Secrets Manager secret for SASL/SCRAM credentials (external Kafka)
+Conditions:
+  UseManagedKafkaTrue: !Equals [!Ref UseManagedKafka, "true"]
 Resources:
   MSKCluster:
     Type: AWS::MSK::Cluster
+    Condition: UseManagedKafkaTrue
     Properties:
-      ClusterName: !Ref ClusterName
+      ClusterName: !Sub "${ClusterName}-${EnvironmentName}"
       KafkaVersion: 2.8.1
       NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
       BrokerNodeGroupInfo:
@@ -35,20 +58,25 @@ Resources:
           InCluster: true
       Tags:
         - Key: Environment
-          Value: !Ref EnvironmentName
-  VaultSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Ref ClusterName
-      Description: MSK cluster secret
-      SecretString: !Ref VaultSecretArn
-      Tags:
-        - Key: Environment
+          Value: EnvironmentName
+        - Key: Project
+          Value: shieldcraft-ai
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
 Outputs:
   MSKClusterName:
-    Description: Name of the MSK cluster
-    Value: !Ref MSKCluster
-  VaultSecretArn:
-    Description: ARN of the imported vault secret
-    Value: !Ref VaultSecret
+    Description: Name of the MSK cluster (only when UseManagedKafka=true)
+    Value: !If [UseManagedKafkaTrue, !Ref MSKCluster, ""]
+  MSKClusterArn:
+    Description: ARN of the MSK cluster (only when UseManagedKafka=true)
+    Value: !If [UseManagedKafkaTrue, !GetAtt MSKCluster.Arn, ""]
+  ExternalKafkaBootstrapBrokers:
+    Description: Bootstrap brokers for external/custom Kafka when UseManagedKafka=false
+    Value: !If [UseManagedKafkaTrue, "", !Ref ExternalBootstrapBrokers]
+  ExternalKafkaScramSecretArn:
+    Description: Existing secret ARN for external Kafka SASL/SCRAM credentials (optional)
+    Value: !Ref ExistingScramSecretArn
