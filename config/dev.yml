@@ -129,13 +129,17 @@ s3:
 glue:
   database_name: shieldcraft_dev_db
   crawler_schedule: cron(0 2 * * ? *)
-  enable_data_quality: true
+  enable_data_quality: false
 
 msk:
+  mode: external # external (dev) | managed (staging/prod)
   security_group:
     id: MskSecurityGroup
     description: Security group for MSK brokers
     allow_all_outbound: true
+  external:
+    bootstrap_brokers: "redpanda:9092"
+    scram_secret_arn: ""
   cluster:
     id: ShieldCraftMskCluster
     name: shieldcraft-msk-cluster
@@ -186,6 +190,8 @@ lambda_:
         - kafka:DescribeTopic
 
 opensearch:
+  mode: none # none (dev) | managed | self_managed
+  provision: false
   security_group:
     id: OpenSearchSecurityGroup
     description: Security group for OpenSearch
@@ -207,11 +213,13 @@ opensearch:
       volumeType: gp3
 
 airbyte:
+  mode: ecs_scale_to_zero # local | ecs_scale_to_zero (dev) | ecs_managed
   deployment_type: ecs
   min_task_count: 1
   max_task_count: 3
 
 data_quality:
+  mode: inline # inline (dev) | managed
   dq_framework: deequ
   dq_schedule: cron(0 3 * * ? *)
 
@@ -244,9 +252,10 @@ lakeformation:
       actions: ["DATA_LOCATION_ACCESS"]
 
 sagemaker:
-  training_instance_type: ml.m5.xlarge
-  inference_instance_type: ml.m5.large
-  endpoint_auto_scaling: true
+  mode: local # local (dev) | managed
+  training_instance_type: ml.t3.medium
+  inference_instance_type: ml.t3.medium
+  endpoint_auto_scaling: false
   model_registry: shieldcraft-model-registry-dev
 
 cloud_native_hardening:
@@ -269,6 +278,7 @@ eventbridge:
   data_event_source: shieldcraft.data.dev
 
 stepfunctions:
+  workflow_type: express # express (dev) | standard
   state_machines:
     - id: DataIngestAndValidate
       name: shieldcraft-dev-data-ingest-validate

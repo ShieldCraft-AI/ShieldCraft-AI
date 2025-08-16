@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton SageMaker Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Application name for tagging
+  Domain:
+    Type: String
+    Description: Business domain for tagging
   EndpointName:
     Type: String
     Description: Name of the SageMaker endpoint
@@ -14,8 +20,15 @@ Parameters:
   VaultSecretArn:
     Type: String
     Description: ARN of the imported vault secret
+  ExecutionRoleArn:
+    Type: String
+    Description: ARN of the SageMaker execution role
   EnvironmentName:
     Type: String
+    AllowedValues:
+      - dev
+      - staging
+      - prod
     Description: Name of the Proton environment
 Resources:
   SageMakerModel:
@@ -25,10 +38,18 @@ Resources:
       PrimaryContainer:
         Image: public.ecr.aws/sagemaker/model:latest
         ModelDataUrl: s3://bucket/model.tar.gz
-      ExecutionRoleArn: !Ref VaultSecretArn
+      ExecutionRoleArn: !Ref ExecutionRoleArn
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
   SageMakerEndpointConfig:
     Type: AWS::SageMaker::EndpointConfig
     Properties:
@@ -39,16 +60,32 @@ Resources:
           InitialInstanceCount: 1
           InstanceType: !Ref InstanceType
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
   SageMakerEndpoint:
     Type: AWS::SageMaker::Endpoint
     Properties:
       EndpointName: !Ref EndpointName
       EndpointConfigName: !Ref EndpointName
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
   VaultSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -56,8 +93,16 @@ Resources:
       Description: SageMaker endpoint secret
       SecretString: !Ref VaultSecretArn
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
 Outputs:
   SageMakerEndpointName:
     Description: Name of the SageMaker endpoint

@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton IAM Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Application name for tagging
+  Domain:
+    Type: String
+    Description: Business domain for tagging
   RoleName:
     Type: String
     Description: Name of the IAM role
@@ -15,13 +21,17 @@ Parameters:
     Description: IAM policy document (JSON)
   EnvironmentName:
     Type: String
+    AllowedValues:
+      - dev
+      - staging
+      - prod
     Description: Name of the Proton environment
 Resources:
   IAMRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Ref RoleName
-      AssumeRolePolicyDocument: !Sub |
+      AssumeRolePolicyDocument: |
         {
           "Version": "2012-10-17",
           "Statement": [
@@ -36,18 +46,34 @@ Resources:
         - PolicyName: !Ref PolicyName
           PolicyDocument: !Ref PolicyDocument
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
   IAMPolicy:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: !Ref PolicyName
       PolicyDocument: !Ref PolicyDocument
       Roles:
-        - !Ref IAMRole
+        - IAMRole
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
 Outputs:
   IAMRoleName:
     Description: Name of the IAM role

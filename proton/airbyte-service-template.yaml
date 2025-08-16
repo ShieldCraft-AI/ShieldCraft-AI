@@ -1,41 +1,53 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton Airbyte Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Logical application name (e.g., ShieldCraftAI)
+  Domain:
+    Type: String
+    Description: Functional domain (e.g., data, ingestion)
   ConnectorName:
     Type: String
     Description: Name of the Airbyte connector
   ECSClusterName:
     Type: String
     Description: Name of the ECS cluster for Airbyte
-  VaultSecretArn:
-    Type: String
-    Description: ARN of the imported vault secret
   EnvironmentName:
     Type: String
     Description: Name of the Proton environment
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+  ExistingSecretArn:
+    Type: String
+    Default: ""
+    Description: Optional ARN of an existing Secrets Manager secret for the connector (no new secret will be created)
+Conditions:
+  HasExistingSecret: !Not [!Equals [!Ref ExistingSecretArn, ""]]
 Resources:
   AirbyteECSService:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref ECSClusterName
-      ServiceName: !Ref ConnectorName
+      ServiceName: !Sub "${ConnectorName}-${EnvironmentName}"
       LaunchType: FARGATE
       Tags:
         - Key: Environment
-          Value: !Ref EnvironmentName
-  VaultSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Ref ConnectorName
-      Description: Airbyte connector secret
-      SecretString: !Ref VaultSecretArn
-      Tags:
-        - Key: Environment
+          Value: EnvironmentName
+        - Key: Project
+          Value: shieldcraft-ai
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
 Outputs:
   AirbyteServiceName:
     Description: Name of the Airbyte ECS service
-    Value: !Ref AirbyteECSService
-  VaultSecretArn:
-    Description: ARN of the imported vault secret
-    Value: !Ref VaultSecret
+    Value: AirbyteECSService
+  ConnectorSecretArn:
+    Description: ARN of the existing connector secret (if provided)
+    Value: !If [HasExistingSecret, !Ref ExistingSecretArn, ""]

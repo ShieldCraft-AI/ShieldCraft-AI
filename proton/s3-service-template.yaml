@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ShieldCraft AI Proton S3 Service Template
 Parameters:
+  AppName:
+    Type: String
+    Description: Application name for tagging
+  Domain:
+    Type: String
+    Description: Business domain for tagging
   BucketName:
     Type: String
     Description: Name of the S3 bucket
@@ -21,12 +27,13 @@ Parameters:
     Description: S3 bucket removal policy
   EnvironmentName:
     Type: String
+    AllowedValues: [dev, staging, prod]
     Description: Name of the Proton environment
 Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref BucketName
+      BucketName: BucketName
       VersioningConfiguration:
         Status: !If [EnableVersioningTrue, Enabled, Suspended]
       BucketEncryption:
@@ -37,15 +44,23 @@ Resources:
                   SSEAlgorithm: AES256
           - !Ref "AWS::NoValue"
       Tags:
-        - Key: Environment
+        - Key: Project
+          Value: ShieldCraftAI
+        - Key: App
+          Value: !Ref AppName
+        - Key: Domain
+          Value: !Ref Domain
+        - Key: Env
           Value: !Ref EnvironmentName
+        - Key: Environment
+          Value: EnvironmentName
 Conditions:
-  EnableVersioningTrue: !Equals [!Ref EnableVersioning, "true"]
-  EnableEncryptionTrue: !Equals [!Ref EnableEncryption, "true"]
+  EnableVersioningTrue: [EnableVersioning, "true"]
+  EnableEncryptionTrue: [EnableEncryption, "true"]
 Outputs:
   S3BucketName:
     Description: Name of the S3 bucket
-    Value: !Ref S3Bucket
+    Value: S3Bucket
   S3BucketArn:
     Description: ARN of the S3 bucket
-    Value: !GetAtt S3Bucket.Arn
+    Value: S3Bucket.Arn
