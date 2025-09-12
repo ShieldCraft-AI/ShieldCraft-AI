@@ -49,13 +49,15 @@ const config: Config = {
     navbar: {
       title: 'ShieldCraft AI',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'ShieldCraft AI',
         src: 'img/logo.png',
       },
-      items: [],
+      items: [
+        { type: 'custom', position: 'right', component: '@site/src/theme/NavbarItem/CustomAuthNavbarItem' },
+      ],
     },
     colorMode: {
-      disableSwitch: true,
+      disableSwitch: false,
     },
     prism: {
       theme: prismThemes.github,

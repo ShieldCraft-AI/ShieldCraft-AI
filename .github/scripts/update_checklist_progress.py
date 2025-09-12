@@ -19,6 +19,10 @@ PROGRESS_BAR_PATTERN = re.compile(
 PROGRESS_LABEL_PATTERN = re.compile(
     r'(<div id="progress-label">)\d+% Complete(</div>)', re.MULTILINE
 )
+PROGRESSBAR_MDX_PATTERN = re.compile(
+    r"(<ProgressBar\s+value=\{)\d+(\}\s+label=)",
+    re.MULTILINE,
+)
 
 
 if not CHECKLIST_PATH.exists():
@@ -83,8 +87,9 @@ else:
 if MDX_PATH.exists():
     with MDX_PATH.open("r", encoding="utf-8") as f:
         mdx_content = f.read()
-    # Replace the line with '% Complete' (e.g., '32% Complete')
-    mdx_new = re.sub(r"\d+% Complete", f"{percent}% Complete", mdx_content)
+    # Update custom ProgressBar component value and any stray '% Complete' strings
+    mdx_new = PROGRESSBAR_MDX_PATTERN.sub(rf"\g<1>{percent}\g<2>", mdx_content)
+    mdx_new = re.sub(r"\d+% Complete", f"{percent}% Complete", mdx_new)
     if mdx_new != mdx_content:
         with MDX_PATH.open("w", encoding="utf-8") as f:
             f.write(mdx_new)

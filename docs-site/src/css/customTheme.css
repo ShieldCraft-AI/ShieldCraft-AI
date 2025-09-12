@@ -1,12 +1,56 @@
+/* Theme tokens: scoped to data-theme on the html element (Docusaurus sets this) */
 :root {
+  /* Fallbacks (used briefly before JS sets data-theme) */
   --sc-primary: #a5b4fc;
-  --sc-bg: #111;
+  --sc-bg: #111111;
   --sc-font: 'Inter', 'Roboto', sans-serif;
   --sc-heading-size: 2em;
   --sc-body-size: 1em;
   --sc-table-bg: #181818;
   --sc-table-header-bg: #232323;
   --sc-table-radius: 8px;
+}
+
+:root[data-theme='dark'] {
+  --sc-primary: #a5b4fc;
+  /* accent on dark */
+  --sc-bg: #111111;
+  --sc-table-bg: #181818;
+  --sc-table-header-bg: #232323;
+
+  /* Make portal pages full width: override Docusaurus container constraints */
+  .main-wrapper.portalWrapper,
+  .portalWrapper .container,
+  .portalWrapper .container.container--fluid,
+  .portalWrapper main.container,
+  .portalWrapper .container .row,
+  .portalWrapper .row,
+  .portalWrapper .container-fluid,
+  .portalWrapper .main-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Also force Infima container widths to 100% on portal pages */
+  .portalWrapper {
+    --ifm-container-width: 100%;
+    --ifm-container-width-xl: 100%;
+    --ifm-container-width-lg: 100%;
+    --ifm-container-width-md: 100%;
+    --ifm-container-width-sm: 100%;
+  }
+}
+
+:root[data-theme='light'] {
+  --sc-primary: #0f172a;
+  /* darker text in light */
+  --sc-bg: #ffffff;
+  --sc-table-bg: #ffffff;
+  --sc-table-header-bg: #f3f4f6;
 }
 
 html,
@@ -34,6 +78,8 @@ h3 {
   font-size: var(--sc-heading-size);
 }
 
+/* Navbar is visible across pages; do not hide it. */
+
 p,
 li,
 td,
@@ -50,4 +96,17 @@ table {
 thead {
   background: var(--sc-table-header-bg);
   color: var(--sc-primary);
+}
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }

@@ -13,6 +13,7 @@ export default function LandingHero() {
                 <p className={styles.tagline}>
                     Stop Reacting. Start Predicting.
                 </p>
+                {/* CTA intentionally removed: login/logout should only live in the header */}
             </div>
         </div>
     );
