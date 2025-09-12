@@ -1,20 +1,23 @@
-.loginContainer {
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 80vh;
-}
-
-.loginBox {
-  background-color: var(--ifm-card-background-color);
-  padding: 40px;
-  border-radius: 10px;
-  text-align: center;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.loginBox h1 {
-  color: var(--ifm-color-primary);
 }

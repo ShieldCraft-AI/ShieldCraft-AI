@@ -2,90 +2,92 @@
 title: "Implementation Checklist"
 ---
 
+import ProgressBar from '@site/src/components/ProgressBar';
+
 [Back to Project Overview](/)
 # ShieldCraft AI Implementation Checklist
-## Project Progress
-47% Complete
+<ProgressBar value={41} label="Overall Progress" />
+### 🧱 Foundation & Planning
 Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.
 Guiding Question: Before moving to Data Prep, ask: "Do we have clarity on what data is needed to solve the defined problem, and why?"
 Definition of Done: Business problem articulated, core architecture designed, and initial cost/risk assessments completed.
-* [Finalize business case, value proposition, and unique differentiators](./business_case.md)
-* [User profiles, pain points, value proposition, and ROI articulated](./user_profiles.md)
-* [Define project scope, MVP features, and success metrics](./project_scope.md)
-* [Clear, business-aligned project objective documented](./project_objective.md)
-* [Data sources and expected outputs specified](./data_sources.md)
-* [Baseline infrastructure and cloud usage estimated](./infra_estimate.md)
-* [Address ethics, safety, and compliance requirements](./ethics_compliance.md)
-* Conduct initial bias audit
-* Draft hallucination mitigation strategy
-* Obtain legal review for data privacy plan
-* Document compliance requirements (GDPR, SOC2, etc.)
-* Schedule regular compliance reviews
-* Establish Security Architecture Review Board (see [Security & Governance](./security_governance.md))
-* [Technical, ethical, and operational risks identified with mitigation strategies](./risks_mitigation.md)
-* [Threat modeling and adversarial testing (e.g., red teaming GenAI outputs)](./security_governance.md)
-* [Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)](./privacy_impact_assessment.md)
-* [Set up project structure, version control, and Docusaurus documentation](./project_structure.md)
-* [Modular system layers, MLOps flow, and security/data governance designed](./modular_mlops_governance.md)
-* [Dockerfiles and Compose hardened for security, reproducibility, and best practices](./docker_hardening.md)
-* [Noxfile and developer workflow automation in place](./noxfile_workflow.md)
-* [Commit script unified, automating checks, versioning, and progress](./commit_script.md)
-* Deliverables: [business case summary](./business_case.md), [MLOps diagram](./modular_mlops_governance.md), [risk log](./risk_log.md), [cost model](./infra_estimate.md), and [ADRs](./adrs.md)
-* Production-grade AWS MLOps stack architecture implemented and tested ([architecture & dependency map](./aws_stack_architecture.md))
-* All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
-* Pydantic config validation, advanced tagging, and parameterization enforced
-* Cross-stack resource sharing and dependency injection established
-* Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
-* S3 lifecycle, cost controls, and budget alarms implemented
-* 741+ automated tests covering happy/unhappy paths, config validation, and outputs
-* Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
+* 🟩 [Finalize business case, value proposition, and unique differentiators](./business_case)
+* 🟩 [User profiles, pain points, value proposition, and ROI articulated](./user_profiles)
+* 🟩 [Define project scope, MVP features, and success metrics](./project_scope)
+* 🟩 [Clear, business-aligned project objective documented](./project_objective)
+* 🟩 [Data sources and expected outputs specified](./data_sources)
+* 🟩 [Baseline infrastructure and cloud usage estimated](./infra_estimate)
+* 🟩 [Address ethics, safety, and compliance requirements](./ethics_compliance)
+* 🟩 Conduct initial bias audit
+* 🟩 Draft hallucination mitigation strategy
+* 🟩 Obtain legal review for data privacy plan
+* 🟩 Document compliance requirements (GDPR, SOC2, etc.)
+* 🟩 Schedule regular compliance reviews
+* 🟩 Establish Security Architecture Review Board (see [Security & Governance](./security_governance))
+* 🟩 [Technical, ethical, and operational risks identified with mitigation strategies](./risks_mitigation)
+* 🟩 [Threat modeling and adversarial testing (e.g., red teaming GenAI outputs)](./security_governance)
+* 🟩 [Privacy impact assessments and regular compliance reviews (GDPR, SOC2, etc.)](./privacy_impact_assessment)
+* 🟩 [Set up project structure, version control, and Docusaurus documentation](./project_structure)
+* 🟩 [Modular system layers, MLOps flow, and security/data governance designed](./modular_mlops_governance)
+* 🟩 [Dockerfiles and Compose hardened for security, reproducibility, and best practices](./docker_hardening)
+* 🟩 [Noxfile and developer workflow automation in place](./noxfile_workflow)
+* 🟩 [Commit script unified, automating checks, versioning, and progress](./commit_script)
+* 🟩 Deliverables: [business case summary](./business_case), [MLOps diagram](./modular_mlops_governance), [risk log](./risk_log), [cost model](./infra_estimate), and [ADRs](./adrs)
+* 🟩 Production-grade AWS MLOps stack architecture implemented and tested ([architecture & dependency map](./aws_stack_architecture))
+* 🟩 All major AWS stacks (networking, storage, compute, data, security, monitoring) provisioned via CDK
+* 🟩 Pydantic config validation, advanced tagging, and parameterization enforced
+* 🟩 Cross-stack resource sharing and dependency injection established
+* 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
+* 🟩 S3 lifecycle, cost controls, and budget alarms implemented
+* 🟥 819+ automated tests covering happy/unhappy paths, config validation, and outputs
+* 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture))
 ---
-### MSK and Lambda Integration To-Do List
-- [ ] Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
-- [ ] Deploy Lambda in private subnets with correct security group(s)
-- [ ] Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
-- [ ] Set up CloudWatch alarms for Lambda errors, throttles, and duration
-- [ ] Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
-- [ ] Route alarm notifications to the correct email/SNS topic
-- [ ] Implement and test the end-to-end MSK and Lambda topic creation flow
-- [ ] Update documentation for MSK and Lambda integration, including troubleshooting steps
+### MSK + Lambda Integration To-Do List
+- 🟥 Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
+- 🟥 Deploy Lambda in private subnets with correct security group(s)
+- 🟥 Confirm security group allows Lambda-to-MSK broker connectivity (TLS port)
+- 🟥 Set up CloudWatch alarms for Lambda errors, throttles, and duration
+- 🟥 Set up CloudWatch alarms for MSK broker health, under-replicated partitions, and storage usage
+- 🟥 Route alarm notifications to the correct email/SNS topic
+- 🟥 Implement and test the end-to-end MSK + Lambda topic creation flow
+- 🟥 Update documentation for MSK + Lambda integration, including troubleshooting steps
 ## Data Preparation
 Guiding Question: Do we have the right data, in the right format, with clear lineage and privacy controls?
 Definition of Done: Data pipelines are operational, data is clean and indexed for RAG. Link to data_prep/ for schemas and pipelines.
-* [Identify and document all required data sources (logs, threat feeds, reports, configs)](./data_sources_required.md)
-* [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
-* [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
-* Set up Amazon MSK (Kafka) cluster with topic creation
-* Integrate Airbyte for connector-based data integration
-* Implement AWS Lambda for event-driven ingestion and pre-processing
-* Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
-* Build AWS Glue jobs for batch ETL and normalization
-* Store raw and processed data in Amazon S3 data lake
-* Enforce governance and privacy with AWS Lake Formation
-* Add data quality checks (Great Expectations, Deequ)
-* Implement data cleaning, normalization, and structuring
-* Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
-* Establish data versioning for reproducibility
-* Design and implement data retention policies
-* Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
-* [Modular data flows and schemas for different data sources](./data_prep/data_inputs_overview.md)
-* Data lineage and audit trails for all data flows and model decisions
-* Define and test disaster recovery, backup, and restore procedures for all critical data and services
-* Text chunking strategy defined and implemented for RAG
-* Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
-* Handle metadata preservation during chunking
-* Embedding model selection and experimentation for relevant data types
-* Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
-* Establish benchmarking for embedding quality
-* Vector database (or `pgvector`) setup and population
-* Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
-* Implement ingestion pipeline for creating and storing embeddings
-* Optimize vector indexing for retrieval speed
-* Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
+* 🟩 Identify and document all required data sources (logs, threat feeds, reports, configs)
+* 🟩 Data ingestion, cleaning, normalization, privacy, and versioning
+* 🟩 [Build data ingestion pipelines](./build_data_ingestion_pipelines)
+* 🟩 Set up Amazon MSK (Kafka) cluster with topic creation
+* 🟥 Integrate Airbyte for connector-based data integration
+* 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing
+* 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
+* 🟥 Build AWS Glue jobs for batch ETL and normalization
+* 🟥 Store raw and processed data in Amazon S3 data lake
+* 🟥 Enforce governance and privacy with AWS Lake Formation
+* 🟥 Add data quality checks (Great Expectations, Deequ)
+* 🟩 Implement data cleaning, normalization, and structuring
+* 🟩 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
+* 🟩 Establish data versioning for reproducibility
+* 🟩 Design and implement data retention policies
+* 🟩 Implement and document data deletion/right-to-be-forgotten workflows (GDPR)
+* 🟩 [Modular data flows and schemas for different data sources](./data_inputs_overview)
+* 🟩 Data lineage and audit trails for all data flows and model decisions
+* 🟩 Define and test disaster recovery, backup, and restore procedures for all critical data and services
+* 🟥 Text chunking strategy defined and implemented for RAG
+* 🟥 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
+* 🟥 Handle metadata preservation during chunking
+* 🟥 Embedding model selection and experimentation for relevant data types
+* 🟥 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
+* 🟥 Establish benchmarking for embedding quality
+* 🟩 Vector database (or `pgvector`) setup and population
+* 🟩 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
+* 🟩 Implement ingestion pipeline for creating and storing embeddings
+* 🟩 Optimize vector indexing for retrieval speed
+* 🟩 Implement re-ranking mechanisms for retrieved documents (e.g., Cohere Rerank, cross-encoders)
 ## AWS Cloud Foundation and Architecture
 Guiding Question: Is the AWS environment production-grade, modular, secure, and cost-optimized for MLOps and GenAI workloads?
 Definition of Done: All core AWS infrastructure is provisioned as code, with cross-stack integration, config-driven deployment, and robust security/compliance controls. Architecture is modular, extensible, and supports rapid iteration and rollback.
-* Multi-account, multi-environment AWS Organization structure with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
+* 🟩 Multi-account, multi-environment AWS Organization structure with strict separation of dev, staging, and prod, supporting least-privilege and blast radius reduction.
 * Modular AWS CDK v2 stacks for all major AWS services:
     * 🟩 Networking (VPC, subnets, security groups, vault secret import)
     * 🟩 EventBridge (central event bus, rules, targets)
@@ -103,26 +105,27 @@ Definition of Done: All core AWS infrastructure is provisioned as code, with cro
     * 🟩 MSK (Kafka streaming, broker info, roles)
     * 🟩 SageMaker (model training, deployment, monitoring)
     * 🟩 Budget (cost guardrails, alerts, notifications)
-* Advanced cross-stack resource sharing and dependency injection (CfnOutput/Fn.import_value), enabling secure, DRY, and scalable infrastructure composition.
-* Pydantic-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
-* Automated tagging and metadata propagation across all resources for cost allocation, compliance, and auditability.
-* Hardened IAM roles, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via AWS Secrets Manager.
-* AWS Vault integration for secure credential management and developer onboarding.
-* Automated S3 lifecycle policies, encryption, and access controls for all data lake buckets.
-* End-to-end cost controls and budget alarms, with CloudWatch and SNS integration for real-time alerting.
-* Cloud-native hardening stack (GuardDuty, Security Hub, Inspector) with automated findings aggregation and remediation hooks.
-* Automated integration tests for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
-* Comprehensive documentation for stack interactions, outputs, and architectural decisions, supporting onboarding and audit requirements.
-* GitHub Actions CI/CD pipeline for automated build, test, and deployment of all infrastructure code.
-* Automated dependency management and patching via Poetry, ensuring reproducible builds and secure supply chain.
-* Modular, environment-parameterized deployment scripts and commit automation for rapid iteration and rollback.
-* Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
-* Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
-* Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
+* 🟩 Advanced cross-stack resource sharing and dependency injection (CfnOutput/Fn.import_value), enabling secure, DRY, and scalable infrastructure composition.
+* 🟩 Pydantic-driven config validation and parameterization, enforcing schema correctness and preventing misconfiguration at deploy time.
+* 🟩 Automated tagging and metadata propagation across all resources for cost allocation, compliance, and auditability.
+* 🟩 Hardened IAM roles, policies, and boundary enforcement, with automated least-privilege checks and centralized secrets management via AWS Secrets Manager.
+* 🟩 AWS Vault integration for secure credential management and developer onboarding.
+* 🟩 Automated S3 lifecycle policies, encryption, and access controls for all data lake buckets.
+* 🟩 End-to-end cost controls and budget alarms, with CloudWatch and SNS integration for real-time alerting.
+* 🟩 Cloud-native hardening stack (GuardDuty, Security Hub, Inspector) with automated findings aggregation and remediation hooks.
+* 🟩 Automated integration tests for all critical AWS resources, covering both happy and unhappy paths, and validating cross-stack outputs.
+* 🟩 Comprehensive documentation for stack interactions, outputs, and architectural decisions, supporting onboarding and audit requirements.
+* 🟩 GitHub Actions CI/CD pipeline for automated build, test, and deployment of all infrastructure code.
+* 🟩 Automated dependency management and patching via Poetry, ensuring reproducible builds and secure supply chain.
+* 🟩 Modular, environment-parameterized deployment scripts and commit automation for rapid iteration and rollback.
+* 🟩 Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
+* 🟩 Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
+* 🟩 Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
 ## AI Core Development and Experimentation
 Guiding Question: Are our models accurately solving the problem, and is the GenAI output reliable and safe?
 Definition of Done: Core AI models demonstrate accuracy, reliability, and safety according to defined metrics. Link to ai_core/ for model code and experiments.
-*   🟥 Select primary and secondary Foundation Models (FMs) from Amazon Bedrock
+*   🟩 Selected Mistral-7B as the primary Foundation Model for ShieldCraft AI
+*   🟥 Select secondary Foundation Models (FMs) from Amazon Bedrock or Hugging Face (Phase 2 - multi-agent orchestration)
 *   🟥 Define core AI strategy (RAG, fine-tuning, hybrid approach)
 *   🟥 LangChain integration for orchestration and prompt management
 *   🟥 Prompt Engineering lifecycle implemented:
@@ -142,7 +145,7 @@ Definition of Done: Core AI models demonstrate accuracy, reliability, and safety
 *   🟥 Address bias, fairness, and transparency in model outputs
 *   🟥 Implement explainability for key AI decisions where possible
 *   🟥 Automated prompt evaluation metrics and frameworks
-*   🟥 Model loading, inference, and resource optimization
+*   🟩 Model loading, inference, and resource optimization
 *   🟥 Experiment tracking and versioning (MLflow/SageMaker Experiments)
 *   🟥 Model registry and rollback capabilities (SageMaker Model Registry)
 *   🟥 Establish baseline metrics for model performance
@@ -187,8 +190,8 @@ Definition of Done: Evaluation framework established, feedback loops active, and
 ## MLOps, Deployment and Monitoring
 Guiding Question: Is the system reliable, scalable, secure, and observable in production?
 Definition of Done: CI/CD fully automated, system stable in production, and monitoring active. Link to mlops/ for pipeline definitions.
-*   🟥 Infrastructure as Code (IaC) with AWS CDK for all cloud resources
-*   🟥 CI/CD pipelines (GitHub Actions) for automated build, test, and deployment
+*   🟩 Infrastructure as Code (IaC) with AWS CDK for all cloud resources
+*   🟩 CI/CD pipelines (GitHub Actions) for automated build, test, and deployment
 *   🟩 Containerization (Docker)
 *   🟥 Orchestration (Kubernetes/AWS EKS)
 *   🟩 Pre-commit and pre-push hooks for code quality checks
@@ -202,7 +205,7 @@ Definition of Done: CI/CD fully automated, system stable in production, and moni
 *   🟥 Continuous monitoring for cost, performance, data/concept drift
 *   🟥 Implement cloud cost monitoring, alerting, and FinOps best practices (AWS Cost Explorer, budgets, tagging, reporting)
 *   🟥 Secure authentication, authorization, and configuration management
-*   🟩 [Secrets management](security/aws-secrets-management.md) (AWS Secrets Vault)
+*   🟩 [Secrets management](/security/aws-secrets-management) (AWS Secrets Vault)
 *   🟥 IAM roles and fine-grained access control
 *   🟥 Schedule regular IAM access reviews and user lifecycle management
 *   🟩 Multi-environment support (dev, staging, prod)

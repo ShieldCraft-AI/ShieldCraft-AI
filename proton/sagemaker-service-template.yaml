@@ -17,9 +17,6 @@ Parameters:
     Type: String
     Description: EC2 instance type for endpoint
     Default: ml.m5.large
-  VaultSecretArn:
-    Type: String
-    Description: ARN of the imported vault secret
   ExecutionRoleArn:
     Type: String
     Description: ARN of the SageMaker execution role
@@ -86,23 +83,6 @@ Resources:
           Value: !Ref EnvironmentName
         - Key: Environment
           Value: EnvironmentName
-  VaultSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: !Ref EndpointName
-      Description: SageMaker endpoint secret
-      SecretString: !Ref VaultSecretArn
-      Tags:
-        - Key: Project
-          Value: ShieldCraftAI
-        - Key: App
-          Value: !Ref AppName
-        - Key: Domain
-          Value: !Ref Domain
-        - Key: Env
-          Value: !Ref EnvironmentName
-        - Key: Environment
-          Value: EnvironmentName
 Outputs:
   SageMakerEndpointName:
     Description: Name of the SageMaker endpoint
@@ -110,6 +90,3 @@ Outputs:
   SageMakerModelName:
     Description: Name of the SageMaker model
     Value: !Ref SageMakerModel
-  VaultSecretArn:
-    Description: ARN of the imported vault secret
-    Value: !Ref VaultSecret

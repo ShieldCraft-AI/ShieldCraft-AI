@@ -8,11 +8,44 @@
     --portal-border-color: #333;
 }
 
+/* Light theme overrides (Docusaurus sets data-theme on html) */
+:root[data-theme='light'] {
+    --portal-primary-color: #2563eb;
+    --portal-background-color: #f8fafc;
+    --portal-sidebar-bg: #ffffff;
+    --portal-widget-bg: #ffffff;
+    --portal-text-color: #111827;
+    --portal-header-bg: #f1f5f9;
+    --portal-border-color: #e5e7eb;
+}
+
+/* Dark theme explicit overrides for clarity */
+:root[data-theme='dark'] {
+    --portal-primary-color: #25c2a0;
+    --portal-background-color: #1a1a1a;
+    --portal-sidebar-bg: #1f1f1f;
+    --portal-widget-bg: #2a2a2a;
+    --portal-text-color: #e0e0e0;
+    --portal-header-bg: #222222;
+    --portal-border-color: #333;
+}
+
 .container {
     display: flex;
     background-color: var(--portal-background-color);
     color: var(--portal-text-color);
     min-height: 100vh;
+}
+
+/* Make portal pages full-bleed by widening the internal Docusaurus container */
+:global(.portalWrapper .container),
+:global(.portalWrapper main.container),
+:global(.portalWrapper .container .row),
+:global(.portalWrapper .container-fluid) {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 .sidebar {
@@ -62,7 +95,10 @@
 .mainContent {
     flex-grow: 1;
     padding: 20px;
-    margin-left: 250px; /* Same as sidebar width */
+    margin-left: 250px;
+    /* Same as sidebar width */
+    width: calc(100vw - 250px);
+    max-width: none;
 }
 
 .header {
@@ -73,6 +109,7 @@
     padding: 10px 20px;
     border-radius: 5px;
     margin-bottom: 20px;
+    column-gap: 16px;
 }
 
 .searchBar input {
@@ -87,10 +124,46 @@
 .userInfo {
     display: flex;
     align-items: center;
+    gap: 10px;
+    margin-left: auto;
 }
 
 .userInfo span {
     margin-right: 20px;
+}
+
+.iconButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--portal-border-color);
+    background: var(--portal-widget-bg);
+    color: var(--portal-text-color);
+    margin-right: 10px;
+}
+
+.iconButton:hover {
+    border-color: var(--portal-primary-color);
+}
+
+.titleArea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.envBadge {
+    background: var(--portal-widget-bg);
+    border: 1px solid var(--portal-border-color);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #94a3b8;
 }
 
 .dashboard {
@@ -105,13 +178,63 @@
     border-radius: 5px;
     border: 1px solid var(--portal-border-color);
     transition: transform 0.2s ease-in-out;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 }
 
 .widget:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    border-color: var(--portal-primary-color);
 }
 
 .widget h3 {
     margin-top: 0;
     color: var(--portal-primary-color);
+}
+
+/* Make the entire card clickable without underlines */
+.widget a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.widget a:hover,
+.widget a:focus {
+    text-decoration: none;
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.statCard {
+    background: var(--portal-widget-bg);
+    border: 1px solid var(--portal-border-color);
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.statLabel {
+    color: #94a3b8;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.statValue {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.sectionTitle {
+    margin: 12px 0;
+    font-size: 0.95rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .06em;
 }

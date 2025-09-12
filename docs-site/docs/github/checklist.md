@@ -4,11 +4,12 @@
 </div>
 <h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI Implementation Checklist</h1>
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
-  <progress id="shieldcraft-progress" value="47" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">47% Complete</div>
+  <progress id="shieldcraft-progress" value="41" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">41% Complete</div>
 </div>
 </section>
 <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<strong style="font-size:1.25em; color:#a5b4fc;">🧱 Foundation & Planning</strong>
 
 <div style="margin-bottom:1em;">
   <span style="color:#b3b3b3; font-size:1em;">Lays the groundwork for a robust, secure, and business-aligned AI system. All key risks, requirements, and architecture are defined before data prep begins.</span>
@@ -52,7 +53,7 @@
     - 🟩 Cross-stack resource sharing and dependency injection established
     - 🟩 Security, compliance, and monitoring integrated (CloudWatch, SNS, Config, IAM boundaries)
     - 🟩 S3 lifecycle, cost controls, and budget alarms implemented
-    - 🟩 741+ automated tests covering happy/unhappy paths, config validation, and outputs
+    - 🟥 819+ automated tests covering happy/unhappy paths, config validation, and outputs
     - 🟩 Comprehensive documentation for stack interactions and outputs ([see details](./aws_stack_architecture.md))
 
 
@@ -61,7 +62,7 @@
  <section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
 <strong style="font-size:1.25em; color:#a5b4fc;">💾 Data Preparation</strong>
 
-<div style="margin-top: 20px">
+<div style="margin-top: 1em">
   <span style="color:#a5b4fc; font-weight:bold;">Guiding Question:</span> <span style="color:#e0e0e0;">Do we have the right data, in the right format, with clear lineage and privacy controls?</span>
 </div>
 <div style="margin-bottom: 1em;">
@@ -74,13 +75,13 @@
 - 🟩 [Data ingestion, cleaning, normalization, privacy, and versioning](./data_ingestion_cleaning.md)
     - 🟩 [Build data ingestion pipelines](./build_data_ingestion_pipelines.md)
   - 🟩 Set up Amazon MSK (Kafka) cluster with topic creation
-  - � Integrate Airbyte for connector-based data integration
-  - � Implement AWS Lambda for event-driven ingestion and pre-processing
-  - � Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
-  - � Build AWS Glue jobs for batch ETL and normalization
-  - � Store raw and processed data in Amazon S3 data lake
-  - � Enforce governance and privacy with AWS Lake Formation
-  - � Add data quality checks (Great Expectations, Deequ)
+  - 🟥 Integrate Airbyte for connector-based data integration
+  - 🟥 Implement AWS Lambda for event-driven ingestion and pre-processing
+  - 🟥 Configure Amazon OpenSearch Ingestion for logs, metrics, and traces
+  - 🟥 Build AWS Glue jobs for batch ETL and normalization
+  - 🟥 Store raw and processed data in Amazon S3 data lake
+  - 🟥 Enforce governance and privacy with AWS Lake Formation
+  - 🟥 Add data quality checks (Great Expectations, Deequ)
   - 🟩 Implement data cleaning, normalization, and structuring
   - 🟩 Ensure data privacy (masking, anonymization) and compliance (GDPR, HIPAA, etc.)
   - 🟩 Establish data versioning for reproducibility
@@ -89,12 +90,12 @@
   - 🟩 [Modular data flows and schemas for different data sources](./data_prep/data_inputs_overview.md)
   - 🟩 Data lineage and audit trails for all data flows and model decisions
     - 🟩 Define and test disaster recovery, backup, and restore procedures for all critical data and services
-  - � Text chunking strategy defined and implemented for RAG
-    - � Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
-    - � Handle metadata preservation during chunking
-  - � Embedding model selection and experimentation for relevant data types
-    - 🟩 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
-    - � Establish benchmarking for embedding quality
+  - 🟥 Text chunking strategy defined and implemented for RAG
+    - 🟥 Experiment with various chunking sizes and overlaps (e.g., fixed, semantic, recursive)
+    - 🟥 Handle metadata preservation during chunking
+  - 🟥 Embedding model selection and experimentation for relevant data types
+  - 🟥 Evaluate different embedding models (e.g., Bedrock Titan, open-source options)
+  - 🟥 Establish benchmarking for embedding quality
   - 🟩 Vector database (or `pgvector`) setup and population
     - 🟩 Select appropriate vector store (e.g., Pinecone, Weaviate, pgvector)
     - 🟩 Implement ingestion pipeline for creating and storing embeddings
@@ -147,7 +148,7 @@
 - 🟩 Centralized error handling, smoke tests, and post-deployment validation for infrastructure reliability.
 - 🟩 Secure, reproducible Dockerfiles and Compose files for local and cloud development, with best practices enforced.
 - 🟩 Continuous compliance monitoring (Config, CloudWatch, custom rules) and regular security architecture reviews.
-- ### MSK + Lambda Integration To-Do List
+### MSK + Lambda Integration To-Do List
 
 - 🟥 Ensure Lambda execution role has least-privilege Kafka permissions, scoped to MSK cluster ARN
 - 🟥 Deploy Lambda in private subnets with correct security group(s)
@@ -177,22 +178,22 @@ Future iterations will orchestrate multiple AIs for even greater capability.</sp
 <summary>Show checklist…</summary>
 
   - 🟩 Selected <strong>Mistral-7B</strong> as the primary Foundation Model for ShieldCraft AI
-    - � Select secondary Foundation Models (FMs) from Amazon Bedrock or Hugging Face (Phase 2 - multi-agent orchestration)
+    - 🟥 Select secondary Foundation Models (FMs) from Amazon Bedrock or Hugging Face (Phase 2 - multi-agent orchestration)
     - 🟩 Implement model loading, inference, and resource optimization
-    - � Build and validate text encoders/embedding pipeline for RAG/vector search
-    - � Implement data preprocessing, cleaning, and validation for model inputs and retrieval corpus
-    - � Expose model inference via API (FastAPI/Flask), support batch/streaming modes
-    - � Define core AI strategy (RAG, fine-tuning, hybrid approach)
-    - � Prompt Engineering lifecycle implemented:
-    - � Prompt versioning and prompt registry
-    - � Prompt approval workflow
-    - � Prompt experimentation framework
-    - � Integration of human-in-the-loop (HITL) for continuous prompt refinement
-    - � Guardrails and safety mechanisms for GenAI outputs:
-      - � Establish Responsible AI governance: bias monitoring, model risk management, and audit trails
-      - � Implement content moderation APIs/filters
-      - � Define toxicity thresholds and response strategies
-      - � Establish mechanisms for red-teaming GenAI outputs (e.g., adversarial prompt generation and testing)
+    - 🟥 Build and validate text encoders/embedding pipeline for RAG/vector search
+    - 🟥 Implement data preprocessing, cleaning, and validation for model inputs and retrieval corpus
+    - 🟥 Expose model inference via API (FastAPI/Flask), support batch/streaming modes
+    - 🟥 Define core AI strategy (RAG, fine-tuning, hybrid approach)
+    - 🟥 Prompt Engineering lifecycle implemented:
+    - 🟥 Prompt versioning and prompt registry
+    - 🟥 Prompt approval workflow
+    - 🟥 Prompt experimentation framework
+    - 🟥 Integration of human-in-the-loop (HITL) for continuous prompt refinement
+    - 🟥 Guardrails and safety mechanisms for GenAI outputs:
+      - 🟥 Establish Responsible AI governance: bias monitoring, model risk management, and audit trails
+      - 🟥 Implement content moderation APIs/filters
+      - 🟥 Define toxicity thresholds and response strategies
+      - 🟥 Establish mechanisms for red-teaming GenAI outputs (e.g., adversarial prompt generation and testing)
 - 🟥 LangChain integration for orchestration and prompt management
 - 🟥 RAG pipeline prototyping and optimization:
     - 🟥 Implement efficient retrieval from vector store
@@ -238,8 +239,8 @@ Future iterations will orchestrate multiple AIs for even greater capability.</sp
 - 🟥 Implement LangChain Chains and Agents for complex workflows
 - 🟥 LangChain Memory components for conversational context
 - 🟥 Robust error handling and graceful fallbacks for API and LLM responses
-    - 🟥 API resilience and rate limiting mechanisms
-    - 🟥 Implement API abuse prevention (WAF, throttling, DDoS protection)
+  - 🟥 API resilience and rate limiting mechanisms
+  - 🟥 Implement API abuse prevention (WAF, throttling, DDoS protection)
 - 🟥 Secure prompt handling and sensitive data redaction at the application layer
 - 🟥 Develop example clients/SDKs for API consumption
 - 🟥 Implement API Gateway (AWS API Gateway) for secure access
@@ -282,8 +283,8 @@ Future iterations will orchestrate multiple AIs for even greater capability.</sp
 <details>
 <summary>Show checklist…</summary>
 
-- 🟥 Infrastructure as Code (IaC) with AWS CDK for all cloud resources
-- 🟥 CI/CD pipelines (GitHub Actions) for automated build, test, and deployment
+- 🟩 Infrastructure as Code (IaC) with AWS CDK for all cloud resources
+- 🟩 CI/CD pipelines (GitHub Actions) for automated build, test, and deployment
 - 🟩 Containerization (Docker)
 - 🟥 Orchestration (Kubernetes/AWS EKS)
 - 🟩 Pre-commit and pre-push hooks for code quality checks

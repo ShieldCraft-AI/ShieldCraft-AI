@@ -1,6 +1,33 @@
-import React from 'react';
-import {Redirect} from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Layout from '@theme/Layout';
+import type { ReactNode } from 'react';
+import AdvantageCards from '../components/AdvantageCards';
+import LandingHero from '../components/LandingHero';
+import LicenseFooter from '../components/LicenseFooter';
+import ResilienceSection from '../components/ResilienceSection';
+import InfoCardsRow from '../components/InfoCardsRow';
+import AwsStack from '../components/AwsStack';
+import IconCarousel from '../components/IconCarousel';
+import PlatformOverview from '../components/PlatformOverview';
 
-export default function Home(): JSX.Element {
-  return <Redirect to="/login" />;
+export default function Home(): ReactNode {
+  const { siteConfig } = useDocusaurusContext();
+  return (
+    <Layout
+      title={`${siteConfig.title}`}
+      description="Secure your future with Shieldcraft AI">
+      <main>
+        <div>
+          <LandingHero />
+          <AdvantageCards />
+          <PlatformOverview />
+          <InfoCardsRow />
+          <AwsStack />
+          <ResilienceSection />
+          <IconCarousel />
+          <LicenseFooter />
+        </div>
+      </main>
+    </Layout>
+  );
 }
