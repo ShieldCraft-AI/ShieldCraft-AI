@@ -1,0 +1,65 @@
+/* ShieldCraft UI Utilities (Phase 1 Follow-up) */
+
+.sc-card-base {
+    background: linear-gradient(145deg, var(--sc-color-bg-surface), var(--sc-color-bg-surface-alt));
+    border: 1px solid var(--sc-color-border);
+    border-radius: var(--sc-radius-lg);
+    padding: var(--sc-space-6) var(--sc-space-5) var(--sc-space-6);
+    position: relative;
+    box-shadow: var(--sc-elev-1);
+    transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), box-shadow var(--sc-dur-fast) var(--sc-ease-standard), border-color var(--sc-dur-fast), background var(--sc-dur-slow);
+    will-change: transform, box-shadow;
+}
+
+.sc-card-base:hover,
+.sc-card-base:focus-visible {
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--sc-color-accent-strong);
+    box-shadow: var(--sc-elev-2), 0 0 0 1px #6366f155;
+    outline: none;
+}
+
+.sc-card-base:active {
+    transform: translateY(-2px) scale(1.005);
+}
+
+.sc-focus-ring:focus-visible {
+    outline: 2px solid var(--sc-color-focus-ring);
+    outline-offset: 2px;
+}
+
+.sc-section {
+    padding: var(--sc-section-padding-y) var(--sc-space-5);
+    width: 100%;
+    max-width: var(--sc-max-width-content);
+    margin: 0 auto;
+}
+
+.sc-heading-gradient {
+    background: linear-gradient(90deg, #fff, #c7d2fe 40%, #818cf8 70%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.sc-inline-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--sc-text-xs);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    background: #23262c;
+    border: 1px solid #30363d;
+    color: var(--sc-color-accent);
+    padding: 2px 6px 3px;
+    border-radius: var(--sc-radius-sm);
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sc-card-base,
+    .sc-card-base:hover {
+        transform: none !important;
+    }
+}

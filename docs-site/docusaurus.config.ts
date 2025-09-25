@@ -38,6 +38,8 @@ const config: Config = {
             require.resolve('./static/css/shieldcraft-docs.css'),
             require.resolve('./static/css/shieldcraft-docs-dark.css'),
             require.resolve('./src/css/customTheme.css'),
+            require.resolve('./src/css/design-tokens.css'),
+            require.resolve('./src/css/utilities.css'),
           ],
         },
       } satisfies Preset.Options,

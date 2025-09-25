@@ -43,6 +43,7 @@ datasets = "^2.19.0"
 
 psycopg2-binary = ">=2.9.9,<3.0.0"
 bitsandbytes = ">=0.43.1,<1.0.0"
+git-filter-repo = "^2.47.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -95,8 +96,10 @@ markers = [
     "msk: mark a test as related to MSK"
 ]
 
+
 [tool.poetry.group.diagnostics.dependencies]
 toml = "^0.10.2"
+
 
 [tool.poetry.group.notebook.dependencies]
 jupyter = "^1.0.0"

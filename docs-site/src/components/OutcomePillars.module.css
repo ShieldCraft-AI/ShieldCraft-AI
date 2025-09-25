@@ -1,0 +1,125 @@
+@import '../css/design-tokens.css';
+
+.pillarsSection {
+    padding: var(--sc-section-padding-y) var(--sc-space-5) calc(var(--sc-space-8) - var(--sc-space-4));
+    max-width: var(--sc-max-width-content);
+    margin: 0 auto;
+}
+
+.pillarsTitle {
+    text-align: center;
+    font-size: var(--sc-text-xl);
+    font-weight: 700;
+    letter-spacing: .5px;
+    margin: 0 0 .5em;
+    background: linear-gradient(90deg, #fff, #c7d2fe 40%, #818cf8 70%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.pillarsSubtitle {
+    text-align: center;
+    opacity: .8;
+    font-size: var(--sc-text-md);
+    margin: 0 0 var(--sc-space-7);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.45;
+}
+
+.pillarsGrid {
+    display: grid;
+    gap: var(--sc-space-5);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.pillarCard {
+    background: linear-gradient(145deg, var(--sc-color-bg-surface), var(--sc-color-bg-surface-alt));
+    border: 1px solid var(--sc-color-border);
+    padding: var(--sc-space-6) var(--sc-space-5) var(--sc-space-6);
+    border-radius: var(--sc-radius-lg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sc-elev-1);
+    text-decoration: none;
+    color: var(--sc-color-text);
+    cursor: pointer;
+    transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), box-shadow var(--sc-dur-fast) var(--sc-ease-standard), border-color var(--sc-dur-fast), background var(--sc-dur-slow);
+    will-change: transform, box-shadow;
+}
+
+.pillarCard:hover,
+.pillarCard:focus-visible {
+    text-decoration: none;
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--sc-color-accent-strong);
+    box-shadow: var(--sc-elev-2), 0 0 0 1px #6366f155;
+    background: radial-gradient(circle at 30% 20%, var(--sc-color-bg-surface-alt), var(--sc-color-bg-surface) 75%);
+    outline: none;
+}
+
+.pillarCard:active {
+    transform: translateY(-2px) scale(1.005);
+}
+
+.pillarCard h3 {
+    margin: 0 0 .55rem;
+    font-size: var(--sc-text-lg);
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+.tagline {
+    font-size: var(--sc-text-xs);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--sc-color-accent);
+    font-weight: 600;
+    margin-bottom: .55rem;
+}
+
+.pillarBody {
+    font-size: var(--sc-text-sm);
+    line-height: 1.5;
+    color: var(--sc-color-text-dim);
+}
+
+.ctaBar {
+    margin-top: var(--sc-space-8);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sc-space-4);
+    justify-content: center;
+}
+
+.ctaButton {
+    background: var(--sc-color-accent-strong);
+    color: #fff;
+    padding: var(--sc-space-3) var(--sc-space-5);
+    border-radius: var(--sc-radius-sm);
+    font-size: var(--sc-text-sm);
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px -4px #00000066;
+    transition: background var(--sc-dur-fast), transform var(--sc-dur-fast);
+}
+
+.ctaButton:hover {
+    background: #4f46e5;
+    transform: translateY(-2px);
+}
+
+.ctaButton.secondary {
+    background: var(--sc-color-bg-surface-alt);
+    color: var(--sc-color-text);
+    border: 1px solid var(--sc-color-border-accent);
+}
+
+.ctaButton.secondary:hover {
+    background: var(--sc-color-bg-surface);
+}

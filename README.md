@@ -116,7 +116,7 @@ ShieldCraft AI is my capstone architecture artifact, synthesizing AWS platform d
     </tr>
   </thead>
   <tbody>
-    <tr><td style="padding:6px;">Env‑aware IaC & tagging</td><td style="padding:6px;">✅</td><td style="padding:6px;"></td><td style="padding:6px;">—</td></tr>
+    <tr><td style="padding:6px;">Env‑aware IaC & tagging</td><td style="padding:6px;">✅</td><td style="padding:6px;"></td><td style="padding:6px;">-</td></tr>
     <tr><td style="padding:6px;">Config validation (Pydantic)</td><td style="padding:6px;">✅</td><td style="padding:6px;"></td><td style="padding:6px;">Enhance drift detection</td></tr>
     <tr><td style="padding:6px;">Cost guardrails & budgets</td><td style="padding:6px;">✅</td><td style="padding:6px;"></td><td style="padding:6px;">Token/inference attribution</td></tr>
     <tr><td style="padding:6px;">Remediation plan schema</td><td style="padding:6px;">✅</td><td style="padding:6px;">Approval workflow docs</td><td style="padding:6px;">Rollback simulation</td></tr>

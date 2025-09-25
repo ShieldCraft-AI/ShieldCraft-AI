@@ -1,6 +1,8 @@
+@import '../css/design-tokens.css';
+
 .ctaSection {
-    padding: 3em 1em;
-    background: #18181b;
+    padding: var(--sc-section-padding-y) var(--sc-space-5);
+    background: var(--sc-color-bg);
 }
 
 .center {
@@ -15,17 +17,20 @@
 }
 
 .ctaButton {
-    background: #a5b4fc;
-    color: #232526;
-    padding: 0.75em 2em;
-    border-radius: 6px;
+    background: var(--sc-color-accent);
+    color: var(--sc-color-on-accent);
+    padding: .75em 2em;
+    border-radius: var(--sc-radius-md);
     font-weight: 600;
     text-decoration: none;
-    box-shadow: 0 2px 8px #23252633;
-    transition: background 0.2s;
+    box-shadow: var(--sc-elev-1);
+    transition: background var(--sc-dur-fast) var(--sc-ease-standard), transform var(--sc-dur-medium) var(--sc-ease-emphasized);
 }
 
-.ctaButton:hover {
-    background: #7c3aed;
-    color: #fff;
+.ctaButton:hover,
+.ctaButton:focus-visible {
+    background: var(--sc-color-accent-strong);
+    color: var(--sc-color-on-accent);
+    outline: none;
+    transform: translateY(-3px);
 }
