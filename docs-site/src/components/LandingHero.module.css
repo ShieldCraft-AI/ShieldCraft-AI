@@ -110,7 +110,8 @@
 
     @media (max-width: 600px) {
         .awsBadgeContainer {
-            position: static;
+            position: relative;
+            z-index: 10;
             margin: 16px auto 0 auto;
             align-items: center;
             width: 100%;

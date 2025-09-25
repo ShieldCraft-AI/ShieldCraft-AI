@@ -1,5 +1,7 @@
 """
-ShieldCraft AI Core - Mistral-7B Model Loader Scaffold
+ShieldCraft AI Core - Model Loader
+
+Supports cost-free 'stub' model for dev, and Hugging Face models for higher envs.
 """
 
 import time
@@ -22,29 +24,42 @@ class ShieldCraftAICore:
             "cuda" if torch.cuda.is_available() else "cpu"
         )
         self.quantize = config.get("quantize", False)
-        try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            model_kwargs = {}
-            if self.quantize:
-                model_kwargs["quantization_config"] = BitsAndBytesConfig(
-                    load_in_4bit=True
-                )
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, **model_kwargs
-            )
-            self.model.to(self.device)
+        # Zero-cost stub backend for dev
+        if self.model_name.strip().lower() == "stub":
+            self.model = None
+            self.tokenizer = None
             env = config_loader.get_section("app").get("env", "unknown")
             print(
-                f"[INFO] Loaded model: {self.model_name} | Env: {env} | Device: {self.device} | Quantized: {self.quantize}"
+                f"[INFO] Using stub LLM backend | Env: {env} | Device: {self.device} | Quantized: {self.quantize}"
             )
-        except HFValidationError as e:
-            print(f"[ERROR] Model loading failed: {e}")
-            self.model = None
-        except Exception as e:
-            print(f"[ERROR] Model loading failed: {e}")
-            self.model = None
+        else:
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+                model_kwargs = {}
+                if self.quantize:
+                    model_kwargs["quantization_config"] = BitsAndBytesConfig(
+                        load_in_4bit=True
+                    )
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name, **model_kwargs
+                )
+                self.model.to(self.device)
+                env = config_loader.get_section("app").get("env", "unknown")
+                print(
+                    f"[INFO] Loaded model: {self.model_name} | Env: {env} | Device: {self.device} | Quantized: {self.quantize}"
+                )
+            except HFValidationError as e:
+                print(f"[ERROR] Model loading failed: {e}")
+                self.model = None
+            except Exception as e:
+                print(f"[ERROR] Model loading failed: {e}")
+                self.model = None
 
     def generate(self, prompt: str, max_new_tokens: int = 64) -> str:
+        # Stub path: deterministic, free, no downloads
+        if self.model_name.strip().lower() == "stub":
+            prompt_preview = (prompt or "").strip().replace("\n", " ")[:60]
+            return f"[STUB] echo: {prompt_preview} | max_new_tokens={max_new_tokens}"
         if self.model is None:
             return "[ERROR] Model not loaded."
         try:
