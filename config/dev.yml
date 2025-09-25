@@ -336,7 +336,8 @@ stepfunctions:
           type: Pass
           end: true
 ai_core:
-  model_name: "gpt2"
+  # Use free stub backend locally; switch to small local model if needed
+  model_name: "stub" # alternatives: "gpt2", "mistralai/Mistral-7B-v0.1"
   quantize: false
   device: "cpu"
 embedding:

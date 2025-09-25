@@ -4,13 +4,49 @@ Run this script after a successful push (e.g., as a post-push hook or in CI).
 """
 
 import re
+import sys
 from pathlib import Path
+from typing import Optional
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-CHECKLIST_PATH = REPO_ROOT / "docs-site" / "docs" / "github" / "checklist.md"
-README_PATH = REPO_ROOT / "README.md"
-MDX_PATH = REPO_ROOT / "docs-site" / "docs" / "site" / "checklist.mdx"
+def find_repo_root(start: Path) -> Path:
+    """Walk upward from start until a directory containing a repo marker is found.
+
+    Markers (in priority order): .git, pyproject.toml, README.md
+    Falls back to provided start if nothing else is found before filesystem root.
+    """
+    markers = {".git", "pyproject.toml"}
+    current = start
+    while True:
+        if any((current / m).exists() for m in markers):
+            return current
+        # Heuristic: if README.md AND docs-site exist, assume root
+        if (current / "README.md").exists() and (current / "docs-site").exists():
+            return current
+        if current.parent == current:
+            # Reached filesystem root
+            return start
+        current = current.parent
+
+
+def resolve_paths(root_override: Optional[str] = None):
+    script_dir = Path(__file__).resolve().parent
+    if root_override:
+        root = Path(root_override).expanduser().resolve()
+    else:
+        # Original logic overshot by going 3 levels up (.. / .. / ..) which landed outside the repo
+        # We now discover repo root robustly.
+        root = find_repo_root(script_dir)
+    checklist = root / "docs-site" / "docs" / "github" / "checklist.md"
+    readme = root / "README.md"
+    mdx = root / "docs-site" / "docs" / "site" / "checklist.mdx"
+    return root, checklist, readme, mdx
+
+
+# Allow optional CLI arg: python update_checklist_progress.py [repo_root]
+REPO_ROOT, CHECKLIST_PATH, README_PATH, MDX_PATH = resolve_paths(
+    sys.argv[1] if len(sys.argv) > 1 else None
+)
 
 PROGRESS_BAR_PATTERN = re.compile(
     r'(<progress[^>]+id="shieldcraft-progress"[^>]+value=")\d+("[^>]+max=")\d+("[^>]*>)',
@@ -27,21 +63,33 @@ PROGRESSBAR_MDX_PATTERN = re.compile(
 
 if not CHECKLIST_PATH.exists():
     print(
-        f"[update_checklist_progress] ERROR: Checklist file not found: {CHECKLIST_PATH}"
+        f"[update_checklist_progress] ERROR: Checklist file not found: {CHECKLIST_PATH}\n"
+        f"  Resolved repo root: {REPO_ROOT}\n"
+        f"  (Pass an explicit repo root path as first argument if auto-detection failed.)"
     )
-    exit(1)
+    sys.exit(1)
 if not README_PATH.exists():
     print(f"[update_checklist_progress] ERROR: README file not found: {README_PATH}")
-    exit(1)
+    sys.exit(1)
 if not MDX_PATH.exists():
-    print(f"[update_checklist_progress] WARNING: MDX file not found: {MDX_PATH}")
+    print(
+        f"[update_checklist_progress] WARNING: MDX file not found (optional): {MDX_PATH}"
+    )
 
 with CHECKLIST_PATH.open("r", encoding="utf-8") as f:
     checklist_content = f.read()
 
-# Count checkboxes
-num_done = len(re.findall(r"🟩", checklist_content))
-num_todo = len(re.findall(r"🟥", checklist_content))
+# If explicit counted scope markers exist, restrict counting to that region
+scope_match = re.search(
+    r"<!-- COUNTED_SCOPE_BEGIN -->(.*)<!-- COUNTED_SCOPE_END -->",
+    checklist_content,
+    re.DOTALL,
+)
+count_region = scope_match.group(1) if scope_match else checklist_content
+
+# Count checkboxes (only in counted scope region)
+num_done = len(re.findall(r"🟩", count_region))
+num_todo = len(re.findall(r"🟥", count_region))
 num_total = num_done + num_todo
 percent = int(round((num_done / num_total) * 100)) if num_total > 0 else 0
 
@@ -61,9 +109,6 @@ else:
     print(
         f"[update_checklist_progress] Progress bar already up-to-date in checklist.md: {percent}%."
     )
-
-# Update <progress> value and label in README
-# Update <progress> value and label in README
 
 # Update <progress> value and label in README
 with README_PATH.open("r", encoding="utf-8") as f:

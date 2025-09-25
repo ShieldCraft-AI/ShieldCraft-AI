@@ -53,7 +53,7 @@ const config: Config = {
         src: 'img/logo.png',
       },
       items: [
-        { type: 'custom', position: 'right', component: '@site/src/theme/NavbarItem/CustomAuthNavbarItem' },
+        { to: '/portal', label: 'Login', position: 'right' },
       ],
     },
     colorMode: {
