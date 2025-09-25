@@ -6,16 +6,16 @@
 .sc-title{text-align:center;margin:0;font-size:2em;color:#fff;}
 .sc-progress{text-align:center;margin:.8em 0 .9em;}
 .sc-note{font-size:.8em;line-height:1.45;background:#181818;padding:.75em .9em;border:1px solid #252525;border-radius:8px;color:#ccc;}
-.sc-sub{font-size:.95em;color:#d2d2d2;margin:.55em 0 .85em;font-weight:500;line-height:1.4;}
+.sc-sub{font-size:.94em;color:#d6d9df;margin:.5em 0 .9em;font-weight:500;line-height:1.38;}
 .sc-section-title{font-size:1.32em;color:#a5b4fc;margin:0 0 .35em;line-height:1.18;font-weight:600;}
 .sc-muted{font-size:.7em;color:#777;margin-top:.65em;}
 .sc-meta{font-size:.72em;line-height:1.5;color:#999;}
 .sc-legend{font-size:.72em;display:flex;flex-wrap:wrap;gap:1.1em;margin:.9em 0 .2em;color:#bbb;}
 .sc-pill{background:#181818;border:1px solid #2a2a2a;padding:.35em .55em;border-radius:6px;}
-.sc-h3{margin:.4em 0 .35em;font-size:.9em;letter-spacing:.5px;text-transform:uppercase;color:#c7c7c7;}
+.sc-h3{margin:.55em 0 .4em;font-size:.76em;letter-spacing:.12em;text-transform:uppercase;color:#9aa2b4;font-weight:600;}
 @media (max-width:760px){.sc-title{font-size:1.6em;} .sc-progress progress{width:100%!important;}}
 /* Normalize markdown list spacing inside cards */
-.sc-card ul{margin:.35em 0 .85em;padding-left:1.15em;font-size:.86em;line-height:1.45;}
+.sc-card ul{margin:.35em 0 .85em;padding-left:1.15em;font-size:.84em;line-height:1.42;}
 .sc-card li{margin:.18em 0;}
 </style>
 
@@ -30,10 +30,9 @@
     <div id="progress-label">75% Complete</div>
   </div>
   <div class="sc-legend">
-    <span class="sc-pill">🟩 Complete (counted)</span>
-    <span class="sc-pill">🟥 Remaining (counted)</span>
-    <span class="sc-pill">✅ Complete (context only)</span>
-    <span class="sc-pill">🕒 Deferred / future scope</span>
+    <span class="sc-pill">🟩 Complete</span>
+    <span class="sc-pill">🟥 Remaining</span>
+    <span class="sc-pill">🕒 Deferred</span>
   </div>
 </section>
 
@@ -41,7 +40,7 @@
 <!-- COUNTED_SCOPE_BEGIN -->
 <section class="sc-card">
 <h2 class="sc-section-title">🧱 Foundation & Planning</h2>
-<div class="sc-sub">Environment strategy, baseline risk controls, deterministic configuration, and cost/security guardrails.</div>
+<div class="sc-sub">Environment-aware multi-account IaC with explicit tagging, typed config validation, and pre-wired security & cost guardrails.</div>
 <div class="sc-h3">Completed</div>
 <ul>
   <li>🟩 Multi-account / environment-aware IaC (CDK v2) with explicit naming & tagging</li>
@@ -61,7 +60,7 @@
 
 <section class="sc-card">
 <h2 class="sc-section-title">💾 Data Preparation & Retrieval Core</h2>
-<div class="sc-sub">Retrieval boundary, ingestion scaffolding, model selection, and evaluation baselines.</div>
+<div class="sc-sub">Normalized telemetry landing + retrieval boundary abstraction with model swap safety, benchmarked relevance baselines, and cost-safe local paths.</div>
 <div class="sc-h3">Completed</div>
 <ul>
   <li>🟩 Normalized ingestion scaffolding (S3 + Glue + Lake Formation intent)</li>
@@ -76,12 +75,12 @@
 <ul>
   <li>🟥 Retrieval relevance spot-check micro harness (manual efficacy validation)</li>
 </ul>
-<div class="sc-muted">Deferred (not counted): advanced chunking strategies, rerankers, embedding model bakeoff automation.</div>
+<div class="sc-muted">Advanced chunking strategies, rerankers, embedding model bakeoff automation.</div>
 </section>
 
 <section class="sc-card">
 <h2 class="sc-section-title">☁️ AWS Cloud Foundation & Architecture</h2>
-<div class="sc-sub">Coverage: VPC, EventBridge, S3, Glue, Lake Formation, MSK, Lambda patterns, budgets, security services. Patterns embodied in counted Foundation items above; not re-counted here. Cross-stack exports unify domain boundaries without tight coupling.</div>
+<div class="sc-sub">Decoupled network, event, storage and catalog primitives composed via cross-stack contracts to isolate blast radius and enable incremental evolution.</div>
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ VPC + segmented subnets & security groups</li>
@@ -100,7 +99,7 @@
 
 <section class="sc-card">
 <h2 class="sc-section-title">🧠 AI Core Development & Experimentation</h2>
-<div class="sc-sub">Mistral‑7B integration & loader abstraction complete; benchmark harness captured with cost control via stub path. Multi‑agent orchestration, prompt governance, and extended evaluation automation explicitly deferred.</div>
+<div class="sc-sub">Hot‑swap model loader (Mistral‑7B) + cost-control stub path + captured baseline signals; advanced orchestration & governance registry deferred.</div>
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ Model loader abstraction (hot-swap pathway)</li>
@@ -118,7 +117,7 @@
 
 <section class="sc-card">
 <h2 class="sc-section-title">🚀 Application Layer & Integration</h2>
-<div class="sc-sub">API/UI build-out intentionally deferred to emphasize architecture over veneer; forthcoming vertical slice script will simulate an end-to-end workflow without a full UI.</div>
+<div class="sc-sub">Deliberately lean surface; upcoming scripted vertical slice will narrate ingest → retrieve → risk score without premature UI/API expansion.</div>
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ Domain interaction mapping available</li>
@@ -134,7 +133,7 @@
 
 <section class="sc-card">
 <h2 class="sc-section-title">✅ Evaluation & Continuous Improvement</h2>
-<div class="sc-sub">Static benchmark snapshot + forthcoming spot-check harness form minimal viable evaluation signal. Continuous eval loops (toxicity drift, A/B harness) deferred.</div>
+<div class="sc-sub">Benchmarks + failure-path tests established; manual spot‑check harness next; drift & A/B experimentation loops staged for later.</div>
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ Baseline retrieval & representation benchmarks captured</li>
@@ -151,7 +150,7 @@
 <!-- SECURITY -->
 <section class="sc-card">
 <h2 class="sc-section-title">🔒 Security & Governance (Cross-Cutting)</h2>
-<div class="sc-sub">Guardrails embedded via tagging strategy, encryption defaults, and detection services; broader IAM fine‑grain controls, SBOM automation, and drift remediation pipelines intentionally deferred.</div>
+<div class="sc-sub">Embedded tagging, encryption defaults & detection services; SBOM pipeline, fine‑grain IAM review & drift automation intentionally deferred.</div>
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ Encryption defaults & lifecycle policies in storage layer</li>
@@ -169,7 +168,7 @@
 <!-- DOCUMENTATION & ENABLEMENT -->
 <section class="sc-card">
 <h2 class="sc-section-title">📚 Documentation & Enablement</h2>
-<div class="sc-sub">Evidence curation and narrative clarity enabling rapid architectural evaluation.</div>
+<div class="sc-sub">Curated architectural evidence (blueprint, benchmarks, risk baseline, interaction mapping) enabling rapid credibility assessment.</div>
 <div class="sc-h3">Completed</div>
 <ul>
   <li>🟩 Architecture blueprint & context pack published</li>
@@ -193,7 +192,7 @@
 
 <!-- PROGRESS FOOTER -->
 <section class="sc-card">
-  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 21 🟩 / (21 🟩 + 7 🟥) = 75%.<br>
-  <strong style="color:#a5b4fc;">Finish Order Suggestion:</strong> Artifact map → Demo vertical slice → ADR set → Threat model summary → Retrieval spot-check harness → Deployment dry-run explainer → Dashboard mock.<br>
+  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 21 🟩 / (21 🟩 + 7 🟥) = 75%. (Auto sync via script)<br>
+  <strong style="color:#a5b4fc;">Next Focus:</strong> Artifact map → Demo vertical slice → ADR set → Threat model summary → Retrieval spot-check harness → Deployment dry-run explainer → Dashboard mock.<br>
   <strong style="color:#a5b4fc;">Evidence Pointers:</strong> infra/ · ai_core/ · data_prep/ · tests/ · scripts/update_checklist_progress.py · ShieldCraft-AI-Context.txt.</div>
 </section>
