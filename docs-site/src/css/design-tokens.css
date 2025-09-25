@@ -1,0 +1,149 @@
+/* ShieldCraft Design Tokens (Phase 1) */
+:root {
+    /* Color Palette */
+    --sc-color-bg: #0d0f11;
+    --sc-color-bg-surface: #16181b;
+    --sc-color-bg-surface-alt: #1d2024;
+    --sc-color-border: #262b31;
+    --sc-color-border-accent: #39414d;
+    --sc-color-accent: #818cf8;
+    /* indigo 400 */
+    --sc-color-accent-strong: #6366f1;
+    /* indigo 500 */
+    --sc-color-accent-fade: #30334a;
+    --sc-color-on-accent: #121214;
+    /* text placed on accent backgrounds */
+    --sc-color-text: #e5e7ef;
+    --sc-color-text-dim: #9ca3af;
+    --sc-color-text-faint: #6b7280;
+    --sc-color-glow: 210 90% 60%;
+    /* for shadow hsl reference */
+    --sc-color-gradient-start: #1a1c20;
+    --sc-color-gradient-end: #23263b;
+    --sc-color-focus-ring: #6366f1;
+    --sc-color-success: #34d399;
+    --sc-color-danger: #f87171;
+    --sc-color-warn: #fbbf24;
+
+    /* Elevation (box-shadows) */
+    --sc-elev-0: none;
+    --sc-elev-1: 0 2px 4px -2px rgba(0, 0, 0, .4), 0 4px 10px -2px rgba(0, 0, 0, .35);
+    --sc-elev-2: 0 4px 8px -2px rgba(0, 0, 0, .5), 0 8px 22px -4px rgba(0, 0, 0, .45);
+    --sc-elev-focus: 0 0 0 1px var(--sc-color-accent-strong), 0 0 0 4px #6366f155;
+
+    /* Radii */
+    --sc-radius-xs: 4px;
+    --sc-radius-sm: 6px;
+    --sc-radius-md: 10px;
+    --sc-radius-lg: 14px;
+    --sc-radius-xl: 22px;
+
+    /* Spacing Scale (4px * n) */
+    --sc-space-1: 4px;
+    --sc-space-2: 8px;
+    --sc-space-3: 12px;
+    --sc-space-4: 16px;
+    --sc-space-5: 20px;
+    --sc-space-6: 24px;
+    --sc-space-7: 32px;
+    --sc-space-8: 40px;
+    --sc-space-9: 52px;
+
+    /* Typography (Fluid) */
+    --sc-font-sans: 'Inter', 'IBM Plex Sans', 'Roboto', system-ui, sans-serif;
+    --sc-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+    --sc-text-xs: clamp(.62rem, .55rem + .2vw, .7rem);
+    --sc-text-sm: clamp(.72rem, .65rem + .25vw, .8rem);
+    --sc-text-md: clamp(.85rem, .8rem + .3vw, .95rem);
+    --sc-text-lg: clamp(1rem, .95rem + .4vw, 1.2rem);
+    --sc-text-xl: clamp(1.25rem, 1.15rem + .8vw, 1.9rem);
+    --sc-text-display: clamp(2.2rem, 1.8rem + 2.6vw, 3.8rem);
+
+    /* Motion */
+    --sc-dur-quick: 120ms;
+    --sc-dur-fast: 200ms;
+    --sc-dur-medium: 340ms;
+    --sc-dur-slow: 600ms;
+    --sc-ease-standard: cubic-bezier(.4, .25, .3, 1);
+    --sc-ease-emphasized: cubic-bezier(.34, 1.56, .64, 1);
+
+    /* Layout constraints */
+    --sc-max-width-narrow: 760px;
+    --sc-max-width-content: 1180px;
+    --sc-section-padding-y: clamp(3rem, 8vh, 6rem);
+}
+
+/* Explicit dark theme scope (root defaults already dark) */
+/* Light theme overrides */
+html[data-theme='light'] {
+    --sc-color-bg: #f8fafc;
+    --sc-color-bg-surface: #ffffff;
+    --sc-color-bg-surface-alt: #f1f5f9;
+    --sc-color-border: #d9dde3;
+    --sc-color-border-accent: #b6bcc4;
+    --sc-color-accent: #4f46e5;
+    /* slightly deeper indigo for contrast on light */
+    --sc-color-accent-strong: #4338ca;
+    --sc-color-accent-fade: #e8ebff;
+    --sc-color-text: #1e2125;
+    --sc-color-text-dim: #5a6472;
+    --sc-color-text-faint: #8a939e;
+    --sc-color-gradient-start: #ffffff;
+    --sc-color-gradient-end: #f1f5f9;
+    --sc-color-on-accent: #ffffff;
+    /* switch to white text on deeper accent */
+    /* Elevation adjustments (lighter, softer shadows) */
+    --sc-elev-1: 0 2px 4px -2px rgba(0, 0, 0, .08), 0 4px 10px -2px rgba(0, 0, 0, .06);
+    --sc-elev-2: 0 4px 10px -2px rgba(0, 0, 0, .12), 0 12px 24px -6px rgba(0, 0, 0, .10);
+    --sc-elev-focus: 0 0 0 1px var(--sc-color-accent), 0 0 0 4px rgba(79, 70, 229, .25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --sc-dur-quick: 0ms;
+        --sc-dur-fast: 0ms;
+        --sc-dur-medium: 0ms;
+        --sc-dur-slow: 0ms;
+        --sc-ease-emphasized: linear;
+    }
+
+    .sc-reveal,
+    [data-animate='reveal'] {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Utility classes */
+.sc-container {
+    width: 100%;
+    max-width: var(--sc-max-width-content);
+    margin: 0 auto;
+    padding: 0 var(--sc-space-5);
+}
+
+.sc-gradient-surface {
+    background: linear-gradient(145deg, var(--sc-color-gradient-start), var(--sc-color-gradient-end));
+}
+
+.sc-text-dim {
+    color: var(--sc-color-text-dim);
+}
+
+.sc-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #2a2f37, transparent);
+    margin: var(--sc-space-7) 0;
+}
+
+/* Reveal animation baseline */
+.sc-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity var(--sc-dur-medium) var(--sc-ease-standard), transform var(--sc-dur-medium) var(--sc-ease-standard);
+}
+
+.sc-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
