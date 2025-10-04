@@ -32,6 +32,7 @@ from infra.stacks.compliance_service import (
 )  # pylint: disable=unused-import
 from infra.stacks.cost.budget_service import BudgetStack
 from infra.stacks.security.secrets_manager_service import SecretsManagerStack
+from infra.domains.auth_stack import AuthStack
 import yaml
 
 logger = getLogger("shieldcraft-ai")
@@ -102,6 +103,21 @@ try:
         log_and_raise(
             f"Failed to instantiate SecretsManagerStack: {e}",
             RuntimeError(f"Failed to instantiate SecretsManagerStack: {e}"),
+        )
+
+    # Authentication Stack - Cognito for social login (costs $0 for <50k MAU)
+    auth_domain = config.get("app", {}).get("auth_domain", "localhost:3000")
+    try:
+        auth_stack = AuthStack(
+            app,
+            "ShieldCraftAuthStack",
+            domain_name=auth_domain,
+            env=cdk_env,
+        )
+    except (ValueError, RuntimeError) as e:
+        log_and_raise(
+            f"Failed to instantiate AuthStack: {e}",
+            RuntimeError(f"Failed to instantiate AuthStack: {e}"),
         )
 
     stack_results = {}

@@ -5,7 +5,7 @@
   </a>
 </div>
 
-<h1 align="center">🛡️ ShieldCraft AI</h1>
+<h1 align="center"><img src="docs-site/static/img/logo.png" alt="ShieldCraft AI" style="height:48px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI</h1>
 <p align="center"><em>Next-Gen Cloud Cybersecurity: Proactive, Adaptive, Autonomous.</em></p>
 
 <div align="center" style="margin-bottom:1em;">

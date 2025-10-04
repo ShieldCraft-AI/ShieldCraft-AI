@@ -1,8 +1,8 @@
 @import '../css/design-tokens.css';
 
 .resilienceSection {
-    padding: var(--sc-section-padding-y) var(--sc-space-5);
-    background: var(--sc-color-bg);
+    padding: calc(var(--sc-section-padding-y) * 2) var(--sc-space-5);
+    background: transparent !important;
 }
 
 .center {

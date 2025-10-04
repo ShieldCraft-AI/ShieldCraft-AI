@@ -1,0 +1,42 @@
+.root {
+    position: relative;
+}
+
+.toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.svgWrap {
+    position: relative;
+    border: 1px solid var(--ifm-toc-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 901 / 185;
+    /* match viewBox for overlay alignment */
+}
+
+.baseImg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.overlaySvg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* rects re-enable events */
+}
+
+.hotspot {
+    fill: transparent;
+    pointer-events: all;
+    cursor: pointer;
+}

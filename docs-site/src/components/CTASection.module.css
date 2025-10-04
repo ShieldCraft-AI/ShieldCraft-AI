@@ -2,7 +2,7 @@
 
 .ctaSection {
     padding: var(--sc-section-padding-y) var(--sc-space-5);
-    background: var(--sc-color-bg);
+    background: transparent !important;
 }
 
 .center {

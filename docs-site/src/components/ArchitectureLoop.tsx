@@ -101,7 +101,7 @@ export default function ArchitectureLoop() {
                         <h3 className={styles.detailTitle}>Explore the Autonomous Loop</h3>
                         <p className={styles.detailBody}>Select any stage to see how ShieldCraft moves from raw telemetry to validated remediation with continuous learning signals reinforcing the system.</p>
                         {visited.some(v => v) && !visited.every(v => v) && (
-                            <p className={styles.detailHint}>You can step through the lifecycle in any order. Completed steps dim slightly—select again to re-focus.</p>
+                            <p className={styles.detailHint}>You can step through the lifecycle in any order. Completed steps dim slightly select again to re-focus.</p>
                         )}
                     </div>
                 ) : (

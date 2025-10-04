@@ -9,6 +9,10 @@
     /* fallback */
     display: flex;
     align-items: center;
+    /* Ensure hero content doesn't interfere with subsequent sections */
+    z-index: 1;
+    isolation: isolate;
+    /* Create new stacking context */
 }
 
 @supports (min-height: 100dvh) {
@@ -20,48 +24,19 @@
 .backLayer {
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(circle at 58% 42%, rgba(129, 140, 248, .18), transparent 62%),
-        radial-gradient(circle at 22% 18%, rgba(79, 70, 229, .12), transparent 55%),
-        linear-gradient(to bottom, rgba(13, 15, 17, .85), rgba(13, 15, 17, .92) 35%, rgba(13, 15, 17, .88));
+    background: transparent !important;
     pointer-events: none;
     z-index: 0;
 }
 
 /* Persistent brand logo watermark (subtle; scaled sensibly; blends via radial fade) */
 .backLayer::before {
-    content: '';
-    position: fixed;
-    /* persists beyond hero */
-    top: 52%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: clamp(360px, 40vw, 840px);
-    aspect-ratio: 1 / 1;
-    background: url(/img/logo.png) center / contain no-repeat;
-    opacity: .035;
-    /* very subtle on dark */
-    filter: saturate(108%) brightness(1.0) blur(.4px);
-    pointer-events: none;
-    user-select: none;
-    z-index: 0;
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .65) 55%, rgba(0, 0, 0, 0) 78%);
-    mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .65) 55%, rgba(0, 0, 0, 0) 78%);
-    mix-blend-mode: normal;
-    transition: opacity .6s ease;
+    content: none !important;
 }
 
-html[data-theme='light'] .backLayer::before {
-    opacity: .055;
-    /* needs a hair more in light mode */
-    filter: saturate(104%) brightness(.92) blur(.4px);
-}
 
 html[data-theme='light'] .backLayer {
-    background:
-        radial-gradient(circle at 58% 42%, rgba(99, 102, 241, .28), transparent 64%),
-        radial-gradient(circle at 22% 18%, rgba(129, 140, 248, .22), transparent 55%),
-        linear-gradient(to bottom, #ffffff, #f5f7fa 60%, #f5f7fa);
+    background: transparent !important;
 }
 
 .heroInner {
@@ -69,7 +44,8 @@ html[data-theme='light'] .backLayer {
     margin: 0 auto;
     padding: 0 var(--sc-space-5);
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    /* Ensure content is above background layers */
 }
 
 .heroContent {
@@ -82,7 +58,7 @@ html[data-theme='light'] .backLayer {
     letter-spacing: .5px;
     line-height: 1.05;
     max-width: 18ch;
-    margin: 0 auto .7rem;
+    margin: 0 auto 1.1rem;
     background: linear-gradient(95deg, #fff, #c7d2fe 40%, #818cf8 70%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -100,7 +76,7 @@ html[data-theme='light'] .heroHeading {
     font-weight: 600;
     letter-spacing: .5px;
     line-height: 1.15;
-    margin: 0 auto 1.2rem;
+    margin: .25rem auto 1.8rem;
     background: linear-gradient(90deg, var(--sc-color-accent-strong) 0%, var(--sc-color-accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -116,8 +92,8 @@ html[data-theme='light'] .heroSubheading {
     font-weight: 400;
     color: var(--sc-color-text-dim);
     max-width: 62ch;
-    margin: 0 auto 2.2rem;
-    line-height: 1.45;
+    margin: .25rem auto 2.6rem;
+    line-height: 1.6;
 }
 
 /* Subtle ambient glow behind heading */
@@ -126,8 +102,8 @@ html[data-theme='light'] .heroSubheading {
     position: absolute;
     inset: -18% -14%;
     background: radial-gradient(circle at 50% 55%, rgba(129, 140, 248, .28), transparent 70%);
-    filter: blur(38px);
-    opacity: .55;
+    filter: blur(34px);
+    opacity: .22;
     mix-blend-mode: screen;
     transition: opacity .6s var(--sc-ease-emphasized);
     z-index: -1;
@@ -136,8 +112,8 @@ html[data-theme='light'] .heroSubheading {
 html[data-theme='light'] .heroHeading::after {
     background: radial-gradient(circle at 50% 55%, rgba(99, 102, 241, .35), transparent 72%);
     mix-blend-mode: normal;
-    filter: blur(46px);
-    opacity: .5;
+    filter: blur(40px);
+    opacity: .18;
 }
 
 .heroHeading:hover::after {

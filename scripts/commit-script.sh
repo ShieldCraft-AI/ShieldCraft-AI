@@ -81,15 +81,10 @@ if ! echo "--- $(date) ---" >"$DEBUG_LOG_FILE" 2>/dev/null; then
     echo "--- $(date) ---" >"$DEBUG_LOG_FILE"
 fi
 
-# Clean all Poetry environments for this project before starting
-log_output "[INFO] Cleaning all Poetry environments for project hygiene."
-poetry_envs=$(poetry env list --full-path | awk '{print $1}')
-for env_path in $poetry_envs; do
-    log_output "[INFO] Removing Poetry environment: $env_path"
-    poetry env remove "$env_path" || log_output "[WARN] Could not remove Poetry env $env_path (may not exist or already removed)"
-done
-log_output "[INFO] Rehydrating Poetry environment with fresh install."
-poetry install
+# Skip Poetry environment cleanup - it's slow and unnecessary for commits
+# Just ensure dependencies are installed
+log_output "[INFO] Ensuring Poetry dependencies are installed..."
+poetry install --no-interaction --quiet 2>&1 | grep -v "Installing" || true
 
 
 log_output() {
@@ -135,6 +130,45 @@ if ! poetry run python -c "import nox_sessions"; then
 fi
 
 
+# ============================================================================
+# 🚨 CRITICAL: IaC DEPLOYMENT PROTECTION 🚨
+# ============================================================================
+# This commit script ONLY commits code to git. It does NOT deploy infrastructure.
+# AWS deployments are EXPENSIVE and DANGEROUS - they must be done explicitly.
+#
+# ⛔ This script will NEVER run:
+#   - cdk deploy
+#   - cdk synth (for deployment)
+#   - aws cloudformation deploy
+#   - terraform apply
+#   - any nox deploy sessions
+#
+# ✅ This script ONLY runs:
+#   - git operations (commit, push)
+#   - pre-commit hooks (linters, formatters)
+#   - npm install (for docs-site dependencies)
+#   - poetry install (for Python dependencies)
+#
+# To deploy infrastructure, you must EXPLICITLY run deployment scripts:
+#   - scripts/deploy-auth.sh (for Cognito auth stack)
+#   - scripts/deploy_site.sh (for docs site to S3/CloudFront)
+#   - nox -s cdk_deploy (blocked by .deployment_block + SHIELDCRAFT_ALLOW_DEPLOY=1)
+# ============================================================================
+
+# Ensure .deployment_block exists as an additional safety layer
+if [ ! -f ".deployment_block" ]; then
+    echo -e "\033[1;33m⚠️  INFO: Creating .deployment_block for AWS infrastructure protection\033[0m"
+    log_output "[INFO] Creating .deployment_block file for AWS infrastructure protection"
+    python3 scripts/aws_safety_checker.py >/dev/null 2>&1 || true
+fi
+
+# Explicitly verify we're not accidentally running any deploy commands
+if echo "$0 $*" | grep -qE "(cdk deploy|cdk synth|cloudformation|terraform|nox.*deploy)"; then
+    echo -e "\033[1;41m\033[1;97m🚨 BLOCKED: This script cannot run deployment commands! 🚨\033[0m" >&2
+    log_output "[CRITICAL] Attempted to run deployment command - BLOCKED"
+    exit 1
+fi
+
 if ! git diff --quiet; then
     git add . 2>&1 | grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy' || true
     log_output "[INFO] Auto-staged changes for commit."
@@ -154,13 +188,14 @@ if git ls-files | grep -E '\.(env|pem|key|sqlite3|db|csv|tsv|parquet|h5|hdf5|npz
 fi
 
 
+echo "[INFO] Syncing with remote..." | tee -a "$DEBUG_LOG_FILE"
 git fetch origin main >/dev/null 2>&1
 if ! git merge --ff-only origin/main >/dev/null 2>&1; then
     echo "Fast-forward merge from origin/main failed. Please resolve conflicts manually before proceeding." >&2
     exit 1
 fi
 
-
+echo "[INFO] Configuring git hooks..." | tee -a "$DEBUG_LOG_FILE"
 
 HOOKS_DIR="$REPO_ROOT/.git/hooks"
 HOOKS_INSTALLED_MARKER="$HOOKS_DIR/.precommit_hooks_installed"
@@ -208,10 +243,12 @@ if [ "$NEED_HOOKS_INSTALL" -eq 1 ]; then
             [ -f "$hook" ] && dos2unix "$hook" 2>>"$DEBUG_LOG_FILE" || true
         done
     fi
-    sha256sum "$REPO_RaOOT/.pre-commit-config.yaml" | awk '{print $1}' > "$HOOKS_INSTALLED_MARKER"
+    sha256sum "$REPO_ROOT/.pre-commit-config.yaml" | awk '{print $1}' > "$HOOKS_INSTALLED_MARKER"
 fi
 
+echo "[INFO] Checking poetry lock..." | tee -a "$DEBUG_LOG_FILE"
 if ! poetry lock --check >/dev/null 2>&1; then
+    echo "[WARN] Poetry lock out of sync, updating..." | tee -a "$DEBUG_LOG_FILE"
     poetry lock >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "CRITICAL: 'poetry lock' failed. Please fix lockfile issues and try again." >&2
@@ -222,16 +259,15 @@ if ! poetry lock --check >/dev/null 2>&1; then
         fi
     else
         git add poetry.lock
-        echo "Auto-healed poetry.lock and staged." >> "$DEBUG_LOG_FILE"
+        echo "Auto-healed poetry.lock and staged." | tee -a "$DEBUG_LOG_FILE"
     fi
 fi
 
-
-
-echo "Poetry lock check complete." >> "$DEBUG_LOG_FILE"
+echo "[INFO] Poetry lock check complete." | tee -a "$DEBUG_LOG_FILE"
 
 
 
+echo "[INFO] Verifying nox version..." | tee -a "$DEBUG_LOG_FILE"
 EXPECTED_NOX_VERSION="2023.4.22"
 NOX_VERSION_OUTPUT=$(python3 scripts/pre_nox.py -- --version 2>&1)
 ACTUAL_NOX_VERSION=$(echo "$NOX_VERSION_OUTPUT" | head -n 1 | awk '{print $NF}' | tr -d '\r\n')
@@ -242,6 +278,7 @@ if [[ -z "$ACTUAL_NOX_VERSION" || "$ACTUAL_NOX_VERSION" != "$EXPECTED_NOX_VERSIO
     exit 1
 fi
 
+echo "[INFO] Running npm preflight checks..." | tee -a "$DEBUG_LOG_FILE"
 if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
     if ! python3 scripts/pre_npm.py 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
         echo -e "\033[1;41m\033[1;97m🟥 npm preflight failed. Please fix npm issues and try again.\033[0m" | tee -a "$DEBUG_LOG_FILE"
@@ -249,11 +286,34 @@ if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
         exit 1
     fi
 fi
+echo "[INFO] Preflight checks complete." | tee -a "$DEBUG_LOG_FILE"
 
+# --- Main commit with user's message ---
+echo -e "\n\033[1;34mCommitting changes with message: $full_commit_msg\033[0m\n" | tee -a "$DEBUG_LOG_FILE"
+log_output "[INFO] About to commit with message: $full_commit_msg"
 
+# Try to commit - pre-commit hooks may modify files
+if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
+    # Check if hooks modified files (expected behavior)
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo -e "\033[1;33m[INFO] Pre-commit hooks modified files. Re-staging and committing...\033[0m" | tee -a "$DEBUG_LOG_FILE"
+        git add . 2>&1 | suppress_git_warnings || true
+        # Try commit again after hook fixes
+        if ! poetry run git commit -F "$tmp_commit_file" 2>&1 | tee -a "$DEBUG_LOG_FILE"; then
+            echo -e "\033[1;31m🟥 Main commit failed after hook fixes. Check for errors above.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+            log_output "[ERROR] Main commit failed after hook fixes."
+            exit 1
+        fi
+    else
+        echo -e "\033[1;31m🟥 Main commit failed. Check for errors above.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+        log_output "[ERROR] Main commit failed."
+        exit 1
+    fi
+fi
+log_output "[INFO] Main commit successful: $full_commit_msg"
+echo -e "\033[1;32m✅ Main commit successful!\033[0m" | tee -a "$DEBUG_LOG_FILE"
 
-
-
+# Check if any formatters/linters modified files after commit
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo -e "\033[1;33m[INFO] Detected unstaged or staged changes after main commit. Auto-staging and committing as 'chore: auto-format/fix after commit'.\033[0m"
     git add . 2>&1 | suppress_git_warnings || true

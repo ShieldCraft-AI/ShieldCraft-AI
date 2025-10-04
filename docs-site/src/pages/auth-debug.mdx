@@ -1,0 +1,158 @@
+---
+title: Auth Debug
+---
+
+import React from 'react';
+import { isLoggedIn, getCurrentUser } from '@site/src/utils/auth-cognito';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
+export function AuthDebugger() {
+    const [authState, setAuthState] = React.useState({
+        loading: true,
+        isLoggedIn: false,
+        user: null,
+        session: null,
+        tokens: null,
+    });
+
+    const checkAuth = async () => {
+        try {
+            const loggedIn = await isLoggedIn();
+            const user = loggedIn ? await getCurrentUser() : null;
+            const session = await fetchAuthSession();
+
+            setAuthState({
+                loading: false,
+                isLoggedIn: loggedIn,
+                user: user,
+                session: session,
+                tokens: session.tokens,
+            });
+        } catch (error) {
+            console.error('Auth check error:', error);
+            setAuthState(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    React.useEffect(() => {
+        checkAuth();
+
+        // Re-check when auth changes
+        const handleAuthChange = () => {
+            console.log('Auth change detected, rechecking...');
+            checkAuth();
+        };
+        window.addEventListener('sc-auth-changed', handleAuthChange);
+
+        return () => {
+            window.removeEventListener('sc-auth-changed', handleAuthChange);
+        };
+    }, []);
+
+    if (authState.loading) {
+        return <div>Loading auth state...</div>;
+    }
+
+    return (
+        <div style={{
+            background: '#f5f5f5',
+            padding: '20px',
+            borderRadius: '8px',
+            fontFamily: 'monospace',
+            fontSize: '14px'
+        }}>
+            <h3>🔐 Authentication State</h3>
+
+            <div style={{ marginBottom: '15px' }}>
+                <strong>Status:</strong> {authState.isLoggedIn ?
+                    <span style={{color: 'green'}}>✅ Logged In</span> :
+                    <span style={{color: 'red'}}>❌ Not Logged In</span>
+                }
+            </div>
+
+            {authState.user && (
+                <div style={{ marginBottom: '15px' }}>
+                    <strong>User Email:</strong> {authState.user.email}<br/>
+                    <strong>User Name:</strong> {authState.user.name}<br/>
+                    <strong>User Sub:</strong> {authState.user.sub}
+                </div>
+            )}
+
+            <div style={{ marginBottom: '15px' }}>
+                <strong>Has Tokens:</strong> {authState.tokens ?
+                    <span style={{color: 'green'}}>✅ Yes</span> :
+                    <span style={{color: 'red'}}>❌ No</span>
+                }
+            </div>
+
+            {authState.tokens && (
+                <div style={{ marginBottom: '15px' }}>
+                    <strong>Access Token:</strong> {authState.tokens.accessToken ? '✅ Present' : '❌ Missing'}<br/>
+                    <strong>ID Token:</strong> {authState.tokens.idToken ? '✅ Present' : '❌ Missing'}<br/>
+                    <strong>Refresh Token:</strong> {authState.tokens.refreshToken ? '✅ Present' : '❌ Missing'}
+                </div>
+            )}
+
+            <button
+                onClick={checkAuth}
+                style={{
+                    background: '#0066cc',
+                    color: 'white',
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginTop: '10px'
+                }}
+            >
+                🔄 Refresh Auth State
+            </button>
+
+            <details style={{ marginTop: '20px' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+                    📋 Full Session Data (click to expand)
+                </summary>
+                <pre style={{
+                    background: 'white',
+                    padding: '10px',
+                    overflow: 'auto',
+                    maxHeight: '400px',
+                    marginTop: '10px'
+                }}>
+                    {JSON.stringify(authState, null, 2)}
+                </pre>
+            </details>
+        </div>
+    );
+}
+
+# Authentication Debug Page
+
+Use this page to diagnose authentication issues.
+
+<AuthDebugger />
+
+## Instructions
+
+1. **Before Login**: You should see "❌ Not Logged In" and "❌ No tokens"
+2. **Click Login**: Use the navbar login button
+3. **After OAuth Redirect**: Come back to this page
+4. **Check Status**: It should show "✅ Logged In" with your email
+
+## Expected After Login:
+- ✅ Status: Logged In
+- ✅ User Email: your-email@gmail.com
+- ✅ Has Tokens: Yes
+- ✅ Access Token: Present
+- ✅ ID Token: Present
+
+## If Not Working:
+- Check browser console for errors
+- Look for "checkAuth - authenticated: false" messages
+- Expand "Full Session Data" to see raw data
+- Click "🔄 Refresh Auth State" button
+
+## Troubleshooting:
+- **No tokens after login**: Amplify might not be processing OAuth callback
+- **"authenticated: false"**: fetchAuthSession() not returning tokens
+- **User shows but button doesn't change**: Event listener issue (check console)

@@ -5,7 +5,7 @@
 <div style="margin-bottom:1.5em;">
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;">🛡️ ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
+<h1 align="center" style="margin-top:0; font-size:2em; color:#a5b4fc;"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:42px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI: AWS Stack Architecture & Dependency Map</h1>
 <div style="color:#b3b3b3; text-align:center; font-size:1.1em; margin-bottom:1em;">
 </div></section>
 
@@ -153,3 +153,41 @@ budget_stack
   (depends on all other stacks; provides cost guardrails and notifications)
 
 </pre></section>
+
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<h2 style="color:#a5b4fc; margin-top:0;">Template Coverage & Roadmap Services</h2>
+
+<h3 style="color:#a5b4fc;">Active Architecture (14/20 templates, 70% coverage)</h3>
+<p style="color:#b3b3b3;">The current production architecture activates 14 core services, representing a cost-optimized and complexity-managed deployment strategy:</p>
+<ul style="color:#b3b3b3;">
+  <li><strong>Total Cost Progression:</strong> DEV ($44) → STAGING ($1,010) → PROD ($4,500) per month</li>
+  <li><strong>Service Coverage:</strong> All essential data ingestion, processing, ML, and security capabilities</li>
+  <li><strong>Deployment Strategy:</strong> Conservative activation with proven service combinations</li>
+</ul>
+
+<h3 style="color:#a5b4fc;">Available but Not Enabled (6/20 templates)</h3>
+<p style="color:#b3b3b3;">The following services have complete Proton templates but are not configured in environment YAMLs. These represent either future roadmap items or environment-specific optional services:</p>
+
+<table style="width:100%; background:#181818; color:#fff; border-radius:8px; border-collapse:collapse;">
+  <thead style="background:#232323; color:#a5b4fc;">
+    <tr>
+      <th style="text-align:left; padding:0.5em 1em;">Service</th>
+      <th style="text-align:left; padding:0.5em 1em;">Purpose</th>
+      <th style="text-align:left; padding:0.5em 1em;">Template Status</th>
+      <th style="text-align:left; padding:0.5em 1em;">Roadmap Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td><b>attack_simulation</b></td><td>Automated attack simulation and security validation</td><td>✅ Complete template</td><td>Security team roadmap - Lambda-based attack scenarios</td></tr>
+<tr><td><b>budget</b></td><td>Cost guardrails, budget alerts, multi-channel notifications</td><td>✅ Complete template</td><td>FinOps enhancement - AWS Budgets with SNS integration</td></tr>
+<tr><td><b>compliance</b></td><td>Compliance monitoring and automated reporting</td><td>✅ Complete template</td><td>Governance roadmap - automated compliance validation</td></tr>
+<tr><td><b>controltower</b></td><td>AWS Control Tower governance and organizational controls</td><td>✅ Complete template</td><td>Enterprise roadmap - multi-account governance</td></tr>
+<tr><td><b>dataquality</b></td><td>Automated data quality checks and validation pipelines</td><td>✅ Complete template</td><td>Data engineering roadmap - quality assurance automation</td></tr>
+<tr><td><b>secrets_manager</b></td><td>Centralized secrets management beyond vault integration</td><td>✅ Complete template</td><td>Security enhancement - AWS-native secret rotation</td></tr>
+  </tbody>
+</table>
+
+<h3 style="color:#a5b4fc;">Activation Strategy</h3>
+<p style="color:#b3b3b3;">These templates can be activated by adding configuration sections to environment YAMLs (dev.yml, staging.yml, prod.yml). Estimated additional cost impact: ~$22-102 / month across all environments.</p>
+
+</section>

@@ -1,0 +1,82 @@
+---
+title: "ADR-0001: Architecture Baseline and Tiering"
+slug: /adrs/0001-architecture-baseline
+sidebar_label: "ADR-0001: Architecture Baseline"
+tags: [adr, architecture, aws]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Proposed
+
+## Context
+ShieldCraft AI needs a clear, opinionated starting point that balances speed to value with production-grade guardrails. Our audience ranges from technical buyers to security leaders who expect:
+
+- A credible, cost-aware entry point (Starter)
+- A pathway to operational scale and governance (Growth)
+- An enterprise posture with controls, resiliency, and predictable spend (Enterprise)
+
+AWS managed services provide the shortest path to impact and the strongest integration surface for security workloads (IAM, CloudWatch, EventBridge, Control Tower, etc.). A tiered architecture also simplifies demos, pricing conversations, and portfolio storytelling without diluting technical rigor.
+
+### Decision Drivers
+- Reduce time-to-first-value while preserving an upgrade path
+- Keep monthly run-rate understandable and defensible per tier
+- Align with AWS-native services to lower integration risk
+- Make capabilities discoverable and incremental (no big-bang)
+
+## Decision
+Adopt a three-tier architecture with progressively richer capabilities and guardrails. Default to AWS managed services and compose capabilities behind stable interfaces.
+
+### Scope by Tier
+- Starter
+	- Core ingestion (S3, EventBridge, Lambda)
+	- Foundational observability (CloudWatch)
+	- Minimal governance (IAM, CloudTrail)
+	- Low monthly footprint; optimized for onboarding and demos
+
+- Growth
+	- Data processing at scale (Glue, Step Functions)
+	- Lake governance (Lake Formation)
+	- Security posture improvements (Security Hub, Config)
+	- Run-rate still predictable; adds SLAs and automation
+
+- Enterprise
+	- Resilience and performance upgrades (WAF, MSK where applicable)
+	- Multi-account governance (Control Tower compatibility)
+	- Full-spectrum observability and FinOps
+	- Enterprise support assumptions and change controls
+
+### Non‑Goals
+- Multi-cloud baseline from day one
+- Re-implementing managed capabilities where AWS has a strong service fit
+
+## Alternatives Considered
+- Single-tier MVP only
+	- Pro: Simpler story and ops
+	- Con: No upgrade path; weak enterprise signal
+- Custom/k8s-first stack
+	- Pro: Portability
+	- Con: Slower value, higher undifferentiated heavy lifting
+- Multi-cloud baseline
+	- Pro: Avoids lock-in
+	- Con: Higher complexity; weak integration with AWS-native controls
+
+## Rollout Plan
+1) Land Starter with crisp defaults and one-click enablement
+2) Add Growth capabilities behind flags; prove easy upgrades
+3) Validate Enterprise with governance controls and add-ons (e.g., MSK) where discovery warrants
+
+## Measuring Success
+- Time-to-first-successful-ingestion < 15 minutes (Starter)
+- P90 pipeline success and visibility (Growth)
+- Policy conformance and change management metrics (Enterprise)
+
+## Consequences
+- Clear packaging and pricing narrative that maps to real AWS usage
+- Accelerated demos and stakeholder alignment
+- Accepts service affinity to AWS in exchange for speed and governance
+
+## References
+- /architecture (tier comparison and costs)
+- /business_case (positioning and ROI)
+- infra/ (CDK app and stages)

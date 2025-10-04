@@ -1,0 +1,21 @@
+{
+  "version": "45.0.0",
+  "files": {
+    "61fd802fcc81b470db69a6bad484e701c3f4c3ccd876a286110e4ca955933409": {
+      "displayName": "ShieldCraftAuthStack Template",
+      "source": {
+        "path": "ShieldCraftAuthStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "61fd802fcc81b470db69a6bad484e701c3f4c3ccd876a286110e4ca955933409.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

@@ -25,6 +25,23 @@
     --sc-color-danger: #f87171;
     --sc-color-warn: #fbbf24;
 
+    /* Portal theme aliases for consistent styling across portal pages */
+    --portal-text-color: var(--sc-color-text);
+    --portal-widget-bg: var(--sc-color-bg-surface);
+    --portal-border-color: var(--sc-color-border);
+    --portal-header-bg: var(--sc-color-bg-surface-alt);
+    --portal-primary-color: var(--sc-color-accent);
+    --portal-background-color: var(--sc-color-bg);
+
+    /* Sidebar theme variables for consistent appearance */
+    --sc-sidebar-bg: linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.82));
+    --sc-sidebar-border: rgba(148, 163, 184, 0.18);
+    --sc-text: #e5e7eb;
+    --sc-muted: #93c5fd;
+    --sc-hover-bg: rgba(34, 211, 238, 0.08);
+    --sc-hover-border: rgba(148, 163, 184, 0.18);
+    --sc-footer: rgba(229, 231, 235, 0.7);
+
     /* Elevation (box-shadows) */
     --sc-elev-0: none;
     --sc-elev-1: 0 2px 4px -2px rgba(0, 0, 0, .4), 0 4px 10px -2px rgba(0, 0, 0, .35);

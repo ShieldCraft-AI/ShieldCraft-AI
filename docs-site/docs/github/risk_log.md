@@ -2,7 +2,7 @@
 <div style="margin-bottom:1.5em;">
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI: Risk Log</h1>
+<h1 align="center" style="margin-top:0; font-size:2em;"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:42px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI: Risk Log</h1>
 <div style="margin-top:2em;">
   <a href="./security_governance.md" style="color:#a5b4fc; font-weight:bold;">See also: Security & Governance</a>
 </div>

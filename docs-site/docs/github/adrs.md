@@ -3,7 +3,7 @@
   <a href="./checklist.md" style={{ color: '#a5b4fc', fontWeight: 'bold', textDecoration: 'none', fontSize: '1.1em' }}>⬅️ Back to Checklist</a>
 </div>
 
-# 🛡️ Architecture Decision Records (ADRs)
+# <img src="/img/logo.png" alt="ShieldCraft AI" style="height:48px;width:auto;vertical-align:middle;border-radius:8px;" /> Architecture Decision Records (ADRs)
 
 This document tracks key architectural decisions for ShieldCraft AI. Each ADR includes context, decision, and consequences.
 

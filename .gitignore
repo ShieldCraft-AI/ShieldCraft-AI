@@ -19,6 +19,10 @@ node_modules/
 # Node
 /node_modules
 
+# AWS Safety - DO NOT REMOVE THESE LINES
+.deployment_block
+# Prevent accidental deployment by keeping safety measures in place
+
 # Production
 /build
 

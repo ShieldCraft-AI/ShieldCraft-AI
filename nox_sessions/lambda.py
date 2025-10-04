@@ -32,6 +32,36 @@ def package(session):
 @nox.session()
 def deploy(session):
     """Deploy Lambdas using AWS CLI v2.27.50 via CDK."""
+    import os
+    from nox_sessions.utils_color import matrix_log
+
+    # Guardrail 1: Check for deployment block file
+    if os.path.exists(".deployment_block"):
+        matrix_log(
+            session,
+            "[GUARDRAIL] Lambda deployment blocked! Remove .deployment_block file to enable deployments.",
+            color="red",
+        )
+        matrix_log(
+            session,
+            "[GUARDRAIL] This is a PORTFOLIO PROJECT - deployments may incur AWS charges!",
+            color="red",
+        )
+        session.error("[GUARDRAIL] Lambda deployment blocked by .deployment_block file")
+        return
+
+    # Guardrail 2: block deploy unless SHIELDCRAFT_ALLOW_DEPLOY=1
+    if not os.environ.get("SHIELDCRAFT_ALLOW_DEPLOY"):
+        matrix_log(
+            session,
+            "[GUARDRAIL] Lambda deploys are DISABLED. Set SHIELDCRAFT_ALLOW_DEPLOY=1 to enable.",
+            color="red",
+        )
+        session.error(
+            "[GUARDRAIL] Lambda deploys are DISABLED. Set SHIELDCRAFT_ALLOW_DEPLOY=1 to enable."
+        )
+        return
+
     session.run(
         "aws",
         "cloudformation",

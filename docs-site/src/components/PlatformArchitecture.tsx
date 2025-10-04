@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useRef, useLayoutEffect } from 'react';
+import React, { useState, useCallback, useRef, useLayoutEffect, useMemo } from 'react';
+import useScrollPersistence from '../clientModules/scrollRestoration';
 import styles from './PlatformArchitecture.module.css';
 
 type RotationItem = { title: string; body: string };
@@ -28,74 +29,63 @@ const rotations: RotationItem[] = [
 
 const layerSpec: { label: string; services: { name: string; icon?: string }[] }[] = [
     {
-        label: 'Data Plane',
+        label: 'Data & Integration',
         services: [
-            { name: 'S3' }, { name: 'Glue' }, { name: 'Lake Formation' }, { name: 'EventBridge' }, { name: 'MSK' }, { name: 'CloudTrail' }, { name: 'GuardDuty' }, { name: 'API Gateway' }
+            { name: 'S3' }, { name: 'Glue' }, { name: 'Glue Data Quality' }, { name: 'Glue DataBrew' }, { name: 'Lake Formation' }, { name: 'EventBridge' }, { name: 'API Gateway' }, { name: 'MSK' }, { name: 'CloudTrail' }, { name: 'VPC' }
         ]
     },
     {
-        label: 'Intelligence Core',
+        label: 'Intelligence & Simulation',
         services: [
-            { name: 'OpenSearch' }, { name: 'pgVector' }, { name: 'Embeddings' }, { name: 'Feature Store' }, { name: 'SageMaker' }
+            { name: 'OpenSearch' }, { name: 'pgVector' }, { name: 'Embeddings' }, { name: 'Feature Store' }, { name: 'SageMaker' }, { name: 'LLM Loader' }, { name: 'Attack Sim' }, { name: 'Prompt Orchestrator' }
         ]
     },
     {
-        label: 'GenAI + Simulation',
+        label: 'Orchestration & Governance',
         services: [
-            { name: 'LLM Loader' }, { name: 'Attack Sim' }, { name: 'Prompt Orchestrator' }
-        ]
-    },
-    {
-        label: 'Autonomy & Orchestration',
-        services: [
-            { name: 'Lambda' }, { name: 'Step Functions' }, { name: 'Playbooks' }, { name: 'Remediation Guardrails' }, { name: 'IAM' }, { name: 'Secrets Manager' }
-        ]
-    },
-    {
-        label: 'Governance + Observability',
-        services: [
-            { name: 'Security Hub' }, { name: 'Config' }, { name: 'Inspector' }, { name: 'Budgets' }, { name: 'Metrics' }, { name: 'Benchmarks' }
+            { name: 'Lambda' }, { name: 'Step Functions' }, { name: 'Playbooks' }, { name: 'Remediation Guardrails' }, { name: 'IAM' }, { name: 'Secrets Manager' }, { name: 'Security Hub' }, { name: 'GuardDuty' }, { name: 'Config' }, { name: 'Detective' }, { name: 'WAF' }, { name: 'Budgets' }, { name: 'Cost Explorer' }, { name: 'CloudWatch' }, { name: 'Control Tower' }, { name: 'IAM Identity Center' }, { name: 'Benchmarks' }
         ]
     }
 ];
 
 export default function PlatformArchitecture() {
+    // Mount scroll persistence to continuously save scroll during interaction
+    useScrollPersistence();
     const [idx, setIdx] = useState(0);
-    const [selectedKey, setSelectedKey] = useState<string | null>(null);
+    const [selectedKey, setSelectedKey] = useState<string | null>('S3');
     // Preserve vertical scroll position relative to the component container when content height shifts
     const containerRef = useRef<HTMLElement | null>(null);
     const preserveRef = useRef<{ top: number; scrollY: number } | null>(null);
 
     // Map specific layer/service clicks to the most relevant lifecycle narrative index
     const narrativeMap: Record<string, number> = {
-        'Data Plane': 0,
-        'Intelligence Core': 1,
-        'GenAI + Simulation': 3,
-        'Autonomy & Orchestration': 4,
-        'Governance + Observability': 0,
+        'Data & Integration': 0,
+        'Intelligence & Simulation': 3,
+        'Orchestration & Governance': 4,
         // service level (fallback to closest concept)
-        'S3': 0, 'Glue': 0, 'Lake Formation': 0, 'EventBridge': 0, 'API Gateway': 0, 'MSK': 0, 'CloudTrail': 0, 'GuardDuty': 0,
+        'S3': 0, 'Glue': 0, 'Glue Data Quality': 0, 'Glue DataBrew': 0, 'Lake Formation': 0, 'EventBridge': 0, 'API Gateway': 0, 'MSK': 0, 'CloudTrail': 0, 'VPC': 0,
         'OpenSearch': 2, 'pgVector': 1, 'Embeddings': 1, 'Feature Store': 1, 'SageMaker': 1,
         'LLM Loader': 3, 'Attack Sim': 3, 'Prompt Orchestrator': 3,
         'Lambda': 4, 'Step Functions': 4, 'Playbooks': 4, 'Remediation Guardrails': 4, 'IAM': 4, 'Secrets Manager': 4,
-        'Security Hub': 0, 'Config': 0, 'Inspector': 0, 'Budgets': 0, 'Metrics': 4, 'Benchmarks': 4
+        'Security Hub': 0, 'GuardDuty': 0, 'Config': 0, 'Detective': 0, 'WAF': 4, 'Budgets': 0, 'Cost Explorer': 0, 'CloudWatch': 4, 'Control Tower': 0, 'IAM Identity Center': 4, 'Benchmarks': 4
     };
 
     // Detail copy for each selectable entity
     const entityDetails: Record<string, { type: 'Layer' | 'Service'; blurb: string; }> = {
-        'Data Plane': { type: 'Layer', blurb: 'Unified multi-account ingestion, normalization, tagging & retention establishing deterministic lineage.' },
-        'Intelligence Core': { type: 'Layer', blurb: 'Feature + embedding pipelines and vector indices powering precise hybrid retrieval.' },
-        'GenAI + Simulation': { type: 'Layer', blurb: 'Reasoning + adversarial generation engines producing hypotheses, attack paths & response drafts.' },
-        'Autonomy & Orchestration': { type: 'Layer', blurb: 'Guardrailed execution fabric converting hypotheses into reversible, auditable change.' },
-        'Governance + Observability': { type: 'Layer', blurb: 'Policy, compliance & evaluation signals enforcing safe continuous improvement.' },
+        'Data & Integration': { type: 'Layer', blurb: 'Governed ingestion and contracts-first integration across accounts, with lineage, retention, and access enforced at the edge.' },
+        'Intelligence & Simulation': { type: 'Layer', blurb: 'Hybrid retrieval (structured + semantic) and safe generative simulation to test hypotheses and pressure-test controls.' },
+        'Orchestration & Governance': { type: 'Layer', blurb: 'Guardrailed automation, policy enforcement, and continuous evaluation closing the loop safely.' },
         // Services
         'S3': { type: 'Service', blurb: 'Durable object storage for raw + curated security artifacts.' },
         'Glue': { type: 'Service', blurb: 'ETL & schema enforcement normalizing multi-source telemetry.' },
+        'Glue Data Quality': { type: 'Service', blurb: 'Rule-based and statistical checks ensure datasets remain trustworthy.' },
+        'Glue DataBrew': { type: 'Service', blurb: 'Visual data prep for quick transforms and profile-driven cleanup.' },
         'Lake Formation': { type: 'Service', blurb: 'Fine-grained access controls across the governed data lake.' },
         'EventBridge': { type: 'Service', blurb: 'Event routing fabric decoupling producers from autonomous workflows.' },
         'API Gateway': { type: 'Service', blurb: 'Managed API entrypoint enabling secure control & integration interfaces.' },
         'MSK': { type: 'Service', blurb: 'Streaming backbone handling high-volume telemetry fan-in.' },
         'CloudTrail': { type: 'Service', blurb: 'Authoritative audit + API activity feed for enrichment and detection.' },
+        'VPC': { type: 'Service', blurb: 'Isolated networking, endpoints, and routing boundaries for secure traffic.' },
         'GuardDuty': { type: 'Service', blurb: 'Managed threat findings feeding enrichment + prioritization.' },
         'OpenSearch': { type: 'Service', blurb: 'Low-latency indexed search over normalized findings + logs.' },
         'pgVector': { type: 'Service', blurb: 'Relational + vector hybrid store enabling structured + semantic joins.' },
@@ -113,22 +103,29 @@ export default function PlatformArchitecture() {
         'Secrets Manager': { type: 'Service', blurb: 'Secret material lifecycle (rotation & tight-scoped retrieval).' },
         'Security Hub': { type: 'Service', blurb: 'Unified control & finding aggregation for compliance posture.' },
         'Config': { type: 'Service', blurb: 'Resource state timeline & conformance signal source.' },
-        'Inspector': { type: 'Service', blurb: 'Vulnerability & exposure scanning feeding prioritization.' },
+        'Detective': { type: 'Service', blurb: 'Investigation service that helps analyze, identify, and root-cause issues quickly.' },
+        'WAF': { type: 'Service', blurb: 'Layer-7 protection and managed rules acting as an external safety brake.' },
         'Budgets': { type: 'Service', blurb: 'Cost guardrails + alerting feeding autonomy safety decisions.' },
-        'Metrics': { type: 'Service', blurb: 'Operational + effect metrics exposing drift & saturation.' },
+        'Cost Explorer': { type: 'Service', blurb: 'Spend analytics driving decisions and accountability.' },
+        'CloudWatch': { type: 'Service', blurb: 'Operational metrics, logs, and alarms for visibility and control.' },
+        'Control Tower': { type: 'Service', blurb: 'Landing zone governance and guardrails across accounts.' },
+        'IAM Identity Center': { type: 'Service', blurb: 'Centralized workforce identity and SSO for platform access.' },
         'Benchmarks': { type: 'Service', blurb: 'Evaluation suites measuring model & workflow quality.' },
     };
 
     // Map service display names to icon asset filenames in /aws-icons
     const serviceIconMap: Record<string, string> = {
         // Data Plane
-        'S3': 'Res_Amazon-Simple-Storage-Service_S3-On-Outposts_48.svg',
-        'Glue': 'Res_AWS-Glue_Data-Quality_48.svg',
+        'S3': 'Arch_Amazon-Simple-Storage-Service_48.svg',
+        'Glue': 'Arch_AWS-Glue_48.svg',
+        'Glue Data Quality': 'Res_AWS-Glue_Data-Quality_48.svg',
+        'Glue DataBrew': 'Arch_AWS-Glue-DataBrew_48.svg',
         'Lake Formation': 'Arch_AWS-Lake-Formation_48.svg',
         'EventBridge': 'Arch_Amazon-EventBridge_48.svg',
         'API Gateway': 'Arch_Amazon-API-Gateway_48.svg',
         'MSK': 'Arch_Amazon-Managed-Streaming-for-Apache-Kafka_48.svg',
         'CloudTrail': 'Arch_AWS-CloudTrail_48.svg',
+        'VPC': 'Res_Amazon-VPC_Virtual-private-cloud-VPC_48.svg',
         'GuardDuty': 'Arch_Amazon-GuardDuty_48.svg',
         // Intelligence Core
         'OpenSearch': 'Arch_Amazon-OpenSearch-Service_48.svg',
@@ -150,9 +147,13 @@ export default function PlatformArchitecture() {
         // Governance + Observability
         'Security Hub': 'Arch_AWS-Security-Hub_48.svg',
         'Config': 'Arch_AWS-Config_48.svg',
-        'Inspector': 'Arch_Amazon-Detective_48.svg', // investigative posture
+        'Detective': 'Arch_Amazon-Detective_48.svg',
+        'WAF': 'Arch_AWS-WAF_48.svg',
         'Budgets': 'Arch_AWS-Budgets_48.svg',
-        'Metrics': 'Arch_Amazon-CloudWatch_48.svg',
+        'Cost Explorer': 'Arch_AWS-Cost-Explorer_48.svg',
+        'CloudWatch': 'Arch_Amazon-CloudWatch_48.svg',
+        'Control Tower': '', // fallback
+        'IAM Identity Center': 'Arch_AWS-IAM-Identity-Center_48.svg',
         'Benchmarks': 'Res_AWS-Trusted-Advisor_Checklist-Cost_48.svg'
     };
 
@@ -186,12 +187,85 @@ export default function PlatformArchitecture() {
         }
     }, [idx, selectedKey]);
 
-
     const active = rotations[idx];
     const detail = selectedKey ? entityDetails[selectedKey] : null;
-    const activeServiceIcon = detail?.type === 'Service' && selectedKey
-        ? (serviceIconMap[selectedKey] || genericFallbackIcon)
-        : null;
+    // Prefer a service icon when a service is selected; for layers, use fallback; for no selection, show nothing.
+    const displayedIcon = useMemo(() => {
+        if (!selectedKey) return null;
+        if (detail?.type === 'Service') {
+            return serviceIconMap[selectedKey] || genericFallbackIcon;
+        }
+        // Layer or unknown selection → fallback icon
+        return genericFallbackIcon;
+    }, [detail, selectedKey]);
+
+    // Build a concise narrative when an entity is selected; fall back to lifecycle text otherwise
+    const selectedStageIdx = useMemo(() => {
+        if (!selectedKey) return idx;
+        const mapped = narrativeMap[selectedKey];
+        return typeof mapped === 'number' ? mapped : idx;
+    }, [selectedKey, idx]);
+
+    const personalizedBody = useMemo(() => {
+        if (!selectedKey || !detail) return active.body;
+        const stage = rotations[selectedStageIdx]?.title || active.title;
+        // Short, punchy body incorporating the selection and stage
+        const base = detail.blurb;
+        // Tailor a crisp second clause depending on layer vs service
+        const clause = detail.type === 'Service'
+            ? `Deployed as code, gated by budgets and policy. Stage: ${stage}.`
+            : `Contracts-first, failure-aware, and observable end-to-end. Stage: ${stage}.`;
+        return `${base} ${clause}`;
+    }, [selectedKey, detail, selectedStageIdx, active.body, active.title]);
+
+    // Key tags to highlight properties per selection
+    const tagsMap: Record<string, string[]> = {
+        // Data Plane
+        'S3': ['Encrypted', 'Lifecycle', 'Versioned'],
+        'Glue': ['Schemas', 'ETL', 'Governed'],
+        'Glue Data Quality': ['DQ', 'Rules', 'Profiles'],
+        'Glue DataBrew': ['Visual', 'Profiles', 'Transform'],
+        'Lake Formation': ['LF‑Tags', 'Fine‑grained', 'Governed'],
+        'EventBridge': ['Fan‑out', 'Retries', 'DLQ'],
+        'API Gateway': ['Private', 'IAM', 'Throttled'],
+        'MSK': ['Streaming', 'Partitions', 'SSE'],
+        'CloudTrail': ['Org‑wide', 'Immutable', 'Audit'],
+        'VPC': ['Endpoints', 'Subnets', 'Routes'],
+        'GuardDuty': ['Findings', 'Managed', 'Priority'],
+        // Intelligence Core
+        'OpenSearch': ['Low‑latency', 'FGAC', 'ILM'],
+        'pgVector': ['Hybrid', 'ANN', 'SQL'],
+        'Embeddings': ['Vectors', 'Batchable', 'Reproducible'],
+        'Feature Store': ['Versioned', 'Schemas', 'Drift'],
+        'SageMaker': ['Managed', 'Autoscale', 'GPU'],
+        // GenAI + Simulation
+        'LLM Loader': ['Hot‑swap', 'Quantized', 'Device‑aware'],
+        'Attack Sim': ['Safe', 'Multi‑stage', 'Signals'],
+        'Prompt Orchestrator': ['Policy', 'Budgets', 'Composable'],
+        // Autonomy & Orchestration
+        'Lambda': ['Idempotent', 'DLQ', 'Least‑privilege'],
+        'Step Functions': ['Retries', 'Timeouts', 'Approvals'],
+        'Playbooks': ['Conditional', 'Reversible', 'Auditable'],
+        'Remediation Guardrails': ['Budgets', 'Config', 'Safety'],
+        'IAM': ['Least‑privilege', 'Boundaries', 'Tagged'],
+        'Secrets Manager': ['Centralized', 'Rotatable', 'Scoped'],
+        // Governance + Observability
+        'Security Hub': ['Aggregated', 'Standards', 'Routing'],
+        'Config': ['Conformance', 'Recorders', 'Remediation'],
+        'Detective': ['Investigate', 'Graph', 'Root-cause'],
+        'WAF': ['Rules', 'Managed', 'L7'],
+        'Budgets': ['Alarms', 'Thresholds', 'Tags'],
+        'Cost Explorer': ['Curves', 'Forecast', 'Tags'],
+        'CloudWatch': ['Dashboards', 'Alarms', 'TraceIDs'],
+        'Control Tower': ['Guardrails', 'Accounts', 'Landing Zone'],
+        'IAM Identity Center': ['SSO', 'SCIM', 'SAML'],
+        'Benchmarks': ['MTEB', 'BEIR', 'Gates'],
+        // Layers (generic tags)
+        'Data & Integration': ['Governed', 'Encrypted', 'Tagged'],
+        'Intelligence & Simulation': ['Hybrid', 'Reasoning', 'Retrieval'],
+        'Orchestration & Governance': ['Guardrailed', 'Auditable', 'Policy']
+    };
+    const activeTags = selectedKey ? tagsMap[selectedKey] : undefined;
 
     return (
         <section ref={containerRef} className={styles.archSection} aria-labelledby="platform-arch-title">
@@ -229,37 +303,52 @@ export default function PlatformArchitecture() {
                     <div className={styles.archNote}>Traceability: each layer enforces contracts (schemas, policies, embedding boundaries) enabling safe autonomous actions.</div>
                 </div>
                 <div className={styles.rotatingPanel} aria-live="polite">
-                    <div className={styles.iconStage}>
-                        {activeServiceIcon && (
-                            <img
-                                src={`/aws-icons/${activeServiceIcon}`}
-                                alt={`${selectedKey} icon`}
-                                className={styles.selectionIcon}
-                                loading="lazy"
-                                width={56}
-                                height={56}
-                            />
-                        )}
-                    </div>
-                    <div
-                        key={`${idx}-${selectedKey || 'auto'}`}
-                        className={`${styles.rotationContent} ${styles.fadeSwap}`}
-                    >
-                        {detail && (
-                            <div className={styles.selectionMeta}>
-                                <span className={styles.selectionTag}>{detail.type}</span>
-                                <span className={styles.selectionName}>{selectedKey}</span>
+                    <div className={styles.rightSplit}>
+                        {/* Top: Service overview */}
+                        <div
+                            key={`svc-${idx}-${selectedKey || 'auto'}`}
+                            className={`${styles.rightCard} ${styles.infoPane} ${styles.fadeSwap}`}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'nowrap' }}>
+                                {displayedIcon && (
+                                    <div className={styles.selectionIconWrap}>
+                                        <img
+                                            src={`/aws-icons/${displayedIcon}`}
+                                            alt={`${selectedKey ?? 'Selected'} icon`}
+                                            className={styles.selectionIcon}
+                                            loading="lazy"
+                                            width={68}
+                                            height={68}
+                                        />
+                                    </div>
+                                )}
+                                <div style={{ minWidth: 0 }}>
+                                    {detail && (
+                                        <div className={styles.selectionMeta}>
+                                            <span className={styles.selectionTag}>{detail.type}</span>
+                                            <span className={styles.selectionName}>{selectedKey}</span>
+                                        </div>
+                                    )}
+                                    <h3 className={styles.rotationHeadline}>{selectedKey ? rotations[selectedStageIdx].title : active.title}</h3>
+                                </div>
                             </div>
-                        )}
-                        <h3 className={styles.rotationHeadline}>{active.title}</h3>
-                        <p className={styles.rotationBody}>{active.body}</p>
-                        {detail && (
-                            <p className={styles.selectionBlurb}>{detail.blurb}</p>
-                        )}
-                        {!detail && (
-                            <p className={styles.selectionHint}>Select any layer or service on the left for contextual implementation details. Lifecycle stages adjust automatically.</p>
-                        )}
-                        <UsageEmbedded selectedKey={selectedKey} />
+                            <p className={styles.rotationBody}>{personalizedBody}</p>
+                            {activeTags && (
+                                <div className={styles.metaTags}>
+                                    {activeTags.map(t => (
+                                        <span key={t} className={styles.metaTag}>{t}</span>
+                                    ))}
+                                </div>
+                            )}
+                            {!detail && (
+                                <p className={styles.selectionHint}>Select any layer or service on the left for contextual implementation details. Lifecycle stages adjust automatically.</p>
+                            )}
+                        </div>
+
+                        {/* Bottom: ShieldCraft implementation */}
+                        <div key={`impl-${idx}-${selectedKey || 'auto'}`} className={`${styles.rightCard} ${styles.implPane}`}>
+                            <UsageEmbedded selectedKey={selectedKey} />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -269,42 +358,220 @@ export default function PlatformArchitecture() {
 
 // Embedded usage details component
 function UsageEmbedded({ selectedKey }: { selectedKey: string | null }) {
-    const baseIntro = 'ShieldCraft instantiates each layer via declarative Proton + CDK templates parameterized by environment (dev → prod).';
+    const baseIntro = 'Instantiated via Proton + CDK, parameterized per environment (dev → prod), with guardrails baked in.';
     const usageBullets: Record<string, string[]> = {
-        'Data Plane': [
-            'S3 (raw / processed / analytics) bucket set from config with env-specific lifecycle (30→60→GLACIER dev vs 90→180 prod).',
-            'Glue + Lake Formation: crawler schedules + fine-grained permissions scaffold governed read domains.',
-            'Event sources (CloudTrail, GuardDuty) normalized & tagged before feature/embedding pipelines.'
+        'Data & Integration': [
+            'Ingest once, govern always: KMS, tags, and LF enforce lineage and access.',
+            'Event-driven patterns (EB/MSK) decouple producers and consumers safely.',
+            'APIs and trails are private by default; network paths are explicit via VPC.'
         ],
-        'Intelligence Core': [
-            'pgVector + embeddings batch size & device toggle (CPU stub → quantized GPU).',
-            'OpenSearch disabled in dev (cost save) → managed domain in prod for low-latency hybrid retrieval.',
-            'Feature store schemas versioned to keep prompts deterministic across model revisions.'
+        // Data Plane services
+        'S3': [
+            'Buckets: raw/processed/analytics; SSE-KMS; block public access by default.',
+            'Env lifecycle (dev: 30→60→Glacier; prod: 90→180); access logs on.',
+            'Explicit names w/ env suffix; prefixes mirror domains for governance.'
+        ],
+        'Glue': [
+            'Crawlers scheduled per source; tables tagged for Lake Formation.',
+            'ETL jobs enforced by schema; failures surface to metrics/alerts.',
+            'Contracts-first catalogs drive downstream features and embedding shapes.'
+        ],
+        'Glue Data Quality': [
+            'Data quality rules run per dataset; thresholds enforce promotion gates.',
+            'Profiles tracked over time to catch drift and anomalies.',
+            'Failures route to EventBridge for triage and remediation.'
+        ],
+        'Glue DataBrew': [
+            'Quick profiling and visual transforms for exploratory pipelines.',
+            'Recipes versioned; export back to Glue ETL for productionization.',
+            'Used sparingly in prod; heavier use in dev for speed.'
+        ],
+        'Lake Formation': [
+            'LF-tags map to domains/teams; grants managed via IaC only.',
+            'Fine-grained permissions before any compute touches data.',
+            'Auditable grants/Revokes; row/column filters ready when needed.'
+        ],
+        'EventBridge': [
+            'Event patterns route findings/changes to Step Functions/Lambda.',
+            'Dead-letter SQS for resiliency; retries with backoff.',
+            'Schema registry optional; detail-type normalized for consumers.'
+        ],
+        'API Gateway': [
+            'Private IAM-auth endpoints for control-plane hooks (no public surface by default).',
+            'Stage variables and throttles are env-tuned.',
+            'Access logs to CloudWatch with request IDs for traceability.'
+        ],
+        'MSK': [
+            'Dev: external or disabled; Prod: MSK with per-domain topics + SSE.',
+            'Producers enforce schemas; consumers idempotent with offset tracking.',
+            'Topic naming with env suffix; partitioning sized by throughput.'
+        ],
+        'CloudTrail': [
+            'Org trail into S3 (immutable via bucket policies); multi-account coverage.',
+            'EventBridge rules fan-out high-value API events to workflows.',
+            'Retention aligned with compliance; access via LF-governed tables.'
+        ],
+        'VPC': [
+            'Private subnets and VPC endpoints for AWS services (no public egress).',
+            'Security groups least-privilege; NACLs for coarse segmenting.',
+            'Route tables explicitly defined; flow logs enabled to S3/CloudWatch.'
+        ],
+        'GuardDuty': [
+            'Enabled across accounts; findings aggregated and deduped.',
+            'EventBridge routes P1/P2 findings to response playbooks.',
+            'Findings mirrored to storage for search and correlation.'
+        ],
+        'Intelligence & Simulation': [
+            'Hybrid retrieval (OpenSearch + vectors) ensures both recall and precision.',
+            'Generative simulation validates assumptions before automation acts.',
+            'Features, models, and prompts are versioned and observable.'
+        ],
+        // Intelligence Core services
+        'OpenSearch': [
+            'Dev toggle off (cost save); Prod domain with encryption + fine-grained access.',
+            'Indices per domain; ILM policies keep hot/warm storage efficient.',
+            'Used for findings/logs search in hybrid with vectors for recall.'
+        ],
+        'pgVector': [
+            'Postgres with pgvector; ANN search via <-> operator.',
+            'Connection via env (container in dev, managed Postgres in higher envs).',
+            'Migrations create tables; embedding dims/version stored with docs.'
+        ],
+        'Embeddings': [
+            'Batch size + device configurable; CPU stub locally, GPU when available.',
+            'Model ID + dim persisted for reproducibility.',
+            'Backpressure + retries avoid hot-spotting during bulk loads.'
+        ],
+        'Feature Store': [
+            'Versioned features with explicit schemas; drift surfaces to metrics.',
+            'Backed by governed storage (S3/Glue); SM Feature Store optional.',
+            'Feature contracts pin prompt inputs across model revisions.'
+        ],
+        'SageMaker': [
+            'Optional managed endpoints; roles via ExecutionRoleArn (no secret anti-patterns).',
+            'Autoscaling + instance types are env-gated; cost controls on.',
+            'Local inference path exists to avoid costs in dev.'
         ],
         'GenAI + Simulation': [
-            'Model loader abstraction selects stub / small / quantized 7B via config flags.',
-            'Attack simulation harness generates multi-stage adversary paths feeding drift + control gap metrics.',
-            'Prompt Orchestrator assembles tool-augmented chains with guardrails (policy + token budgets).'
+            'Loader picks the right model per task (stub → 7B Q4).',
+            'Attack sim generates multi‑step paths to pressure‑test controls.',
+            'Orchestrator composes tools with policy + token budgets.'
         ],
-        'Autonomy & Orchestration': [
-            'Step Functions orchestrate ingest/validate + benchmark flows with explicit failure handling.',
-            'Lambda remediation & playbooks execute reversible changes gated by guardrail policies.',
-            'Budget + Config + Security Hub signals short‑circuit unsafe autonomy transitions.'
+        // GenAI + Simulation services
+        'LLM Loader': [
+            'Abstraction over stub and HF models; optional 4‑bit quantization.',
+            'Device auto-detect (CUDA/CPU); graceful OOM guidance.',
+            'Swappable without breaking retrieval/prompt contracts.'
+        ],
+        'Attack Sim': [
+            'Generates realistic multi-stage scenarios to validate controls.',
+            'Outputs tagged and fed into metrics and tuning loops.',
+            'Safe by design: no destructive actions in lower envs.'
+        ],
+        'Prompt Orchestrator': [
+            'Composes tools and prompts with policy and spend limits.',
+            'Token budgets enforced per request; logs for audit.',
+            'Reusable chains with guardrails and redaction where needed.'
+        ],
+        'Orchestration & Governance': [
+            'State machines with retries/timeouts and human-in-the-loop stops.',
+            'Budgets, WAF, and policy-as-code gate risky flows and costs.',
+            'Security/Config/Detective provide posture and investigation signals.'
+        ],
+        // Autonomy & Orchestration services
+        'Lambda': [
+            'Idempotent functions with retries and DLQs (SQS).',
+            'Least-privilege roles; inputs validated; outputs traced.',
+            'Deployed via IaC with env-aware names and tags.'
+        ],
+        'Step Functions': [
+            'Sagas with retries/timeouts and optional manual approvals.',
+            'Per-step metrics + structured logs for investigations.',
+            'Clear failure paths and reversible compensations.'
+        ],
+        'Playbooks': [
+            'Runbooks as code: conditional steps + evaluation gates.',
+            'Every change is auditable and designed to be undoable.',
+            'Tied to findings and budgets to throttle risky flows.'
+        ],
+        'Remediation Guardrails': [
+            'Budget/Config/Security posture required before action.',
+            'Pre-flight checks ensure least-privilege + blast radius safe.',
+            'Approvals or dry-runs in lower envs by default.'
+        ],
+        'IAM': [
+            'Explicit managed policies; boundary/conditions enforce least privilege.',
+            'Standardized tags and names for auditability.',
+            'Cross-stack role outputs imported by consumers.'
+        ],
+        'Secrets Manager': [
+            'Centralized secrets by env; ARNs injected via config.',
+            'Tight-scoped retrieval in code; rotation policies where needed.',
+            'No derived-secret anti-patterns; secrets never store ARNs.'
         ],
         'Governance + Observability': [
-            'Cost/governance toggles (budgets, tagging, retention) scale up in prod.',
-            'BEIR/MTEB + data quality shift from pass‑through (dev) to enforced validation gates (prod).',
-            'Metrics + benchmarks refine embeddings & policy thresholds continuously.'
+            'Cost + retention scale up in prod; tags everywhere.',
+            'BEIR/MTEB + DQ become gates, not suggestions.',
+            'Metrics close the loop to tune thresholds + embeddings.'
+        ],
+        // Governance + Observability services
+        'Security Hub': [
+            'Aggregated findings across accounts; filters drive priorities.',
+            'EventBridge routes criticals to orchestrations.',
+            'Posture trends tracked; exceptions documented.'
+        ],
+        'Config': [
+            'Recorders on; rules enforce guardrails and conformance.',
+            'Noncompliance triggers remediation playbooks.',
+            'Retention tuned per env and compliance needs.'
+        ],
+        'Budgets': [
+            'Monthly budgets with SNS/email alerts per env.',
+            'Hard-stops for unsafe autonomy when thresholds trip.',
+            'Tags drive chargeback/showback visibility.'
+        ],
+        'CloudWatch': [
+            'Metrics and dashboards across ingestion/orchestration pipelines.',
+            'Structured logs with correlation IDs wired from producers.',
+            'Alarms with actionable runbooks and suppression windows.'
+        ],
+        'Benchmarks': [
+            'MTEB/BEIR harness; artifacts committed to repo.',
+            'Gated in prod; informative in dev/staging.',
+            'Signals tune embeddings, rerankers, and thresholds.'
+        ],
+        'Detective': [
+            'Findings and logs stitched into graphs to accelerate investigations.',
+            'Pivot from entities to relationships to uncover root cause.',
+            'Access controlled via roles; artifacts exported for correlation.'
+        ],
+        'WAF': [
+            'Managed rule sets applied to public edges; custom rules for control endpoints.',
+            'Used as an external kill-switch/safety-brake for autonomy.',
+            'Metrics feed into budgets/policy to throttle risky flows.'
+        ],
+        'Cost Explorer': [
+            'Spend visibility per env with tags; forecasts drive scaling decisions.',
+            'Detect anomalies and attribute to services/workloads.',
+            'Reports exported and surfaced alongside posture/quality.'
+        ],
+        'Control Tower': [
+            'Landing zone with guardrails and audited account vending.',
+            'Baseline controls ensure Config/CloudTrail are always on.',
+            'Integrates with Security/Identity for consistent posture.'
+        ],
+        'IAM Identity Center': [
+            'Workforce SSO with SCIM/SAML; groups map to least-privilege roles.',
+            'Account/app assignments codified; no ad-hoc grants.',
+            'Central audit of access with periodic reviews.'
         ],
     };
 
     // Service level fallback mapping to its parent layer bullets
     const serviceToLayer: Record<string, string> = {
-        'S3': 'Data Plane', 'Glue': 'Data Plane', 'Lake Formation': 'Data Plane', 'EventBridge': 'Data Plane', 'MSK': 'Data Plane', 'CloudTrail': 'Data Plane', 'GuardDuty': 'Data Plane',
-        'OpenSearch': 'Intelligence Core', 'pgVector': 'Intelligence Core', 'Embeddings': 'Intelligence Core', 'Feature Store': 'Intelligence Core',
-        'LLM Loader': 'GenAI + Simulation', 'Attack Sim': 'GenAI + Simulation', 'Prompt Orchestrator': 'GenAI + Simulation',
-        'Lambda': 'Autonomy & Orchestration', 'Step Functions': 'Autonomy & Orchestration', 'Playbooks': 'Autonomy & Orchestration', 'Remediation Guardrails': 'Autonomy & Orchestration',
-        'Security Hub': 'Governance + Observability', 'Config': 'Governance + Observability', 'Inspector': 'Governance + Observability', 'Metrics': 'Governance + Observability', 'Benchmarks': 'Governance + Observability'
+        'S3': 'Data & Integration', 'Glue': 'Data & Integration', 'Lake Formation': 'Data & Integration', 'EventBridge': 'Data & Integration', 'API Gateway': 'Data & Integration', 'MSK': 'Data & Integration', 'CloudTrail': 'Data & Integration', 'VPC': 'Data & Integration', 'Glue Data Quality': 'Data & Integration', 'Glue DataBrew': 'Data & Integration',
+        'OpenSearch': 'Intelligence & Simulation', 'pgVector': 'Intelligence & Simulation', 'Embeddings': 'Intelligence & Simulation', 'Feature Store': 'Intelligence & Simulation', 'SageMaker': 'Intelligence & Simulation', 'LLM Loader': 'Intelligence & Simulation', 'Attack Sim': 'Intelligence & Simulation', 'Prompt Orchestrator': 'Intelligence & Simulation',
+        'Lambda': 'Orchestration & Governance', 'Step Functions': 'Orchestration & Governance', 'Playbooks': 'Orchestration & Governance', 'Remediation Guardrails': 'Orchestration & Governance', 'IAM': 'Orchestration & Governance', 'Secrets Manager': 'Orchestration & Governance', 'Security Hub': 'Orchestration & Governance', 'GuardDuty': 'Orchestration & Governance', 'Config': 'Orchestration & Governance', 'Detective': 'Orchestration & Governance', 'WAF': 'Orchestration & Governance', 'Budgets': 'Orchestration & Governance', 'Cost Explorer': 'Orchestration & Governance', 'CloudWatch': 'Orchestration & Governance', 'Control Tower': 'Orchestration & Governance', 'IAM Identity Center': 'Orchestration & Governance', 'Benchmarks': 'Orchestration & Governance'
     };
 
     let key = selectedKey || '';
@@ -315,14 +582,14 @@ function UsageEmbedded({ selectedKey }: { selectedKey: string | null }) {
     }
     const showFallback = !key;
     const fallbackBullets = [
-        'Dev optimizes velocity (external MSK, stub models); prod enables managed streaming, OpenSearch, GPU inference.',
-        'Config files drive retention, concurrency, model selection, and validation depth with no code branching.',
-        'Benchmarks + data quality feed continuous embedding + policy refinement loops.'
+        'Dev for speed; prod for scale (managed streaming, OpenSearch, GPU).',
+        'Config, not code, flips retention, concurrency, and models.',
+        'Benchmarks + DQ continuously sharpen embeddings and policy.'
     ];
 
     return (
         <div className={styles.usageBlockEmbedded}>
-            <div>ShieldCraft Implementation</div>
+            <div className={styles.usageHeading}>ShieldCraft Implementation</div>
             <ul className={styles.usageList}>
                 {(showFallback ? fallbackBullets : bullets).map(line => (
                     <li key={line} className={styles.usageItem}>{line}</li>

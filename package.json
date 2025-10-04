@@ -1,5 +1,10 @@
 {
   "devDependencies": {
+    "@types/react-chartjs-2": "^2.0.2",
     "remark-mermaidjs": "^7.0.0"
+  },
+  "dependencies": {
+    "chart.js": "^3.9.1",
+    "react-chartjs-2": "^5.3.0"
   }
 }

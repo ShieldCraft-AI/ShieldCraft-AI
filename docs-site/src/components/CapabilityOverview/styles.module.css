@@ -1,0 +1,223 @@
+/* Capability Overview Styles */
+.capabilityOverview {
+    margin: 3rem 0;
+}
+
+.capabilityOverview h3 {
+    color: #a5b4fc;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+.description {
+    color: #b3b3b3;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.capabilityGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    min-height: 200px;
+    /* Ensure grid has some height */
+}
+
+.capabilityCard {
+    background: rgba(22, 33, 62, 0.6);
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    /* Ensure cards have minimum height */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Add visible shadow */
+}
+
+.capabilityCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.capabilityHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.capabilityIcon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.capabilityTitle h4 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.capabilityId {
+    color: #b3b3b3;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.capabilityDescription {
+    color: #b3b3b3;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.capabilityFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.capabilityCost {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.costAmount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #34d399;
+}
+
+.costLabel {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+}
+
+.capabilityCategory {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Cost Progression Mini-Chart */
+.costProgression {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progressionBar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.progressionLabel {
+    font-size: 0.7rem;
+    color: #b3b3b3;
+    width: 30px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.progressionValue {
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #ffffff;
+    min-width: 40px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progressionValue::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .capabilityGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .capabilityCard {
+        padding: 1rem;
+    }
+
+    .capabilityHeader {
+        gap: 0.75rem;
+    }
+
+    .capabilityIcon {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .capabilityTitle h4 {
+        font-size: 1.1rem;
+    }
+
+    .capabilityFooter {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+/* Category-specific enhancements */
+.capabilityCard[style*="rgba(96, 165, 250"] .capabilityIcon {
+    background: rgba(96, 165, 250, 0.2);
+}
+
+.capabilityCard[style*="rgba(52, 211, 153"] .capabilityIcon {
+    background: rgba(52, 211, 153, 0.2);
+}
+
+.capabilityCard[style*="rgba(245, 158, 11"] .capabilityIcon {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.capabilityCard[style*="rgba(165, 180, 252"] .capabilityIcon {
+    background: rgba(165, 180, 252, 0.2);
+}

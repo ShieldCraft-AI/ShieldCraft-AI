@@ -3,7 +3,7 @@
   <a href="../../../README.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Project Overview</a>
 </div>
 
-# 🛡️ ShieldCraft AI
+# <img src="/img/logo.png" alt="ShieldCraft AI" style="height:52px;width:auto;vertical-align:middle;border-radius:10px;" /> ShieldCraft AI
 
 **Next-Gen Cloud Cybersecurity: Proactive, Adaptive, Autonomous.**
 

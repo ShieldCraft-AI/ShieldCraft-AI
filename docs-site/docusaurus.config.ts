@@ -35,15 +35,28 @@ const config: Config = {
         },
         theme: {
           customCss: [
+            require.resolve('./src/css/custom.css'),
+            require.resolve('./src/css/docs-theme.css'),
             require.resolve('./static/css/shieldcraft-docs.css'),
             require.resolve('./static/css/shieldcraft-docs-dark.css'),
             require.resolve('./src/css/customTheme.css'),
             require.resolve('./src/css/design-tokens.css'),
             require.resolve('./src/css/utilities.css'),
+            require.resolve('./src/css/architecture-fullwidth.css'),
+            require.resolve('./src/css/scroll-fix.css'),
           ],
         },
       } satisfies Preset.Options,
     ],
+  ],
+
+  clientModules: [
+    require.resolve('./src/clientModules/scrollRestoration.ts'),
+    require.resolve('./src/clientModules/loginLinkInterceptor.ts'),
+    require.resolve('./src/clientModules/navbarLoginLabel.ts'),
+    require.resolve('./src/clientModules/closeNavOnRoute.ts'),
+    require.resolve('./src/clientModules/prefetchDashboard.ts'),
+    require.resolve('./src/clientModules/viewportDiagnostics.ts'),
   ],
 
   themeConfig: {
@@ -55,7 +68,12 @@ const config: Config = {
         src: 'img/logo.png',
       },
       items: [
-        { to: '/portal', label: 'Login', position: 'right' },
+        {
+          to: '/architecture',
+          label: '🛡️ Architecture',
+          position: 'left',
+        },
+        { type: 'custom-login-toggle', position: 'right' },
       ],
     },
     colorMode: {
