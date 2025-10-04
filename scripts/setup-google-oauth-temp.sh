@@ -5,7 +5,7 @@
 echo "🔐 Adding Google OAuth to Cognito"
 echo ""
 
-# Hardcoded values
+# TODO: Replace with your actual values (DO NOT COMMIT SECRETS!)
 GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID_HERE"
 GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET_HERE"
 
