@@ -13,7 +13,22 @@ def cdk_deploy(session):
     Deploy AWS CDK stacks in parallel with robust dependency management and post-deploy validation.
     Ensures Poetry, AWS CDK v2 CLI, and all dependencies are installed. Supports local and CI/CD workflows.
     """
-    # Guardrail: block deploy unless SHIELDCRAFT_ALLOW_DEPLOY=1
+    # Guardrail 1: Check for deployment block file
+    if os.path.exists(".deployment_block"):
+        matrix_log(
+            session,
+            "[GUARDRAIL] Deployment blocked! Remove .deployment_block file to enable deployments.",
+            color="red",
+        )
+        matrix_log(
+            session,
+            "[GUARDRAIL] This is a PORTFOLIO PROJECT - deployments may incur AWS charges!",
+            color="red",
+        )
+        session.error("[GUARDRAIL] Deployment blocked by .deployment_block file")
+        return
+
+    # Guardrail 2: block deploy unless SHIELDCRAFT_ALLOW_DEPLOY=1
     if not os.environ.get("SHIELDCRAFT_ALLOW_DEPLOY"):
         matrix_log(
             session,

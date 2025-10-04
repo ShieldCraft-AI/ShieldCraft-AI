@@ -1,0 +1,22 @@
+.wrapper {
+    display: grid;
+    min-height: 60vh;
+    place-items: center;
+    padding: 2rem
+}
+
+.card {
+    background: var(--ifm-background-surface-color);
+    border: 1px solid color-mix(in srgb, var(--ifm-color-emphasis-300) 40%, transparent);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
+    max-width: 720px;
+    width: 100%
+}
+
+.hint {
+    color: var(--ifm-color-emphasis-600);
+    margin-top: .5rem;
+    font-size: .9rem
+}

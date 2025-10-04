@@ -1,0 +1,39 @@
+@import '../css/design-tokens.css';
+
+.wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: var(--sc-space-6) auto;
+}
+
+.video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    pointer-events: none;
+    border-radius: var(--sc-radius-lg);
+    box-shadow: var(--sc-elev-1);
+}
+
+.poster {
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    opacity: 0.85;
+}
+
+.logoPoster {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    opacity: 0.85;
+}
+
+@media (min-width: 768px) {
+    .wrap {
+        margin: var(--sc-space-8) auto;
+    }
+}

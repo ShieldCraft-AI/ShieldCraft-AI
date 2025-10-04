@@ -1,0 +1,44 @@
+<mxfile host="app.diagrams.net" modified="2025-09-26T00:00:00.000Z" agent="5.0 (X11)" version="22.1.0" editor="diagramly" type="device">
+  <diagram id="Zk1m3f3zQZc4sP3eN" name="Interactive Hotspots">
+    <mxGraphModel dx="1245" dy="795" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="node_ingestion" value="Ingestion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0369A1;fontStyle=1;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="node_correlation" value="Correlation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#065F46;fontStyle=1;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="300" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="node_guardrails" value="Guardrails" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#92400E;fontStyle=1;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="540" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="node_actions" value="Actions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#6B21A8;fontStyle=1;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="node_observability" value="Observability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE4E6;strokeColor=#9F1239;fontStyle=1;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="300" y="420" width="180" height="64" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="edge_ingest_corr" value="" style="endArrow=block;endFill=1;strokeColor=#374151;rounded=0;" edge="1" parent="1" source="node_ingestion" target="node_correlation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_corr_guard" value="" style="endArrow=block;endFill=1;strokeColor=#374151;rounded=0;" edge="1" parent="1" source="node_correlation" target="node_guardrails">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_guard_actions" value="" style="endArrow=block;endFill=1;strokeColor=#374151;rounded=0;" edge="1" parent="1" source="node_guardrails" target="node_actions">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_corr_obs" value="" style="endArrow=block;endFill=1;strokeColor=#374151;dashed=1;dashPattern=8 6;rounded=0;" edge="1" parent="1" source="node_correlation" target="node_observability">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

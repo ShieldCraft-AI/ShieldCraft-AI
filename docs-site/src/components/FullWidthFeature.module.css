@@ -1,0 +1,101 @@
+@import '../css/design-tokens.css';
+
+.band {
+    width: 100%;
+    box-sizing: border-box;
+    padding: clamp(2.5rem, 7vh, 5rem) 0;
+    background: transparent !important;
+}
+
+html[data-theme='light'] .band {
+    background: transparent !important;
+}
+
+.inner {
+    max-width: var(--sc-max-width-content);
+    margin: 0 auto;
+    padding: 0 var(--sc-space-5);
+    text-align: center;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-size: var(--sc-text-xs);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--sc-color-text-faint);
+    margin-bottom: .5rem;
+}
+
+.heading {
+    margin: 0 auto .6rem;
+    font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3rem);
+    font-weight: 800;
+    letter-spacing: .4px;
+    line-height: 1.1;
+    background: linear-gradient(95deg, #fff, #c7d2fe 40%, #818cf8 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+html[data-theme='light'] .heading {
+    background: linear-gradient(95deg, #111, #374151 40%, #4f46e5 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.desc {
+    margin: 0 auto 1.6rem;
+    max-width: 70ch;
+    font-size: var(--sc-text-lg);
+    color: var(--sc-color-text-dim);
+    line-height: 1.5;
+}
+
+.ctaRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sc-space-4);
+}
+
+.ctaPrimary {
+    background: var(--sc-color-accent-strong);
+    color: var(--sc-color-on-accent);
+    border-radius: var(--sc-radius-md);
+    padding: .9rem 1.6rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--sc-elev-1);
+    transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), background var(--sc-dur-fast) var(--sc-ease-standard);
+}
+
+.ctaPrimary:hover,
+.ctaPrimary:focus-visible {
+    background: var(--sc-color-accent);
+    transform: translateY(-3px);
+    outline: none;
+}
+
+/* Enhanced visibility for secondary button */
+.ctaGhost {
+    background: var(--sc-color-bg-surface-alt);
+    color: var(--sc-color-accent-strong);
+    border: 2px solid var(--sc-color-accent-strong);
+    border-radius: var(--sc-radius-md);
+    padding: .9rem 1.4rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), border-color var(--sc-dur-fast) var(--sc-ease-standard), background-color var(--sc-dur-fast);
+}
+
+.ctaGhost:hover,
+.ctaGhost:focus-visible {
+    background: var(--sc-color-accent-strong);
+    color: var(--sc-color-on-accent);
+    border-color: var(--sc-color-accent);
+    transform: translateY(-3px);
+    outline: none;
+}

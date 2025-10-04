@@ -1,31 +1,77 @@
 import React from 'react';
 import type { Props } from '@theme/NavbarItem/DefaultNavbarItem';
-import Link from '@docusaurus/Link';
+import { loginWithHostedUI, signOut, isLoggedIn, getCurrentUser } from '@site/src/utils/auth-cognito';
 
 export default function AuthNavbarItem(_props: Props) {
-    const [authed, setAuthed] = React.useState<boolean>(() => {
-        if (typeof window === 'undefined') return false;
-        try { return window.localStorage.getItem('sc-auth') === '1'; } catch { return false; }
-    });
+    const [user, setUser] = React.useState<any>(null);
+    const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
-        const onStorage = (e: StorageEvent) => {
-            if (e.key === 'sc-auth') {
-                setAuthed(e.newValue === '1');
-            }
+        checkAuth();
+
+        // Listen for auth state changes via custom event
+        const handleAuthChange = (event: any) => {
+            console.log('Auth change event received:', event.detail);
+            checkAuth();
         };
-        window.addEventListener('storage', onStorage);
-        return () => window.removeEventListener('storage', onStorage);
+        window.addEventListener('sc-auth-changed', handleAuthChange);
+
+        return () => {
+            window.removeEventListener('sc-auth-changed', handleAuthChange);
+        };
     }, []);
 
-    const onLogout = React.useCallback(() => {
-        try { window.localStorage.removeItem('sc-auth'); } catch { }
-        if (typeof window !== 'undefined') window.location.href = '/login';
-    }, []);
+    async function checkAuth() {
+        try {
+            const authenticated = await isLoggedIn();
+            console.log('checkAuth - authenticated:', authenticated);
+            if (authenticated) {
+                const currentUser = await getCurrentUser();
+                console.log('checkAuth - user:', currentUser);
+                setUser(currentUser);
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    return authed ? (
-        <button className="button button--secondary button--sm" onClick={onLogout} aria-label="Logout">Logout</button>
+    const handleLogin = async () => {
+        try {
+            await loginWithHostedUI();
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await signOut();
+            setUser(null);
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
+    if (loading) return null;
+
+    return user ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.875rem', color: 'var(--ifm-navbar-link-color)' }}>
+                {user.email}
+            </span>
+            <button className="button button--secondary button--sm" onClick={handleLogout}>
+                Logout
+            </button>
+        </div>
     ) : (
-        <Link className="button button--primary button--sm" to="/login" aria-label="Login">Login</Link>
+        <button className="button button--primary button--sm" onClick={handleLogin}>
+            Login
+        </button>
     );
 }

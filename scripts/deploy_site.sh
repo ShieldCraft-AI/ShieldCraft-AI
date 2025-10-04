@@ -25,7 +25,23 @@ echo "[INFO] Using CloudFront distribution: ${CLOUDFRONT_DISTRIBUTION_ID}"
 
 echo "[INFO] Building docs with Docusaurus..."
 pushd "${DOCS_DIR}" >/dev/null
-npm ci
+# Print node & npm versions for debugging
+echo "[INFO] Node version: $(node -v 2>/dev/null || echo 'missing')"
+echo "[INFO] NPM version: $(npm -v 2>/dev/null || echo 'missing')"
+
+# Prefer reproducible install; fall back to npm install if lock is out-of-sync
+if [ -f package-lock.json ]; then
+  if npm ci; then
+    echo "[INFO] npm ci completed"
+  else
+    echo "[WARN] npm ci failed (likely lock-file drift). Running 'npm install' to reconcile..."
+    npm install
+  fi
+else
+  echo "[WARN] No package-lock.json found. Running 'npm install'..."
+  npm install
+fi
+
 npm run build
 popd >/dev/null
 

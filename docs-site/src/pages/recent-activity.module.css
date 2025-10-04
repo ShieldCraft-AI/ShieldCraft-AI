@@ -1,8 +1,102 @@
 /* Professional timeline styling for Recent Activity */
+.summaryBar {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--portal-border-color);
+    color: var(--sc-color-text-dim);
+    font-size: 0.85rem;
+}
+
+.summaryBar b {
+    color: #22d3ee;
+    font-weight: 700;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+}
+
+.sep {
+    opacity: 0.5;
+    color: var(--sc-color-text-dim);
+}
+
+.right {
+    margin-left: auto;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 0.85rem 0;
+}
+
+.filtersRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--portal-border-color);
+    background: transparent;
+    color: var(--sc-color-text-dim);
+    border-radius: 6px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+}
+
+.pill:hover {
+    border-color: rgba(34, 211, 238, 0.3);
+    background: rgba(34, 211, 238, 0.05);
+    color: #22d3ee;
+}
+
+.pill[aria-pressed="true"] {
+    border-color: rgba(34, 211, 238, 0.5);
+    background: rgba(34, 211, 238, 0.12);
+    color: #22d3ee;
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+}
+
+.search {
+    background: var(--portal-widget-bg);
+    border: 1px solid var(--portal-border-color);
+    color: var(--portal-text-color);
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    min-width: 280px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.search::placeholder {
+    color: var(--sc-color-text-dim);
+}
+
+.search:focus {
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    background: var(--portal-header-bg);
+}
+
 .activityFeed {
     position: relative;
-    margin-left: 12px;
-    padding-left: 24px;
+    margin-left: 0.75rem;
+    padding-left: 1.5rem;
 }
 
 .activityFeed::before {
@@ -19,33 +113,148 @@
 .activityItem {
     position: relative;
     display: flex;
-    gap: 12px;
-    padding: 10px 0 18px 0;
+    gap: 0.75rem;
+    padding: 0.6rem 0 1rem 0;
 }
 
 .activityIcon {
     position: absolute;
     left: -13px;
-    top: 12px;
+    top: 0.75rem;
     width: 10px;
     height: 10px;
-    background: var(--portal-primary-color);
+    background: #22d3ee;
     border: 2px solid var(--portal-background-color);
     border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--portal-primary-color, #25c2a0, 0.3);
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.3), 0 0 8px rgba(34, 211, 238, 0.2);
+}
+
+.activityIcon.alert {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3), 0 0 8px rgba(239, 68, 68, 0.25);
+}
+
+.activityIcon.system {
+    background: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 0 8px rgba(59, 130, 246, 0.25);
+}
+
+.activityIcon.policy {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3), 0 0 8px rgba(245, 158, 11, 0.25);
+}
+
+.activityIcon.data {
+    background: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3), 0 0 8px rgba(34, 197, 94, 0.25);
+}
+
+.activityIcon.user {
+    background: #a78bfa;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.3), 0 0 8px rgba(167, 139, 250, 0.25);
 }
 
 .activityContent {
     background: var(--portal-widget-bg);
     border: 1px solid var(--portal-border-color);
-    border-radius: 8px;
-    padding: 12px 14px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--sc-elev-1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.activityContent:hover {
+    border-color: rgba(34, 211, 238, 0.35);
+    background: var(--portal-header-bg);
+    box-shadow: var(--sc-elev-2);
+}
+
+.activityHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.user {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--portal-text-color);
+    letter-spacing: 0.01em;
+}
+
+.action {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--sc-color-text-dim);
+    line-height: 1.5;
 }
 
 .timestamp {
     display: inline-block;
-    color: #9aa2b1;
-    font-size: 0.85rem;
-    margin-top: 6px;
+    color: var(--sc-color-text-dim);
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+    opacity: 0.8;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.65rem;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+    border: 1px solid var(--portal-border-color);
+}
+
+.badge_alert {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.badge_system {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.badge_policy {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge_data {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.badge_user {
+    background: rgba(167, 139, 250, 0.12);
+    color: #a78bfa;
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.groupHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--portal-background-color);
+    color: #22d3ee;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.75rem 0 0.65rem 0;
+    margin-bottom: 0.5rem;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
 }

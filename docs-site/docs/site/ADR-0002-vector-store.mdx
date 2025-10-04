@@ -1,0 +1,67 @@
+---
+title: "ADR-0002: Vector Store Selection"
+slug: /adrs/0002-vector-store
+sidebar_label: "ADR-0002: Vector Store"
+tags: [adr, vector-store, ml]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Proposed
+
+## Context
+ShieldCraft AI needs semantic search across alerts, artifacts, and knowledge objects. Early workloads prioritize developer velocity and modest scale; later stages may demand hybrid query (BM25 + ANN), multi-tenant isolation, and managed high availability.
+
+### Evaluation Criteria
+- Integration effort and developer productivity
+- Hybrid search support (keyword + vector)
+- Scale characteristics and operational overhead
+- Cost efficiency for low/medium traffic
+- Managed service availability on AWS
+
+## Decision
+Start with PGVector on PostgreSQL for speed and simplicity. Define a small vector store interface so we can swap implementations without invasive refactors. Keep Amazon OpenSearch Service as the scale/enterprise path when:
+- corpus size, QPS, or latency SLOs demand it, or
+- hybrid search and per-tenant isolation benefits outweigh operational cost.
+
+### Rationale
+- PGVector
+	- Simple to stand up and operate; good developer ergonomics
+	- Cost-efficient for early and medium stages
+	- Sufficient for embeddings search, reranking, and prototypes
+- OpenSearch
+	- Strong hybrid search, facets, aggregations, and security plugins
+	- Managed scaling and integrations with AWS ecosystem
+	- Heavier operational profile and cost floor
+
+## Alternatives Considered
+- PGVector only
+	- Pro: Minimum surface area
+	- Con: Limits hybrid/search features at scale
+- OpenSearch only
+	- Pro: Powerful features from the start
+	- Con: Higher cost/ops; slower onboarding
+- Managed third-party vector DB
+	- Pro: Feature-rich ANN
+	- Con: Extra vendor; networking and cost complexity
+
+## Migration Path
+1) Implement a thin repository interface (insert/query/delete) in `ai_core/vector_store.py`
+2) Provide `pgvector` and `opensearch` backends behind a factory
+3) Add data export/import scripts to reindex embeddings
+4) Gate selection via config/env, default to PGVector
+
+## Risks & Mitigations
+- Risk: Query latency spikes on PGVector at larger scale
+	- Mitigation: Add indexes, batching, and move hot paths to OpenSearch when thresholds are crossed
+- Risk: Feature gaps (filters, aggregations)
+	- Mitigation: Hybrid approach: use Postgres + a lightweight keyword index, or move to OpenSearch
+
+## Success Metrics
+- P95 query latency within target SLO at current scale
+- Swap backend without API changes to callers
+- Controlled infra cost trajectory from dev to prod
+
+## References
+- `ai_core/vector_store.py`
+- `mteb_results.json`

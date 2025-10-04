@@ -1,0 +1,153 @@
+/* Architecture Page Full Width Override - Preserve Header */
+
+/* Note: We intentionally do NOT alter the default Docusaurus .navbar here.
+   The site uses a custom UniversalHeader component rendered via the theme Layout,
+   and the default navbar is hidden in Layout CSS. Re-enabling it here would
+   cause a duplicate header. */
+
+/* Removed overly aggressive rule that hid the entire layout when any class contained 'architecture'.
+   Use the scoped .architecture-page-wrapper rules below instead. */
+
+/* Target the docs layout directly since routeBasePath: '/' makes /architecture a docs page */
+html[data-theme] .architecture-page-wrapper .theme-doc-wrapper {
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html[data-theme] .architecture-page-wrapper .theme-doc-sidebar-container {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
+html[data-theme] .architecture-page-wrapper .theme-doc-main {
+    margin-left: 0 !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    flex-grow: 1 !important;
+}
+
+/* Override all container constraints */
+.architecture-page-wrapper .main-wrapper {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+}
+
+.architecture-page-wrapper .container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+}
+
+.architecture-page-wrapper .row {
+    margin: 0 !important;
+    width: 100vw !important;
+}
+
+.architecture-page-wrapper .col {
+    padding: 0 !important;
+    max-width: none !important;
+    flex: none !important;
+    width: 100vw !important;
+}
+
+/* Hide ALL sidebar elements */
+.architecture-page-wrapper .docSidebarContainer,
+.architecture-page-wrapper .theme-doc-sidebar-container,
+.architecture-page-wrapper [class*="sidebar"] {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
+.architecture-page-wrapper .docMainContainer,
+.architecture-page-wrapper .theme-doc-main {
+    margin-left: 0 !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    padding-left: 0 !important;
+    flex-grow: 1 !important;
+}
+
+/* Force override any remaining layout constraints */
+.architecture-page-wrapper .theme-doc-root {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100vw !important;
+}
+
+/* Override Docusaurus theme layout completely */
+.architecture-page-wrapper .theme-doc-wrapper {
+    display: flex !important;
+    flex: 1 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+}
+
+.architecture-page-wrapper .theme-doc-wrapper>* {
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Nuclear option - override everything */
+.architecture-page-wrapper .container-fluid,
+.architecture-page-wrapper .container,
+.architecture-page-wrapper .main-wrapper,
+.architecture-page-wrapper .docMainContainer,
+.architecture-page-wrapper .theme-doc-root,
+.architecture-page-wrapper .theme-doc-main,
+.architecture-page-wrapper .theme-doc-wrapper {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    flex-grow: 1 !important;
+}
+
+/* Ensure no overflow issues */
+.architecture-page-wrapper {
+    overflow-x: hidden;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    display: block;
+    min-height: 100vh;
+}
+
+.architecture-page-wrapper main {
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+/* Override any docusaurus theme margins */
+.architecture-page-wrapper * {
+    box-sizing: border-box;
+}
+
+body.architecture-page .container-fluid,
+body.architecture-page .container {
+    max-width: 100vw !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Force zero sidebar space globally for architecture page */
+body:has(.architecture-page-wrapper) .theme-doc-sidebar-container {
+    display: none !important;
+}
+
+body:has(.architecture-page-wrapper) .theme-doc-main {
+    margin-left: 0 !important;
+    max-width: 100vw !important;
+}

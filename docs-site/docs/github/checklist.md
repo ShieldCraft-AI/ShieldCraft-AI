@@ -24,7 +24,7 @@
     <a href="../../../README.md">⬅️ Back to Project Overview</a>
     <span>Architecture Capability Progress</span>
   </div>
-  <h1 class="sc-title">🛡️ ShieldCraft AI – Implementation Checklist</h1>
+  <h1 class="sc-title"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:38px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI – Implementation Checklist</h1>
   <div id="progress-bar" class="sc-progress">
     <progress id="shieldcraft-progress" value="75" max="100" aria-label="ShieldCraft overall progress" style="width:60%;height:18px;"></progress>
     <div id="progress-label">75% Complete</div>
@@ -46,7 +46,7 @@
   <li>🟩 Multi-account / environment-aware IaC (CDK v2) with explicit naming & tagging</li>
   <li>🟩 Cross-stack composition (Outputs / Imports) enabling decoupled domains</li>
   <li>🟩 Pydantic config schema + negative-path fail-fast coverage</li>
-  <li>🟩 Security baseline patterns (GuardDuty / Security Hub / Inspector enabled)</li>
+  <li>🟩 Security baseline patterns (GuardDuty / Security Hub / Detective enabled; Inspector optional)</li>
   <li>🟩 Cost guardrails (budgets, lifecycle policies, encryption defaults)</li>
   <li>🟩 Centralized secrets (Secrets Manager) – zero static creds in code</li>
   <li>🟩 S3 encryption + lifecycle and retention governance</li>
@@ -154,7 +154,7 @@
 <strong>Completed</strong>
 <ul class="sc-list">
   <li>✅ Encryption defaults & lifecycle policies in storage layer</li>
-  <li>✅ Security service activation (GuardDuty / Security Hub / Inspector)</li>
+  <li>✅ Security service activation (GuardDuty / Security Hub / Detective; Inspector optional)</li>
   <li>✅ Cost & tag governance enforcements</li>
 </ul>
 <strong>Remaining</strong>

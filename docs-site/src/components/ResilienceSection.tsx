@@ -2,18 +2,40 @@ import React from 'react';
 import styles from './ResilienceSection.module.css';
 
 export default function ResilienceSection() {
+    const points = [
+        {
+            title: 'Streamline Operations',
+            description: 'Leverage automation to eliminate inefficiencies and empower your security teams.'
+        },
+        {
+            title: 'Fortify Defenses',
+            description: 'Adapt and strengthen your security posture against emerging threats with continuous validation.'
+        },
+        {
+            title: 'Optimize Investments',
+            description: 'Maximize ROI by aligning security spend with intelligent, risk-based prioritization.'
+        },
+        {
+            title: 'Stay Ahead',
+            description: 'Transition to a proactive defense strategy, neutralizing threats before they escalate.'
+        }
+    ];
+
     return (
         <section className={styles.resilienceSection}>
-            <div style={{ maxWidth: 980, margin: '0 auto' }}>
-                <h2 className={styles.center} style={{ fontSize: '1.5em', color: '#a5b4fc', marginBottom: '0.7em' }}>
-                    Unlock Unprecedented Security Resilience & Efficiency
+            <div style={{ maxWidth: 980, margin: '0 auto', textAlign: 'center' }}>
+                <h2 className={styles.center} style={{ fontSize: '2.5em', color: 'var(--sc-primary)', marginBottom: '1em' }}>
+                    Elevate Security Resilience and Operational Excellence
                 </h2>
-                <ul className={styles.resilienceList} style={{ lineHeight: 1.7, fontSize: '1.13em', margin: '0 auto', maxWidth: 900, textAlign: 'left' }}>
-                    <li><b>Elevate Efficiency:</b> Automate repetitive tasks, freeing security teams for high-value strategic initiatives.</li>
-                    <li><b>Boost Resilience:</b> Continuously validate and improve your defenses against an evolving threat landscape.</li>
-                    <li><b>Reduce Risk & Cost:</b> Minimize breach impact and optimize security spend through intelligent, automated operations.</li>
-                    <li><b>Gain Proactive Insight:</b> Anticipate and neutralize threats before they materialize, shifting from reactive to strategic defense.</li>
-                </ul>
+                <div className={styles.infographicContainer}>
+                    {points.map((point, index) => (
+                        <div key={index} className={styles.infographicItem}>
+                            <div className={styles.infographicIcon}>🔒</div>
+                            <h3>{point.title}</h3>
+                            <p>{point.description}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </section>
     );

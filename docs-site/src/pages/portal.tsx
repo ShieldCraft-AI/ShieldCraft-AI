@@ -2,26 +2,28 @@ import React from 'react';
 import Link from '@docusaurus/Link';
 import styles from './portal.module.css';
 import PortalLayout from '../components/PortalLayout';
+import { usePortalMock } from '../context/PortalMockContext';
 
-function PortalPage() {
+function PortalContent() {
+    const { findings24h, criticalCount, meanTTR, coverage } = usePortalMock();
     return (
-        <PortalLayout title="Portal" description="ShieldCraft AI Portal">
+        <>
             <div className={styles.statsRow} aria-label="Key metrics">
                 <div className={styles.statCard}>
                     <div className={styles.statLabel}>Findings (24h)</div>
-                    <div className={styles.statValue}>128</div>
+                    <div className={styles.statValue}>{findings24h}</div>
                 </div>
                 <div className={styles.statCard}>
                     <div className={styles.statLabel}>Critical</div>
-                    <div className={styles.statValue}>3</div>
+                    <div className={styles.statValue}>{criticalCount}</div>
                 </div>
                 <div className={styles.statCard}>
                     <div className={styles.statLabel}>Mean TTR</div>
-                    <div className={styles.statValue}>14m</div>
+                    <div className={styles.statValue}>{meanTTR}</div>
                 </div>
                 <div className={styles.statCard}>
                     <div className={styles.statLabel}>Coverage</div>
-                    <div className={styles.statValue}>92%</div>
+                    <div className={styles.statValue}>{coverage.toFixed(1)}%</div>
                 </div>
             </div>
 
@@ -56,8 +58,14 @@ function PortalPage() {
                     </Link>
                 </div>
             </section>
-        </PortalLayout>
+        </>
     );
 }
 
-export default PortalPage;
+export default function PortalPage() {
+    return (
+        <PortalLayout title="Portal" description="ShieldCraft AI Portal">
+            <PortalContent />
+        </PortalLayout>
+    );
+}

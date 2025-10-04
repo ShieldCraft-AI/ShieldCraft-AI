@@ -1,0 +1,220 @@
+{
+ "Resources": {
+  "ShieldCraftUserPoolE4398432": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_email",
+       "Priority": 1
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": false
+    },
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "The verification code to your new account is {####}",
+    "EmailVerificationSubject": "Verify your new account",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 12,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": true,
+      "RequireUppercase": true
+     }
+    },
+    "Schema": [
+     {
+      "Mutable": true,
+      "Name": "email",
+      "Required": true
+     },
+     {
+      "Mutable": true,
+      "Name": "family_name",
+      "Required": false
+     },
+     {
+      "Mutable": true,
+      "Name": "given_name",
+      "Required": false
+     }
+    ],
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolName": "shieldcraft-users",
+    "UserPoolTags": {
+     "Component": "auth",
+     "CostCenter": "portfolio",
+     "Project": "shieldcraft-ai"
+    },
+    "UsernameAttributes": [
+     "email"
+    ],
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "The verification code to your new account is {####}",
+     "EmailSubject": "Verify your new account",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ShieldCraftAuthStack/ShieldCraftUserPool/Resource"
+   }
+  },
+  "ShieldCraftUserPoolCognitoDomainDBC660BB": {
+   "Type": "AWS::Cognito::UserPoolDomain",
+   "Properties": {
+    "Domain": "shieldcraft-auth",
+    "UserPoolId": {
+     "Ref": "ShieldCraftUserPoolE4398432"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ShieldCraftAuthStack/ShieldCraftUserPool/CognitoDomain/Resource"
+   }
+  },
+  "ShieldCraftUserPoolShieldCraftWebClientD98B0308": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AccessTokenValidity": 60,
+    "AllowedOAuthFlows": [
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "email",
+     "openid",
+     "profile"
+    ],
+    "CallbackURLs": [
+     "https://shieldcraft-ai.com/dashboard",
+     "https://shieldcraft-ai.com/auth/callback",
+     "http://localhost:3000/dashboard",
+     "http://localhost:3001/dashboard"
+    ],
+    "ClientName": "shieldcraft-web",
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "IdTokenValidity": 60,
+    "LogoutURLs": [
+     "https://shieldcraft-ai.com/",
+     "http://localhost:3000/"
+    ],
+    "PreventUserExistenceErrors": "ENABLED",
+    "RefreshTokenValidity": 43200,
+    "SupportedIdentityProviders": [
+     "Google",
+     "COGNITO"
+    ],
+    "TokenValidityUnits": {
+     "AccessToken": "minutes",
+     "IdToken": "minutes",
+     "RefreshToken": "minutes"
+    },
+    "UserPoolId": {
+     "Ref": "ShieldCraftUserPoolE4398432"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ShieldCraftAuthStack/ShieldCraftUserPool/ShieldCraftWebClient/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02KwQ6CMBBEv4V7u2LxD/AukXgmtVZdKbuGbkMI4d+NQQynefNmDJj8AHlmh6jdrdUBrzDVYl2r7BAbxw9CYZgu0fcVc1Dlnf68wpE7i7SdfmatZUBPsj0sZv6qU5J3kllVozyZdgXsDRTZKyLqPpFg5+G85Ad2jNkurQAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "ShieldCraftAuthStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "UserPoolId": {
+   "Description": "Cognito User Pool ID for Amplify config",
+   "Value": {
+    "Ref": "ShieldCraftUserPoolE4398432"
+   },
+   "Export": {
+    "Name": "ShieldCraftUserPoolId"
+   }
+  },
+  "UserPoolClientId": {
+   "Description": "Cognito App Client ID for Amplify config",
+   "Value": {
+    "Ref": "ShieldCraftUserPoolShieldCraftWebClientD98B0308"
+   },
+   "Export": {
+    "Name": "ShieldCraftUserPoolClientId"
+   }
+  },
+  "CognitoHostedUIDomain": {
+   "Description": "Cognito Hosted UI domain prefix",
+   "Value": {
+    "Ref": "ShieldCraftUserPoolCognitoDomainDBC660BB"
+   },
+   "Export": {
+    "Name": "ShieldCraftCognitoDomain"
+   }
+  },
+  "CognitoHostedUIUrl": {
+   "Description": "Full Cognito Hosted UI URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "ShieldCraftUserPoolCognitoDomainDBC660BB"
+      },
+      ".auth.us-east-1.amazoncognito.com"
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

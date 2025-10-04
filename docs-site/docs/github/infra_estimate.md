@@ -2,7 +2,7 @@
 <div style="margin-bottom:1.5em;">
   <a href="./checklist.md" style="color:#a5b4fc; font-weight:bold; text-decoration:none; font-size:1.1em;">⬅️ Back to Checklist</a>
 </div>
-<h1 align="center" style="margin-top:0; font-size:2em;">🛡️ ShieldCraft AI: Baseline Infrastructure & Cloud Usage Estimate</h1>
+<h1 align="center" style="margin-top:0; font-size:2em;"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:42px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI: Baseline Infrastructure & Cloud Usage Estimate</h1>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">
 
@@ -31,20 +31,20 @@
 
 All pricing is estimated in South African Rand (ZAR/R), based on AWS public pricing as of July 2025. Actual costs may vary by region, usage, and discounts. Exchange rate used: 1 USD ≈ R18.50.
 
-| Service/Resource         | Usage/Notes                                 | Unit Price (R)    | Monthly Qty   | Est. Monthly (R) |
-|-------------------------|---------------------------------------------|------------------:|-------------:|----------------:|
-| **Compute**             | 2-3 t3.medium EC2/ECS/EKS nodes (24/7)      |        R1,200/node |          2.5 |         R3,000  |
-| **Storage: S3**         | 100GB (Standard)                            |           R0.45/GB |          100 |            R45  |
-| **Storage: RDS/Postgres**| 50GB + db.t3.medium (HA)                   |        R1,400/inst |            1 |         R1,400  |
-|                         | Storage (50GB)                             |           R0.50/GB |           50 |            R25  |
-| **Networking**          | 1TB egress                                 |           R1.80/GB |        1,000 |         R1,800  |
-| **Bedrock/LLM**         | 100K tokens (pilot)                        |     R0.15/1K tokens |          100 |            R15  |
-| **Monitoring**          | CloudWatch (basic)                         |              R200 |            1 |           R200  |
-| **Lambda**              | 100K invocations                           |          R0.40/1K |          100 |            R40  |
-| **SQS/SNS**             | 1M messages                                |         R0.08/10K |          100 |             R8  |
-| **Other (IAM, VPC, etc)**| Misc. baseline infra                       |                 - |            - |           R150  |
-| **Support/Buffer**      | Unforeseen, price fluctuation              |                 - |            - |           R300  |
-| **Total (Est.)**        |                                             |                  |              |     **R6,991**  |
+| Service/Resource          | Usage/Notes                            |  Unit Price (R) | Monthly Qty | Est. Monthly (R) |
+| ------------------------- | -------------------------------------- | --------------: | ----------: | ---------------: |
+| **Compute**               | 2-3 t3.medium EC2/ECS/EKS nodes (24/7) |     R1,200/node |         2.5 |           R3,000 |
+| **Storage: S3**           | 100GB (Standard)                       |        R0.45/GB |         100 |              R45 |
+| **Storage: RDS/Postgres** | 50GB + db.t3.medium (HA)               |     R1,400/inst |           1 |           R1,400 |
+|                           | Storage (50GB)                         |        R0.50/GB |          50 |              R25 |
+| **Networking**            | 1TB egress                             |        R1.80/GB |       1,000 |           R1,800 |
+| **Bedrock/LLM**           | 100K tokens (pilot)                    | R0.15/1K tokens |         100 |              R15 |
+| **Monitoring**            | CloudWatch (basic)                     |            R200 |           1 |             R200 |
+| **Lambda**                | 100K invocations                       |        R0.40/1K |         100 |              R40 |
+| **SQS/SNS**               | 1M messages                            |       R0.08/10K |         100 |               R8 |
+| **Other (IAM, VPC, etc)** | Misc. baseline infra                   |               - |           - |             R150 |
+| **Support/Buffer**        | Unforeseen, price fluctuation          |               - |           - |             R300 |
+| **Total (Est.)**          |                                        |                 |             |       **R6,991** |
 
 **Notes:**
 - Compute: t3.medium on-demand, average 2.5 nodes (mix of ECS/EKS/EC2)

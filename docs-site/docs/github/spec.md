@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/AI%20Security-Shieldcraft%20AI-blueviolet?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Shieldcraft AI" />
   <img src="https://img.shields.io/badge/AWS%20Cloud%20Native-Scalable%20%7C%20Secure%20%7C%20Modular-green?style=flat-square&logo=amazonaws" alt="AWS Cloud Native" />
 </div>
-<h1 align="center">🛡️ ShieldCraft AI Architecture & Technical Specification</h1>
+<h1 align="center"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:48px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI Architecture & Technical Specification</h1>
 </section>
 
 

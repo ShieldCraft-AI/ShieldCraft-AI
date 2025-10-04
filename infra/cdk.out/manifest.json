@@ -1,0 +1,132 @@
+{
+  "version": "45.0.0",
+  "artifacts": {
+    "ShieldCraftAuthStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "ShieldCraftAuthStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "ShieldCraftAuthStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/us-east-1",
+      "properties": {
+        "templateFile": "ShieldCraftAuthStack.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Component": "auth",
+          "CostCenter": "portfolio",
+          "Project": "shieldcraft-ai"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/61fd802fcc81b470db69a6bad484e701c3f4c3ccd876a286110e4ca955933409.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "ShieldCraftAuthStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "ShieldCraftAuthStack.assets"
+      ],
+      "metadata": {
+        "/ShieldCraftAuthStack": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Component",
+                "Value": "auth"
+              },
+              {
+                "Key": "CostCenter",
+                "Value": "portfolio"
+              },
+              {
+                "Key": "Project",
+                "Value": "shieldcraft-ai"
+              }
+            ]
+          }
+        ],
+        "/ShieldCraftAuthStack/ShieldCraftUserPool/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ShieldCraftUserPoolE4398432"
+          }
+        ],
+        "/ShieldCraftAuthStack/ShieldCraftUserPool/CognitoDomain/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ShieldCraftUserPoolCognitoDomainDBC660BB"
+          }
+        ],
+        "/ShieldCraftAuthStack/ShieldCraftUserPool/ShieldCraftWebClient/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ShieldCraftUserPoolShieldCraftWebClientD98B0308"
+          }
+        ],
+        "/ShieldCraftAuthStack/UserPoolId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UserPoolId"
+          }
+        ],
+        "/ShieldCraftAuthStack/UserPoolClientId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UserPoolClientId"
+          }
+        ],
+        "/ShieldCraftAuthStack/CognitoHostedUIDomain": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoHostedUIDomain"
+          }
+        ],
+        "/ShieldCraftAuthStack/CognitoHostedUIUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoHostedUIUrl"
+          }
+        ],
+        "/ShieldCraftAuthStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/ShieldCraftAuthStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/ShieldCraftAuthStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "ShieldCraftAuthStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  },
+  "minimumCliVersion": "2.1020.2"
+}

@@ -1,23 +1,140 @@
+.summaryBar {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--portal-border-color);
+    color: var(--sc-color-text-dim);
+    font-size: 0.85rem;
+}
+
+.statusFilter {
+    background: transparent;
+    border: none;
+    color: var(--sc-color-text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.statusFilter:hover {
+    background: rgba(34, 211, 238, 0.08);
+    color: #22d3ee;
+}
+
+.statusFilter.active {
+    background: rgba(34, 211, 238, 0.15);
+    color: #22d3ee;
+    font-weight: 600;
+}
+
+.statusFilter b {
+    color: inherit;
+    font-weight: 700;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+}
+
+.summaryBar b {
+    color: #22d3ee;
+    font-weight: 700;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+}
+
+.overall {
+    font-weight: 600;
+    color: var(--portal-text-color);
+    letter-spacing: 0.02em;
+}
+
+.sep {
+    opacity: 0.5;
+    color: rgba(148, 163, 184, 0.4);
+}
+
+.right {
+    margin-left: auto;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.ok {
+    background: #48c774;
+}
+
+.degraded {
+    background: #ffdd57;
+}
+
+.maintenance {
+    background: #3273dc;
+}
+
+.outage {
+    background: #ff7b7b;
+}
+
 .statusGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 0.85rem;
+    max-width: 100%;
+}
+
+/* Force 4 columns on large screens */
+@media (min-width: 1400px) {
+    .statusGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1400px) {
+    .statusGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .statusGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .statusGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .statusCard {
-    background-color: var(--portal-widget-bg);
-    padding: 20px;
-    border-radius: 5px;
-    border-left: 5px solid #ccc;
-    /* Default border */
+    background: var(--portal-widget-bg);
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border-left: 3px solid #94a3b8;
     border: 1px solid var(--portal-border-color);
-    transition: transform .15s ease, box-shadow .15s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+    transition: all 0.2s ease;
+    box-shadow: var(--sc-elev-1);
+    cursor: pointer;
+    user-select: none;
 }
 
 .statusCard h3 {
-    margin-top: 0;
+    margin: 0 0 0.5rem 0;
     color: var(--portal-text-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .statusText {
@@ -27,58 +144,125 @@
 }
 
 .statusDetails {
-    font-size: 0.9em;
-    color: #9aa2b1;
+    font-size: 0.8rem;
+    color: var(--sc-color-text-dim);
+    line-height: 1.4;
+    margin: 0;
 }
 
 .statusBadge {
     display: inline-block;
-    font-size: .75rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: .03em;
-    padding: 4px 8px;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
     border-radius: 6px;
-    background: var(--portal-header-bg);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    font-weight: 700;
+    font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Status-specific styles */
 .statusCard.operational {
-    border-left-color: #48c774;
-    /* Green */
+    border-left-color: #22c55e;
 }
 
-.statusCard.operational .statusText {
-    color: #48c774;
+.statusCard.operational .statusBadge {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.3);
 }
 
 .statusCard.degraded {
-    border-left-color: #ffdd57;
-    /* Yellow */
+    border-left-color: #f59e0b;
 }
 
-.statusCard.degraded .statusText {
-    color: #ffdd57;
+.statusCard.degraded .statusBadge {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.3);
 }
 
 .statusCard.maintenance {
-    border-left-color: #3273dc;
-    /* Blue */
+    border-left-color: #3b82f6;
 }
 
-.statusCard.maintenance .statusText {
-    color: #3273dc;
+.statusCard.maintenance .statusBadge {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
 }
 
 .statusCard.outage {
-    border-left-color: #ff7b7b;
-    /* Red */
+    border-left-color: #ef4444;
 }
 
-.statusCard.outage .statusText {
-    color: #ff7b7b;
+.statusCard.outage .statusBadge {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 .statusCard:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .28);
+    box-shadow: var(--sc-elev-2);
+    border-color: rgba(34, 211, 238, 0.4);
+    background: var(--portal-header-bg);
+}
+
+.legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--portal-border-color);
+    color: var(--sc-color-text-dim);
+    font-size: 0.8rem;
+}
+
+.legendItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+/* Toolbar (search) */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.search {
+    background: var(--portal-widget-bg);
+    border: 1px solid var(--portal-border-color);
+    color: var(--portal-text-color);
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    min-width: 280px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.search::placeholder {
+    color: var(--sc-color-text-dim);
+    opacity: 0.6;
+}
+
+.search:focus {
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    background: var(--portal-header-bg);
 }
