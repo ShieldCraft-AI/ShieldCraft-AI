@@ -50,7 +50,7 @@ const SOURCES = [
 ];
 const ACTORS = ['Scattered Spider', 'ALPHV/BlackCat', 'LockBit 3.0', 'Lazarus Group', 'APT41', 'Volt Typhoon', 'Kimsuky', 'FIN7', 'APT29 (Cozy Bear)'];
 const MALWARE = ['Lumma Stealer', 'RedLine Stealer', 'IcedID', 'Gootloader', 'PlugX', 'AsyncRAT', 'Cobalt Strike', 'Metasploit', 'SocGholish'];
-const TACTICS = ['AI-powered phishing', 'ransomware-as-a-service', 'API exploitation', 'supply chain compromise', 'zero-day exploitation', 'cloud credential harvesting', 'MFA bypass', 'living-off-the-land'];
+const TACTICS = ['AI phishing', 'ransomware-as-a-service', 'API exploitation', 'supply chain compromise', 'zero-day exploitation', 'credential harvesting', 'MFA bypass', 'living-off-the-land'];
 const TECHNIQUES = ['T1566', 'T1078', 'T1190', 'T1059.001', 'T1071', 'T1098', 'T1548', 'T1027', 'T1133'];
 const CLOUD = ['AWS', 'Microsoft Azure', 'Google Cloud', 'Oracle Cloud', 'Cloudflare'];
 const SERVICES = ['IAM', 'EC2', 'Lambda', 'S3', 'RDS', 'EKS', 'CloudTrail', 'GuardDuty', 'Bedrock', 'SageMaker', 'Cognito', 'Secrets Manager'];
@@ -192,13 +192,29 @@ function ThreatFeedContent() {
 
     useEffect(() => { setPage(1); }, [env]);
 
-    const sources = useMemo(() => Array.from(new Set(feed.map(f => f.source))), [feed]);
+    const sources = useMemo(() => {
+        const uniqueSources = Array.from(new Set(feed.map(f => f.source)));
+        // Shorten long source names for filter display
+        return uniqueSources.map(s => {
+            if (s === 'Microsoft Threat Intelligence') return 'MS Threat Intel';
+            if (s === 'Palo Alto Networks') return 'Palo Alto';
+            if (s === 'Google Threat Analysis') return 'Google Threat';
+            return s;
+        });
+    }, [feed]);
     const tags = useMemo(() => Array.from(new Set(feed.flatMap(f => f.tags))).sort(), [feed]);
 
     const filtered = useMemo(() => {
         const ql = effectiveQuery;
+        // Map shortened names back to original for filtering
+        const sourceMap: Record<string, string> = {
+            'MS Threat Intel': 'Microsoft Threat Intelligence',
+            'Palo Alto': 'Palo Alto Networks',
+            'Google Threat': 'Google Threat Analysis'
+        };
+        const actualSource = sourceMap[source] || source;
         let rows = feed.filter(item =>
-            (source === 'all' || item.source === source) &&
+            (source === 'all' || item.source === actualSource) &&
             (tag === 'all' || item.tags.includes(tag)) &&
             (ql === '' || item.title.toLowerCase().includes(ql) || item.description.toLowerCase().includes(ql))
         );
@@ -272,8 +288,8 @@ function ThreatFeedContent() {
                                     <span className={styles.sourceBadge}>{item.source}</span>
                                 </div>
                                 <div className={styles.metaWrap}>
-                                    <span className={`${styles.sevDot} ${styles[item.severity]}`} title={`Severity: ${item.severity}`}></span>
-                                    <span className={styles.riskBadge} title="Risk score">{item.risk}</span>
+                                    <span className={`${styles.sevDot} ${styles[item.severity]}`} data-tooltip={`Severity: ${item.severity}`}></span>
+                                    <span className={styles.riskBadge} data-tooltip="Risk score">{item.risk}</span>
                                     <span className={styles.published}>{formatAgo(item.publishedOffsetHours)}</span>
                                 </div>
                             </div>

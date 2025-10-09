@@ -20,7 +20,13 @@ const config: Config = {
 
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    // Add any locales you want to support here. English is the default.
+    locales: ['en', 'es', 'fr'],
+    localeConfigs: {
+      en: { label: 'English' },
+      es: { label: 'Español' },
+      fr: { label: 'Français' },
+    },
   },
 
   presets: [
@@ -57,6 +63,7 @@ const config: Config = {
     require.resolve('./src/clientModules/closeNavOnRoute.ts'),
     require.resolve('./src/clientModules/prefetchDashboard.ts'),
     require.resolve('./src/clientModules/viewportDiagnostics.ts'),
+    require.resolve('./src/clientModules/testModule.ts'),
   ],
 
   themeConfig: {
@@ -69,11 +76,28 @@ const config: Config = {
       },
       items: [
         {
-          to: '/architecture',
-          label: '🛡️ Architecture',
+          to: '/analyst-dashboard',
+          label: 'Analyst Dashboard',
+          position: 'left',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'tutorialSidebar',
+          position: 'left',
+          label: 'Documentation',
+        },
+        {
+          to: '/plugins',
+          label: 'Plugins',
+          position: 'left',
+        },
+        {
+          to: '/pricing',
+          label: 'Pricing',
           position: 'left',
         },
         { type: 'custom-login-toggle', position: 'right' },
+        { type: 'localeDropdown', position: 'right' },
       ],
     },
     colorMode: {

@@ -3,12 +3,10 @@ import ErrorBoundary from '@site/src/components/ErrorBoundary';
 import SiteFooter from '@site/src/components/SiteFooter';
 import { isLoggedIn, onAuthChange, notifyAuthChange } from '@site/src/utils/auth-cognito';
 import { useLocation } from '@docusaurus/router';
-import { Amplify } from 'aws-amplify';
-import { amplifyConfig } from '@site/src/config/amplify-config';
 
-// Initialize Amplify once
+// Log deployment info for debugging cache issues
 if (typeof window !== 'undefined') {
-    Amplify.configure(amplifyConfig);
+    // deployment info fetch removed for production
 }
 
 export default function Root({ children }: { children: React.ReactNode }) {
@@ -21,31 +19,72 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
     // Handle OAuth callback - Amplify v6 processes automatically, we just notify listeners
     React.useEffect(() => {
+        function scDebug(...args: any[]) {
+            try {
+                if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                    // eslint-disable-next-line no-console
+                    console.debug('[SC-ROOT]', ...args);
+                }
+            } catch { /* ignore */ }
+        }
+
+        function dumpUrlState() {
+            try {
+                if (typeof window === 'undefined') return {};
+                return {
+                    href: window.location.href,
+                    pathname: window.location.pathname,
+                    search: window.location.search,
+                    hash: window.location.hash,
+                };
+            } catch (err) { return { err: String(err) }; }
+        }
+
         const handleOAuthCallback = async () => {
             const params = new URLSearchParams(window.location.search);
-            if (params.has('code') || params.has('state')) {
-                console.log('OAuth callback detected, waiting for Amplify to process...');
-                // Amplify v6 automatically handles the OAuth callback
-                // Poll for auth state to detect when tokens are ready
+            const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+            const hasQueryCode = params.has('code') || params.has('state');
+            const hasHashTokens = hashParams.has('id_token') || hashParams.has('access_token');
+            scDebug('handleOAuthCallback - url state:', dumpUrlState(), 'hasQueryCode:', hasQueryCode, 'hasHashTokens:', hasHashTokens);
+            if (!hasQueryCode && !hasHashTokens) {
+                // Even without explicit callback markers, we might be landing here right after redirect.
+                // Perform a short polling window once on mount to catch freshly established sessions.
                 let attempts = 0;
-                const checkInterval = setInterval(async () => {
+                const maxAttempts = 10; // ~5 seconds
+                const interval = setInterval(async () => {
                     attempts++;
                     const authenticated = await isLoggedIn();
-                    console.log(`Auth check attempt ${attempts}: ${authenticated}`);
-
+                    scDebug('polling attempt', attempts, 'authenticated:', authenticated);
                     if (authenticated) {
-                        console.log('✅ User authenticated! Notifying listeners...');
-                        clearInterval(checkInterval);
+                        scDebug('polling detected authenticated - notifying');
+                        clearInterval(interval);
                         await notifyAuthChange();
-                        // Clean up URL params
-                        window.history.replaceState({}, document.title, location.pathname);
-                    } else if (attempts > 20) {
-                        // Stop after 10 seconds
-                        console.error('❌ Auth timeout - tokens not received');
-                        clearInterval(checkInterval);
+                    } else if (attempts >= maxAttempts) {
+                        scDebug('polling finished without auth');
+                        clearInterval(interval);
                     }
                 }, 500);
+                return;
             }
+            scDebug('OAuth callback detected, waiting for Amplify to process...');
+            let attempts = 0;
+            const maxAttempts = 40; // ~20 seconds
+            const checkInterval = setInterval(async () => {
+                attempts++;
+                const authenticated = await isLoggedIn();
+                scDebug('Auth check attempt', attempts, 'authenticated:', authenticated);
+
+                if (authenticated) {
+                    scDebug('User authenticated - notifying listeners and cleaning URL');
+                    clearInterval(checkInterval);
+                    await notifyAuthChange();
+                    // Clean up URL params/hash without triggering navigation
+                    window.history.replaceState({}, document.title, location.pathname);
+                } else if (attempts >= maxAttempts) {
+                    scDebug('Auth timeout - tokens not received');
+                    clearInterval(checkInterval);
+                }
+            }, 500);
         };
         handleOAuthCallback();
     }, [location.pathname, location.search]);
@@ -60,11 +99,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         path.startsWith('/monitoring') ||
         path.startsWith('/portal')
     );
-    const isArchitecture = path === '/architecture' || path.startsWith('/architecture/');
-    // Static pages = any non-portal, non-architecture routes (landing, docs, pricing, etc.)
-    const isStaticPage = !isPortalRoute && !isArchitecture;
-    // Footer should display on static pages regardless of auth state per clarified requirement.
-    const showFooter = isStaticPage;
+    const showFooter = !isPortalRoute;
     return (
         <ErrorBoundary>
             <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

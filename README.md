@@ -23,8 +23,8 @@
 <div id="progress-bar" align="center" style="margin-bottom:1.5em;">
   <strong>Project Progress</strong>
   <a href="./docs-site/docs/github/checklist.md" style="margin-left:0.75em; font-size:0.95em; color:#a5b4fc; text-decoration:none;">(checklist)</a><br/>
-  <progress id="shieldcraft-progress" value="75" max="100" style="width: 60%; height: 18px;"></progress>
-  <div id="progress-label">75% Complete</div>
+  <progress id="shieldcraft-progress" value="80" max="100" style="width: 60%; height: 18px;"></progress>
+  <div id="progress-label">80% Complete</div>
 </div>
 
 <section style="border:1px solid #e0e0e0; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #f0f0f0; padding:1.5em; background:#111; color:#fff;">

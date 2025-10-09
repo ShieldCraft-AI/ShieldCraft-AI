@@ -1,0 +1,7 @@
+# Proton manifest for service template version (scaffold)
+name: shieldcraft-lambda
+displayName: ShieldCraft Lambda
+compatibleEnvironmentTemplates:
+  - templateName: shieldcraft-networking
+version: 1.0
+pipeline: {}

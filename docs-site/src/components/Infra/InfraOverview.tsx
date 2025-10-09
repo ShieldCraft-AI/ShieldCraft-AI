@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './infra.module.css';
 import { envs, pipeline, EnvKey, serviceDescriptions } from '../../data/infraEnvs';
+import { pasTemplates } from '../../data/pasTemplates';
 
 const chipColor: Record<string, string> = {
     none: '#9997',
@@ -53,7 +54,7 @@ export default function InfraOverview() {
                     <div className={styles.services}>
                         {Object.entries(summary.services).map(([svc, mode]) => (
                             <div key={svc} className={styles.serviceRow}>
-                                <div className={styles.serviceName} title={serviceDescriptions[svc as keyof typeof summary.services] || ''}>{svc}</div>
+                                <div className={styles.serviceName} data-tooltip={serviceDescriptions[svc as keyof typeof summary.services] || ''}>{svc}</div>
                                 <span className={styles.chip} style={{ backgroundColor: chipColor[String(mode)] || '#666' }}>{mode}</span>
                             </div>
                         ))}
@@ -93,6 +94,20 @@ export default function InfraOverview() {
                     <div className={styles.kv}>Lake Formation<span>{summary.details.lakeformation?.dataLakeLocation ?? '-'}</span></div>
                     <div className={styles.kv}>EventBridge (data)<span>{summary.details.eventbridge?.dataBus ?? '-'}</span></div>
                     <div className={styles.kv}>EventBridge (security)<span>{summary.details.eventbridge?.securityBus ?? '-'}</span></div>
+                </div>
+
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>Proton PaS Templates</div>
+                    <ul className={styles.listTight}>
+                        {pasTemplates.map(t => (
+                            <li key={t.id}>
+                                <strong>{t.kind === 'environment' ? 'Env' : 'Svc'}:</strong> {t.name}
+                                {t.domain ? <> · <em>{t.domain}</em></> : null}
+                                <div className={styles.subtle}>{t.file}</div>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className={styles.callout}>PaS will publish versioned templates to AWS Proton. Teams can self-serve pipelines and services wired to ShieldCraft guardrails.</div>
                 </div>
 
                 <div className={styles.card}>

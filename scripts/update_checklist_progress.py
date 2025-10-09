@@ -6,7 +6,7 @@ Run this script after a successful push (e.g., as a post-push hook or in CI).
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 
 def find_repo_root(start: Path) -> Path:
@@ -87,9 +87,17 @@ scope_match = re.search(
 )
 count_region = scope_match.group(1) if scope_match else checklist_content
 
-# Count checkboxes (only in counted scope region)
-num_done = len(re.findall(r"🟩", count_region))
-num_todo = len(re.findall(r"🟥", count_region))
+# Count status icons (only in counted scope region)
+COMPLETED_ICONS: Iterable[str] = ("🟩", "✅")
+REMAINING_ICONS: Iterable[str] = ("🟥", "🕒")
+
+
+def count_icons(text: str, icons: Iterable[str]) -> int:
+    return sum(text.count(icon) for icon in icons)
+
+
+num_done = count_icons(count_region, COMPLETED_ICONS)
+num_todo = count_icons(count_region, REMAINING_ICONS)
 num_total = num_done + num_todo
 percent = int(round((num_done / num_total) * 100)) if num_total > 0 else 0
 

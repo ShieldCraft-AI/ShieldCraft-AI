@@ -76,9 +76,8 @@ function PortalContent({ title, children, showEnvSelector = true, showSearchBar 
               aria-controls="portal-sidebar"
               aria-expanded={sidebarOpen}
               onClick={toggleSidebar}
-              title={sidebarOpen ? 'Collapse menu' : 'Expand menu'}
             >
-              ☰
+              ≡
             </button>
             <h2 style={{ margin: 0 }}>{title}</h2>
             {showEnvSelector && <span className={styles.envBadge} aria-label="Environment">{env}</span>}

@@ -36,27 +36,27 @@ export default function Layout(props: React.ComponentProps<typeof OriginalLayout
         return location.pathname === '/';
     }, [location.pathname]);
 
-    const isArchitecturePage = React.useMemo(() => {
+    const isPricingPage = React.useMemo(() => {
         const p = location.pathname;
-        return p === '/architecture' || p.startsWith('/architecture/');
+        return p === '/pricing' || p.startsWith('/pricing/');
     }, [location.pathname]);
 
     const isDocsRoute = React.useMemo(() => {
-        // Anything that is not a portal route, not the landing page, and not the architecture experience is treated as documentation.
+        // Anything that is not a portal route, not the landing page, and not the pricing experience is treated as documentation.
         // This removes the need for brittle prefix whitelists and prevents layout jumping when new docs are added.
         if (isPortalRoute) return false;
         if (isLandingPage) return false;
-        if (isArchitecturePage) return false;
+        if (isPricingPage) return false;
         return true;
-    }, [isPortalRoute, isLandingPage, isArchitecturePage]);
+    }, [isPortalRoute, isLandingPage, isPricingPage]);
 
-    const showAppSidebar = !isPortalRoute && !isLandingPage && !isArchitecturePage && !isDocsRoute;
+    const showAppSidebar = !isPortalRoute && !isLandingPage && !isPricingPage && !isDocsRoute;
     const contentStyle = showAppSidebar ? { marginLeft: 'max(15vw, 220px)' } : undefined;
 
     return (
         <OriginalLayout {...props}>
             <UniversalHeader />
-            <div className={`sc-layout ${isDocsRoute ? 'docs-route' : ''} ${isArchitecturePage ? 'architecture-route' : ''}`}>
+            <div className={`sc-layout ${isDocsRoute ? 'docs-route' : ''} ${isPricingPage ? 'pricing-route' : ''}`}>
                 {showAppSidebar && <AppSidebar />}
                 <div className="sc-content" style={contentStyle} key={location.pathname}>{props.children}</div>
             </div>

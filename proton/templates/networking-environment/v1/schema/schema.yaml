@@ -1,0 +1,29 @@
+# AWS Proton template input schema (scaffold)
+schema:
+  name: shieldcraft-networking
+  description: Environment template inputs for ShieldCraft networking (VPC + subnets)
+  format:
+    openapi: "3.0.0"
+  input:
+    type: object
+    properties:
+      EnvironmentName:
+        type: string
+        description: Name of the Proton environment (dev|staging|prod)
+        enum: [dev, staging, prod]
+      VpcCidr:
+        type: string
+        description: CIDR block for the VPC
+        default: "10.0.0.0/16"
+        pattern: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/(?:\d|[12]\d|3[0-2])$'
+      PublicSubnet1Cidr:
+        type: string
+        description: CIDR block for public subnet 1
+        default: "10.0.1.0/24"
+        pattern: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/(?:\d|[12]\d|3[0-2])$'
+      PrivateSubnet1Cidr:
+        type: string
+        description: CIDR block for private subnet 1
+        default: "10.0.2.0/24"
+        pattern: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/(?:\d|[12]\d|3[0-2])$'
+    required: [EnvironmentName, VpcCidr, PublicSubnet1Cidr, PrivateSubnet1Cidr]

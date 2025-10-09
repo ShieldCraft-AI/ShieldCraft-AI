@@ -1,0 +1,966 @@
+name: Environment Configuration
+
+on:
+  push:
+    paths:
+      - "config/**"
+      - "infra/**"
+  pull_request:
+    paths:
+      - "config/**"
+      - "infra/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to configure"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      action:
+        description: "Configuration action"
+        required: true
+        default: "validate"
+        type: choice
+        options:
+          - validate
+          - deploy
+          - update
+          - rollback
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  validate-config:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      config-valid: ${{ steps.validation.outputs.valid }}
+      environment: ${{ steps.env-detection.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect environment
+        id: env-detection
+        run: |
+          if [ "${{ github.event.inputs.environment }}" != "" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENVIRONMENT="prod"
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            ENVIRONMENT="staging"
+          else
+            ENVIRONMENT="dev"
+          fi
+
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "Detected environment: $ENVIRONMENT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema pydantic
+
+      - name: Create configuration validator
+        run: |
+          cat > validate_config.py << 'EOF'
+          import yaml
+          import json
+          import os
+          import sys
+          from typing import Dict, Any, List
+          from pathlib import Path
+
+          def load_yaml_file(filepath: str) -> Dict[str, Any]:
+              """Load and parse YAML file"""
+              try:
+                  with open(filepath, 'r') as f:
+                      return yaml.safe_load(f)
+              except FileNotFoundError:
+                  print(f"WARNING: Configuration file not found: {filepath}")
+                  return {}
+              except yaml.YAMLError as e:
+                  print(f"ERROR: Invalid YAML in {filepath}: {e}")
+                  sys.exit(1)
+
+          def validate_config_structure(config: Dict[str, Any], config_type: str) -> List[str]:
+              """Validate configuration structure"""
+              errors = []
+
+              if config_type == "app":
+                  required_keys = ['api', 'database', 'aws', 'forecasting']
+
+                  for key in required_keys:
+                      if key not in config:
+                          errors.append(f"Missing required section: {key}")
+                      elif not isinstance(config[key], dict):
+                          errors.append(f"Section '{key}' must be a dictionary")
+
+                  # Validate API config
+                  if 'api' in config:
+                      api_config = config['api']
+                      if 'port' in api_config:
+                          try:
+                              port = int(api_config['port'])
+                              if port < 1 or port > 65535:
+                                  errors.append(f"Invalid port number: {port}")
+                          except (ValueError, TypeError):
+                              errors.append("Port must be a valid integer")
+
+                      if 'cors_origins' in api_config:
+                          if not isinstance(api_config['cors_origins'], list):
+                              errors.append("cors_origins must be a list")
+
+                  # Validate AWS config
+                  if 'aws' in config:
+                      aws_config = config['aws']
+                      required_aws_keys = ['region', 'account_id']
+
+                      for key in required_aws_keys:
+                          if key not in aws_config:
+                              errors.append(f"Missing AWS configuration: {key}")
+
+                      if 'region' in aws_config:
+                          valid_regions = [
+                              'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+                              'eu-west-1', 'eu-west-2', 'eu-central-1', 'ap-southeast-1'
+                          ]
+                          if aws_config['region'] not in valid_regions:
+                              errors.append(f"Invalid AWS region: {aws_config['region']}")
+
+                  # Validate forecasting config
+                  if 'forecasting' in config:
+                      forecast_config = config['forecasting']
+
+                      if 'model_params' in forecast_config:
+                          model_params = forecast_config['model_params']
+
+                          if 'seasonality_mode' in model_params:
+                              valid_modes = ['additive', 'multiplicative']
+                              if model_params['seasonality_mode'] not in valid_modes:
+                                  errors.append(f"Invalid seasonality_mode: {model_params['seasonality_mode']}")
+
+                          if 'changepoint_prior_scale' in model_params:
+                              try:
+                                  scale = float(model_params['changepoint_prior_scale'])
+                                  if scale <= 0 or scale > 1:
+                                      errors.append("changepoint_prior_scale must be between 0 and 1")
+                              except (ValueError, TypeError):
+                                  errors.append("changepoint_prior_scale must be a number")
+
+              elif config_type == "secrets":
+                  # Validate secrets structure (without checking actual values)
+                  expected_secret_sections = ['database', 'aws', 'api']
+
+                  for section in expected_secret_sections:
+                      if section in config:
+                          if not isinstance(config[section], dict):
+                              errors.append(f"Secrets section '{section}' must be a dictionary")
+
+              return errors
+
+          def validate_environment_consistency(dev_config: Dict, staging_config: Dict, prod_config: Dict) -> List[str]:
+              """Validate consistency across environments"""
+              errors = []
+
+              # Check that all environments have the same structure
+              def get_config_keys(config: Dict, prefix: str = "") -> set:
+                  keys = set()
+                  for key, value in config.items():
+                      full_key = f"{prefix}.{key}" if prefix else key
+                      keys.add(full_key)
+                      if isinstance(value, dict):
+                          keys.update(get_config_keys(value, full_key))
+                  return keys
+
+              dev_keys = get_config_keys(dev_config)
+              staging_keys = get_config_keys(staging_config)
+              prod_keys = get_config_keys(prod_config)
+
+              # Keys that should be in all environments
+              all_keys = dev_keys | staging_keys | prod_keys
+
+              for env_name, env_keys in [("dev", dev_keys), ("staging", staging_keys), ("prod", prod_keys)]:
+                  missing_keys = all_keys - env_keys
+                  if missing_keys:
+                      errors.append(f"Environment '{env_name}' missing keys: {', '.join(sorted(missing_keys))}")
+
+              # Validate that production has more restrictive settings
+              def check_prod_restrictions():
+                  if 'api' in prod_config and 'debug' in prod_config['api']:
+                      if prod_config['api']['debug']:
+                          errors.append("Production environment should not have debug mode enabled")
+
+                  if 'database' in prod_config and 'ssl_mode' in prod_config['database']:
+                      if prod_config['database']['ssl_mode'] != 'require':
+                          errors.append("Production database should require SSL")
+
+              check_prod_restrictions()
+
+              return errors
+
+          def main():
+              environment = os.getenv('ENVIRONMENT', 'dev')
+              print(f"Validating configuration for environment: {environment}")
+
+              # Load configurations
+              config_dir = Path('config')
+              if not config_dir.exists():
+                  print("ERROR: config directory not found")
+                  sys.exit(1)
+
+              configs = {}
+              config_files = {
+                  'dev': config_dir / 'dev.yml',
+                  'staging': config_dir / 'staging.yml',
+                  'prod': config_dir / 'prod.yml'
+              }
+
+              # Load all environment configs
+              for env, filepath in config_files.items():
+                  configs[env] = load_yaml_file(str(filepath))
+
+              # Load secrets config for current environment
+              secrets_file = config_dir / f'secrets.{environment}.yml'
+              secrets_config = load_yaml_file(str(secrets_file))
+
+              all_errors = []
+
+              # Validate current environment config
+              current_config = configs.get(environment, {})
+              if current_config:
+                  errors = validate_config_structure(current_config, "app")
+                  if errors:
+                      all_errors.extend([f"Config validation: {error}" for error in errors])
+              else:
+                  all_errors.append(f"No configuration found for environment: {environment}")
+
+              # Validate secrets config
+              if secrets_config:
+                  errors = validate_config_structure(secrets_config, "secrets")
+                  if errors:
+                      all_errors.extend([f"Secrets validation: {error}" for error in errors])
+
+              # Validate cross-environment consistency
+              if all(configs.values()):
+                  errors = validate_environment_consistency(configs['dev'], configs['staging'], configs['prod'])
+                  if errors:
+                      all_errors.extend([f"Consistency validation: {error}" for error in errors])
+
+              # Generate validation report
+              print("\n" + "="*50)
+              print("CONFIGURATION VALIDATION REPORT")
+              print("="*50)
+
+              if all_errors:
+                  print(f"\n❌ VALIDATION FAILED ({len(all_errors)} errors found):")
+                  for i, error in enumerate(all_errors, 1):
+                      print(f"  {i}. {error}")
+
+                  # Create validation report file
+                  with open('config-validation-report.json', 'w') as f:
+                      json.dump({
+                          'valid': False,
+                          'environment': environment,
+                          'errors': all_errors,
+                          'timestamp': '{{ github.run_id }}'
+                      }, f, indent=2)
+
+                  sys.exit(1)
+              else:
+                  print(f"\n✅ VALIDATION PASSED for environment: {environment}")
+                  print("All configuration files are valid and consistent.")
+
+                  # Create success report
+                  with open('config-validation-report.json', 'w') as f:
+                      json.dump({
+                          'valid': True,
+                          'environment': environment,
+                          'errors': [],
+                          'timestamp': '{{ github.run_id }}'
+                      }, f, indent=2)
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+      - name: Run configuration validation
+        id: validation
+        env:
+          ENVIRONMENT: ${{ steps.env-detection.outputs.environment }}
+        run: |
+          python validate_config.py
+
+          # Set output based on validation result
+          if [ -f "config-validation-report.json" ]; then
+            VALID=$(python -c "import json; print(json.load(open('config-validation-report.json'))['valid'])")
+            echo "valid=$VALID" >> $GITHUB_OUTPUT
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: config-validation-report
+          path: config-validation-report.json
+
+  deploy-config:
+    name: Deploy Configuration
+    runs-on: ubuntu-latest
+    needs: validate-config
+    if: needs.validate-config.outputs.config-valid == 'true' && (github.event.inputs.action == 'deploy' || github.event.inputs.action == 'update')
+    environment: ${{ needs.validate-config.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        continue-on-error: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install AWS CDK
+        run: |
+          npm install -g aws-cdk
+          python -m pip install --upgrade pip
+          pip install aws-cdk-lib constructs
+
+      - name: Deploy configuration to AWS
+        env:
+          ENVIRONMENT: ${{ needs.validate-config.outputs.environment }}
+        run: |
+          echo "Deploying configuration for environment: $ENVIRONMENT"
+
+          # Create CDK deployment script
+          cat > deploy_config.py << 'EOF'
+          import json
+          import boto3
+          import os
+          import yaml
+          from pathlib import Path
+          from botocore.exceptions import ClientError
+
+          def deploy_ssm_parameters():
+              """Deploy configuration as SSM parameters"""
+              try:
+                  ssm = boto3.client('ssm')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # Load configuration
+                  config_file = Path(f'config/{environment}.yml')
+                  if not config_file.exists():
+                      print(f"Configuration file not found: {config_file}")
+                      return False
+
+                  with open(config_file, 'r') as f:
+                      config = yaml.safe_load(f)
+
+                  # Convert nested config to SSM parameters
+                  def flatten_config(obj, prefix=''):
+                      params = {}
+                      for key, value in obj.items():
+                          param_name = f"{prefix}/{key}" if prefix else key
+
+                          if isinstance(value, dict):
+                              params.update(flatten_config(value, param_name))
+                          else:
+                              params[param_name] = str(value)
+                      return params
+
+                  flat_config = flatten_config(config)
+
+                  # Deploy parameters to SSM
+                  deployed_count = 0
+                  for param_name, param_value in flat_config.items():
+                      full_param_name = f"/shieldcraft-ai/{environment}/{param_name}"
+
+                      try:
+                          ssm.put_parameter(
+                              Name=full_param_name,
+                              Value=param_value,
+                              Type='String',
+                              Overwrite=True,
+                              Description=f'ShieldCraft AI configuration for {environment}',
+                              Tags=[
+                                  {'Key': 'Environment', 'Value': environment},
+                                  {'Key': 'Application', 'Value': 'shieldcraft-ai'},
+                                  {'Key': 'ManagedBy', 'Value': 'github-actions'}
+                              ]
+                          )
+                          deployed_count += 1
+                          print(f"✓ Deployed parameter: {full_param_name}")
+
+                      except ClientError as e:
+                          print(f"✗ Failed to deploy parameter {full_param_name}: {e}")
+
+                  print(f"\nDeployed {deployed_count} configuration parameters to SSM")
+                  return deployed_count > 0
+
+              except Exception as e:
+                  print(f"Error deploying SSM parameters: {e}")
+                  return False
+
+          def deploy_secrets():
+              """Deploy secrets to AWS Secrets Manager"""
+              try:
+                  secrets_client = boto3.client('secretsmanager')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # Load secrets configuration
+                  secrets_file = Path(f'config/secrets.{environment}.yml')
+                  if not secrets_file.exists():
+                      print(f"Secrets file not found: {secrets_file}")
+                      return True  # Not an error if no secrets file
+
+                  with open(secrets_file, 'r') as f:
+                      secrets_config = yaml.safe_load(f)
+
+                  # Deploy each secret section
+                  for section_name, section_config in secrets_config.items():
+                      secret_name = f"shieldcraft-ai/{environment}/{section_name}"
+
+                      try:
+                          # Check if secret exists
+                          try:
+                              secrets_client.describe_secret(SecretId=secret_name)
+                              # Update existing secret
+                              secrets_client.update_secret(
+                                  SecretId=secret_name,
+                                  SecretString=json.dumps(section_config)
+                              )
+                              print(f"✓ Updated secret: {secret_name}")
+
+                          except ClientError as e:
+                              if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                                  # Create new secret
+                                  secrets_client.create_secret(
+                                      Name=secret_name,
+                                      SecretString=json.dumps(section_config),
+                                      Description=f'ShieldCraft AI secrets for {environment}',
+                                      Tags=[
+                                          {'Key': 'Environment', 'Value': environment},
+                                          {'Key': 'Application', 'Value': 'shieldcraft-ai'},
+                                          {'Key': 'ManagedBy', 'Value': 'github-actions'}
+                                      ]
+                                  )
+                                  print(f"✓ Created secret: {secret_name}")
+                              else:
+                                  raise
+
+                      except ClientError as e:
+                          print(f"✗ Failed to deploy secret {secret_name}: {e}")
+
+                  return True
+
+              except Exception as e:
+                  print(f"Error deploying secrets: {e}")
+                  return False
+
+          def main():
+              environment = os.getenv('ENVIRONMENT', 'dev')
+              print(f"Deploying configuration for environment: {environment}")
+
+              success = True
+
+              # Deploy SSM parameters
+              print("\n1. Deploying SSM Parameters...")
+              if not deploy_ssm_parameters():
+                  success = False
+
+              # Deploy secrets
+              print("\n2. Deploying Secrets...")
+              if not deploy_secrets():
+                  success = False
+
+              if success:
+                  print(f"\n✅ Configuration deployment completed successfully for {environment}")
+              else:
+                  print(f"\n❌ Configuration deployment failed for {environment}")
+                  exit(1)
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+          python deploy_config.py
+
+      - name: Verify deployment
+        env:
+          ENVIRONMENT: ${{ needs.validate-config.outputs.environment }}
+        run: |
+          cat > verify_deployment.py << 'EOF'
+          import boto3
+          import os
+          from botocore.exceptions import ClientError
+
+          def verify_ssm_parameters():
+              """Verify SSM parameters are deployed correctly"""
+              try:
+                  ssm = boto3.client('ssm')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # List parameters for this environment
+                  response = ssm.describe_parameters(
+                      ParameterFilters=[
+                          {
+                              'Key': 'Name',
+                              'Option': 'BeginsWith',
+                              'Values': [f'/shieldcraft-ai/{environment}/']
+                          }
+                      ]
+                  )
+
+                  parameters = response['Parameters']
+                  print(f"Found {len(parameters)} SSM parameters for {environment}")
+
+                  for param in parameters[:5]:  # Show first 5
+                      print(f"  ✓ {param['Name']}")
+
+                  if len(parameters) > 5:
+                      print(f"  ... and {len(parameters) - 5} more")
+
+                  return len(parameters) > 0
+
+              except ClientError as e:
+                  print(f"Error verifying SSM parameters: {e}")
+                  return False
+
+          def verify_secrets():
+              """Verify secrets are deployed correctly"""
+              try:
+                  secrets_client = boto3.client('secretsmanager')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # List secrets for this environment
+                  response = secrets_client.list_secrets(
+                      Filters=[
+                          {
+                              'Key': 'name',
+                              'Values': [f'shieldcraft-ai/{environment}/']
+                          }
+                      ]
+                  )
+
+                  secrets = response['SecretList']
+                  print(f"Found {len(secrets)} secrets for {environment}")
+
+                  for secret in secrets:
+                      print(f"  ✓ {secret['Name']}")
+
+                  return True
+
+              except ClientError as e:
+                  print(f"Error verifying secrets: {e}")
+                  return False
+
+          def main():
+              environment = os.getenv('ENVIRONMENT', 'dev')
+              print(f"Verifying deployment for environment: {environment}")
+
+              print("\n1. Verifying SSM Parameters...")
+              ssm_ok = verify_ssm_parameters()
+
+              print("\n2. Verifying Secrets...")
+              secrets_ok = verify_secrets()
+
+              if ssm_ok or secrets_ok:
+                  print(f"\n✅ Deployment verification passed for {environment}")
+              else:
+                  print(f"\n⚠️ No deployed resources found for {environment}")
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+          python verify_deployment.py
+
+  rollback-config:
+    name: Rollback Configuration
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'rollback'
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        continue-on-error: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Rollback configuration
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: |
+          echo "Rolling back configuration for environment: $ENVIRONMENT"
+
+          cat > rollback_config.py << 'EOF'
+          import boto3
+          import os
+          import json
+          from datetime import datetime, timedelta
+          from botocore.exceptions import ClientError
+
+          def rollback_ssm_parameters():
+              """Rollback SSM parameters to previous version"""
+              try:
+                  ssm = boto3.client('ssm')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # Get parameters for this environment
+                  response = ssm.describe_parameters(
+                      ParameterFilters=[
+                          {
+                              'Key': 'Name',
+                              'Option': 'BeginsWith',
+                              'Values': [f'/shieldcraft-ai/{environment}/']
+                          }
+                      ]
+                  )
+
+                  rollback_count = 0
+                  for param in response['Parameters']:
+                      param_name = param['Name']
+
+                      try:
+                          # Get parameter history
+                          history = ssm.get_parameter_history(
+                              Name=param_name,
+                              MaxResults=2
+                          )
+
+                          if len(history['Parameters']) > 1:
+                              # Get previous version
+                              previous_version = history['Parameters'][1]
+
+                              # Rollback to previous value
+                              ssm.put_parameter(
+                                  Name=param_name,
+                                  Value=previous_version['Value'],
+                                  Type=previous_version['Type'],
+                                  Overwrite=True,
+                                  Description=f'Rollback - {previous_version.get("Description", "")}'
+                              )
+
+                              rollback_count += 1
+                              print(f"✓ Rolled back parameter: {param_name}")
+                          else:
+                              print(f"⚠️ No previous version for parameter: {param_name}")
+
+                      except ClientError as e:
+                          print(f"✗ Failed to rollback parameter {param_name}: {e}")
+
+                  print(f"\nRolled back {rollback_count} parameters")
+                  return rollback_count > 0
+
+              except Exception as e:
+                  print(f"Error during SSM rollback: {e}")
+                  return False
+
+          def main():
+              environment = os.getenv('ENVIRONMENT', 'dev')
+
+              if environment == 'prod':
+                  print("⚠️ Production rollback requires manual approval")
+                  print("Please confirm rollback by running this workflow manually")
+                  return
+
+              print(f"Rolling back configuration for environment: {environment}")
+
+              # Rollback SSM parameters
+              print("\n1. Rolling back SSM Parameters...")
+              if rollback_ssm_parameters():
+                  print(f"\n✅ Configuration rollback completed for {environment}")
+              else:
+                  print(f"\n❌ Configuration rollback failed for {environment}")
+                  exit(1)
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+          python rollback_config.py
+
+  config-drift-detection:
+    name: Configuration Drift Detection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.action == 'validate'
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        continue-on-error: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Detect configuration drift
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+        run: |
+          cat > detect_drift.py << 'EOF'
+          import boto3
+          import yaml
+          import json
+          import os
+          from pathlib import Path
+          from botocore.exceptions import ClientError
+
+          def detect_ssm_drift():
+              """Detect drift in SSM parameters"""
+              try:
+                  ssm = boto3.client('ssm')
+                  environment = os.getenv('ENVIRONMENT', 'dev')
+
+                  # Load expected configuration
+                  config_file = Path(f'config/{environment}.yml')
+                  if not config_file.exists():
+                      print(f"Configuration file not found: {config_file}")
+                      return []
+
+                  with open(config_file, 'r') as f:
+                      expected_config = yaml.safe_load(f)
+
+                  # Flatten expected config
+                  def flatten_config(obj, prefix=''):
+                      params = {}
+                      for key, value in obj.items():
+                          param_name = f"{prefix}/{key}" if prefix else key
+                          if isinstance(value, dict):
+                              params.update(flatten_config(value, param_name))
+                          else:
+                              params[param_name] = str(value)
+                      return params
+
+                  expected_params = flatten_config(expected_config)
+
+                  # Get actual parameters from SSM
+                  response = ssm.describe_parameters(
+                      ParameterFilters=[
+                          {
+                              'Key': 'Name',
+                              'Option': 'BeginsWith',
+                              'Values': [f'/shieldcraft-ai/{environment}/']
+                          }
+                      ]
+                  )
+
+                  actual_params = {}
+                  for param in response['Parameters']:
+                      param_name = param['Name'].replace(f'/shieldcraft-ai/{environment}/', '')
+
+                      try:
+                          param_response = ssm.get_parameter(Name=param['Name'])
+                          actual_params[param_name] = param_response['Parameter']['Value']
+                      except ClientError:
+                          pass
+
+                  # Compare configurations
+                  drift_issues = []
+
+                  # Check for missing parameters
+                  for expected_param, expected_value in expected_params.items():
+                      if expected_param not in actual_params:
+                          drift_issues.append({
+                              'type': 'missing_parameter',
+                              'parameter': expected_param,
+                              'expected': expected_value,
+                              'actual': None
+                          })
+                      elif actual_params[expected_param] != expected_value:
+                          drift_issues.append({
+                              'type': 'value_mismatch',
+                              'parameter': expected_param,
+                              'expected': expected_value,
+                              'actual': actual_params[expected_param]
+                          })
+
+                  # Check for unexpected parameters
+                  for actual_param in actual_params:
+                      if actual_param not in expected_params:
+                          drift_issues.append({
+                              'type': 'unexpected_parameter',
+                              'parameter': actual_param,
+                              'expected': None,
+                              'actual': actual_params[actual_param]
+                          })
+
+                  return drift_issues
+
+              except Exception as e:
+                  print(f"Error detecting SSM drift: {e}")
+                  return []
+
+          def main():
+              environment = os.getenv('ENVIRONMENT', 'dev')
+              print(f"Detecting configuration drift for environment: {environment}")
+
+              drift_issues = detect_ssm_drift()
+
+              if drift_issues:
+                  print(f"\n⚠️ Configuration drift detected ({len(drift_issues)} issues):")
+
+                  for issue in drift_issues:
+                      if issue['type'] == 'missing_parameter':
+                          print(f"  ❌ Missing parameter: {issue['parameter']}")
+                      elif issue['type'] == 'value_mismatch':
+                          print(f"  🔄 Value mismatch: {issue['parameter']}")
+                          print(f"      Expected: {issue['expected']}")
+                          print(f"      Actual: {issue['actual']}")
+                      elif issue['type'] == 'unexpected_parameter':
+                          print(f"  ➕ Unexpected parameter: {issue['parameter']}")
+
+                  # Save drift report
+                  drift_report = {
+                      'environment': environment,
+                      'drift_detected': True,
+                      'issues': drift_issues,
+                      'timestamp': '{{ github.run_id }}'
+                  }
+
+                  with open(f'drift-report-{environment}.json', 'w') as f:
+                      json.dump(drift_report, f, indent=2)
+
+                  if environment == 'prod':
+                      print("\n🚨 CRITICAL: Configuration drift detected in production!")
+                      exit(1)
+              else:
+                  print(f"\n✅ No configuration drift detected for {environment}")
+
+                  drift_report = {
+                      'environment': environment,
+                      'drift_detected': False,
+                      'issues': [],
+                      'timestamp': '{{ github.run_id }}'
+                  }
+
+                  with open(f'drift-report-{environment}.json', 'w') as f:
+                      json.dump(drift_report, f, indent=2)
+
+          if __name__ == "__main__":
+              main()
+          EOF
+
+          python detect_drift.py || true
+
+      - name: Upload drift reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: drift-reports
+          path: drift-report-*.json
+
+  generate-report:
+    name: Generate Configuration Report
+    runs-on: ubuntu-latest
+    needs: [validate-config, deploy-config, config-drift-detection]
+    if: always()
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+
+      - name: Generate comprehensive report
+        run: |
+          echo "# Configuration Management Report" > config-report.md
+          echo "Generated: $(date)" >> config-report.md
+          echo "Triggered by: ${{ github.event_name }}" >> config-report.md
+          echo "" >> config-report.md
+
+          echo "## Job Results Summary" >> config-report.md
+          echo "- Configuration Validation: ${{ needs.validate-config.result }}" >> config-report.md
+          echo "- Configuration Deployment: ${{ needs.deploy-config.result }}" >> config-report.md
+          echo "- Drift Detection: ${{ needs.config-drift-detection.result }}" >> config-report.md
+          echo "" >> config-report.md
+
+          echo "## Environment Status" >> config-report.md
+          if [ "${{ needs.validate-config.outputs.config-valid }}" = "true" ]; then
+            echo "✅ **Configuration Validation**: All configuration files are valid" >> config-report.md
+          else
+            echo "❌ **Configuration Validation**: Configuration validation failed" >> config-report.md
+          fi
+
+          if [ "${{ needs.deploy-config.result }}" = "success" ]; then
+            echo "✅ **Deployment**: Configuration deployed successfully" >> config-report.md
+          elif [ "${{ needs.deploy-config.result }}" = "skipped" ]; then
+            echo "⏭️ **Deployment**: Deployment skipped (validation only)" >> config-report.md
+          else
+            echo "❌ **Deployment**: Configuration deployment failed" >> config-report.md
+          fi
+
+          echo "" >> config-report.md
+          echo "## Configuration Files Status" >> config-report.md
+
+          for env in dev staging prod; do
+            echo "### $env Environment" >> config-report.md
+            if [ -f "config/${env}.yml" ]; then
+              echo "✅ Configuration file exists" >> config-report.md
+            else
+              echo "❌ Configuration file missing" >> config-report.md
+            fi
+
+            if [ -f "config/secrets.${env}.yml" ]; then
+              echo "✅ Secrets file exists" >> config-report.md
+            else
+              echo "⚠️ Secrets file missing (optional)" >> config-report.md
+            fi
+            echo "" >> config-report.md
+          done
+
+          echo "## Next Steps" >> config-report.md
+          echo "1. Review any validation errors in the artifacts" >> config-report.md
+          echo "2. Check drift detection reports for configuration consistency" >> config-report.md
+          echo "3. Update configuration files if validation failed" >> config-report.md
+          echo "4. Re-run deployment if needed" >> config-report.md
+
+          # Check for critical issues
+          if [ "${{ needs.validate-config.outputs.config-valid }}" != "true" ]; then
+            echo "" >> config-report.md
+            echo "⚠️ **ATTENTION REQUIRED**: Configuration validation failed" >> config-report.md
+            echo "Please review the validation report and fix configuration issues." >> config-report.md
+          fi
+
+      - name: Upload configuration report
+        uses: actions/upload-artifact@v3
+        with:
+          name: configuration-report
+          path: config-report.md

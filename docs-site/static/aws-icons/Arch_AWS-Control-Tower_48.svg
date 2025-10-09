@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AWS Control Tower Icon (Custom)</title>
+  <desc id="desc">Minimal shield-shaped tower representing account governance.</desc>
+  <defs>
+    <linearGradient id="towerGradient" x1="12" y1="6" x2="36" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="towerHighlight" x1="24" y1="10" x2="24" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clipShield">
+      <path d="M24 4L8 10V24C8 33.941 14.754 41.403 24 44C33.246 41.403 40 33.941 40 24V10L24 4Z"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clipShield)">
+    <path d="M24 4L8 10V24C8 33.941 14.754 41.403 24 44C33.246 41.403 40 33.941 40 24V10L24 4Z" fill="url(#towerGradient)"/>
+    <rect x="18" y="14" width="12" height="20" rx="2" fill="#0F172A" opacity="0.85"/>
+    <rect x="20.5" y="18" width="7" height="10" rx="1" fill="url(#towerHighlight)"/>
+    <rect x="21" y="30" width="6" height="6" fill="#1E293B" opacity="0.9"/>
+    <rect x="19" y="12" width="10" height="3" rx="1.5" fill="#1E293B" opacity="0.9"/>
+    <rect x="22" y="8" width="4" height="4" rx="1" fill="#F8FAFC" opacity="0.85"/>
+  </g>
+  <path d="M24 4L8 10V24C8 33.941 14.754 41.403 24 44C33.246 41.403 40 33.941 40 24V10L24 4Z" stroke="#0F172A" stroke-width="1.5" stroke-linejoin="round" opacity="0.75"/>
+</svg>

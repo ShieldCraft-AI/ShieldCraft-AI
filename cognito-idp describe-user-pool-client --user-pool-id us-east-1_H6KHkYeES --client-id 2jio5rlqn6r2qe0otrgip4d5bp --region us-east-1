@@ -1,0 +1,47 @@
+{
+    "UserPoolClient": {
+        "UserPoolId": "us-east-1_H6KHkYeES",
+        "ClientName": "shieldcraft-web",
+        "ClientId": "2jio5rlqn6r2qe0otrgip4d5bp",
+        "LastModifiedDate": "2025-10-08T17:08:37.856000+02:00",
+        "CreationDate": "2025-10-04T18:45:31.041000+02:00",
+        "RefreshTokenValidity": 43200,
+        "AccessTokenValidity": 60,
+        "IdTokenValidity": 60,
+        "TokenValidityUnits": {
+            "AccessToken": "minutes",
+            "IdToken": "minutes",
+            "RefreshToken": "minutes"
+        },
+        "SupportedIdentityProviders": [
+            "Google",
+            "LoginWithAmazon",
+            "COGNITO"
+        ],
+        "CallbackURLs": [
+            "https://www.shieldcraft-ai.com/dashboard",
+            "http://localhost:3000/dashboard",
+            "http://localhost:3001/dashboard",
+            "https://shieldcraft-ai.com/dashboard"
+        ],
+        "LogoutURLs": [
+            "https://shieldcraft-ai.com/",
+            "https://www.shieldcraft-ai.com/",
+            "http://localhost:3000/",
+            "http://localhost:3001/"
+        ],
+        "AllowedOAuthFlows": [
+            "code"
+        ],
+        "AllowedOAuthScopes": [
+            "openid",
+            "profile",
+            "email"
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "PreventUserExistenceErrors": "ENABLED",
+        "EnableTokenRevocation": true,
+        "EnablePropagateAdditionalUserContextData": false,
+        "AuthSessionValidity": 3
+    }
+}

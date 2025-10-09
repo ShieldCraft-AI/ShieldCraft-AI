@@ -2,6 +2,7 @@ import React from 'react';
 import Link from '@docusaurus/Link';
 import styles from './AppSidebar.module.css';
 import { isLoggedIn, onAuthChange } from '@site/src/utils/auth-cognito';
+import NAV_ITEMS from '@site/src/constants/navItems';
 
 type Props = {
     items?: { label: string; to: string }[];
@@ -29,15 +30,7 @@ export default function AppSidebar({ items }: Props) {
         }
     }, []);
 
-    const navItems = items ?? [
-        { label: 'Dashboard', to: '/dashboard' },
-        { label: 'Monitoring', to: '/monitoring' },
-        { label: 'Alerts', to: '/alerts' },
-        { label: 'System Status', to: '/system-status' },
-        { label: 'Recent Activity', to: '/recent-activity' },
-        { label: 'Threat Intelligence', to: '/threat-feed' },
-        // Documentation intentionally omitted from portal sidebar
-    ];
+    const navItems = items ?? NAV_ITEMS;
 
     if (!loggedIn) return null;
     const aside = (

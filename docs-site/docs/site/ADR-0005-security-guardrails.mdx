@@ -1,0 +1,66 @@
+---
+title: "ADR-0005: Security Baseline and Cost Guardrails"
+slug: /adrs/0005-security-guardrails
+sidebar_label: "ADR-0005: Security Guardrails"
+tags: [adr, security, finops]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Accepted - Q3 2025
+
+## Context
+As ShieldCraft AI broadened beyond the initial Starter tier (ADR-0001) and activated real inference paths (ADR-0004), the platform needed an enforceable security and cost posture. Stakeholders demanded:
+
+- Environment isolation with consistent tagging for audit and chargeback.
+- Always-on detection (GuardDuty, Security Hub, Detective) with documented exceptions.
+- Budget alarms tied to AI workloads and managed services to prevent runaway costs.
+- Encryption, secrets management, and lifecycle policies codified across stacks.
+
+The decision had to balance velocity (minimal toil for developers) with compliance guardrails expected by security leaders evaluating the platform.
+
+## Decision
+Codify a security and FinOps baseline baked into every stack:
+
+1. Enforce encryption at rest and in transit for S3, MSK, OpenSearch, and databases.
+2. Enable GuardDuty, Security Hub, and Detective in all non-ephemeral environments; expose findings to the docs portal for storytelling.
+3. Apply standardized tags (`App`, `Domain`, `Env`, `Environment`) via CDK aspects to every resource to support cost allocation and tests.
+4. Manage secrets exclusively through AWS Secrets Manager with deterministic naming (per ADR-0003 contracts).
+5. Provision AWS Budgets for each environment with threshold-based alerts that integrate with the model loader toggles (ADR-0004) and evaluation cadence (ADR-0006).
+6. Document and enforce lifecycle rules for storage tiers, ensuring the pricing narrative from ADR-0001 remains accurate.
+
+## Alternatives Considered
+- *Security later*: Defer guardrails until after MVP
+  - **Pro**: Speed
+  - **Con**: Risky demos, retrofitting pain, audit gaps
+- *Bring-your-own controls*: Allow customers to supply their own security stacks
+  - **Pro**: Flexibility
+  - **Con**: Inconsistent experience, hard to demo, weak story
+- *Third-party SaaS overlay*: Offload monitoring to an external provider
+  - **Pro**: Rapid coverage
+  - **Con**: Added cost, data egress questions, weaker integration with AWS native storytelling
+
+## Consequences
+- Increases trust with security buyers; demos match enterprise expectations.
+- Introduces additional CloudFormation resources and runtime costs, which are offset by the pricing tiers.
+- Requires continuous review of findings-feeding backlog items into ADR-0006 evaluation loops and future automation ADRs.
+
+## Rollout Plan
+1. Implement guardrails in CDK stacks (security, budgets, tagging aspects).
+2. Back gains with automated tests in `tests/security` and `tests/finops`.
+3. Integrate alert summaries into docs portal dashboards to reinforce the narrative.
+4. Establish a quarterly review cycle for guardrail efficacy and adjust budgets as model usage evolves.
+
+## Success Metrics
+- 100% of deployed resources carry mandatory tags and encryption policies verified by automated tests.
+- GuardDuty and Security Hub findings reduced to actionable noise levels with documented remediations.
+- Monthly spend stays within thresholds defined per tier, with alerts auto-routing to PagerDuty/email.
+
+## References
+- `infra/security_compliance/*`
+- `infra/finops/budget_stack.py`
+- `tests/security/test_guardrails.py`
+- [ADR-0001: Architecture Baseline and Tiering](/adrs/0001-architecture-baseline)
+- [ADR-0003: Environment-Aware Configuration Backbone](/adrs/0003-config-backbone)
+- [ADR-0004: Dual-Path Model Loader Strategy](/adrs/0004-model-loader)
+- [ADR-0006: Evaluation Baseline and Benchmarking Loop](/adrs/0006-evaluation-baseline)

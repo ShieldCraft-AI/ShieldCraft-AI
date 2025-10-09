@@ -26,11 +26,12 @@ article h1,
     letter-spacing: -0.02em !important;
     margin-bottom: 1.5rem !important;
     margin-top: 2rem !important;
-    background: linear-gradient(135deg, var(--ifm-color-primary), var(--ifm-color-success)) !important;
+    background: linear-gradient(120deg, var(--sc-color-accent-strong), var(--sc-color-accent)) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
     color: transparent !important;
+    text-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
 }
 
 .markdown h2,
@@ -52,7 +53,7 @@ article h3,
     font-weight: 700 !important;
     margin-top: 2rem !important;
     margin-bottom: 1rem !important;
-    color: var(--ifm-color-primary) !important;
+    color: var(--sc-color-accent) !important;
 }
 
 .markdown h4 {
@@ -74,17 +75,17 @@ article h3,
 .markdown a,
 article a,
 .theme-doc-markdown a {
-    color: #22d3ee !important;
+    color: var(--sc-color-accent) !important;
     text-decoration: none !important;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.3) !important;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.28) !important;
     transition: all 0.2s ease !important;
 }
 
 .markdown a:hover,
 article a:hover,
 .theme-doc-markdown a:hover {
-    border-bottom-color: #22d3ee !important;
-    background: rgba(34, 211, 238, 0.08) !important;
+    border-bottom-color: var(--sc-color-accent-strong) !important;
+    background: rgba(79, 70, 229, 0.12) !important;
 }
 
 /* ===== Code Blocks ===== */
@@ -281,18 +282,18 @@ article a:hover,
 }
 
 .menu__link:hover {
-    background: rgba(34, 211, 238, 0.08);
-    color: #22d3ee;
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--sc-color-accent);
 }
 
 .menu__link--active {
-    background: rgba(34, 211, 238, 0.12);
-    color: #22d3ee;
+    background: rgba(79, 70, 229, 0.12);
+    color: var(--sc-color-accent);
     font-weight: 600;
 }
 
 .menu__list-item-collapsible:hover {
-    background: rgba(34, 211, 238, 0.05);
+    background: rgba(79, 70, 229, 0.06);
 }
 
 /* ===== Table of Contents ===== */
@@ -308,14 +309,14 @@ article a:hover,
 }
 
 .table-of-contents__link:hover {
-    background: rgba(34, 211, 238, 0.08);
-    color: #22d3ee;
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--sc-color-accent);
 }
 
 .table-of-contents__link--active {
-    border-left: 2px solid #22d3ee;
-    background: rgba(34, 211, 238, 0.08);
-    color: #22d3ee;
+    border-left: 2px solid var(--sc-color-accent);
+    background: rgba(79, 70, 229, 0.12);
+    color: var(--sc-color-accent);
     font-weight: 600;
 }
 

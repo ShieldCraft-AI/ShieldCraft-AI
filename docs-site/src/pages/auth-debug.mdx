@@ -29,7 +29,7 @@ export function AuthDebugger() {
                 tokens: session.tokens,
             });
         } catch (error) {
-            console.error('Auth check error:', error);
+            scDebug && scDebug('Auth check error:', error);
             setAuthState(prev => ({ ...prev, loading: false }));
         }
     };
@@ -39,7 +39,6 @@ export function AuthDebugger() {
 
         // Re-check when auth changes
         const handleAuthChange = () => {
-            console.log('Auth change detected, rechecking...');
             checkAuth();
         };
         window.addEventListener('sc-auth-changed', handleAuthChange);

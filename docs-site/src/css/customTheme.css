@@ -1,9 +1,11 @@
+/* Using locally available Neue Haas Grotesk / Helvetica Neue stack */
+
 /* Theme tokens: scoped to data-theme on the html element (Docusaurus sets this) */
 :root {
   /* Fallbacks (used briefly before JS sets data-theme) */
   --sc-primary: #a5b4fc;
   --sc-bg: #111111;
-  --sc-font: 'Inter', 'Roboto', sans-serif;
+  --sc-font: 'Neue Haas Grotesk Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --sc-heading-size: 2em;
   --sc-body-size: 1em;
   --sc-table-bg: #181818;
@@ -55,7 +57,9 @@
 
 /* Refined font and color scheme for a professional look */
 :root {
-  --sc-font: 'Inter', 'Roboto', sans-serif;
+  --sc-font: 'Neue Haas Grotesk Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ifm-font-family-base: var(--sc-font);
+  --ifm-heading-font-family: var(--sc-font);
   /* Neutral and professional font */
   --sc-primary: #374151;
   /* Neutral gray-blue */
@@ -270,6 +274,22 @@ button.secondary:hover {
   color: var(--sc-primary);
   border-color: var(--sc-primary);
 }
+
+/* Temporary, targeted override: ensure provider SVG icons (header) are visible
+   This forces display/size and path fill so third-party/global rules cannot
+   accidentally hide or remove the icon color. Keep scoped to .sc-nav-pill
+   so it doesn't affect other SVGs. Remove `!important` once root cause is
+   identified and addressed. */
+.sc-nav-pill svg {
+  display: inline-block !important;
+  width: 20px !important;
+  height: 20px !important;
+  vertical-align: middle !important;
+}
+
+/* NOTE: temporary provider-specific overrides removed to restore default
+   icon rendering. If an IdP needs specific styling, add a minimal, scoped
+   rule that doesn't use `!important`. */
 
 .navbar {
   background: var(--sc-bg);

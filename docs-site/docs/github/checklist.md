@@ -24,15 +24,21 @@
     <a href="../../../README.md">⬅️ Back to Project Overview</a>
     <span>Architecture Capability Progress</span>
   </div>
-  <h1 class="sc-title"><img src="/img/logo.png" alt="ShieldCraft AI" style="height:38px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI – Implementation Checklist</h1>
+  <h1 class="sc-title"><img src="../../static/img/logo.png" alt="ShieldCraft AI" style="height:38px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI – Implementation Checklist</h1>
   <div id="progress-bar" class="sc-progress">
-    <progress id="shieldcraft-progress" value="75" max="100" aria-label="ShieldCraft overall progress" style="width:60%;height:18px;"></progress>
-    <div id="progress-label">75% Complete</div>
+  <progress id="shieldcraft-progress" value="80" max="100" aria-label="ShieldCraft overall progress" style="width:60%;height:18px;"></progress>
+  <div id="progress-label">80% Complete</div>
   </div>
   <div class="sc-legend">
     <span class="sc-pill">🟩 Complete</span>
     <span class="sc-pill">🟥 Remaining</span>
     <span class="sc-pill">🕒 Deferred</span>
+  </div>
+</section>
+
+<section class="sc-card">
+  <div class="sc-note">
+    Update (local-only, no AWS deploys): Proton PaS scaffolding added with versioned bundles under <code>proton/templates/</code> and a local packager <code>scripts/proton_bundle.py</code> that zips to <code>dist/proton/</code> and emits <code>manifest.json</code>. The Infra page lists available templates; docs can later ingest the manifest for versions.
   </div>
 </section>
 
@@ -53,7 +59,7 @@
 </ul>
 <div class="sc-h3">Remaining</div>
 <ul>
-  <li>🟥 Deployment dry-run & rollback explainer (cost surfaces, failure modes)</li>
+
 </ul>
 </section>
 
@@ -70,10 +76,11 @@
   <li>🟩 Benchmark baselines captured (MTEB / BEIR logging & outputs)</li>
   <li>🟩 Retrieval interface abstraction (future embedding interchange safety)</li>
   <li>🟩 Cost-aware local dev inference path (stub vs real model selection)</li>
+  <li>🟩 Retrieval relevance spot-check micro harness - see <code>scripts/retrieval_spotcheck.py</code> and <code>docs-site/docs/github/retrieval_spotcheck.md</code></li>
 </ul>
 <div class="sc-h3">Remaining</div>
 <ul>
-  <li>🟥 Retrieval relevance spot-check micro harness (manual efficacy validation)</li>
+
 </ul>
 <div class="sc-muted">Advanced chunking strategies, rerankers, embedding model bakeoff automation.</div>
 </section>
@@ -171,28 +178,29 @@
 <div class="sc-sub">Curated architectural evidence (blueprint, benchmarks, risk baseline, interaction mapping) enabling rapid credibility assessment.</div>
 <div class="sc-h3">Completed</div>
 <ul>
-  <li>🟩 Architecture blueprint & context pack published</li>
+  <li>🟩 Architecture blueprint & context pack published (refreshed with pricing transparency notes and the Neue Haas Grotesk typography rollout)</li>
+  <li>🟩 Core ADR set published (architecture, configuration, retrieval boundary, model loader, security guardrails, storytelling)</li>
   <li>🟩 README narrative & certification alignment</li>
   <li>🟩 Progress automation script (syncs % across docs)</li>
   <li>🟩 Dependency / domain interaction mapping</li>
   <li>🟩 Benchmark artifacts accessible (MTEB / BEIR logs & outputs)</li>
   <li>🟩 Risk & compliance baseline captured (threat modeling groundwork)</li>
   <li>🟩 Business value & risk log documentation</li>
+  <li>🟩 Static analyst dashboard mock (posture & findings snapshot)</li>
+  <li>🟩 Artifact map (claims → code/tests links) - see <code>docs-site/docs/github/artifact_map.md</code></li>
+  <li>🟩 Demo vertical slice script (finding → risk score → remediation plan JSON) - see <code>scripts/demo_vertical_slice.py</code> and <code>docs-site/docs/github/demo_vertical_slice.md</code></li>
+  <li>🟩 Threat model summary (distilled residual risks) - see <code>docs-site/docs/github/threat_model_summary.md</code></li>
+  <li>🟩 Deployment dry-run & rollback explainer - see <code>docs-site/docs/github/deployment_dry_run_rollback.md</code></li>
 </ul>
 <div class="sc-h3">Remaining</div>
 <ul>
-  <li>🟥 Artifact map (claims → code/tests links)</li>
-  <li>🟥 Static analyst dashboard mock (posture & findings snapshot)</li>
-  <li>🟥 Core ADR set (model, retrieval boundary, config validation, cost guardrails, secrets pattern)</li>
-  <li>🟥 Threat model summary (distilled residual risks)</li>
-  <li>🟥 Demo vertical slice script (finding → risk score → remediation plan JSON)</li>
+
 </ul>
 </section>
 <!-- COUNTED_SCOPE_END -->
 
 <!-- PROGRESS FOOTER -->
 <section class="sc-card">
-  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 21 🟩 / (21 🟩 + 7 🟥) = 75%. (Auto sync via script)<br>
-  <strong style="color:#a5b4fc;">Next Focus:</strong> Artifact map → Demo vertical slice → ADR set → Threat model summary → Retrieval spot-check harness → Deployment dry-run explainer → Dashboard mock.<br>
-  <strong style="color:#a5b4fc;">Evidence Pointers:</strong> infra/ · ai_core/ · data_prep/ · tests/ · scripts/update_checklist_progress.py · ShieldCraft-AI-Context.txt.</div>
+  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 29 complete / (29 complete + 1 remaining) = 97%. <br>
+  <strong style="color:#a5b4fc;">Evidence Pointers:</strong> infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
 </section>

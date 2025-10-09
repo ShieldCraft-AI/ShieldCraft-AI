@@ -15,41 +15,39 @@ type Card = {
 const cards: Card[] = [
     {
         id: 'remediation',
-        title: '⚡️ Rapid Autonomous Remediation',
+        title: '⚡️ Rapid, Auditable Remediation',
         link: '/automated-alert-triage',
         benefit: 'Accelerate Recovery',
-        description:
-            'Identify root causes and implement reversible fixes within minutes. Guardrailed automation ensures secure, auditable, and reversible changes.',
+        description: 'Identify root causes and implement governed, auditable, and reversible fixes within minutes, minimizing MTTR with signed audit hashes for every action.',
         bullets: [
             'Automated root-cause analysis',
-            'Secure infrastructure change execution',
-            'Built-in rollback and audit trails',
+            'Accelerated root-cause identification and remediation',
+            'Governed rollout with signed audit hashes and rollback',
+            'Compliance-ready audit trails for every autonomous action',
         ],
     },
     {
         id: 'emulation',
-        title: '🧪 Adaptive Attack Emulation',
+        title: '🧪 Continuous Model Validation',
         link: '/automated-attack-simulation',
         benefit: 'Stay Ahead of Adversaries',
-        description:
-            'AI generates dynamic kill-chains tailored to your security posture. Simulated breaches enhance configurations, refine detection, and preempt future vulnerabilities.',
+        description: 'AI generates dynamic kill-chains tailored to your current posture and produces Model Assurance Evidence to feed MLOps and quality gates.',
         bullets: [
-            'Dynamic multi-stage attack scenarios',
-            'Gap analysis based on current posture',
-            'Continuous improvement through feedback loops',
+            'Tailored multi-stage attack scenarios for posture testing',
+            'Model assurance evidence that drives retraining and QA gates',
+            'Governed intelligence loop feeding continuous improvement',
         ],
     },
     {
         id: 'intel',
-        title: '📊 Actionable Threat Intelligence',
+        title: '📊 FinOps & Risk Prioritization',
         link: '/threat-detection',
         benefit: 'Focus on Critical Threats',
-        description:
-            'Exploitability scoring integrates configuration drift, identity blast radius, and global threat signals. Reduces noise into a prioritized action queue, safeguarding engineering focus.',
+        description: 'Prioritizes the critical few by integrating configuration drift, identity blast radius, and threat signals into a cost-aware action queue.',
         bullets: [
-            'Exploitability over generic severity',
-            'Noise reduction into actionable priorities',
-            'Incorporates identity blast-radius analysis',
+            'Exploitability-first prioritization with identity blast-radius',
+            'Cost-aware action queue with owner and dollar-impact',
+            'Noise reduction and operational focus for remediation teams',
         ],
     },
 ];

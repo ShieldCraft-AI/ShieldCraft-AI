@@ -7,7 +7,7 @@ sidebar_class_name: hidden-sidebar-item
 ---
 
 ## Status
-Proposed
+Accepted - Q1 2025
 
 ## Context
 ShieldCraft AI needs a clear, opinionated starting point that balances speed to value with production-grade guardrails. Our audience ranges from technical buyers to security leaders who expect:
@@ -25,7 +25,7 @@ AWS managed services provide the shortest path to impact and the strongest integ
 - Make capabilities discoverable and incremental (no big-bang)
 
 ## Decision
-Adopt a three-tier architecture with progressively richer capabilities and guardrails. Default to AWS managed services and compose capabilities behind stable interfaces.
+Adopt a three-tier architecture with progressively richer capabilities and guardrails. Default to AWS managed services and compose capabilities behind stable interfaces. Commit to revisiting the baseline every quarter as downstream ADRs add domain specificity (vector store, config orchestration, security posture).
 
 ### Scope by Tier
 - Starter
@@ -65,6 +65,7 @@ Adopt a three-tier architecture with progressively richer capabilities and guard
 1) Land Starter with crisp defaults and one-click enablement
 2) Add Growth capabilities behind flags; prove easy upgrades
 3) Validate Enterprise with governance controls and add-ons (e.g., MSK) where discovery warrants
+4) Use quarterly architecture reviews to align subsequent ADRs (0002–0007) with the tiering contract
 
 ## Measuring Success
 - Time-to-first-successful-ingestion < 15 minutes (Starter)
@@ -77,6 +78,8 @@ Adopt a three-tier architecture with progressively richer capabilities and guard
 - Accepts service affinity to AWS in exchange for speed and governance
 
 ## References
-- /architecture (tier comparison and costs)
+- /pricing (tier comparison and costs)
 - /business_case (positioning and ROI)
 - infra/ (CDK app and stages)
+- [ADR-0002: Vector Store Selection](/adrs/0002-vector-store)
+- [ADR-0003: Environment-Aware Configuration Backbone](/adrs/0003-config-backbone)

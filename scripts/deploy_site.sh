@@ -114,21 +114,21 @@ else
     --no-progress
 fi
 
-echo "[INFO] Syncing HTML with short cache (fast refresh)..."
+echo "[INFO] Syncing HTML with NO cache (immediate refresh)..."
 aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/" \
   --delete \
   --exclude "*" \
   --include "*.html" \
-  --cache-control "public, max-age=60, must-revalidate" \
+  --cache-control "no-cache, no-store, must-revalidate" \
+  --expires "0" \
   --content-type "text/html" \
-  --size-only \
   --only-show-errors \
   --no-progress
 
-echo "[INFO] Creating CloudFront invalidation for /* on distribution ${CLOUDFRONT_DISTRIBUTION_ID}..."
+echo "[INFO] Creating CloudFront invalidation for critical paths on distribution ${CLOUDFRONT_DISTRIBUTION_ID}..."
 INVALIDATION_ID=$(aws cloudfront create-invalidation \
   --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" \
-  --paths "/*" \
+  --paths "/*" "/dashboard" "/dashboard/*" "/index.html" "/." \
   --query 'Invalidation.Id' --output text 2>/dev/null || echo "")
 if [ -n "${INVALIDATION_ID}" ]; then
   echo "[INFO] Invalidation submitted (ID=${INVALIDATION_ID}). (Propagation typically < 2 minutes)"

@@ -29,19 +29,19 @@ const rotations: RotationItem[] = [
 
 const layerSpec: { label: string; services: { name: string; icon?: string }[] }[] = [
     {
-        label: 'Data & Integration',
+        label: 'Ingestion & Governance Layer',
         services: [
             { name: 'S3' }, { name: 'Glue' }, { name: 'Glue Data Quality' }, { name: 'Glue DataBrew' }, { name: 'Lake Formation' }, { name: 'EventBridge' }, { name: 'API Gateway' }, { name: 'MSK' }, { name: 'CloudTrail' }, { name: 'VPC' }
         ]
     },
     {
-        label: 'Intelligence & Simulation',
+        label: 'GenAI & MLOps Core',
         services: [
             { name: 'OpenSearch' }, { name: 'pgVector' }, { name: 'Embeddings' }, { name: 'Feature Store' }, { name: 'SageMaker' }, { name: 'LLM Loader' }, { name: 'Attack Sim' }, { name: 'Prompt Orchestrator' }
         ]
     },
     {
-        label: 'Orchestration & Governance',
+        label: 'Remediation & Financial Control Plane',
         services: [
             { name: 'Lambda' }, { name: 'Step Functions' }, { name: 'Playbooks' }, { name: 'Remediation Guardrails' }, { name: 'IAM' }, { name: 'Secrets Manager' }, { name: 'Security Hub' }, { name: 'GuardDuty' }, { name: 'Config' }, { name: 'Detective' }, { name: 'WAF' }, { name: 'Budgets' }, { name: 'Cost Explorer' }, { name: 'CloudWatch' }, { name: 'Control Tower' }, { name: 'IAM Identity Center' }, { name: 'Benchmarks' }
         ]
@@ -76,7 +76,7 @@ export default function PlatformArchitecture() {
         'Intelligence & Simulation': { type: 'Layer', blurb: 'Hybrid retrieval (structured + semantic) and safe generative simulation to test hypotheses and pressure-test controls.' },
         'Orchestration & Governance': { type: 'Layer', blurb: 'Guardrailed automation, policy enforcement, and continuous evaluation closing the loop safely.' },
         // Services
-        'S3': { type: 'Service', blurb: 'Durable object storage for raw + curated security artifacts.' },
+        'S3': { type: 'Service', blurb: 'Buckets instantiated via Proton & CDK constructs, parameterized per environment (dev → prod). SSE-KMS and block public access are default guardrails.' },
         'Glue': { type: 'Service', blurb: 'ETL & schema enforcement normalizing multi-source telemetry.' },
         'Glue Data Quality': { type: 'Service', blurb: 'Rule-based and statistical checks ensure datasets remain trustworthy.' },
         'Glue DataBrew': { type: 'Service', blurb: 'Visual data prep for quick transforms and profile-driven cleanup.' },
@@ -269,8 +269,8 @@ export default function PlatformArchitecture() {
 
     return (
         <section ref={containerRef} className={styles.archSection} aria-labelledby="platform-arch-title">
-            <h2 id="platform-arch-title" className={styles.archTitle}>Platform Architecture</h2>
-            <p className={styles.archSubtitle}>From raw telemetry to autonomous, validated remediation. A governed intelligence loop.</p>
+            <h2 id="platform-arch-title" className={styles.archTitle}>Unified Security Data Plane &amp; Governed Deployment Engine on AWS</h2>
+            <p className={styles.archSubtitle}>The platform utilizes <strong>AWS Proton and CDK Constructs</strong> to ingest, enrich, and correlate security telemetry. Actionable insights are delivered into workflows, fortified by policy-grade guardrails and deterministic cost control.</p>
 
             <div className={styles.archGridWrapper}>
                 <div className={styles.diagramCard} aria-label="Layered architecture diagram">
@@ -300,7 +300,7 @@ export default function PlatformArchitecture() {
                             </div>
                         ))}
                     </div>
-                    <div className={styles.archNote}>Traceability: each layer enforces contracts (schemas, policies, embedding boundaries) enabling safe autonomous actions.</div>
+                    <div className={styles.archNote}>Traceability: each layer enforces contracts (schemas, policies, embedding boundaries) enabling safe autonomous actions. <strong>Platform extensibility is provided via versioned CDK SDK constructs.</strong></div>
                 </div>
                 <div className={styles.rotatingPanel} aria-live="polite">
                     <div className={styles.rightSplit}>
@@ -367,9 +367,9 @@ function UsageEmbedded({ selectedKey }: { selectedKey: string | null }) {
         ],
         // Data Plane services
         'S3': [
-            'Buckets: raw/processed/analytics; SSE-KMS; block public access by default.',
-            'Env lifecycle (dev: 30→60→Glacier; prod: 90→180); access logs on.',
-            'Explicit names w/ env suffix; prefixes mirror domains for governance.'
+            'Buckets instantiated via Proton & CDK constructs, parameterized per environment (dev → prod).',
+            'Default guardrails: SSE-KMS encryption, block public access, access logging, and lifecycle policies tuned per env.',
+            'Explicit naming and prefixing by domain; parameterized retention and lifecycle tiers (dev→prod).'
         ],
         'Glue': [
             'Crawlers scheduled per source; tables tagged for Lake Formation.',

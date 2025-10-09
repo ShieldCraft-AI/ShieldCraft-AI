@@ -10,8 +10,7 @@ export default function AuthNavbarItem(_props: Props) {
         checkAuth();
 
         // Listen for auth state changes via custom event
-        const handleAuthChange = (event: any) => {
-            console.log('Auth change event received:', event.detail);
+        const handleAuthChange = (_event: any) => {
             checkAuth();
         };
         window.addEventListener('sc-auth-changed', handleAuthChange);
@@ -24,10 +23,8 @@ export default function AuthNavbarItem(_props: Props) {
     async function checkAuth() {
         try {
             const authenticated = await isLoggedIn();
-            console.log('checkAuth - authenticated:', authenticated);
             if (authenticated) {
                 const currentUser = await getCurrentUser();
-                console.log('checkAuth - user:', currentUser);
                 setUser(currentUser);
             } else {
                 setUser(null);

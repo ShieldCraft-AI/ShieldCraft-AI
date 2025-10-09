@@ -32,19 +32,80 @@ const componentsCatalog = [
 ];
 
 function deriveEnvStatuses(env: 'dev' | 'staging' | 'prod'): ComponentStatus[] {
-    // Pattern: 13 Operational, 2 Degraded, 1 Maintenance, 0 Outage
-    const pattern: Record<typeof env, Status[]> = {
-        dev: ['Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Degraded', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Degraded', 'Maintenance', 'Operational'],
-        staging: ['Operational', 'Operational', 'Degraded', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Maintenance', 'Operational', 'Operational', 'Degraded', 'Operational'],
-        prod: ['Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Degraded', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Operational', 'Maintenance', 'Degraded', 'Operational', 'Operational'],
-    } as const;
+    // Use a deterministic seeded RNG based on env so switching environments
+    // produces different, but repeatable, fake data. This simulates live
+    // differences between dev/staging/prod while remaining testable.
 
-    const statuses = pattern[env];
-    return componentsCatalog.map((c, i) => ({
-        component: c.component,
-        status: statuses[i] ?? 'Operational',
-        details: c.details[i % c.details.length],
-    }));
+    // simple string -> 32-bit seed hash (cyrb32)
+    const seedFromString = (s: string) => {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619) >>> 0;
+        }
+        return h >>> 0;
+    };
+
+    // mulberry32 PRNG
+    const mulberry32 = (a: number) => {
+        return () => {
+            a |= 0;
+            a = (a + 0x6D2B79F5) | 0;
+            let t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    };
+
+    const seed = seedFromString(env);
+    const rnd = mulberry32(seed);
+
+    // environment-tuned thresholds (lower is better for prod)
+    const thresholds: Record<typeof env, { outage: number; maintenance: number; degraded: number }> = {
+        dev: { outage: 0.06, maintenance: 0.20, degraded: 0.45 },
+        staging: { outage: 0.03, maintenance: 0.12, degraded: 0.30 },
+        prod: { outage: 0.01, maintenance: 0.07, degraded: 0.18 },
+    };
+
+    const t = thresholds[env];
+
+    return componentsCatalog.map((c, i) => {
+        // derive a per-item pseudo-random value
+        const r1 = rnd();
+        const r2 = rnd();
+
+        // determine status from r1
+        let status: Status = 'Operational';
+        if (r1 < t.outage) status = 'Outage';
+        else if (r1 < t.maintenance) status = 'Maintenance';
+        else if (r1 < t.degraded) status = 'Degraded';
+
+        // pick or slightly vary a details line
+        const baseDetails = c.details[i % c.details.length];
+        // add a small numeric tweak to make each env distinct (latency, buffer, nodes)
+        const tweakNum = Math.round((r2 * (env === 'prod' ? 200 : env === 'staging' ? 400 : 800)));
+
+        // heuristics to append sensible-looking metrics to existing details
+        let details = baseDetails;
+        if (/latency|p95|p99|avg/i.test(baseDetails)) {
+            details = baseDetails.replace(/\d+ms/, `${Math.max(10, tweakNum)}ms`);
+        } else if (/buffer|depth|lag|queue/i.test(baseDetails)) {
+            details = baseDetails.replace(/\d+%|< \d+ms|< \d+/, `${Math.max(0, tweakNum % 100)}%`);
+        } else if (/nodes|targets|consumers|feeds/i.test(baseDetails)) {
+            details = `${baseDetails} (${Math.max(1, 1 + (t.degraded > 0.3 ? Math.floor(r2 * 3) : Math.floor(r2 * 1)))} nodes)`;
+        } else if (/Last backup|Next job|Last scan/i.test(baseDetails)) {
+            details = `${baseDetails} (sim ${env.toUpperCase()})`;
+        } else {
+            // fallback: append a small env-specific hint
+            details = `${baseDetails} • ${env.toUpperCase()} view (${tweakNum})`;
+        }
+
+        return {
+            component: c.component,
+            status,
+            details,
+        };
+    });
 }
 
 function SystemStatusContent() {
@@ -126,14 +187,13 @@ function SystemStatusContent() {
                         className={`${styles.statusCard} ${styles[item.status.toLowerCase() as 'operational' | 'degraded' | 'maintenance' | 'outage']}`}
                         aria-label={`${item.component} status ${item.status}`}
                         onClick={() => {
-                            // Show detailed modal or expand card (for now, just log)
-                            console.log(`Clicked on ${item.component} - Status: ${item.status}`);
+                            // Show detailed modal or expand card (not logging in production)
                             // In a real app, this would open a detailed view
                         }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
-                                console.log(`Keyboard activated ${item.component}`);
+                                // activate keyboard action
                             }
                         }}
                         tabIndex={0}
