@@ -51,8 +51,9 @@
     max-width: 100% !important;
 }
 
-/* Architecture route styling - uniform treatment */
-.architecture-route .sc-content {
+/* Pricing route styling - uniform treatment */
+.architecture-route .sc-content,
+.pricing-route .sc-content {
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
@@ -60,7 +61,8 @@
     min-height: 100vh;
 }
 
-.architecture-route {
+.architecture-route,
+.pricing-route {
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
@@ -105,4 +107,10 @@ html[data-theme='light'] .sc-nav-pill:hover {
 .sc-nav-pill:focus-visible {
     outline: 2px solid var(--ifm-color-primary);
     outline-offset: 2px;
+}
+
+/* Docusaurus attaches a route-transition progress bar to #nprogress; hide it to keep the header clean */
+#nprogress,
+#nprogress * {
+    display: none !important;
 }

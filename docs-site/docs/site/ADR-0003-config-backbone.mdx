@@ -1,0 +1,65 @@
+---
+title: "ADR-0003: Environment-Aware Configuration Backbone"
+slug: /adrs/0003-config-backbone
+sidebar_label: "ADR-0003: Config Backbone"
+tags: [adr, configuration, governance]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Accepted - Q2 2025
+
+## Context
+ADR-0001 established tiered architecture expectations, and ADR-0002 introduced pluggable retrieval options. Both required a consistent, environment-aware configuration story that prevents divergent stacks while keeping developer ergonomics high. Prior to this ADR, each CDK stack and runtime module parsed YAML independently, leading to drift, duplicated validation, and brittle CI. Secrets overlays also needed deterministic resolution across dev/staging/prod without leaking credentials.
+
+Key forces:
+- Guarantee parity between infrastructure deployments, AI services, and docs portal demos.
+- Enforce strict schema validation so misconfigurations fail fast before reaching AWS.
+- Provide a single capability to resolve secrets, feature flags, and tier toggles per environment.
+- Keep onboarding simple-engineers should edit one YAML file and trust automation.
+
+## Decision
+Adopt a centralized `ConfigLoader` backed by Pydantic models and deterministic environment discovery. All stacks (infra/app.py), AI services (`ai_core`), and the docs portal rely on this loader. Configuration follows a three-layer merge sequence: `config/<env>.yml`, optional `config/secrets.<env>.yml`, and command-line overrides for CI scenarios.
+
+Guardrails:
+- Validation happens once; downstream consumers receive typed data classes.
+- Empty dictionaries normalize to `None` to avoid false-positive updates.
+- Secrets never persist in plain YAML; loaders reference secure stores (AWS Secrets Manager) via URI-like indirection (`aws-vault:`).
+- Config diffs are part of PR review, and breaking changes require ADR updates or release notes.
+
+## Alternatives Considered
+- *Ad-hoc YAML parsing per stack*
+  - **Pro**: Minimal upfront work
+  - **Con**: Drift, low confidence, repeated schema logic
+- *Central Parameter Store / AWS AppConfig*
+  - **Pro**: Managed service, instant runtime updates
+  - **Con**: Higher operational cost, harder local development story
+- *Fully dynamic JSON schema without Pydantic*
+  - **Pro**: Language-agnostic
+  - **Con**: Less expressive validation, no IDE assistance
+
+## Consequences
+- A single source of truth for all environments; reduced misconfigurations reaching AWS.
+- Faster onboarding-engineers learn one pattern that scales from dev to prod.
+- Enables feature-flag driven rollouts leveraged in ADR-0004 (model loader) and ADR-0005 (security guardrails).
+- Requires disciplined schema evolution; breaking changes must update the loader and docs simultaneously.
+
+## Rollout Plan
+1. Implement `infra/utils/config_loader.py` with repo-root discovery.
+2. Back every domain (networking, data, AI, docs) with the loader and remove bespoke parsing.
+3. Add contract tests in `tests/` to cover happy and unhappy paths per environment.
+4. Document the workflow in `/docs-site/docs/github/configuration.md` and tie into CI using `scripts/update_checklist_progress.py`.
+
+## Success Metrics
+- 100% of CDK stacks and AI services import configuration through `get_config_loader()`.
+- >95% reduction in config-related deployment failures compared to pre-ADR baseline.
+- New environment spin-up (dev→staging) completed in under 30 minutes using documented process.
+
+## References
+- `infra/utils/config_loader.py`
+- `config/*.yml`
+- `tests/config/test_config_loader.py`
+- [ADR-0001: Architecture Baseline and Tiering](/adrs/0001-architecture-baseline)
+- [ADR-0002: Vector Store Selection](/adrs/0002-vector-store)
+- [ADR-0004: Dual-Path Model Loader Strategy](/adrs/0004-model-loader)
+- [ADR-0005: Security Baseline and Cost Guardrails](/adrs/0005-security-guardrails)

@@ -34,6 +34,9 @@
   --ifm-code-font-size: 95%;
   --ifm-code-background: rgba(17, 24, 39, 0.05);
   --docusaurus-highlighted-code-line-bg: rgba(34, 211, 238, 0.15);
+
+  /* Shared aurora background used across marketing pages */
+  --sc-aurora-bg: radial-gradient(120% 120% at 50% 0%, rgba(226, 232, 240, 0.96), rgba(221, 214, 254, 0.52) 46%, rgba(191, 219, 254, 0.65) 82%);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -49,4 +52,14 @@
   /* Code blocks in dark mode */
   --ifm-code-background: rgba(255, 255, 255, 0.08);
   --docusaurus-highlighted-code-line-bg: rgba(34, 211, 238, 0.2);
+
+  /* Shared aurora background used across marketing pages */
+  --sc-aurora-bg: radial-gradient(120% 120% at 50% 0%, rgba(37, 99, 235, 0.12), rgba(14, 23, 42, 0.42) 56%, rgba(7, 11, 26, 0.92) 96%);
+}
+
+body.aurora-surface {
+  background: var(--sc-aurora-bg);
+  background-attachment: fixed;
+  min-height: 100%;
+  transition: background 0.3s ease;
 }

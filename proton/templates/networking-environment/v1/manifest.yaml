@@ -1,0 +1,6 @@
+# Proton manifest for template version (scaffold)
+name: shieldcraft-networking
+compatibleEnvironmentTemplates: []
+pipeline: {}
+displayName: ShieldCraft Networking
+version: 1.0

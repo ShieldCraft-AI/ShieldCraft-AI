@@ -74,6 +74,8 @@ pytest-forked = "^1.6.0"
 pyyaml = "^6.0.0"
 nbformat = "^5.10.4"
 beautifulsoup4 = "^4.12.3"
+fastapi = "^0.100.0"
+uvicorn = "^0.22.0"
 
 [tool.poetry.group.security.dependencies]
 safety = "^3.2.0"

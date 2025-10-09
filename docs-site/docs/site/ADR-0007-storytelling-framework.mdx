@@ -1,0 +1,63 @@
+---
+title: "ADR-0007: Documentation and Storytelling Framework"
+slug: /adrs/0007-storytelling-framework
+sidebar_label: "ADR-0007: Storytelling Framework"
+tags: [adr, documentation, enablement]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Accepted - Q4 2025
+
+## Context
+After codifying the technical backbone (ADRs 0001–0006), the team needed a cohesive way to narrate ShieldCraft AI to buyers, partners, and internal stakeholders. The documentation portal had evolved organically, but lacked structured storytelling across pricing, architecture, and benchmarks. Typography, theming, and artifact surfacing needed to reinforce credibility and make it easy to trace claims back to code/tests.
+
+Drivers:
+- Provide an executive-ready experience with consistent typography, theming, and interactive demos.
+- Connect architecture decisions to live artifacts (benchmarks, pricing, security posture).
+- Keep documentation versioned alongside code to avoid drift.
+- Encourage ongoing updates via automation (checklists, progress scripts).
+
+## Decision
+Establish a documentation framework centered on Docusaurus with opinionated conventions:
+
+1. Treat `/docs-site` as a first-class product, with theme overrides, typography (Neue Haas Grotesk stack), and indigo accent palette aligned to brand.
+2. Surface ADRs prominently, linking them to relevant architecture pages and demos.
+3. Automate progress reporting via `scripts/update_checklist_progress.py`, ensuring checklists stay honest (counts include deferred items).
+4. Create interactive components (pricing tiers, dashboards, benchmarking visualizations) that map directly to architecture tiers and evaluation outputs.
+5. Require every major feature or ADR to include documentation updates and evidence pointers.
+
+## Alternatives Considered
+- *Minimal README-only documentation*
+  - **Pro**: Low maintenance
+  - **Con**: Poor storytelling, weak executive signal
+- *External CMS*
+  - **Pro**: Rich editing experience
+  - **Con**: Context/data fragmentation, harder version control
+- *Separate marketing site*
+  - **Pro**: Tailored branding
+  - **Con**: Duplication of effort, inconsistent updates
+
+## Consequences
+- Docusaurus becomes the single source for architecture narrative, progress, and evidence.
+- Increased responsibility for engineers to keep docs current; mitigated via automation and checklist scripts.
+- Stronger buyer confidence-live demos, typography, and benchmarks reinforce technical depth.
+
+## Rollout Plan
+1. Redesign docs theme (typography, palette, layout) and align with pricing hero and portal visuals.
+2. Add ADR navigation page (`/adrs`) and ensure new ADRs integrate into sidebars/landing pages.
+3. Wire checklist automation into CI and publish checklist progress within docs.
+4. Embed benchmark summaries (ADR-0006) and security posture (ADR-0005) into relevant sections.
+5. Adopt a docs definition of done: no feature merges without updated narratives and links.
+
+## Success Metrics
+- 100% of ADRs linked from relevant documentation and release notes.
+- Docs site lighthouse accessibility score ≥95.
+- Stakeholder feedback indicates increased clarity on architecture tiers, evaluation results, and guardrails.
+
+## References
+- `docs-site/` theme and content
+- `scripts/update_checklist_progress.py`
+- `docs-site/docs/github/checklist.md`
+- [ADR-0001: Architecture Baseline and Tiering](/adrs/0001-architecture-baseline)
+- [ADR-0006: Evaluation Baseline and Benchmarking Loop](/adrs/0006-evaluation-baseline)

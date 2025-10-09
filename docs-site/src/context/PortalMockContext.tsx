@@ -38,6 +38,128 @@ type PortalMockState = {
 
 const PortalMockContext = React.createContext<PortalMockState | undefined>(undefined);
 
+type EnvProfile = {
+    label: string;
+    account: string;
+    regionRotation: string[];
+    descriptionTag: string;
+    serviceSuffix: string;
+    resourceSuffix: string;
+    timestampOffsetMinutes: number;
+    perItemDriftMinutes: number;
+};
+
+const SERVICE_FRIENDLY_NAMES: Record<string, string> = {
+    GuardDuty: 'Amazon GuardDuty',
+    S3: 'Amazon S3',
+    WAF: 'AWS WAF',
+    IAM: 'AWS Identity and Access Management',
+    SecurityHub: 'AWS Security Hub',
+    CloudTrail: 'AWS CloudTrail',
+    Inspector: 'Amazon Inspector',
+    RDS: 'Amazon RDS',
+    KMS: 'AWS Key Management Service',
+    EKS: 'Amazon EKS',
+    Lambda: 'AWS Lambda',
+    APIGateway: 'Amazon API Gateway',
+    CloudFront: 'Amazon CloudFront',
+    VPC: 'Amazon VPC',
+    ECR: 'Amazon ECR',
+    SecretsManager: 'AWS Secrets Manager',
+    Kinesis: 'Amazon Kinesis',
+    DynamoDB: 'Amazon DynamoDB',
+    ElastiCache: 'Amazon ElastiCache',
+    SNS: 'Amazon SNS',
+};
+
+const ENV_PROFILES: Record<'dev' | 'staging' | 'prod', EnvProfile> = {
+    dev: {
+        label: 'Dev',
+        account: '111111111111',
+        regionRotation: ['eu-north-1', 'us-west-2', 'ap-southeast-2', 'ca-central-1'],
+        descriptionTag: 'DEV',
+        serviceSuffix: ' · Dev',
+        resourceSuffix: ' [dev]',
+        timestampOffsetMinutes: -360,
+        perItemDriftMinutes: -4,
+    },
+    staging: {
+        label: 'Staging',
+        account: '222222222222',
+        regionRotation: ['us-east-2', 'eu-west-2', 'ap-northeast-2', 'me-south-1'],
+        descriptionTag: 'STAGING',
+        serviceSuffix: ' · Staging',
+        resourceSuffix: ' [stg]',
+        timestampOffsetMinutes: -120,
+        perItemDriftMinutes: -3,
+    },
+    prod: {
+        label: 'Prod',
+        account: '333333333333',
+        regionRotation: ['us-east-1', 'eu-west-1', 'ap-northeast-1', 'sa-east-1'],
+        descriptionTag: 'PROD',
+        serviceSuffix: ' · Prod',
+        resourceSuffix: ' [prod]',
+        timestampOffsetMinutes: 0,
+        perItemDriftMinutes: -2,
+    },
+};
+
+const parseTimestamp = (timestamp: string): Date | null => {
+    const iso = timestamp.replace(' ', 'T').replace(' UTC', 'Z');
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const pad = (value: number) => value.toString().padStart(2, '0');
+
+const formatUtcTimestamp = (date: Date): string => `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())} UTC`;
+
+const stripEnvDescriptionTag = (description: string): string => description.replace(/^\[(DEV|STAGING|PROD)\]\s*/i, '').trim();
+
+const withEnvDescriptionTag = (description: string, profile: EnvProfile): string => {
+    const base = stripEnvDescriptionTag(description);
+    return `[${profile.descriptionTag}] ${base}`.trim();
+};
+
+const canonicalServiceName = (service: string): string => {
+    const friendly = SERVICE_FRIENDLY_NAMES[service];
+    if (friendly) return friendly;
+    const reverse = Object.values(SERVICE_FRIENDLY_NAMES).find(value => value === service);
+    if (reverse) return service;
+    return service.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\s+/g, ' ').trim();
+};
+
+const withEnvServiceTag = (service: string | undefined, profile: EnvProfile): string | undefined => {
+    if (!service) return service;
+    const normalized = service.replace(/\s+·\s+(Dev|Staging|Prod)$/i, '').trim();
+    const canonical = canonicalServiceName(normalized);
+    return `${canonical}${profile.serviceSuffix}`;
+};
+
+const withEnvResourceTag = (resource: string | undefined, profile: EnvProfile): string | undefined => {
+    if (!resource) return resource;
+    if (resource.endsWith(profile.resourceSuffix)) return resource;
+    return `${resource}${profile.resourceSuffix}`;
+};
+
+const deriveTimestampForEnv = (timestamp: string, profile: EnvProfile, index: number): string => {
+    const parsed = parseTimestamp(timestamp);
+    if (!parsed) return timestamp;
+    const adjusted = new Date(parsed.getTime());
+    adjusted.setUTCMinutes(adjusted.getUTCMinutes() + profile.timestampOffsetMinutes + profile.perItemDriftMinutes * index);
+    return formatUtcTimestamp(adjusted);
+};
+
+const datasetMatchesEnv = (env: 'dev' | 'staging' | 'prod', dataset: Alert[], requiredCount: number): boolean => {
+    if (dataset.length < requiredCount) return false;
+    const profile = ENV_PROFILES[env];
+    const accountMatches = dataset.every(alert => alert.account === profile.account);
+    const suffix = profile.serviceSuffix.trim().toLowerCase();
+    const serviceMatches = dataset.some(alert => typeof alert.service === 'string' && alert.service.toLowerCase().includes(suffix));
+    return accountMatches && serviceMatches;
+};
+
 const initialAlerts: Alert[] = [
     {
         id: 1,
@@ -268,75 +390,79 @@ export function PortalMockProvider({ children }: { children: React.ReactNode }) 
 
     // Build environment-specific default alert sets so switching env changes data deterministically.
     const initialAlertsByEnv = React.useMemo(() => {
-        const base = initialAlerts;
-        const adjustSeverity = (env: 'dev' | 'staging' | 'prod', i: number, s: Severity): Severity => {
+        const adjustSeverity = (env: 'dev' | 'staging' | 'prod', index: number, severity: Severity): Severity => {
             if (env === 'dev') {
-                // dev tends to be less severe
-                if (s === 'High' && i % 3 === 0) return 'Medium';
-                if (s === 'Medium' && i % 4 === 0) return 'Low';
-                return s;
+                if (severity === 'High' && index % 3 === 0) return 'Medium';
+                if (severity === 'Medium' && index % 4 === 0) return 'Low';
+                return severity;
             }
             if (env === 'staging') {
-                // staging modestly ups lows and occasionally mediums
-                if (s === 'Low') return 'Medium';
-                if (s === 'Medium' && i % 5 === 0) return 'High';
-                return s;
+                if (severity === 'Low') return 'Medium';
+                if (severity === 'Medium' && index % 5 === 0) return 'High';
+                return severity;
             }
-            // prod is strict: Low -> Medium, Medium -> High, High stays High
-            if (s === 'Low') return 'Medium';
-            if (s === 'Medium') return 'High';
+            if (severity === 'Low') return 'Medium';
+            if (severity === 'Medium') return 'High';
             return 'High';
         };
 
-        const dev = base.map((a, i) => ({ ...a, id: i + 1, severity: adjustSeverity('dev', i, a.severity) }));
-        const staging = base.map((a, i) => ({ ...a, id: i + 1, severity: adjustSeverity('staging', i, a.severity) }));
-        const prod = base.map((a, i) => ({ ...a, id: i + 1, severity: adjustSeverity('prod', i, a.severity) }));
+        const transform = (env: 'dev' | 'staging' | 'prod') => {
+            const profile = ENV_PROFILES[env];
+            return initialAlerts.map((alert, index) => ({
+                ...alert,
+                id: index + 1,
+                severity: adjustSeverity(env, index, alert.severity),
+                description: withEnvDescriptionTag(alert.description, profile),
+                timestamp: deriveTimestampForEnv(alert.timestamp, profile, index),
+                service: withEnvServiceTag(alert.service, profile),
+                resource: withEnvResourceTag(alert.resource, profile),
+                account: profile.account,
+                region: profile.regionRotation[index % profile.regionRotation.length],
+                resolved: alert.resolved ?? false,
+            }));
+        };
 
-        return { dev, staging, prod } as Record<'dev' | 'staging' | 'prod', Alert[]>;
+        return {
+            dev: transform('dev'),
+            staging: transform('staging'),
+            prod: transform('prod'),
+        } as Record<'dev' | 'staging' | 'prod', Alert[]>;
     }, []);
 
     const storageKeyForEnv = (e: 'dev' | 'staging' | 'prod') => `sc-alerts-${e}`;
 
     const REQUIRED_ALERT_COUNT = initialAlerts.length;
 
-    const [alerts, setAlerts] = React.useState<Alert[]>(() => {
-        if (typeof window === 'undefined') return initialAlertsByEnv['dev'];
+    const resolveAlertsForEnv = (targetEnv: 'dev' | 'staging' | 'prod'): Alert[] => {
+        if (typeof window === 'undefined') return initialAlertsByEnv[targetEnv];
         try {
-            const currentEnv = (window.localStorage.getItem('sc-env') as 'dev' | 'staging' | 'prod') || 'dev';
-            const saved = window.localStorage.getItem(storageKeyForEnv(currentEnv));
-            // Back-compat: migrate legacy key if present
+            const saved = window.localStorage.getItem(storageKeyForEnv(targetEnv));
             if (!saved) {
                 const legacy = window.localStorage.getItem('sc-alerts');
                 if (legacy) {
-                    window.localStorage.setItem(storageKeyForEnv(currentEnv), legacy);
+                    window.localStorage.setItem(storageKeyForEnv(targetEnv), legacy);
                     window.localStorage.removeItem('sc-alerts');
-                    return JSON.parse(legacy) as Alert[];
+                    const legacyParsed = JSON.parse(legacy) as Alert[];
+                    return datasetMatchesEnv(targetEnv, legacyParsed, REQUIRED_ALERT_COUNT) ? legacyParsed : initialAlertsByEnv[targetEnv];
                 }
+                return initialAlertsByEnv[targetEnv];
             }
-            if (saved) {
-                const parsed = JSON.parse(saved) as Alert[];
-                return parsed.length >= REQUIRED_ALERT_COUNT ? parsed : initialAlertsByEnv[currentEnv];
-            }
-            return initialAlertsByEnv[currentEnv];
+            const parsed = JSON.parse(saved) as Alert[];
+            return datasetMatchesEnv(targetEnv, parsed, REQUIRED_ALERT_COUNT) ? parsed : initialAlertsByEnv[targetEnv];
         } catch {
-            return initialAlertsByEnv['dev'];
+            return initialAlertsByEnv[targetEnv];
         }
+    };
+
+    const [alerts, setAlerts] = React.useState<Alert[]>(() => {
+        if (typeof window === 'undefined') return initialAlertsByEnv['dev'];
+        const currentEnv = (window.localStorage.getItem('sc-env') as 'dev' | 'staging' | 'prod') || 'dev';
+        return resolveAlertsForEnv(currentEnv);
     });
 
     // Switch alerts when environment changes
     React.useEffect(() => {
-        if (typeof window === 'undefined') return;
-        try {
-            const saved = window.localStorage.getItem(storageKeyForEnv(env));
-            if (saved) {
-                const parsed = JSON.parse(saved) as Alert[];
-                setAlerts(parsed.length >= REQUIRED_ALERT_COUNT ? parsed : initialAlertsByEnv[env]);
-            } else {
-                setAlerts(initialAlertsByEnv[env]);
-            }
-        } catch {
-            setAlerts(initialAlertsByEnv[env]);
-        }
+        setAlerts(resolveAlertsForEnv(env));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [env]);
 
@@ -373,21 +499,31 @@ export function PortalMockProvider({ children }: { children: React.ReactNode }) 
 
     const addMockAlert = React.useCallback((partial?: Partial<Alert>) => {
         setAlerts(prev => {
+            const profile = ENV_PROFILES[env];
             const nextId = prev.length ? Math.max(...prev.map(a => a.id)) + 1 : 1;
+            const severityChoices: Severity[] = ['High', 'Medium', 'Low'];
+            const severity = partial?.severity || severityChoices[Math.floor(Math.random() * severityChoices.length)];
+            const description = partial?.description ? withEnvDescriptionTag(partial.description, profile) : `[${profile.descriptionTag}] Synthetic ${profile.label} alert #${nextId}`;
+            const timestamp = formatUtcTimestamp(new Date());
+            const service = withEnvServiceTag(partial?.service || 'Custom Insight', profile);
+            const resource = withEnvResourceTag(partial?.resource || `resource/${profile.label.toLowerCase()}-${nextId}`, profile);
+            const regionPool = profile.regionRotation;
+            const region = partial?.region || regionPool[nextId % regionPool.length];
+
             const alert: Alert = {
                 id: nextId,
-                severity: partial?.severity || (['High', 'Medium', 'Low'] as Severity[])[Math.floor(Math.random() * 3)],
-                description: partial?.description || 'New mock alert',
-                timestamp: new Date().toISOString(),
-                service: partial?.service,
-                resource: partial?.resource,
-                account: partial?.account,
-                region: partial?.region || 'us-east-1',
+                severity,
+                description,
+                timestamp,
+                service,
+                resource,
+                account: partial?.account || profile.account,
+                region,
                 resolved: false,
             };
             return [alert, ...prev];
         });
-    }, []);
+    }, [env]);
 
     const value: PortalMockState = {
         env, setEnv,

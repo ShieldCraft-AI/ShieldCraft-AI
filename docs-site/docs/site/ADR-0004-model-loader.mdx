@@ -1,0 +1,67 @@
+---
+title: "ADR-0004: Dual-Path Model Loader Strategy"
+slug: /adrs/0004-model-loader
+sidebar_label: "ADR-0004: Model Loader"
+tags: [adr, ai-core, inference]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Accepted - Q2 2025
+
+## Context
+With configuration contracts solidified (ADR-0003), the team needed a deterministic way to toggle between inexpensive stub inference for local development and production-grade large language models (LLMs) for demos and benchmarks. Constraints included:
+
+- Keep costs near-zero for day-to-day development and CI.
+- Support rapid experimentation with Hugging Face models (e.g., Mistral-7B) without rewriting orchestration code.
+- Provide a graceful path for hardware acceleration (GPU, quantization) while staying compliant with cost and security guardrails from ADR-0005.
+- Ensure the docs portal and evaluation jobs can rely on consistent outputs per environment.
+
+## Decision
+Implement a dual-path model loader in `ai_core/model_loader.py` that:
+
+1. Defaults to a `stub` backend returning deterministic, low-latency responses.
+2. Supports a configurable "real" backend (initially `mistralai/Mistral-7B-v0.1`) using Hugging Face transformers.
+3. Allows optional 4-bit quantization via `BitsAndBytesConfig` when GPUs are present.
+4. Emits structured metadata (model name, device, quantization flags) to downstream logging for governance.
+5. Respects environment configuration sourced via ADR-0003, including budget gates and secrets.
+
+A single factory function returns a loader object adhering to a small interface (`generate`, `token_usage`, `close`). The choice of backend is controlled by config (environment and tier aware) and can be overridden via environment variables during experiments.
+
+## Alternatives Considered
+- *Always-real model*
+  - **Pro**: Single path
+  - **Con**: Expensive, slower iteration, brittle CI
+- *Separate services for stub vs. real*
+  - **Pro**: Strong isolation
+  - **Con**: Operational overhead, duplicated contracts
+- *Managed LLM-only approach*
+  - **Pro**: Minimal infrastructure
+  - **Con**: Less control over guardrails, harder to test offline
+
+## Consequences
+- Enables local development and CI to run quickly with deterministic outputs.
+- Provides a safe toggle to activate high-fidelity LLMs for demos, benchmarks, or production, aligned with tiered pricing (ADR-0001).
+- Centralizes retry and error handling, making it easy to inject future providers.
+- Requires monitoring to ensure the real backend does not exceed cost ceilings (addressed in ADR-0006 evaluations and ADR-0005 guardrails).
+
+## Rollout Plan
+1. Build the loader abstraction with factory selection and context manager semantics.
+2. Wire config toggles (`model.backend`, `model.quantization`) sourced from ADR-0003.
+3. Add pytest coverage for both stub and real paths, including unhappy scenarios (missing weights, OOM).
+4. Integrate telemetry into evaluation harness (ADR-0006) and docs portal demos.
+5. Document usage in `/docs-site/docs/github/ai-core.md` and update onboarding guides.
+
+## Success Metrics
+- All AI surfaces (CLI, evaluation jobs, docs portal) create loaders via the factory.
+- CI runtime remains under 15 minutes with stub backend.
+- Real backend demos stay within monthly budget thresholds defined in ADR-0005.
+
+## References
+- `ai_core/model_loader.py`
+- `config/*.yml` (model sections)
+- `tests/ai_core/test_model_loader.py`
+- [ADR-0001: Architecture Baseline and Tiering](/adrs/0001-architecture-baseline)
+- [ADR-0003: Environment-Aware Configuration Backbone](/adrs/0003-config-backbone)
+- [ADR-0005: Security Baseline and Cost Guardrails](/adrs/0005-security-guardrails)
+- [ADR-0006: Evaluation Baseline and Benchmarking Loop](/adrs/0006-evaluation-baseline)

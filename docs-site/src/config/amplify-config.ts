@@ -1,6 +1,58 @@
 // Amplify configuration for AWS Cognito authentication
 // Deployed values from CDK stack
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
+const PROD_REDIRECT_SIGN_IN = [
+    'https://shieldcraft-ai.com/dashboard',
+    'https://www.shieldcraft-ai.com/dashboard',
+];
+const PROD_REDIRECT_SIGN_OUT = [
+    'https://shieldcraft-ai.com/',
+    'https://www.shieldcraft-ai.com/',
+];
+
+function unique(values: (string | undefined | null)[]) {
+    return Array.from(new Set(values.filter(Boolean) as string[]));
+}
+
+function resolveRedirects() {
+    if (typeof window === 'undefined') {
+        return {
+            signIn: ['http://localhost:3000/dashboard', 'http://localhost:3001/dashboard'],
+            signOut: ['http://localhost:3000/', 'http://localhost:3001/'],
+        };
+    }
+
+    const origin = window.location.origin;
+    const hostname = window.location.hostname.toLowerCase();
+    const isLocal = LOCAL_HOSTS.has(hostname);
+
+    const signInCandidates = isLocal
+        ? [
+            'http://localhost:3000/dashboard',
+            'http://localhost:3001/dashboard',
+            `${origin}/dashboard`,
+            ...PROD_REDIRECT_SIGN_IN
+        ]
+        : [`${origin}/dashboard`, ...PROD_REDIRECT_SIGN_IN, 'http://localhost:3000/dashboard', 'http://localhost:3001/dashboard'];
+
+    const signOutCandidates = isLocal
+        ? [
+            'http://localhost:3000/',
+            'http://localhost:3001/',
+            `${origin}/`,
+            ...PROD_REDIRECT_SIGN_OUT
+        ]
+        : [`${origin}/`, ...PROD_REDIRECT_SIGN_OUT, 'http://localhost:3000/', 'http://localhost:3001/'];
+
+    return {
+        signIn: unique(signInCandidates),
+        signOut: unique(signOutCandidates),
+    };
+}
+
+const redirects = resolveRedirects();
+
 export const amplifyConfig = {
     Auth: {
         Cognito: {
@@ -14,21 +66,24 @@ export const amplifyConfig = {
             loginWith: {
                 oauth: {
                     // Cognito Hosted UI domain
-                    domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com',                    // Scopes to request from identity providers
+                    domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com',
+                    // Scopes to request from identity providers
                     scopes: ['email', 'profile', 'openid'],
 
                     // Where to redirect after successful login
-                    redirectSignIn: typeof window !== 'undefined'
-                        ? [`${window.location.origin}/dashboard`]
-                        : ['http://localhost:3000/dashboard'],
+                    redirectSignIn: redirects.signIn,
 
                     // Where to redirect after logout
-                    redirectSignOut: typeof window !== 'undefined'
-                        ? [window.location.origin]
-                        : ['http://localhost:3000/'],
+                    redirectSignOut: redirects.signOut,
 
                     // Use Authorization Code Grant with PKCE (secure for SPAs)
                     responseType: 'code' as const,
+
+                    // Configure social providers
+                    providers: [
+                        'Google',
+                        { custom: 'LoginWithAmazon' }
+                    ],
                 },
             },
         },

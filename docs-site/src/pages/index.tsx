@@ -24,12 +24,12 @@ export default function Home(): ReactNode {
           </div>
           <div className="sc-full-bleed sc-minvh-lg-66" style={{ marginTop: '4.5rem', marginBottom: '0.5rem' }}>
             <FullWidthFeature
-              heading="Unified Security Data Plane on AWS"
-              description="Seamlessly ingest, enrich, and correlate high-velocity security telemetry from multi-cloud and SaaS environments. Deliver actionable insights directly into workflows and AI copilots, fortified with policy-grade guardrails for uncompromising security."
-              primaryHref="/intro"
-              primaryLabel="Explore the platform"
-              secondaryHref="/architecture"
-              secondaryLabel="Interactive Architecture"
+              heading="Unified Security Data Plane & Governed Deployment Engine on AWS"
+              description="The platform utilizes AWS Proton and CDK Constructs to seamlessly ingest, enrich, and correlate security telemetry. Actionable insights are delivered into workflows, fortified by policy-grade guardrails and deterministic cost control."
+              primaryHref="/architecture-overview"
+              primaryLabel="Review The MLOps Governance (The Proof)"
+              secondaryHref="/plugins"
+              secondaryLabel="Explore The Full Product Suite"
             />
           </div>
           <div className="sc-wide-content">

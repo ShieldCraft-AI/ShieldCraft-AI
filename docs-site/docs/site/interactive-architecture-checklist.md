@@ -122,4 +122,4 @@ type Env = 'dev' | 'staging' | 'prod';
 
 Notes
 - Keep canvas service-free; services live in the drawer with env-specific defaults.
-- Use concise copy designed for interviews; every claim links to proof.
+- Use concise copy designed, every claim links to proof.

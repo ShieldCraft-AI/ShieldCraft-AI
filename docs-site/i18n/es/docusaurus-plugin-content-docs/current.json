@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.link.Analyst Dashboard": {
+    "message": "Analyst Dashboard",
+    "description": "The label for link Analyst Dashboard in sidebar tutorialSidebar, linking to /analyst-dashboard"
+  },
+  "sidebar.tutorialSidebar.link.Documentation": {
+    "message": "Documentation",
+    "description": "The label for link Documentation in sidebar tutorialSidebar, linking to /documentation"
+  },
+  "sidebar.tutorialSidebar.link.Plugins": {
+    "message": "Plugins",
+    "description": "The label for link Plugins in sidebar tutorialSidebar, linking to /plugins"
+  },
+  "sidebar.tutorialSidebar.link.Pricing": {
+    "message": "Pricing",
+    "description": "The label for link Pricing in sidebar tutorialSidebar, linking to /pricing"
+  }
+}

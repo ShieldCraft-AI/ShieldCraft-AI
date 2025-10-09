@@ -7,7 +7,7 @@ sidebar_class_name: hidden-sidebar-item
 ---
 
 ## Status
-Proposed
+Accepted - Q2 2025
 
 ## Context
 ShieldCraft AI needs semantic search across alerts, artifacts, and knowledge objects. Early workloads prioritize developer velocity and modest scale; later stages may demand hybrid query (BM25 + ANN), multi-tenant isolation, and managed high availability.
@@ -23,6 +23,8 @@ ShieldCraft AI needs semantic search across alerts, artifacts, and knowledge obj
 Start with PGVector on PostgreSQL for speed and simplicity. Define a small vector store interface so we can swap implementations without invasive refactors. Keep Amazon OpenSearch Service as the scale/enterprise path when:
 - corpus size, QPS, or latency SLOs demand it, or
 - hybrid search and per-tenant isolation benefits outweigh operational cost.
+
+Codify the choice in `ai_core/vector_store.py`, keeping the interface aligned with the tier expectations from ADR-0001 and the config contracts introduced in ADR-0003.
 
 ### Rationale
 - PGVector
@@ -50,6 +52,7 @@ Start with PGVector on PostgreSQL for speed and simplicity. Define a small vecto
 2) Provide `pgvector` and `opensearch` backends behind a factory
 3) Add data export/import scripts to reindex embeddings
 4) Gate selection via config/env, default to PGVector
+5) Fold rollout telemetry into the evaluation loop from ADR-0006 to detect swap thresholds early
 
 ## Risks & Mitigations
 - Risk: Query latency spikes on PGVector at larger scale
@@ -65,3 +68,6 @@ Start with PGVector on PostgreSQL for speed and simplicity. Define a small vecto
 ## References
 - `ai_core/vector_store.py`
 - `mteb_results.json`
+- [ADR-0001: Architecture Baseline and Tiering](/adrs/0001-architecture-baseline)
+- [ADR-0003: Environment-Aware Configuration Backbone](/adrs/0003-config-backbone)
+- [ADR-0006: Evaluation Baseline and Benchmarking Loop](/adrs/0006-evaluation-baseline)

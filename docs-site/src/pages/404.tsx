@@ -8,7 +8,7 @@ export default function NotFound() {
         <Layout title="Not found">
             <main className={styles.wrapper}>
                 <div className={styles.card}>
-                    <h1>We lost the signal.</h1>
+                    <h1>We lost signal.</h1>
                     <p>The page you requested doesn’t exist or moved. Try one of these:</p>
                     <ul>
                         <li><Link to="/">Home</Link></li>

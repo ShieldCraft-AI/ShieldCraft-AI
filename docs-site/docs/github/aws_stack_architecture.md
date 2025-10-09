@@ -191,3 +191,53 @@ budget_stack
 <p style="color:#b3b3b3;">These templates can be activated by adding configuration sections to environment YAMLs (dev.yml, staging.yml, prod.yml). Estimated additional cost impact: ~$22-102 / month across all environments.</p>
 
 </section>
+
+<section style="border:1px solid #a5b4fc; border-radius:10px; margin:1.5em 0; box-shadow:0 2px 8px #222; padding:1.5em; background:#111; color:#fff;">
+<h2 style="color:#a5b4fc; margin-top:0;">Platform as a Service (PaS) via AWS Proton - Local-Only Scaffolding</h2>
+
+<p style="color:#b3b3b3;">ShieldCraft now includes a <strong>local-only</strong> Proton scaffolding that models our PaS boundary without deploying or calling AWS. This allows us to iterate on template contracts, versioning, and documentation safely with <em>zero cloud cost</em>.</p>
+
+<h3 style="color:#a5b4fc;">What’s Included</h3>
+<ul style="color:#b3b3b3;">
+  <li><strong>Versioned Proton bundles (scaffold)</strong>
+    <ul>
+      <li><code>proton/templates/networking-environment/v1/</code>
+        <ul>
+          <li><code>infrastructure/cloudformation.yaml</code> - VPC + subnets (CFN scaffold)</li>
+          <li><code>schema/schema.yaml</code> - Proton input schema (env name + CIDRs)</li>
+          <li><code>manifest.yaml</code> - template metadata (name/display/version)</li>
+        </ul>
+      </li>
+      <li><code>proton/templates/lambda-service/v1/</code>
+        <ul>
+          <li><code>infrastructure/cloudformation.yaml</code> - VPC-attached Lambda (CFN scaffold)</li>
+          <li><code>schema/schema.yaml</code> - service inputs (runtime, code S3, role, subnets/SGs)</li>
+          <li><code>manifest.yaml</code> - service metadata + environment compatibility</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Template catalog</strong> - Additional raw templates remain under <code>proton/*.yaml</code> and are listed in the portal’s Infra page (see “Proton PaS Templates” card). These will be migrated into versioned bundles over time.</li>
+</ul>
+
+<h3 style="color:#a5b4fc;">Local Bundling (No AWS Calls)</h3>
+<p style="color:#b3b3b3;">A local packager zips each versioned template into <code>dist/proton/*.zip</code> and emits a <code>dist/proton/manifest.json</code> for the docs UI.</p>
+
+<pre style="background:#181818; color:#fff; padding:1em; border-radius:8px; font-size:.95em;">
+python scripts/proton_bundle.py
+</pre>
+
+<ul style="color:#b3b3b3;">
+  <li><strong>Safety</strong>: The script performs <em>no</em> AWS CLI calls and does <em>not</em> deploy anything.</li>
+  <li><strong>Output</strong>: <code>dist/proton/&lt;template&gt;-v&lt;version&gt;.zip</code> and <code>dist/proton/manifest.json</code>.</li>
+  <li><strong>Docs integration</strong>: The Infra page currently enumerates templates from <code>docs-site/src/data/pasTemplates.ts</code>. It can later read <code>manifest.json</code> to display versions/recommended flags.</li>
+  <li><strong>Boundary</strong>: CDK provisions <em>shared platform</em> (networking, IAM baseline, data governance, budgets). Proton PaS provides <em>self-serve</em> environment + service templates consumed by teams with ShieldCraft guardrails.</li>
+  <li><strong>Next (optional)</strong>: Introduce a <em>dry-run publisher</em> that only prints the <code>aws proton</code> commands for future use-still no execution.</li>
+  <li><strong>Cost posture</strong>: All of the above is local-only; no cloud resources are created.</li>
+
+</ul>
+
+<h3 style="color:#a5b4fc;">Why this matters</h3>
+<p style="color:#b3b3b3;">This PaS scaffolding lets us iterate on <em>contracts, parameters, and compliance</em> before adopting Proton in controlled environments. It aligns with our governance model (tags, KMS, VPC-only execution) and keeps the <em>deployment boundary</em> explicit between platform (CDK) and product teams (Proton).</p>
+
+</section>

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
+import NAV_ITEMS from '@site/src/constants/navItems';
 
 export const SiteFooter: React.FC = () => {
     // Rely on CSS variables from Docusaurus rather than JS color mode hook for SSR safety
@@ -51,10 +52,15 @@ export const SiteFooter: React.FC = () => {
                 <div>
                     <h4 style={{ margin: '0 0 .75rem', fontSize: '.95rem', letterSpacing: '.5px', textTransform: 'uppercase', fontWeight: 600, color: headingColor }}>Platform</h4>
                     <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '.45rem' }}>
-                        <li><Link to="/architecture">Pricing & Tiers</Link></li>
+                        <li><Link to="/pricing">Pricing & Tiers</Link></li>
                         <li><Link to="/automated-alert-triage">Automated Triage</Link></li>
                         <li><Link to="/automated-attack-simulation">Attack Simulation</Link></li>
-                        <li><Link to="/threat-detection">Threat Intelligence</Link></li>
+                        {/* Use canonical Threat Intelligence label/path from NAV_ITEMS to avoid drift */}
+                        <li>
+                            <Link to={NAV_ITEMS.find(n => n.label.includes('Threat'))?.to ?? '/threat-feed'}>
+                                {NAV_ITEMS.find(n => n.label.includes('Threat'))?.label ?? 'Threat Intelligence'}
+                            </Link>
+                        </li>
                         <li><Link to="/spec">Full Platform Spec</Link></li>
                     </ul>
                 </div>
@@ -76,7 +82,7 @@ export const SiteFooter: React.FC = () => {
                     <h4 style={{ margin: '0 0 .75rem', fontSize: '.95rem', letterSpacing: '.5px', textTransform: 'uppercase', fontWeight: 600, color: headingColor }}>Get Started</h4>
                     <p style={{ margin: '0 0 .85rem', fontSize: '.85rem', lineHeight: 1.5, color: textColor }}>Spin up the Starter tier, explore automated triage & simulation, or review the AI core powering proactive defense.</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '.55rem' }}>
-                        <Link to="/architecture" style={{
+                        <Link to="/pricing" style={{
                             textDecoration: 'none',
                             padding: '.65rem .9rem',
                             background: 'var(--ifm-color-primary-lightest)',
@@ -104,6 +110,15 @@ export const SiteFooter: React.FC = () => {
 
             <div style={{ marginTop: '3rem', borderTop: panelBorder, paddingTop: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', fontSize: '.75rem', color: textColor, maxWidth: 1480, marginLeft: 'auto', marginRight: 'auto' }}>
                 <span>© {new Date().getFullYear()} ShieldCraft AI. All rights reserved.</span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                    <a href="https://aws.amazon.com/certification/certified-solutions-architect-associate/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified Solutions Architect - Associate">
+                        <img src="/img/saa.png" alt="AWS Certified Solutions Architect - Associate" title="AWS Certified Solutions Architect - Associate" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} />
+                    </a>
+                    <a href="https://aws.amazon.com/certification/certified-ai-practitioner/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified AI Practitioner">
+                        <img src="/img/aif.png" alt="AWS Certified AI Practitioner" title="AWS Certified AI Practitioner" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} />
+                    </a>
+                </div>
             </div>
         </footer>
     );

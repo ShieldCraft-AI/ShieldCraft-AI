@@ -1,0 +1,25 @@
+---
+title: Analyst Dashboard
+slug: /analyst-dashboard
+---
+
+import React, { useEffect, useState } from 'react'
+import EmbeddedAnalystDashboard from '../../src/components/Analyst/Dashboard'
+
+export default function AnalystDashboardDoc() {
+  const [data, setData] = useState<any | null>(null)
+  useEffect(() => {
+    fetch('/demo/demo_vertical_slice.json')
+      .then((r) => r.json())
+      .then((j) => setData(j))
+      .catch(() => setData(null))
+  }, [])
+
+  return (
+    <>
+      <h1>Analyst Dashboard (Integrated)</h1>
+      <p>This page is the docs-integrated version of the Analyst Dashboard. It renders the same demo payload as the standalone app page.</p>
+      {data ? <EmbeddedAnalystDashboard data={data} /> : <div>Loading demo payload…</div>}
+    </>
+  )
+}

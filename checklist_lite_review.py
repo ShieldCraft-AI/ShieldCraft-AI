@@ -145,7 +145,7 @@ def check_signal(signal):
             return False
         try:
             content = path.read_text(encoding="utf-8")
-        except Exception:
+        except (OSError, UnicodeDecodeError):
             return False
 
         # --- AI Core ---
@@ -289,9 +289,9 @@ def check_signal(signal):
             content = path.read_text(encoding="utf-8")
         except Exception:
             return False
-        has_test = re.search(r"def test_[A-Za-z0-9_]+", content)
-        has_assert = "assert" in content
-        return has_test and has_assert
+    has_test = bool(re.search(r"def test_[A-Za-z0-9_]+", content))
+    has_assert = "assert" in content
+    return has_test and has_assert
     return False
 
 
@@ -344,6 +344,24 @@ def update_checklist_progress(checklist_path, progress):
     content_new = PROGRESS_LABEL_PATTERN.sub(
         rf"\g<1>{percent}% Complete\g<2>", content_new
     )
+    # --- Update the human-readable Progress Formula in the footer so it never drifts ---
+    try:
+        complete = green
+        remaining = red
+        # Replace the inline Progress Formula sentence up to the following <br>
+        PROGRESS_FORMULA_PATTERN = re.compile(
+            r'(<strong style="color:#a5b4fc;">Progress Formula:</strong>).*?(<br>)',
+            re.DOTALL,
+        )
+
+        def _formula_repl(m: re.Match) -> str:
+            # Build the replacement using the captured groups to avoid backreference escape issues
+            return f"{m.group(1)} {complete} complete / ({complete} complete + {remaining} remaining) = {percent}%. {m.group(2)}"
+
+        content_new = PROGRESS_FORMULA_PATTERN.sub(_formula_repl, content_new)
+    except Exception:
+        # If anything fails, leave the progress bar/label updated and keep content intact
+        pass
     # Do not insert or update section status summary at the top
     with open(checklist_path, "w", encoding="utf-8") as f:
         f.write(content_new)

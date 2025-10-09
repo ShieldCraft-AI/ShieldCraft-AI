@@ -1,0 +1,65 @@
+---
+title: "ADR-0006: Evaluation Baseline and Benchmarking Loop"
+slug: /adrs/0006-evaluation-baseline
+sidebar_label: "ADR-0006: Evaluation Baseline"
+tags: [adr, evaluation, benchmarking]
+sidebar_class_name: hidden-sidebar-item
+---
+
+## Status
+Accepted - Q3 2025
+
+## Context
+With the core architecture, configuration, model loader, and guardrails in place (ADRs 0001–0005), ShieldCraft AI needed a disciplined evaluation loop. Prospects and internal stakeholders asked for empirical evidence that retrieval and generation quality meets expectations across datasets. The team also needed a way to detect regressions when swapping embeddings (ADR-0002) or adjusting prompts (future ADRs).
+
+Constraints:
+- Benchmarks must run locally and in CI without incurring runaway costs.
+- Results should be persisted for storytelling within the docs portal and for audit trails.
+- The loop must integrate with configuration toggles (ADR-0003) and model loader paths (ADR-0004).
+
+## Decision
+Establish a benchmarking framework anchored on MTEB/BEIR suites with deterministic logging:
+
+1. Create evaluators in `ai_core` and `lambda/beir_benchmark` that load datasets, chunk with configured strategies, and run retrieval/generation passes.
+2. Persist metrics (accuracy, MRR, latency, token usage) to `mteb_benchmark.log` and `mteb_results.json/`, versioned per model/vector-store combination.
+3. Wire benchmarks into Nox sessions (`nox_sessions/beir.py`) so they can run on demand in CI or manually.
+4. Publish summarized results in docs and dashboards, linking back to decision ADRs for traceability.
+5. Add hooks for future spot-check harnesses and regression gates (see consequences).
+
+## Alternatives Considered
+- *Ad-hoc scripts per experiment*
+  - **Pro**: Quick to start
+  - **Con**: No provenance, hard to compare
+- *Third-party evaluation SaaS*
+  - **Pro**: Rich reporting
+  - **Con**: Cost, data governance concerns
+- *Manual QA only*
+  - **Pro**: Low effort
+  - **Con**: Not scalable, lacks rigor
+
+## Consequences
+- Provides empirical validation for buyers and internal teams; benchmarks back claims in the pricing and architecture narratives.
+- Adds maintenance overhead as benchmarks must evolve with new models/domains.
+- Creates a foundation for ADR-0007 (documentation and storytelling) and future ADRs covering retrieval spot-check harnesses.
+
+## Rollout Plan
+1. Implement evaluation utilities with configuration-driven parameters.
+2. Add logging and artifact persistence.
+3. Integrate runs into Nox sessions and CI documentation.
+4. Surface results in docs (`/docs-site/docs/github/evaluation.md`) and dashboards.
+5. Set expectations that major model/vector changes must update benchmark artifacts.
+
+## Success Metrics
+- Baseline MTEB/BEIR runs complete within agreed time windows and resource budgets.
+- Each release candidate has up-to-date evaluation artifacts linked in release notes.
+- Regression detection catches degradations before production demos.
+
+## References
+- `ai_core/` evaluation modules
+- `lambda/beir_benchmark/`
+- `nox_sessions/beir.py`
+- `mteb_benchmark.log`, `mteb_results.json/`
+- [ADR-0002: Vector Store Selection](/adrs/0002-vector-store)
+- [ADR-0004: Dual-Path Model Loader Strategy](/adrs/0004-model-loader)
+- [ADR-0005: Security Baseline and Cost Guardrails](/adrs/0005-security-guardrails)
+- [ADR-0007: Documentation and Storytelling Framework](/adrs/0007-storytelling-framework)

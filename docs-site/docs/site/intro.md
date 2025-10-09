@@ -3,8 +3,6 @@ title: ShieldCraft AI
 sidebar_position: 1
 ---
 
-# 🛡️ ShieldCraft AI
-
 **Next-Gen Cloud Cybersecurity: Proactive, Adaptive, Autonomous.**
 
 Welcome to ShieldCraft AI, an AWS-native, AI-driven cybersecurity platform engineered to empower enterprises against modern threats. Our mission is to transform security operations from reactive to proactive, leveraging advanced Generative AI, autonomous remediation, and predictive threat intelligence.

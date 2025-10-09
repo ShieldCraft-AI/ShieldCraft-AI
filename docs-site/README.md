@@ -16,6 +16,8 @@ yarn start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
+The Analyst Dashboard Mock is available at `/analyst-dashboard` when the dev server is running. It reads a static demo payload from `static/demo/demo_vertical_slice.json`.
+
 ## Build
 
 ```bash

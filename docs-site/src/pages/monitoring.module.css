@@ -649,13 +649,13 @@
 
 .incidentLabel {
     font-size: .6rem;
-    color: var(--hud-text);
-    background: rgba(15, 23, 42, 0.9);
+    color: var(--ifm-font-color-base);
+    background: var(--ifm-background-surface-color);
     padding: 1px 4px;
     border-radius: 3px;
     white-space: nowrap;
     margin-top: 2px;
-    border: 1px solid var(--hud-hairline);
+    border: 1px solid var(--ifm-color-emphasis-300);
 }
 
 /* Defense Layers topology */
@@ -692,18 +692,17 @@
     bottom: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid var(--hud-hairline);
+    background: var(--ifm-background-surface-color);
+    border: 1px solid var(--ifm-color-emphasis-300);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
     font-size: 0.7rem;
-    color: var(--hud-text);
+    color: var(--ifm-font-color-base);
     text-align: center;
     max-width: 90%;
     line-height: 1.3;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 10;
-    pointer-events: none;
 }
 
 @media (max-width: 1200px) {

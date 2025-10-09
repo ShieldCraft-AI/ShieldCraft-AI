@@ -1,0 +1,37 @@
+{
+    "findingId": "fdg-0001",
+    "evidence": [
+        {
+            "source": "guardduty",
+            "snippet": "EC2 instance port scan detected",
+            "score": 0.61
+        },
+        {
+            "source": "saas_security",
+            "snippet": "Unusual login location for admin user",
+            "score": 0.72
+        }
+    ],
+    "risk": {
+        "score": 0.665,
+        "class": "MEDIUM"
+    },
+    "remediation": {
+        "planId": "plan-fdg-0001",
+        "steps": [
+            {
+                "action": "quarantine-instance",
+                "owner": "secops"
+            },
+            {
+                "action": "force-mfa-reset",
+                "owner": "iam-admin"
+            }
+        ]
+    },
+    "meta": {
+        "generatedAt": "2025-10-07T00:00:00Z",
+        "env": "dev",
+        "version": 1
+    }
+}

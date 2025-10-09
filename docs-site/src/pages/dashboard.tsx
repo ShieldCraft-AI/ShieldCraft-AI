@@ -415,7 +415,7 @@ function ChartPlaceholder({ type, title, liveData, histories, lastChanged }: { t
                         <div className={styles.resourcesRow}>
                             <div className={styles.gauge}>
                                 <div className={styles.gaugeLabel}>CPU</div>
-                                <div className={`${styles.gaugeValue} ${styles.mono}`} title={`Updated ${formatAgo(lastChanged.resources)}`}>{cpu}%</div>
+                                <div className={`${styles.gaugeValue} ${styles.mono}`} data-tooltip={`Updated ${formatAgo(lastChanged.resources)}`}>{cpu}%</div>
                             </div>
                             <div className={styles.gauge}>
                                 <div className={styles.gaugeLabel}>RAM</div>
@@ -531,7 +531,7 @@ function ChartPlaceholder({ type, title, liveData, histories, lastChanged }: { t
                         {sevRows.map(r => {
                             const pct = totalThreats ? (r.value / totalThreats) * 100 : 0;
                             return (
-                                <div key={r.label} className={styles.threatRow} title={`Last change: ${new Date(lastChanged.threats).toLocaleString()}`}>
+                                <div key={r.label} className={styles.threatRow} data-tooltip={`Last change: ${new Date(lastChanged.threats).toLocaleString()}`}>
                                     <span className={styles.threatLabel}>{r.label}</span>
                                     <div className={styles.threatBarTrack}>
                                         <div className={styles.threatBarFill} style={{ width: `${pct}%`, background: r.color }} />
@@ -706,7 +706,7 @@ function DashboardCard({ card, liveMetrics, histories, lastChanged }: { card: an
         <div className={`${styles.card} ${cardStatusClass}`}>
             <div className={styles.cardHeader}>
                 <h3 className={styles.cardTitle}>{card.title}</h3>
-                <div className={`${styles.statusPill} ${styles[status]}`} title={card.id === 'threats' ? `Threat level: ${status}` : undefined}>{status.toUpperCase()}</div>
+                <div className={`${styles.statusPill} ${styles[status]}`} data-tooltip={card.id === 'threats' ? `Threat level: ${status}` : undefined}>{status.toUpperCase()}</div>
             </div>
 
             <div className={styles.metrics}>
