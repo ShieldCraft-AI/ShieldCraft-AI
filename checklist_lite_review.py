@@ -328,10 +328,11 @@ def review_progress(section_signals):
 def update_checklist_progress(checklist_path, progress):
     with open(checklist_path, "r", encoding="utf-8") as f:
         content = f.read()
-    # Count green and red checkboxes in the checklist file
-    green = len(re.findall(r"🟩", content))
+    # Count green, red and deferred checkboxes in the checklist file
+    green = len(re.findall(r"🟩|✅", content))
     red = len(re.findall(r"🟥", content))
-    total = green + red
+    deferred = len(re.findall(r"🕒", content))
+    total = green + red + deferred
     percent = int(round((green / total) * 100)) if total > 0 else 0
     PROGRESS_BAR_PATTERN = re.compile(
         r'(<progress[^>]+id="shieldcraft-progress"[^>]+value=")\d+("[^>]+max=")\d+("[^>]*>)',

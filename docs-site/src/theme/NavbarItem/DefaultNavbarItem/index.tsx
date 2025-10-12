@@ -5,8 +5,7 @@ import {
     onAuthChange,
     loginWithGoogle,
     loginWithAmazon,
-    loginWithMicrosoft,
-    loginWithGitHub,
+    loginWithProvider,
     getAvailableProviders,
     signOut
 } from '@site/src/utils/auth-cognito';
@@ -33,16 +32,26 @@ export default function DefaultNavbarItemWrapper(props: any) {
         }
     }, [showDropdown]);
 
-    const isLoginLink = (
-        (props?.to && (props.to === '/dashboard' || props.to === '/dashboard')) ||
-        (props?.href && (props.href === '/dashboard' || props.href === '/dashboard'))
-    );
+    const extractPathname = (val: any): string => {
+        if (!val) return '';
+        try {
+            // If val is an absolute URL, extract pathname
+            const u = new URL(String(val), window.location.origin);
+            return u.pathname || '';
+        } catch {
+            // Not a full URL; treat as path
+            return String(val || '');
+        }
+    };
 
-    const providerHandlers = {
+    const pathname = extractPathname(props?.to || props?.href);
+    const isLoginLink = pathname === '/dashboard' || pathname === '/dashboard/' || pathname.startsWith('/dashboard');
+
+    const providerHandlers: Record<string, () => Promise<void>> = {
         Google: loginWithGoogle,
         LoginWithAmazon: loginWithAmazon,
-        Microsoft: loginWithMicrosoft,
-        GitHub: loginWithGitHub,
+        Microsoft: async () => { await loginWithProvider('Microsoft'); },
+        GitHub: async () => { await loginWithProvider('GitHub'); },
     };
 
     const handleProviderLogin = async (providerId: string) => {

@@ -110,6 +110,51 @@ jobs:
           du -sh ./*
           echo "::endgroup::"
 
+  docs_site_e2e:
+    name: "Docs Site E2E"
+    runs-on: ubuntu-latest
+    needs: [flow_commit]
+    timeout-minutes: 60
+    env:
+      E2E_GOOGLE_EMAIL: ${{ secrets.E2E_GOOGLE_EMAIL }}
+      E2E_GOOGLE_PASSWORD: ${{ secrets.E2E_GOOGLE_PASSWORD }}
+      E2E_AMAZON_EMAIL: ${{ secrets.E2E_AMAZON_EMAIL }}
+      E2E_AMAZON_PASSWORD: ${{ secrets.E2E_AMAZON_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Announce hosted UI credential availability
+        run: |
+          if [ -z "$E2E_GOOGLE_EMAIL" ] || [ -z "$E2E_GOOGLE_PASSWORD" ]; then
+            echo "::warning ::E2E Google credentials not supplied - hosted UI flow will be skipped."
+          else
+            echo "Hosted UI Google credentials detected; real OAuth flow will be executed."
+          fi
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Install docs-site dependencies
+        working-directory: docs-site
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: docs-site
+        run: npx playwright install --with-deps
+      - name: Run docs-site e2e suite
+        working-directory: docs-site
+        run: npm run test:e2e
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site-playwright-report
+          path: docs-site/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
   cdk_deploy:
     if: false # Temporarily disable this job
     name: "CDK Deploy"

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Amazon logo">
+  <title>Amazon</title>
+  <!-- Simplified Amazon mark: lowercase 'a' with smile arrow -->
+  <rect width="48" height="48" rx="8" fill="#FF9900"/>
+  <g transform="translate(6,8)">
+    <path d="M10 22c5.523 0 10-4.477 10-10S15.523 2 10 2 0 6.477 0 12s4.477 10 10 10z" fill="#fff" opacity="0.0"/>
+    <path d="M6 14c1.7 0 3-1.2 3-2.5S7.7 9 6 9 3 10.2 3 11.5 4.3 14 6 14z" fill="#fff"/>
+    <path d="M4.5 18c2.7 1.4 6.1 1.8 9 0.6 0.3-0.12 0.4-0.48 0.28-0.76-.12-0.28-0.47-0.4-0.75-0.28C12 17.5 8.9 17.8 6.8 16.9 5.9 16.5 5 17.4 4.5 18z" fill="#fff"/>
+    <text x="18" y="16" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#fff">a</text>
+  </g>
+</svg>

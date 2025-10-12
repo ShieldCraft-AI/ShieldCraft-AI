@@ -13,6 +13,7 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
+    "test:e2e": "npm run build && playwright test",
     "pas:sync": "node -e \"/* noop: copy dist/proton/manifest.json when available */\""
   },
   "dependencies": {
@@ -39,6 +40,7 @@
     "@docusaurus/module-type-aliases": "3.8.1",
     "@docusaurus/tsconfig": "3.8.1",
     "@docusaurus/types": "3.8.1",
+    "@playwright/test": "^1.56.0",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-specification": "^1.0.5",
     "typescript": "~5.6.2"

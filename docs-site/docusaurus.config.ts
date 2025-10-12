@@ -66,6 +66,13 @@ const config: Config = {
     require.resolve('./src/clientModules/testModule.ts'),
   ],
 
+  scripts: [
+    {
+      src: '/js/sc-oauth-capture.js',
+      async: false,
+    },
+  ],
+
   themeConfig: {
     image: 'img/shieldcraft-ai-preview.jpg',
     navbar: {

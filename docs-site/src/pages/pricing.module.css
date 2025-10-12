@@ -703,6 +703,23 @@ html[data-theme=dark] .deploymentMeta {
     align-items: center
 }
 
+/* Make the infra header sticky so the tier selector is always visible */
+.infraHeaderSticky {
+    position: sticky;
+    top: 88px;
+    /* below the main site header */
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.00));
+    padding: 10px 0;
+    z-index: 5;
+    backdrop-filter: blur(4px);
+}
+
+.tierSummary {
+    font-size: .95rem;
+    opacity: .9;
+    align-self: center;
+}
+
 .infraTitle {
     margin: 0;
     font-size: 1.9rem
@@ -1434,6 +1451,17 @@ html[data-theme=dark] .infraGroup:focus-within {
     background: rgba(59, 130, 246, .08);
     font-weight: 600;
     transition: background .18s ease, border .18s ease, transform .18s ease, box-shadow .18s ease
+}
+
+.serviceMissing {
+    opacity: 0.38;
+    filter: grayscale(60%);
+    background: transparent;
+    border-style: dashed;
+}
+
+.serviceMissing::after {
+    content: attr(title);
 }
 
 html[data-theme=dark] .servicePill {

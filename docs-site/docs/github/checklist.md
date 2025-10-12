@@ -88,7 +88,7 @@
 <section class="sc-card">
 <h2 class="sc-section-title">☁️ AWS Cloud Foundation & Architecture</h2>
 <div class="sc-sub">Decoupled network, event, storage and catalog primitives composed via cross-stack contracts to isolate blast radius and enable incremental evolution.</div>
-<strong>Completed</strong>
+<div class="sc-h3">Completed</div>
 <ul class="sc-list">
   <li>✅ VPC + segmented subnets & security groups</li>
   <li>✅ Event-driven backbone (EventBridge patterns)</li>
@@ -96,61 +96,61 @@
   <li>✅ Guardrails: budgets, encryption defaults, security services</li>
   <li>✅ Cross-stack output/import composition</li>
 </ul>
-<strong>Remaining</strong>
-<ul class="sc-list">
-  <li>🕒 Full multi-region failover rehearsal (Deferred)</li>
-  <li>🕒 Automated drift remediation pipeline (Deferred)</li>
-</ul>
+<div class="sc-h3">Remaining</div>
+  <ul class="sc-list">
+    <li>🕒 Full multi-region failover rehearsal (Deferred)</li>
+    <li>🟥 Automated drift remediation pipeline (CI drift detection + reporting in place; remediation automation next)</li>
+  </ul>
 </section>
 
 
 <section class="sc-card">
 <h2 class="sc-section-title">🧠 AI Core Development & Experimentation</h2>
 <div class="sc-sub">Hot‑swap model loader (Mistral‑7B) + cost-control stub path + captured baseline signals; advanced orchestration & governance registry deferred.</div>
-<strong>Completed</strong>
+<div class="sc-h3">Completed</div>
 <ul class="sc-list">
   <li>✅ Model loader abstraction (hot-swap pathway)</li>
   <li>✅ Stub vs real inference toggle for cost control</li>
   <li>✅ Baseline relevance benchmarking captured</li>
 </ul>
-<strong>Remaining</strong>
-<ul class="sc-list">
-  <li>🕒 Multi-agent orchestration</li>
-  <li>🕒 Prompt governance registry & approval flow</li>
-  <li>🕒 Automated hallucination & toxicity evaluation loop</li>
-</ul>
+<div class="sc-h3">Remaining</div>
+  <ul class="sc-list">
+    <li>🕒 Multi-agent orchestration</li>
+    <li>🕒 Prompt governance registry & approval flow</li>
+    <li>🕒 Automated hallucination & toxicity evaluation loop</li>
+  </ul>
 </section>
 
 
 <section class="sc-card">
 <h2 class="sc-section-title">🚀 Application Layer & Integration</h2>
 <div class="sc-sub">Deliberately lean surface; upcoming scripted vertical slice will narrate ingest → retrieve → risk score without premature UI/API expansion.</div>
-<strong>Completed</strong>
+<div class="sc-h3">Completed</div>
 <ul class="sc-list">
   <li>✅ Domain interaction mapping available</li>
   <li>✅ Deterministic container build chain</li>
 </ul>
-<strong>Remaining</strong>
-<ul class="sc-list">
-  <li>🕒 Public API surface (post vertical slice)</li>
-  <li>🕒 Analyst UI / dashboard implementation</li>
-</ul>
+<div class="sc-h3">Remaining</div>
+  <ul class="sc-list">
+    <li>🕒 Public API surface (post vertical slice)</li>
+    <li>🟥 Analyst UI / dashboard implementation (Static dashboard components staged; interactive views pending)</li>
+  </ul>
 </section>
 
 
 <section class="sc-card">
 <h2 class="sc-section-title">✅ Evaluation & Continuous Improvement</h2>
 <div class="sc-sub">Benchmarks + failure-path tests established; manual spot‑check harness next; drift & A/B experimentation loops staged for later.</div>
-<strong>Completed</strong>
+<div class="sc-h3">Completed</div>
 <ul class="sc-list">
   <li>✅ Baseline retrieval & representation benchmarks captured</li>
   <li>✅ Failure-path tests for config & deployment</li>
 </ul>
-<strong>Remaining</strong>
-<ul class="sc-list">
-  <li>🕒 Continuous relevance drift monitoring loop</li>
-  <li>🕒 A/B prompt/model experimentation harness</li>
-</ul>
+<div class="sc-h3">Remaining</div>
+  <ul class="sc-list">
+    <li>🟥 Continuous relevance drift monitoring loop (Monitoring pages & CI drift detectors in place; automated alerts still pending)</li>
+    <li>🕒 A/B prompt/model experimentation harness</li>
+  </ul>
 </section>
 
 
@@ -158,13 +158,13 @@
 <section class="sc-card">
 <h2 class="sc-section-title">🔒 Security & Governance (Cross-Cutting)</h2>
 <div class="sc-sub">Embedded tagging, encryption defaults & detection services; SBOM pipeline, fine‑grain IAM review & drift automation intentionally deferred.</div>
-<strong>Completed</strong>
+<div class="sc-h3">Completed</div>
 <ul class="sc-list">
   <li>✅ Encryption defaults & lifecycle policies in storage layer</li>
   <li>✅ Security service activation (GuardDuty / Security Hub / Detective; Inspector optional)</li>
   <li>✅ Cost & tag governance enforcements</li>
 </ul>
-<strong>Remaining</strong>
+<div class="sc-h3">Remaining</div>
 <ul class="sc-list">
   <li>🕒 SBOM generation & signing pipeline</li>
   <li>🕒 Automated IAM access review cadence</li>
@@ -201,6 +201,9 @@
 
 <!-- PROGRESS FOOTER -->
 <section class="sc-card">
-  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 29 complete / (29 complete + 1 remaining) = 97%. <br>
-  <strong style="color:#a5b4fc;">Evidence Pointers:</strong> infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
+  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 44 complete / (44 complete + 11 remaining) = 80%. <br>
+  <strong style="color:#a5b4fc;">Breakdown:</strong> 3 active items (🟥) + 8 deferred items (🕒). <br>
+  <strong style="color:#a5b4fc;">Evidence Pointers:</strong>  infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
 </section>
+
+

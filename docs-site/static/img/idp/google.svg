@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Google logo">
+  <title>Google</title>
+  <!-- Simplified multicolor G-like mark suitable for toolbar/menu -->
+  <defs>
+    <clipPath id="c"><circle cx="24" cy="24" r="20"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect x="4" y="4" width="20" height="20" rx="6" fill="#EA4335"/>
+    <rect x="24" y="4" width="20" height="20" rx="6" fill="#FBBC05"/>
+    <rect x="4" y="24" width="20" height="20" rx="6" fill="#34A853"/>
+    <rect x="24" y="24" width="20" height="20" rx="6" fill="#4285F4"/>
+    <!-- white G-ish stroke -->
+    <path d="M30 20c-2.2-3.8-6.6-6-11-6-7.2 0-13 5.8-13 13s5.8 13 13 13c6.8 0 12.4-5 12.9-11.6H27v-6h9c0.1 0.9 0 1.8 0 2.6 0 9-7.3 16.3-16.3 16.3S7.7 33.9 7.7 24.9 15 8.6 24 8.6c4 0 7.7 1.4 10.4 3.8l-4.4 4.6z" fill="#FFFFFF" opacity="0.95"/>
+  </g>
+</svg>

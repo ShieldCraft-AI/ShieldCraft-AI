@@ -4,9 +4,19 @@
  */
 
 import { fetchAuthSession, signOut as amplifySignOut, signInWithRedirect, getCurrentUser as amplifyGetCurrentUser } from 'aws-amplify/auth';
-import { Hub } from 'aws-amplify/utils';
+import 'aws-amplify/auth/enable-oauth-listener';
 import { Amplify } from 'aws-amplify';
-import { amplifyConfig } from '@site/src/config/amplify-config';
+import { Hub } from 'aws-amplify/utils';
+import { amplifyConfig } from '../config/amplify-config';
+
+const isTestEnv = typeof globalThis !== 'undefined' && (globalThis as any)?.process?.env?.NODE_ENV === 'test';
+const AUTH_STORAGE_PREFIX = 'CognitoIdentityServiceProvider.';
+const AUTH_RECHECK_MAX_ATTEMPTS = 5;
+const AUTH_RECHECK_INTERVAL_MS = 3500;
+const AUTH_RETRY_DEBOUNCE_MS = 350;
+const STORED_OAUTH_SEARCH_KEY = '__sc_oauth_search';
+const STORED_OAUTH_HASH_KEY = '__sc_oauth_hash';
+const STORED_OAUTH_HREF_KEY = '__sc_oauth_href';
 
 export interface User {
     email: string;
@@ -83,6 +93,243 @@ function persistDebugSnapshot(key: string, data: Record<string, any>) {
     } catch { /* ignore */ }
 }
 
+function getForcedAuthFlag(): boolean | undefined {
+    // Enables automated end-to-end tests to bypass Cognito when __SC_E2E_FORCED_AUTH__ is set.
+    try {
+        if (typeof window === 'undefined') return undefined;
+        const flag = (window as any).__SC_E2E_FORCED_AUTH__;
+        if (flag === true) return true;
+        if (flag === false) return false;
+        return undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+let oauthCallbackProcessed = false;
+
+function getStoredOAuthParams() {
+    if (typeof window === 'undefined') return null;
+    try {
+        const search = window.sessionStorage?.getItem(STORED_OAUTH_SEARCH_KEY) || '';
+        const hash = window.sessionStorage?.getItem(STORED_OAUTH_HASH_KEY) || '';
+        const href = window.sessionStorage?.getItem(STORED_OAUTH_HREF_KEY) || '';
+        if (
+            (search && search.includes('code=') && search.includes('state=')) ||
+            (hash && hash.includes('code=') && hash.includes('state='))
+        ) {
+            return { search, hash, href };
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+function clearStoredOAuthParams() {
+    if (typeof window === 'undefined') return;
+    try {
+        window.sessionStorage?.removeItem(STORED_OAUTH_SEARCH_KEY);
+        window.sessionStorage?.removeItem(STORED_OAUTH_HASH_KEY);
+        window.sessionStorage?.removeItem(STORED_OAUTH_HREF_KEY);
+    } catch { /* ignore */ }
+}
+
+async function finalizeOAuthRedirect() {
+    if (oauthCallbackProcessed) return;
+    if (typeof window === 'undefined') return;
+    let search = window.location.search || '';
+    let hash = window.location.hash || '';
+    let usedStoredSearch = false;
+    let usedStoredHash = false;
+    const storedParams = getStoredOAuthParams();
+
+    if (!search.includes('code=') || !search.includes('state=')) {
+        if (storedParams?.search) {
+            search = storedParams.search;
+            usedStoredSearch = true;
+        }
+    }
+    if (!hash.includes('code=') || !hash.includes('state=')) {
+        if (storedParams?.hash) {
+            hash = storedParams.hash;
+            usedStoredHash = true;
+        }
+    }
+
+    if (!search.includes('code=') || !search.includes('state=')) {
+        if (!hash.includes('code=') || !hash.includes('state=')) return;
+    }
+
+    let restoredUrl: string | null = null;
+    if (!window.location.search.includes('code=') && storedParams?.search) {
+        try {
+            const base = storedParams.href && storedParams.href.includes('code=')
+                ? storedParams.href
+                : `${window.location.origin}${window.location.pathname}${storedParams.search}${storedParams.hash || ''}`;
+            window.history.replaceState({ __sc_oauth_restored: true }, document.title, base);
+            restoredUrl = base;
+            scDebug('OAuth query params restored into URL from capture script.');
+        } catch { /* ignore */ }
+    }
+
+    const shouldClearStoredParams = !!storedParams;
+
+    if (storedParams && (usedStoredSearch || usedStoredHash)) {
+        scDebug('Using stored OAuth params from capture script.', {
+            storedSearch: storedParams.search,
+            storedHash: storedParams.hash,
+            restoredUrl,
+        });
+    }
+
+    scDebug('Finalizing OAuth redirect via Amplify listener.');
+    try {
+        const WAIT_SCHEDULE_MS = [0, 150, 350, 700, 1200, 2000, 3000, 4000];
+        let tokensDetected = false;
+        let session: Awaited<ReturnType<typeof fetchAuthSession>> | null = null;
+
+        for (const delay of WAIT_SCHEDULE_MS) {
+            if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+
+            try {
+                session = await fetchAuthSession();
+            } catch (err) {
+                scDebug('fetchAuthSession after redirect failed:', err);
+            }
+
+            tokensDetected = !!(session?.tokens?.accessToken || session?.tokens?.idToken || hasTokensInStorage());
+            if (tokensDetected) break;
+
+            try {
+                session = await fetchAuthSession({ forceRefresh: true });
+                tokensDetected = !!(session?.tokens?.accessToken || session?.tokens?.idToken || hasTokensInStorage());
+                if (tokensDetected) break;
+            } catch (err) {
+                scDebug('fetchAuthSession force refresh after redirect failed:', err);
+            }
+        }
+
+        scDebug('OAuth redirect tokens detected:', tokensDetected);
+        if (tokensDetected) {
+            oauthCallbackProcessed = true;
+            resetAuthCache();
+
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('code');
+                url.searchParams.delete('state');
+                window.history.replaceState({}, document.title, url.toString());
+            } catch (err) {
+                scDebug('Failed to clean OAuth query params:', err);
+            }
+        } else {
+            try {
+                persistDebugSnapshot('oauth-finalize-missing-tokens', {
+                    href: window.location.href,
+                    attempts: 'listener + forceRefresh',
+                    timestamp: new Date().toISOString(),
+                });
+            } catch { /* ignore */ }
+        }
+    } catch (error) {
+        scDebug('finalizeOAuthRedirect error:', error);
+        try { persistDebugSnapshot('oauth-finalize-error', { message: String(error) }); } catch { /* ignore */ }
+    } finally {
+        if (shouldClearStoredParams) clearStoredOAuthParams();
+    }
+}
+
+let __sc_lastAuthState: boolean | null = null;
+let __sc_lastAuthCheckPromise: Promise<boolean> | null = null;
+let authRecheckTimer: number | null = null;
+let authPollerHandle: number | null = null;
+let authPollerRemaining = 0;
+
+function resetAuthCache() {
+    __sc_lastAuthState = null;
+    __sc_lastAuthCheckPromise = null;
+}
+
+function hasTokensInStorage(): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+        const clientId = amplifyConfig?.Auth?.Cognito?.userPoolClientId;
+        if (!clientId) return false;
+        const prefix = `${AUTH_STORAGE_PREFIX}${clientId}`;
+        const stores = [window.localStorage, window.sessionStorage];
+        for (const store of stores) {
+            try {
+                const lastAuthUser = store.getItem(`${prefix}.LastAuthUser`);
+                if (!lastAuthUser) continue;
+                const baseKey = `${prefix}.${lastAuthUser}`;
+                const access = store.getItem(`${baseKey}.accessToken`);
+                const id = store.getItem(`${baseKey}.idToken`);
+                if (access || id) return true;
+            } catch { /* ignore per-store issues */ }
+        }
+        return false;
+    } catch (err) {
+        scDebug('hasTokensInStorage error:', err);
+        return false;
+    }
+}
+
+function scheduleAuthRefresh(reason: string, immediate = false) {
+    if (typeof window === 'undefined') return;
+    const run = async () => {
+        authRecheckTimer = null;
+        try {
+            scDebug('scheduleAuthRefresh -> refreshAuthState', reason);
+            await refreshAuthState();
+        } catch (err) {
+            scDebug('scheduleAuthRefresh error:', err);
+        }
+    };
+
+    if (immediate) {
+        void run();
+        return;
+    }
+
+    if (authRecheckTimer) window.clearTimeout(authRecheckTimer);
+    authRecheckTimer = window.setTimeout(run, AUTH_RETRY_DEBOUNCE_MS);
+}
+
+function startAuthPoller(reason: string) {
+    if (typeof window === 'undefined' || isTestEnv) return;
+    if (authPollerHandle) {
+        window.clearTimeout(authPollerHandle);
+        authPollerHandle = null;
+    }
+    authPollerRemaining = AUTH_RECHECK_MAX_ATTEMPTS;
+
+    const iterate = async () => {
+        authPollerHandle = null;
+        try {
+            scDebug('auth poll tick', { reason, attemptsLeft: authPollerRemaining });
+            const loggedIn = await refreshAuthState();
+            authPollerRemaining -= 1;
+            if (loggedIn) {
+                authPollerRemaining = 0;
+                await notifyAuthChange();
+                return;
+            }
+            if (authPollerRemaining <= 0) {
+                authPollerRemaining = 0;
+                return;
+            }
+        } catch (err) {
+            scDebug('auth poll error:', err);
+            authPollerRemaining -= 1;
+            if (authPollerRemaining <= 0) return;
+        }
+        authPollerHandle = window.setTimeout(iterate, AUTH_RECHECK_INTERVAL_MS);
+    };
+
+    authPollerHandle = window.setTimeout(iterate, AUTH_RETRY_DEBOUNCE_MS);
+}
+
 export async function isLoggedIn(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
     return await _isLoggedInDedupe();
@@ -91,140 +338,16 @@ export async function isLoggedIn(): Promise<boolean> {
 // Force refresh auth state (bypass cache)
 export async function refreshAuthState(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
-    __sc_lastAuthState = null;
-    __sc_lastAuthCheckPromise = null;
-
-    // Check if we're on an OAuth callback URL and handle it
-    if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-        scDebug('Detected OAuth callback, processing...');
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
-
-            scDebug('OAuth callback params:', { code: code ? 'present' : 'missing', state: state ? 'present' : 'missing' });
-
-            if (code) {
-                // For direct Cognito OAuth (like Amazon), we need to manually exchange the code
-                scDebug('Attempting to exchange OAuth code...');
-
-                // Persist incoming callback info for debugging
-                try {
-                    persistDebugSnapshot('callbackParams', {
-                        href: window.location.href,
-                        search: window.location.search,
-                        origin: window.location.origin,
-                        redirectSignIn0: amplifyConfig.Auth.Cognito.loginWith.oauth.redirectSignIn[0],
-                        clientId: amplifyConfig.Auth.Cognito.userPoolClientId,
-                        timestamp: new Date().toISOString(),
-                    });
-                } catch { /* ignore */ }
-
-                // Try to get Amplify to process this callback
-                try {
-                    // Force Amplify to check for tokens after a delay
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-
-                    // Try fetching session with force refresh
-                    const session = await fetchAuthSession({ forceRefresh: true });
-                    scDebug('Post-callback session:', session);
-
-                    const hasTokens = !!(session?.tokens?.accessToken || session?.tokens?.idToken);
-                    scDebug('Tokens after callback processing:', hasTokens);
-
-                    if (hasTokens) {
-                        scDebug('OAuth callback successful!');
-                        // Clean up the URL
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete('code');
-                        url.searchParams.delete('state');
-                        window.history.replaceState({}, document.title, url.toString());
-
-                        // Notify all listeners
-                        await notifyAuthChange();
-                        return true;
-                    } else {
-                        scDebug('Amplify did not process OAuth callback, trying manual approach...');
-
-                        // Manual token exchange for direct Cognito OAuth
-                        const tokenResponse = await fetch('https://shieldcraft-auth.auth.us-east-1.amazoncognito.com/oauth2/token', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                grant_type: 'authorization_code',
-                                client_id: amplifyConfig.Auth.Cognito.userPoolClientId,
-                                code: code,
-                                redirect_uri: window.location.origin + '/dashboard',
-                            }),
-                        });
-
-                        // Persist token exchange outcome (status only) for debugging
-                        try {
-                            const debugOutcome: any = { status: tokenResponse.status, statusText: tokenResponse.statusText };
-                            // Attempt to capture a short, non-sensitive text body (trimmed)
-                            try {
-                                const text = await tokenResponse.clone().text();
-                                debugOutcome.bodySnippet = text.slice(0, 512);
-                            } catch { /* ignore body */ }
-                            persistDebugSnapshot('tokenExchange', debugOutcome);
-                        } catch { /* ignore */ }
-
-                        if (tokenResponse.ok) {
-                            const tokens = await tokenResponse.json();
-                            scDebug('Manual token exchange successful:', {
-                                hasAccessToken: !!tokens.access_token,
-                                hasIdToken: !!tokens.id_token
-                            });
-
-                            // Store tokens manually in localStorage for Amplify to find
-                            const userPoolId = amplifyConfig.Auth.Cognito.userPoolId;
-                            const clientId = amplifyConfig.Auth.Cognito.userPoolClientId;
-
-                            // Create Amplify-compatible token storage
-                            const tokenKey = `CognitoIdentityServiceProvider.${clientId}.LastAuthUser`;
-                            const userKey = `CognitoIdentityServiceProvider.${clientId}.${tokens.username || 'user'}`;
-
-                            localStorage.setItem(tokenKey, tokens.username || 'user');
-                            localStorage.setItem(`${userKey}.accessToken`, tokens.access_token);
-                            localStorage.setItem(`${userKey}.idToken`, tokens.id_token);
-                            if (tokens.refresh_token) {
-                                localStorage.setItem(`${userKey}.refreshToken`, tokens.refresh_token);
-                            }
-
-                            // Clean up URL
-                            const url = new URL(window.location.href);
-                            url.searchParams.delete('code');
-                            url.searchParams.delete('state');
-                            window.history.replaceState({}, document.title, url.toString());
-
-                            // Force Amplify to reload session
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                            const newSession = await fetchAuthSession({ forceRefresh: true });
-                            scDebug('Session after manual token storage:', newSession);
-
-                            await notifyAuthChange();
-                            return !!(newSession?.tokens?.accessToken || newSession?.tokens?.idToken);
-                        } else {
-                            scDebug('Manual token exchange failed:', tokenResponse.status);
-                        }
-                    }
-                } catch (error) {
-                    scDebug('OAuth callback processing error:', error);
-                }
-            }
-        } catch (error) {
-            scDebug('OAuth callback error:', error);
-        }
-    }
-
+    resetAuthCache();
+    await finalizeOAuthRedirect();
     return await _isLoggedInDedupe();
-}// Internal cached/deduped implementation
-let __sc_lastAuthState: boolean | null = null;
-let __sc_lastAuthCheckPromise: Promise<boolean> | null = null;
+}
+
+// Internal cached/deduped implementation
 
 async function _isLoggedInOnce(): Promise<boolean> {
+    const forced = getForcedAuthFlag();
+    if (typeof forced === 'boolean') return forced;
     try {
         scDebug('Checking auth session...');
         const session = await fetchAuthSession();
@@ -243,10 +366,16 @@ async function _isLoggedInOnce(): Promise<boolean> {
             idToken: session?.tokens?.idToken ? 'present' : 'missing'
         });
 
-        return hasValidTokens;
+        if (hasValidTokens) return true;
+
+        const storageTokens = hasTokensInStorage();
+        scDebug('Local storage fallback tokens present:', storageTokens);
+        return storageTokens;
     } catch (error) {
         scDebug('Auth check error:', String(error));
-        return false;
+        const storageTokens = hasTokensInStorage();
+        scDebug('Fallback after error - storage tokens:', storageTokens);
+        return storageTokens;
     }
 } async function _isLoggedInDedupe(): Promise<boolean> {
     // If a check is in-flight, await it
@@ -298,15 +427,25 @@ export async function loginWithHostedUI(): Promise<void> {
 }
 
 export async function loginWithProvider(provider: string): Promise<void> {
-    const cognitoDomain = 'shieldcraft-auth.auth.us-east-1.amazoncognito.com';
-    // Use the same client ID as amplifyConfig to avoid mismatches
-    const clientId = amplifyConfig.Auth.Cognito.userPoolClientId;
-    // Use the first configured redirect URI (matches Amplify's behavior)
-    const redirectUri = encodeURIComponent(amplifyConfig.Auth.Cognito.loginWith.oauth.redirectSignIn[0]);
+    const oauthConfig = amplifyConfig?.Auth?.Cognito?.loginWith?.oauth;
+    const clientId = amplifyConfig?.Auth?.Cognito?.userPoolClientId;
+    const domain = oauthConfig?.domain;
+    const redirectSignInList = Array.isArray(oauthConfig?.redirectSignIn) ? oauthConfig?.redirectSignIn : [];
 
-    const url = `https://${cognitoDomain}/oauth2/authorize?identity_provider=${provider}&client_id=${clientId}&response_type=code&scope=email+profile+openid&redirect_uri=${redirectUri}`;
+    if (!domain || !clientId || redirectSignInList.length === 0) {
+        throw new Error('Cognito OAuth configuration is incomplete.');
+    }
+
+    let redirectUri = redirectSignInList[0];
+    if (typeof window !== 'undefined') {
+        const origin = window.location.origin;
+        const match = redirectSignInList.find((entry) => entry.startsWith(origin));
+        if (match) redirectUri = match;
+    }
+
+    const encodedRedirect = encodeURIComponent(redirectUri);
+    const url = `https://${domain}/oauth2/authorize?identity_provider=${provider}&client_id=${clientId}&response_type=code&scope=email+profile+openid&redirect_uri=${encodedRedirect}`;
     scDebug('loginWithProvider -> redirecting to', url, 'provider:', provider, 'redirect_uri:', redirectUri, 'url state:', dumpUrlState());
-    // Navigate the browser to the Hosted UI
     window.location.href = url;
 }
 
@@ -346,6 +485,7 @@ export async function signOut(): Promise<void> {
         await amplifySignOut();
         // Proactively notify subscribers so UI updates immediately after logout
         try {
+            resetAuthCache();
             await notifyAuthChange();
         } catch {
             // noop
@@ -360,12 +500,18 @@ const authChangeListeners = new Set<AuthChangeCallback>();
 
 // Call all registered listeners
 export async function notifyAuthChange(): Promise<void> {
+    resetAuthCache();
     const authenticated = await isLoggedIn();
     scDebug('notifyAuthChange - authenticated:', authenticated, 'url:', dumpUrlState());
 
-    // Notify all registered callbacks
+    // Notify all registered callbacks (defensive: isolate listener errors)
     authChangeListeners.forEach(callback => {
-        callback(authenticated);
+        try {
+            callback(authenticated);
+        } catch (err) {
+            scDebug('authChange listener threw an error:', err);
+            // swallow to avoid bubbling into UI consumers
+        }
     });
 
     // Also broadcast a window-level event for any decoupled listeners
@@ -387,8 +533,16 @@ export function onAuthChange(callback: AuthChangeCallback): () => void {
 
     // Immediately check current auth state
     (async () => {
-        const authenticated = await isLoggedIn();
-        callback(authenticated);
+        try {
+            const authenticated = await isLoggedIn();
+            try {
+                callback(authenticated);
+            } catch (err) {
+                scDebug('onAuthChange initial callback threw an error:', err);
+            }
+        } catch (err) {
+            scDebug('onAuthChange initial isLoggedIn check failed:', err);
+        }
     })();
 
     return () => {
@@ -406,28 +560,60 @@ if (typeof window !== 'undefined') {
         // Configure Amplify with type assertion to handle complex OAuth provider configuration
         Amplify.configure(amplifyConfig as any);
 
-        Hub.listen('auth', async ({ payload }) => {
-            const event = payload?.event as string | undefined;
-            scDebug('Amplify auth event:', event);
-            if (!event) return;
-            // On any auth state change, notify listeners
-            await notifyAuthChange();
-        });
+        if (Hub && typeof Hub.listen === 'function') {
+            try {
+                Hub.listen('auth', async ({ payload }: any) => {
+                    const event = payload?.event as string | undefined;
+                    scDebug('Amplify auth event:', event);
+                    if (!event) return;
+                    resetAuthCache();
+                    // On any auth state change, notify listeners
+                    await notifyAuthChange();
+                    startAuthPoller(`hub-event:${event}`);
+                });
+            } catch (err) {
+                scDebug('Hub.listen failed to attach:', err);
+            }
+        } else {
+            scDebug('Amplify Hub not available; auth events will rely on polling/explicit notifyAuthChange');
+            startAuthPoller('hub-missing');
+        }
 
         // Check for OAuth callback on page load
         const handleOAuthCallback = async () => {
-            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            const hasOAuthParams = window.location.search.includes('code=') && window.location.search.includes('state=');
+            if (hasOAuthParams) {
                 scDebug('OAuth callback detected on page load');
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Give Amplify more time
-                await notifyAuthChange();
-            } else {
-                // Regular page load - check auth state
-                await notifyAuthChange();
+                await finalizeOAuthRedirect();
             }
+
+            await notifyAuthChange();
+            startAuthPoller(hasOAuthParams ? 'oauth-callback' : 'initial-load');
         };
 
         // Handle OAuth callback or regular auth check
         setTimeout(handleOAuthCallback, 100);
+
+        const focusListener = () => scheduleAuthRefresh('window-focus');
+        const visibilityListener = () => {
+            try {
+                if (typeof document !== 'undefined' && !document.hidden) scheduleAuthRefresh('visibility');
+            } catch { /* ignore */ }
+        };
+        const storageListener = (event: StorageEvent) => {
+            const key = event?.key || '';
+            if (!key) return;
+            if (key.startsWith(AUTH_STORAGE_PREFIX) || key === AUTH_KEY) {
+                scDebug('Storage event triggered auth refresh', key);
+                scheduleAuthRefresh('storage');
+            }
+        };
+        const pageShowListener = () => scheduleAuthRefresh('pageshow', true);
+
+        try { window.addEventListener('focus', focusListener); } catch { /* ignore */ }
+        try { window.addEventListener('pageshow', pageShowListener); } catch { /* ignore */ }
+        try { window.addEventListener('storage', storageListener); } catch { /* ignore */ }
+        try { if (typeof document !== 'undefined') document.addEventListener('visibilitychange', visibilityListener); } catch { /* ignore */ }
     } catch (err) {
         console.error('[auth-cognito] Initialization error:', err);
     }

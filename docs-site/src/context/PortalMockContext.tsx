@@ -364,20 +364,35 @@ const initialAlerts: Alert[] = [
 ];
 
 export function PortalMockProvider({ children }: { children: React.ReactNode }) {
-    const [env, setEnvState] = React.useState<'dev' | 'staging' | 'prod'>(() => {
-        if (typeof window === 'undefined') return 'dev';
+    const [env, setEnvState] = React.useState<'dev' | 'staging' | 'prod'>('dev');
+
+    React.useEffect(() => {
+        if (typeof window === 'undefined') return;
         try {
-            return (window.localStorage.getItem('sc-env') as 'dev' | 'staging' | 'prod') || 'dev';
+            const stored = window.localStorage.getItem('sc-env') as 'dev' | 'staging' | 'prod' | null;
+            if (stored && stored !== env) {
+                setEnvState(stored);
+            }
         } catch {
-            return 'dev';
+            /* ignore */
         }
-    });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Global search persisted per browser
-    const [searchQuery, setSearchQueryState] = React.useState<string>(() => {
-        if (typeof window === 'undefined') return '';
-        try { return window.localStorage.getItem('sc-portal-search') || ''; } catch { return ''; }
-    });
+    const [searchQuery, setSearchQueryState] = React.useState<string>('');
+
+    React.useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const storedSearch = window.localStorage.getItem('sc-portal-search');
+            if (storedSearch !== null) {
+                setSearchQueryState(storedSearch);
+            }
+        } catch {
+            /* ignore */
+        }
+    }, []);
     const setSearchQuery = React.useCallback((q: string) => {
         try { window.localStorage.setItem('sc-portal-search', q); } catch { }
         setSearchQueryState(q);
@@ -454,11 +469,7 @@ export function PortalMockProvider({ children }: { children: React.ReactNode }) 
         }
     };
 
-    const [alerts, setAlerts] = React.useState<Alert[]>(() => {
-        if (typeof window === 'undefined') return initialAlertsByEnv['dev'];
-        const currentEnv = (window.localStorage.getItem('sc-env') as 'dev' | 'staging' | 'prod') || 'dev';
-        return resolveAlertsForEnv(currentEnv);
-    });
+    const [alerts, setAlerts] = React.useState<Alert[]>(initialAlertsByEnv['dev']);
 
     // Switch alerts when environment changes
     React.useEffect(() => {

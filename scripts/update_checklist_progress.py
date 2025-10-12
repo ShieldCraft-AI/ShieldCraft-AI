@@ -98,6 +98,8 @@ def count_icons(text: str, icons: Iterable[str]) -> int:
 
 num_done = count_icons(count_region, COMPLETED_ICONS)
 num_todo = count_icons(count_region, REMAINING_ICONS)
+num_active = count_icons(count_region, ("🟥",))
+num_deferred = count_icons(count_region, ("🕒",))
 num_total = num_done + num_todo
 percent = int(round((num_done / num_total) * 100)) if num_total > 0 else 0
 
@@ -116,6 +118,59 @@ if content_new != checklist_content:
 else:
     print(
         f"[update_checklist_progress] Progress bar already up-to-date in checklist.md: {percent}%."
+    )
+
+# Update progress footer block in checklist.md (if present)
+FOOTER_BLOCK_PATTERN = re.compile(r"<!-- PROGRESS FOOTER -->(.*?)</section>", re.DOTALL)
+meta_default = (
+    " infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py "
+    "· scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py "
+    "· docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md "
+    "· docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt."
+)
+
+
+def build_footer_html(
+    done: int, todo: int, active: int, deferred: int, evidence_tail: str
+) -> str:
+    return (
+        "<!-- PROGRESS FOOTER -->\n"
+        '<section class="sc-card">\n'
+        '  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> '
+        f"{done} complete / ({done} complete + {todo} remaining) = {percent}%. <br>\n"
+        '  <strong style="color:#a5b4fc;">Breakdown:</strong> '
+        f"{active} active items (🟥) + {deferred} deferred items (🕒). <br>\n"
+        '  <strong style="color:#a5b4fc;">Evidence Pointers:</strong> '
+        f"{evidence_tail}</div>\n"
+        "</section>\n"
+    )
+
+
+footer_match = FOOTER_BLOCK_PATTERN.search(content_new)
+if footer_match:
+    footer_block = footer_match.group(1)
+    # Attempt to preserve existing evidence pointer text if present
+    evidence_tail = meta_default
+    m = re.search(r"Evidence Pointers:</strong>(.*)", footer_block, re.DOTALL)
+    if m:
+        extracted = m.group(1).strip()
+        # keep extracted content (strip closing tags)
+        extracted = re.sub(r"</?div>|</?section>|\s*$", "", extracted)
+        # normalize whitespace
+        evidence_tail = " " + " ".join(extracted.split())
+
+    new_footer = build_footer_html(
+        num_done, num_todo, num_active, num_deferred, evidence_tail
+    )
+    content_new = FOOTER_BLOCK_PATTERN.sub(new_footer, content_new)
+    with CHECKLIST_PATH.open("w", encoding="utf-8") as f:
+        f.write(content_new)
+    print(
+        f"[update_checklist_progress] Checklist footer updated: {num_done} done, {num_todo} remaining ({num_active} active, {num_deferred} deferred)."
+    )
+else:
+    print(
+        "[update_checklist_progress] No progress footer marker found in checklist.md; skipping footer update."
     )
 
 # Update <progress> value and label in README

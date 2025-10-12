@@ -1,5 +1,7 @@
+// @ts-nocheck
+/** @jsxImportSource react */
+import * as React from 'react';
 import Layout from '@theme/Layout';
-import React from 'react';
 import styles from './pricing.module.css';
 const staticDiscovery = require('../../static/data/architecture_discovery.json');
 
@@ -711,8 +713,6 @@ const DEPLOYMENT_OPTIONS: DeploymentOption[] = [
 ];
 
 export default function PricingPage() {
-    const blueprintSectionRef = React.useRef<HTMLDivElement | null>(null);
-    const [infraTier, setInfraTier] = React.useState<TierKey>('starter');
     const [hoveredService, setHoveredService] = React.useState<HoveredService | null>(null);
 
     React.useEffect(() => {
@@ -769,17 +769,7 @@ export default function PricingPage() {
 
     const [discovery] = React.useState<Discovery>(staticDiscovery as Discovery);
 
-    const navigateToBlueprint = (targetTier: TierKey) => {
-        setInfraTier(targetTier);
-        if (typeof window !== 'undefined') {
-            const scroll = () => blueprintSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            if (typeof window.requestAnimationFrame === 'function') {
-                window.requestAnimationFrame(scroll);
-            } else {
-                scroll();
-            }
-        }
-    };
+    // infra blueprint was moved to a dedicated /infrastructure page. Use that page for detailed view.
 
     const totalsByTier = React.useMemo(() => {
         if (discovery?.cost_analysis) {
@@ -1353,7 +1343,7 @@ export default function PricingPage() {
         </div>
     );
 
-    const TierColumn: React.FC<{ t: TierKey; onViewBlueprint: (tier: TierKey) => void; isBlueprintActive: boolean }> = ({ t, onViewBlueprint, isBlueprintActive }) => {
+    const TierColumn: React.FC<{ t: TierKey }> = ({ t }) => {
         const env = envForTier[t];
         const reverseMap: Record<string, string> = Object.entries(SERVICE_LABELS)
             .reduce((acc, [key, val]) => { acc[val] = key; return acc; }, {} as Record<string, string>);
@@ -1434,12 +1424,8 @@ export default function PricingPage() {
                             fontSize: '1.02rem'
                         }}>{toUSD(tierTotal)}</span>
                         <a
-                            href="#infra-blueprint"
-                            className={`${styles.viewArchitectureLink} ${isBlueprintActive ? styles.viewArchitectureLinkActive : ''}`}
-                            onClick={(event) => {
-                                event.preventDefault();
-                                onViewBlueprint(t);
-                            }}
+                            href="/infrastructure"
+                            className={`${styles.viewArchitectureLink}`}
                         >
                             View infrastructure
                         </a>
@@ -1456,194 +1442,24 @@ export default function PricingPage() {
             </div>
         );
     };
-
-    const InfraRegionMap: React.FC<{ blueprint: InfraBlueprint }> = ({ blueprint }) => (
-        <div className={styles.infraRegionMap}>
-            {blueprint.perimeter?.length ? (
-                <section className={styles.globalPerimeter} aria-label="Global guardrails and shared services">
-                    <div className={styles.perimeterConnector} aria-hidden>
-                        <span className={styles.perimeterConnectorLine} />
-                    </div>
-                    <div className={styles.perimeterStrip}>
-                        <div className={styles.perimeterTitle}>Global services</div>
-                        <div className={styles.perimeterGroups}>
-                            {blueprint.perimeter.map(group => (
-                                <div key={`perimeter-${group.title}`} className={styles.infraGroup}>
-                                    <div className={styles.groupTitle}>{group.title}</div>
-                                    {group.description && <p className={styles.groupDescription}>{group.description}</p>}
-                                    <div className={styles.servicePillRow}>
-                                        {group.services.map(service => (
-                                            <ServicePill key={`perimeter-${group.title}-${service}`} label={service} />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            ) : null}
-            <div className={styles.regionCanvas}>
-                <div className={styles.regionHeader}>
-                    <div>
-                        <h3 className={styles.regionTitle}>{blueprint.region}</h3>
-                    </div>
-                </div>
-                {blueprint.regionWide?.length ? (
-                    <div className={styles.regionWideSection}>
-                        <div className={styles.regionWideTitle}>Regional platforms &amp; data services</div>
-                        <div className={styles.regionWideGroups}>
-                            {blueprint.regionWide.map(group => (
-                                <div key={`region-${group.title}`} className={styles.infraGroup}>
-                                    <div className={styles.groupTitle}>{group.title}</div>
-                                    {group.description && <p className={styles.groupDescription}>{group.description}</p>}
-                                    <div className={styles.servicePillRow}>
-                                        {group.services.map(service => (
-                                            <ServicePill key={`region-${group.title}-${service}`} label={service} />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : null}
-                <div className={styles.vpcFrame}>
-                    <div className={styles.vpcBadge}>VPC</div>
-                    <div className={styles.azWrapper}>
-                        {blueprint.azs.map(az => (
-                            <div key={az.name} className={styles.azCard}>
-                                <div className={styles.azHeader}>
-                                    <div className={styles.azName}>{az.name}</div>
-                                    <p className={styles.azSummary}>{az.summary}</p>
-                                </div>
-                                {az.subnets?.length ? (
-                                    <div className={styles.subnetCluster}>
-                                        <div className={styles.subnetTitle}>Subnets &amp; workloads</div>
-                                        <div className={styles.subnetList}>
-                                            {az.subnets.map(subnet => (
-                                                <div
-                                                    key={`${az.name}-${subnet.name}`}
-                                                    className={styles.subnetCard}
-                                                    data-subnet-type={subnet.type}
-                                                >
-                                                    <div className={styles.subnetHeader}>
-                                                        <SubnetPill {...subnet} />
-                                                        {subnet.notes ? <span className={styles.subnetNotes}>{subnet.notes}</span> : null}
-                                                    </div>
-                                                    {subnet.workloads?.length ? (
-                                                        <div className={styles.subnetWorkloads}>
-                                                            {subnet.workloads.map(group => (
-                                                                <div key={`${az.name}-${subnet.name}-${group.title}`} className={styles.infraGroup}>
-                                                                    <div className={styles.groupTitle}>{group.title}</div>
-                                                                    {group.description && <p className={styles.groupDescription}>{group.description}</p>}
-                                                                    <div className={styles.servicePillRow}>
-                                                                        {group.services.map(service => (
-                                                                            <ServicePill key={`${az.name}-${subnet.name}-${group.title}-${service}`} label={service} />
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : null}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : null}
-                                {az.groups?.length ? (
-                                    <div className={styles.azGroups}>
-                                        {az.groups.map(group => (
-                                            <div key={`${az.name}-${group.title}`} className={styles.infraGroup}>
-                                                <div className={styles.groupTitle}>{group.title}</div>
-                                                {group.description && <p className={styles.groupDescription}>{group.description}</p>}
-                                                <div className={styles.servicePillRow}>
-                                                    {group.services.map(service => (
-                                                        <ServicePill key={`${az.name}-${group.title}-${service}`} label={service} />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : null}
-                            </div>
-                        ))}
-                    </div>
-                    {blueprint.failover ? (
-                        <div className={styles.failoverRibbon}>
-                            <div className={styles.failoverHeader}>
-                                <div className={styles.failoverHeadingGroup}>
-                                    <span className={styles.failoverBadge}>Multi-AZ failover</span>
-                                    <div className={styles.failoverTitle}>{blueprint.failover.title}</div>
-                                </div>
-                                {blueprint.failover.cadence ? (
-                                    <div className={styles.failoverCadence}>{blueprint.failover.cadence}</div>
-                                ) : null}
-                            </div>
-                            {blueprint.failover.azPath?.length ? (
-                                <div className={styles.failoverVector} aria-hidden>
-                                    {blueprint.failover.azPath.map((label, idx) => (
-                                        <React.Fragment key={`failover-path-${label}-${idx}`}>
-                                            <div className={styles.failoverNode}>{label}</div>
-                                            {idx !== blueprint.failover.azPath.length - 1 ? (
-                                                <div className={styles.failoverArrow}>
-                                                    <span className={styles.failoverArrowBody} />
-                                                    <span className={styles.failoverArrowHead} />
-                                                </div>
-                                            ) : null}
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            ) : null}
-                            <p className={styles.failoverDescription}>{blueprint.failover.description}</p>
-                            <div className={styles.servicePillRow}>
-                                {blueprint.failover.services.map(service => (
-                                    <ServicePill key={`failover-${service}`} label={service} />
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
-                </div>
-            </div>
-        </div>
-    );
-
+    // Infra blueprint removed from pricing page; detailed infra now lives at /infrastructure
     return (
         <Layout title="Pricing" description="ShieldCraft AI pricing tiers, add-ons, and infrastructure blueprint.">
             <div className={`${styles.pricingPageWrapper} pricing-page-wrapper`}>
                 <div className={styles.pricingInner}>
                     <h1 className={styles.pageTitle}>ShieldCraft AI Pricing</h1>
-                    <p className={styles.pageSubtitle}>Compare tiers to preview scope, monthly run-rate, and the AWS services each IaC template activates.</p>
+                    <p className={styles.pageSubtitle}>Compare tiers to preview scope, run-rate and the services each IaC template implements.</p>
                     <div className={styles.tierGridWrap}>
                         <div className={styles.tierGrid}>
                             {TIER_KEYS.map(t => (
                                 <TierColumn
                                     key={`col-${t}`}
                                     t={t}
-                                    onViewBlueprint={navigateToBlueprint}
-                                    isBlueprintActive={infraTier === t}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    <div ref={blueprintSectionRef} id="infra-blueprint" className={styles.infraSection}>
-                        <div className={styles.infraHeader}>
-                            <div className={styles.infraTierToggle} role="radiogroup" aria-label="Select infrastructure tier">
-                                {TIER_KEYS.map(t => (
-                                    <button
-                                        key={`infra-toggle-${t}`}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={infraTier === t}
-                                        className={`${styles.infraToggleButton} ${infraTier === t ? styles.infraToggleButtonActive : ''}`}
-                                        onClick={() => setInfraTier(t)}
-                                    >
-                                        {TIERS[t].label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <InfraRegionMap blueprint={INFRA_BLUEPRINT[infraTier]} />
-                    </div>
 
                     <div className={styles.deployGridWrap}>
                         <div className={styles.deployIntro}>
@@ -1667,3 +1483,6 @@ export default function PricingPage() {
         </Layout>
     );
 }
+
+// Re-export infra blueprint so other pages can import the same authoritative data
+export { INFRA_BLUEPRINT };
