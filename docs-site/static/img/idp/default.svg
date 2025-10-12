@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Identity">
+  <title>Identity</title>
+  <rect width="48" height="48" rx="8" fill="#e5e7eb"/>
+  <g transform="translate(6,6)" fill="#6b7280">
+    <circle cx="16" cy="12" r="6" />
+    <path d="M4 34c2-6 10-10 16-10s14 4 16 10v2H4v-2z" />
+  </g>
+</svg>

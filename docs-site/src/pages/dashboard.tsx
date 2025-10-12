@@ -528,41 +528,49 @@ function ChartPlaceholder({ type, title, liveData, histories, lastChanged }: { t
                 return (
                     <div className={styles.threatBars}>
                         <div className={styles.threatTotal}>Total: {totalThreats} • Updated {formatAgo(lastChanged.threats)}</div>
-                        {sevRows.map(r => {
-                            const pct = totalThreats ? (r.value / totalThreats) * 100 : 0;
-                            return (
-                                <div key={r.label} className={styles.threatRow} data-tooltip={`Last change: ${new Date(lastChanged.threats).toLocaleString()}`}>
-                                    <span className={styles.threatLabel}>{r.label}</span>
-                                    <div className={styles.threatBarTrack}>
-                                        <div className={styles.threatBarFill} style={{ width: `${pct}%`, background: r.color }} />
-                                    </div>
-                                    <span className={styles.threatValue}>{r.value}</span>
-                                    <span className={styles.threatPct}>({pct.toFixed(0)}%)</span>
-                                </div>
-                            );
-                        })}
-                        <svg viewBox="0 0 300 60" className={styles.chartSvg} preserveAspectRatio="none">
-                            {(() => {
-                                const vals = histories.threatsTotal;
-                                const max = Math.max(...vals), min = Math.min(...vals); const span = (max - min) || 1;
-                                const baseline = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
-                                const threshold = Math.max(5, Math.round(baseline + 2));
-                                const yFor = (v: number) => 50 - ((v - min) / span) * 50;
+
+                        {/* Rows and chart grouped with gap to avoid overlap */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {sevRows.map(r => {
+                                const pct = totalThreats ? (r.value / totalThreats) * 100 : 0;
                                 return (
-                                    <>
-                                        <path d={buildPath(vals, 300, 50)} fill="none" stroke="#f59e0b" strokeWidth={1.5} />
-                                        <line x1={0} x2={300} y1={yFor(baseline)} y2={yFor(baseline)} stroke="#64748b" strokeDasharray="4 4" strokeWidth={0.8} />
-                                        <line x1={0} x2={300} y1={yFor(threshold)} y2={yFor(threshold)} stroke="#ef4444" strokeDasharray="2 3" strokeWidth={0.8} />
-                                        {/* axis ticks */}
-                                        {[0, 0.5, 1].map((f, i) => {
-                                            const v = Math.round(min + f * (span));
-                                            const y = 50 - f * 50;
-                                            return <text key={`tt${i}`} x={2} y={y - 2} className={`${styles.axisText} ${styles.mono}`}>{v}</text>
-                                        })}
-                                    </>
+                                    <div key={r.label} className={styles.threatRow} data-tooltip={`Last change: ${new Date(lastChanged.threats).toLocaleString()}`}>
+                                        <span className={styles.threatLabel}>{r.label}</span>
+                                        <div className={styles.threatBarTrack}>
+                                            <div className={styles.threatBarFill} style={{ width: `${pct}%`, background: r.color }} />
+                                        </div>
+                                        <span className={styles.threatValue}>{r.value}</span>
+                                        <span className={styles.threatPct}>({pct.toFixed(0)}%)</span>
+                                    </div>
                                 );
-                            })()}
-                        </svg>
+                            })}
+                        </div>
+
+                        <div style={{ marginTop: 10 }}>
+                            <svg viewBox="0 0 300 60" className={styles.chartSvg} preserveAspectRatio="none" style={{ display: 'block', marginTop: 6 }}>
+                                {(() => {
+                                    const vals = histories.threatsTotal;
+                                    const max = Math.max(...vals), min = Math.min(...vals); const span = (max - min) || 1;
+                                    const baseline = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+                                    const threshold = Math.max(5, Math.round(baseline + 2));
+                                    const yFor = (v: number) => 50 - ((v - min) / span) * 50;
+                                    return (
+                                        <>
+                                            <path d={buildPath(vals, 300, 50)} fill="none" stroke="#f59e0b" strokeWidth={1.5} />
+                                            <line x1={0} x2={300} y1={yFor(baseline)} y2={yFor(baseline)} stroke="#64748b" strokeDasharray="4 4" strokeWidth={0.8} />
+                                            <line x1={0} x2={300} y1={yFor(threshold)} y2={yFor(threshold)} stroke="#ef4444" strokeDasharray="2 3" strokeWidth={0.8} />
+                                            {/* axis ticks */}
+                                            {[0, 0.5, 1].map((f, i) => {
+                                                const v = Math.round(min + f * (span));
+                                                const y = 50 - f * 50;
+                                                return <text key={`tt${i}`} x={2} y={y - 2} className={`${styles.axisText} ${styles.mono}`}>{v}</text>
+                                            })}
+                                        </>
+                                    );
+                                })()}
+                            </svg>
+                        </div>
+
                         <div className={styles.legend}>
                             <span className={styles.legendItem} style={{ color: '#f59e0b' }}><span className={styles.legendSwatch}></span>Total</span>
                             <span className={styles.legendItem} style={{ color: '#64748b' }}><span className={`${styles.legendSwatch} ${styles.dashed}`}></span>Baseline</span>

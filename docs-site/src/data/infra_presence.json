@@ -1,0 +1,38 @@
+{
+    "dev": {
+        "AWS Budgets": false,
+        "AWS Cost Explorer": false,
+        "AWS Backup": false,
+        "AWS CloudTrail": false,
+        "AWS Config": false,
+        "Amazon GuardDuty": false,
+        "Amazon Inspector": false,
+        "AWS Security Hub": false,
+        "AWS Artifact": false,
+        "AWS Control Tower": false
+    },
+    "staging": {
+        "AWS Budgets": false,
+        "AWS Cost Explorer": false,
+        "AWS Backup": false,
+        "AWS CloudTrail": false,
+        "AWS Config": false,
+        "Amazon GuardDuty": false,
+        "Amazon Inspector": false,
+        "AWS Security Hub": false,
+        "AWS Artifact": false,
+        "AWS Control Tower": false
+    },
+    "prod": {
+        "AWS Budgets": true,
+        "AWS Cost Explorer": true,
+        "AWS Backup": false,
+        "AWS CloudTrail": false,
+        "AWS Config": false,
+        "Amazon GuardDuty": false,
+        "Amazon Inspector": false,
+        "AWS Security Hub": false,
+        "AWS Artifact": false,
+        "AWS Control Tower": false
+    }
+}

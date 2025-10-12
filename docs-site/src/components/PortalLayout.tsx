@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect, useRef, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from '../pages/portal.module.css';
 import PortalSidebar from './PortalSidebar';
@@ -15,14 +15,59 @@ type Props = {
 // Move Content component outside to prevent re-creation on parent re-renders
 function PortalContent({ title, children, showEnvSelector = true, showSearchBar = true }: { title: string; children: React.ReactNode; showEnvSelector?: boolean; showSearchBar?: boolean }) {
   const { env, setEnv, searchQuery, setSearchQuery } = usePortalMock();
-  // Initialize from sessionStorage to persist state across navigations and re-renders
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('portal-sidebar-open');
-      return saved !== null ? saved === 'true' : true;
-    }
-    return true;
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+    try { return window.matchMedia('(max-width: 960px)').matches; } catch { return false; }
   });
+  const savedSidebarValue = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(max-width: 960px)');
+    const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
+      const matching = 'matches' in event ? event.matches : (event as MediaQueryList).matches;
+      setIsMobile(matching);
+    };
+
+    handleChange(mq);
+    if (typeof mq.addEventListener === 'function') mq.addEventListener('change', handleChange);
+    else if (typeof mq.addListener === 'function') mq.addListener(handleChange);
+    return () => {
+      if (typeof mq.removeEventListener === 'function') mq.removeEventListener('change', handleChange);
+      else if (typeof mq.removeListener === 'function') mq.removeListener(handleChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = sessionStorage.getItem('portal-sidebar-open');
+      if (saved !== null) {
+        savedSidebarValue.current = saved === 'true';
+        if (!isMobile) setSidebarOpen(savedSidebarValue.current);
+      }
+    } catch {
+      savedSidebarValue.current = null;
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile || savedSidebarValue.current === null) return;
+    setSidebarOpen(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isMobile && sidebarOpen) {
+      const previous = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = previous;
+      };
+    }
+    return;
+  }, [isMobile, sidebarOpen]);
 
   const toggleSidebar = React.useCallback(() => {
     setSidebarOpen(v => {
@@ -48,7 +93,18 @@ function PortalContent({ title, children, showEnvSelector = true, showSearchBar 
   }, []);
   return (
     <div className={`${styles.container} ${sidebarOpen ? '' : styles.collapsed}`}>
-      <PortalSidebar id="portal-sidebar" ariaHidden={!sidebarOpen} onNavigate={() => {
+      {isMobile && sidebarOpen && (
+        <div
+          className={styles.mobileBackdrop}
+          onClick={() => {
+            setSidebarOpen(false);
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('portal-sidebar-open', 'false');
+            }
+          }}
+        />
+      )}
+      <PortalSidebar id="portal-sidebar" ariaHidden={isMobile && !sidebarOpen} onNavigate={() => {
         setSidebarOpen(false);
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('portal-sidebar-open', 'false');

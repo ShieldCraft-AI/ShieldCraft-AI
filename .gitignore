@@ -207,6 +207,8 @@ docs-site/.yarn
 docs-site/.pnp.*
 docs-site/.turbo
 docs-site/.storybook
+docs-site/playwright-report/
+docs-site/test-results/
 logs/
 nox_sessions/__pycache__/
 nox_sessions/*.pyc

@@ -4,12 +4,9 @@ import {
     isLoggedIn,
     onAuthChange,
     signOut,
-    loginWithGoogle,
-    loginWithAmazon,
-    loginWithMicrosoft,
-    loginWithGitHub,
     getAvailableProviders
 } from '@site/src/utils/auth-cognito';
+import MultiProviderLogin from '@site/src/components/MultiProviderLogin';
 import { preloadPlotly } from '@site/src/utils/plotlyPreload';
 
 export default function LoginToggleNavbarItem() {
@@ -40,21 +37,7 @@ export default function LoginToggleNavbarItem() {
         }
     }, [showDropdown]);
 
-    const providerHandlers = {
-        Google: loginWithGoogle,
-        LoginWithAmazon: loginWithAmazon,
-        Microsoft: loginWithMicrosoft,
-        GitHub: loginWithGitHub,
-    };
-
-    const handleProviderLogin = async (providerId: string) => {
-        const handler = providerHandlers[providerId];
-        if (handler) {
-            setShowDropdown(false);
-            preloadPlotly();
-            await handler();
-        }
-    };
+    // Provider login handled by MultiProviderLogin component
 
     const handleLogout = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -80,12 +63,9 @@ export default function LoginToggleNavbarItem() {
         );
     }
 
-    // Show multi-provider dropdown for login
+    // Show multi-provider professional menu for login
     return (
-        <div
-            style={{ position: 'relative', display: 'inline-block' }}
-            onClick={(e) => e.stopPropagation()}
-        >
+        <div style={{ position: 'relative', display: 'inline-block' }} onClick={(e) => e.stopPropagation()}>
             <a
                 href="/dashboard"
                 className="navbar__item navbar__link"
@@ -99,49 +79,10 @@ export default function LoginToggleNavbarItem() {
                 Login ▼
             </a>
             {showDropdown && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '100%',
-                        right: 0,
-                        backgroundColor: 'var(--ifm-color-content-inverse)',
-                        border: '1px solid var(--ifm-color-emphasis-300)',
-                        borderRadius: '6px',
-                        boxShadow: 'var(--ifm-global-shadow-md)',
-                        minWidth: '180px',
-                        zIndex: 1000,
-                        marginTop: '4px',
-                    }}
-                >
-                    {getAvailableProviders().map((provider) => (
-                        <button
-                            key={provider.id}
-                            onClick={() => handleProviderLogin(provider.id)}
-                            style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                border: 'none',
-                                background: 'none',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                color: 'var(--ifm-color-content)',
-                                fontSize: '14px',
-                                transition: 'background-color 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = 'var(--ifm-color-emphasis-100)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                            }}
-                        >
-                            <span style={{ fontSize: '16px' }}>{provider.icon}</span>
-                            <span>Continue with {provider.name}</span>
-                        </button>
-                    ))}
+                <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000, marginTop: '8px' }}>
+                    <div className="navbar-provider-container" style={{ display: 'block' }}>
+                        <MultiProviderLogin showText={true} vertical={true} className="navbar-provider-menu" />
+                    </div>
                 </div>
             )}
         </div>
