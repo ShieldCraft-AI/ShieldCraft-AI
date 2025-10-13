@@ -52,6 +52,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
         const sync = async () => {
             try {
                 const authenticated = await isLoggedIn();
+                try { if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) console.debug('[UniversalHeader] initial isLoggedIn ->', authenticated); } catch { }
                 if (!cancelled) setLoggedIn(Boolean(authenticated));
             } catch {
                 if (!cancelled) setLoggedIn(false);
@@ -60,6 +61,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
 
         void sync();
         const unsubscribe = onAuthChange((authenticated) => {
+            try { if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) console.debug('[UniversalHeader] onAuthChange ->', authenticated); } catch { }
             if (!cancelled) setLoggedIn(Boolean(authenticated));
         });
 

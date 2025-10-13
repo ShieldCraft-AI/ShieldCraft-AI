@@ -48,6 +48,7 @@ export function initAuth(): void {
             // no-op if Amplify utils not present
         }
     } catch { /* ignore */ }
+
 }
 
 export async function isLoggedIn(): Promise<boolean> {
@@ -132,6 +133,11 @@ export async function finalizeOAuthRedirect(): Promise<void> {
             } catch { /* ignore */ }
         }
     } catch { /* ignore */ }
+
+    // Notify listeners after processing the redirect and persisting tokens so
+    // UI components (which may have mounted shortly after redirect) receive
+    // an immediate auth-change event. Best-effort only.
+    try { await notifyAuthChange(); } catch { /* ignore */ }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -255,9 +261,19 @@ export async function notifyAuthChange(): Promise<void> {
             }
 
             try {
+                if ((typeof window !== 'undefined') && (window as any).__SC_AUTH_DEBUG__) {
+                    // eslint-disable-next-line no-console
+                    console.debug('[auth-cognito] notifyAuthChange -> amplify path', { state });
+                }
                 if (state) window.localStorage.setItem(AUTH_KEY, '1'); else window.localStorage.removeItem(AUTH_KEY);
             } catch { /* ignore */ }
-            try { const ev = new CustomEvent(AUTH_EVENT, { detail: { value: state } }); window.dispatchEvent(ev); } catch { /* ignore */ }
+            try {
+                if ((typeof window !== 'undefined') && (window as any).__SC_AUTH_DEBUG__) {
+                    // eslint-disable-next-line no-console
+                    console.debug('[auth-cognito] dispatching event', { event: AUTH_EVENT, detail: { value: state } });
+                }
+                const ev = new CustomEvent(AUTH_EVENT, { detail: { value: state } }); window.dispatchEvent(ev);
+            } catch { /* ignore */ }
         } else {
             MinimalIdP.notifyAuthChange();
             state = MinimalIdP.isLoggedIn();
