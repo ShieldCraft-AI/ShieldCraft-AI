@@ -1,5 +1,6 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
+import webpack from 'webpack';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
@@ -118,7 +119,11 @@ const config: Config = {
       '@docusaurus/theme-mermaid',
     ]
   } satisfies Preset.ThemeConfig,
-  plugins: [require.resolve('./plugins/suppressWebpackVFileMessageWarnings')],
+  plugins: [
+    require.resolve('./plugins/suppressWebpackVFileMessageWarnings'),
+    // Provide webpack fallbacks via a local plugin that modifies the webpack config.
+    require.resolve('./plugins/webpack-polyfills'),
+  ],
 };
 
 export default config;

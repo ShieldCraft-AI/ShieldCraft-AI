@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import authFetch from '../utils/auth-fetch';
 
 const styles = {
     shell: { padding: 24, fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif', color: '#e6eef8' },
@@ -102,7 +103,7 @@ const DemoCard = ({ data }: { data: any }) => {
 export default function AnalystDashboard(): any {
     const [data, setData] = useState<any | null>(null);
     useEffect(() => {
-        fetch('/demo/demo_vertical_slice.json')
+        authFetch('/demo/demo_vertical_slice.json')
             .then((r) => r.json())
             .then((j) => setData(j))
             .catch(() => setData(null));

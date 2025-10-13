@@ -7,6 +7,7 @@ jest.doMock('../../config/amplify-config', () => ({
                 userPoolId: 'us-east-1_TEST',
                 loginWith: {
                     oauth: {
+                        domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com',
                         redirectSignIn: [
                             'https://prod.shieldcraft-ai.com/dashboard',
                             'http://localhost:3000/auth/callback',

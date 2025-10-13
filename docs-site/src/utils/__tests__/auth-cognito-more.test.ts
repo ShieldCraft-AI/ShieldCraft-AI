@@ -5,7 +5,7 @@ jest.doMock('../../config/amplify-config', () => ({
             Cognito: {
                 userPoolClientId: 'TEST_CLIENT_ID',
                 userPoolId: 'us-east-1_TESTPOOL',
-                loginWith: { oauth: { redirectSignIn: ['https://example.test/callback'] } }
+                loginWith: { oauth: { domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com', redirectSignIn: ['https://example.test/callback'] } }
             }
         }
     }
@@ -49,15 +49,18 @@ jest.doMock('aws-amplify', () => ({ Amplify: { configure: jest.fn() } }));
         test('refreshAuthState falls back to manual token exchange and retries with configured redirectSignIn', async () => {
             jest.setTimeout(15000);
             jest.resetModules();
+            // Use real timers to allow network calls and async waits to resolve
+            jest.useRealTimers();
 
             // Mock amplify-config for this test so the module import picks up CLIENT_ID
+            // Include domain so manual token exchange has a token endpoint to call.
             jest.doMock('../../config/amplify-config', () => ({
                 amplifyConfig: {
                     Auth: {
                         Cognito: {
                             userPoolClientId: 'CLIENT_ID',
                             userPoolId: 'us-east-1_TESTPOOL',
-                            loginWith: { oauth: { redirectSignIn: ['https://redirect.example.com/callback'] } }
+                            loginWith: { oauth: { domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com', redirectSignIn: ['https://redirect.example.com/callback'] } }
                         }
                     }
                 }

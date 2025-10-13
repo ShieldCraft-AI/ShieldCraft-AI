@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import authFetch from '../../utils/auth-fetch';
 
 const DataDebugger: React.FC = () => {
     const [data, setData] = useState<any>(null);
@@ -7,7 +8,7 @@ const DataDebugger: React.FC = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const response = await fetch('/data/architecture_discovery.json');
+                const response = await authFetch('/data/architecture_discovery.json');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

@@ -1,7 +1,7 @@
 import React from 'react';
 import ErrorBoundary from '@site/src/components/ErrorBoundary';
 import SiteFooter from '@site/src/components/SiteFooter';
-import { isLoggedIn, onAuthChange, notifyAuthChange } from '@site/src/utils/auth-cognito';
+import { isLoggedIn, onAuthChange, notifyAuthChange, initAuth } from '@site/src/utils/auth-cognito';
 import { useLocation } from '@docusaurus/router';
 
 // Log deployment info for debugging cache issues
@@ -13,6 +13,9 @@ export default function Root({ children }: { children: React.ReactNode }) {
     const location = useLocation();
     const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
     React.useEffect(() => {
+        // Initialize auth subsystem (explicit init avoids import-time side-effects)
+        try { initAuth(); } catch { /* ignore init errors during tests */ }
+
         const unsubscribe = onAuthChange((isAuth) => setLoggedIn(isAuth));
         return () => { unsubscribe(); };
     }, []);
