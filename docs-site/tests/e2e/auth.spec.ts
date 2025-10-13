@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 test.describe('E2E auth header', () => {
     test('header updates when authenticated and after logout', async ({ page, context, baseURL }) => {
@@ -31,8 +31,8 @@ test.describe('E2E auth header', () => {
         // The header should now show Login text/button
         await expect(page.locator('text=Login')).toBeVisible({ timeout: 5000 });
     });
+
 });
-import { test, expect, type Page } from '@playwright/test';
 
 const loginButton = () => ({ name: /login/i });
 const googleEmail = process.env.E2E_GOOGLE_EMAIL;

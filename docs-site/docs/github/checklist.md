@@ -205,5 +205,3 @@
   <strong style="color:#a5b4fc;">Breakdown:</strong> 3 active items (🟥) + 8 deferred items (🕒). <br>
   <strong style="color:#a5b4fc;">Evidence Pointers:</strong>  infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
 </section>
-
-

@@ -24,7 +24,8 @@ describe('OAuth callback handling', () => {
 
     beforeEach(() => {
         jest.resetModules();
-        jest.useFakeTimers();
+        // Use real timers to avoid flakiness with nested async + fake timers
+        jest.useRealTimers();
         originalFetch = global.fetch;
         (global.fetch as any) = jest.fn();
         localStorage.clear();
@@ -51,6 +52,7 @@ describe('OAuth callback handling', () => {
     });
 
     afterEach(() => {
+        // ensure timers restored
         jest.useRealTimers();
         if (originalFetch) {
             global.fetch = originalFetch;
@@ -66,6 +68,7 @@ describe('OAuth callback handling', () => {
                         userPoolId: 'us-east-1_TEST',
                         loginWith: {
                             oauth: {
+                                domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com',
                                 redirectSignIn: [
                                     'https://shieldcraft-ai.com/dashboard',
                                     'http://localhost:3000/auth/callback',
@@ -120,7 +123,8 @@ describe('OAuth callback handling', () => {
             loc.search = '?code=abc123&state=xyz';
 
             const refreshPromise = mod.refreshAuthState();
-            jest.advanceTimersByTime(2500);
+            // Wait a short amount to let the code perform its async token exchange attempts
+            await new Promise(res => setTimeout(res, 2600));
             const result = await refreshPromise;
 
             expect(result).toBe(true);

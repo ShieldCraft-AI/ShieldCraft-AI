@@ -54,8 +54,8 @@ describe('Amplify Hub auth bridge', () => {
         }));
 
         const hubCallbacks: Array<(payload: any) => Promise<void>> = [];
-        jest.doMock('aws-amplify', () => ({
-            Amplify: { configure: jest.fn() },
+        // auth-cognito imports Hub from 'aws-amplify/utils' - mock that path so the module's Hub.listen is captured
+        jest.doMock('aws-amplify/utils', () => ({
             Hub: {
                 listen: (_channel: string, cb: (input: any) => Promise<void>) => {
                     hubCallbacks.push(cb);
@@ -64,8 +64,13 @@ describe('Amplify Hub auth bridge', () => {
             },
         }));
 
+        // Also mock the top-level aws-amplify to avoid accidental runtime calls
+        jest.doMock('aws-amplify', () => ({ Amplify: { configure: jest.fn() } }));
+
         await jest.isolateModulesAsync(async () => {
-            await import('../auth-cognito');
+            const mod = await import('../auth-cognito');
+            // initialize explicitly so Hub.listen is attached (tests import without side-effects)
+            if (typeof mod.initAuth === 'function') mod.initAuth();
             expect(hubCallbacks).toHaveLength(1);
 
             const cb = hubCallbacks[0];

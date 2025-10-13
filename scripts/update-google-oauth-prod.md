@@ -6,7 +6,7 @@ Your Cognito is now configured for production, but you need to update Google OAu
 
 1. **Go to Google Cloud Console**: https://console.cloud.google.com/apis/credentials
 
-2. **Find your OAuth Client**: `280290087757-ukcu2fiiuv9enlh6pa2dhi6beq3l1l6f.apps.googleusercontent.com`
+2. **Find your OAuth Client**: `1234`
 
 3. **Add Authorized Redirect URIs**:
    - Currently you probably only have localhost

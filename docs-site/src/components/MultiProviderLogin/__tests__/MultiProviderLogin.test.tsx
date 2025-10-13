@@ -62,7 +62,7 @@ describe('MultiProviderLogin', () => {
         expect(onLogin).toHaveBeenCalledWith('Google');
     });
 
-    it('still renders Amazon handler wiring when available', () => {
+    it('still renders Amazon handler wiring when available', async () => {
         getAvailableProvidersMock.mockReturnValueOnce([
             { id: 'LoginWithAmazon', name: 'Amazon' },
         ]);
@@ -71,7 +71,20 @@ describe('MultiProviderLogin', () => {
         render(<MultiProviderLogin />);
 
         const amazonButton = screen.getByRole('button', { name: /sign in with amazon/i });
-        userEvent.click(amazonButton);
+        // Diagnostic: compare the module function identity that the test
+        // mocked vs the runtime require the component will use.
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const runtimeAuth = require('../../../utils/auth-cognito');
+            // eslint-disable-next-line no-console
+            console.debug('[TEST] runtimeAuth keys', Object.keys(runtimeAuth || {}));
+            // eslint-disable-next-line no-console
+            console.debug('[TEST] loginWithAmazon mock === runtimeAuth.loginWithAmazon', loginWithAmazonMock === runtimeAuth.loginWithAmazon);
+            // eslint-disable-next-line no-console
+            console.debug('[TEST] require.resolve', require.resolve('../../../utils/auth-cognito'));
+        } catch (err) { /* ignore */ }
+
+        await userEvent.click(amazonButton);
 
         expect(loginWithAmazonMock).toHaveBeenCalledTimes(1);
     });
