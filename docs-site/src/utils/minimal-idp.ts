@@ -138,6 +138,12 @@ function emit(isAuth: boolean) {
     }
     try {
         if (typeof window !== 'undefined') {
+            try {
+                if ((window as any).__SC_AUTH_DEBUG__) {
+                    // eslint-disable-next-line no-console
+                    console.debug('[MinimalIdP] emit', { isAuth, storageKey: STORAGE_KEY, authKey: AUTH_KEY, tokens: (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null } })() });
+                }
+            } catch { /* ignore debug failures */ }
             const ev = new CustomEvent(AUTH_EVENT, { detail: { value: isAuth } });
             window.dispatchEvent(ev);
             if (isAuth) localStorage.setItem(AUTH_KEY, '1'); else localStorage.removeItem(AUTH_KEY);
@@ -180,133 +186,161 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                     body: body.toString(),
                 });
 
+                // Capture debug info about the token exchange when requested.
+                let json: any = null;
                 if (!resp.ok) {
+                    try {
+                        const txt = await resp.text().catch(() => null);
+                        if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                            // eslint-disable-next-line no-console
+                            console.debug('[MinimalIdP] token endpoint non-OK response', { url: tokenEndpoint, status: resp.status, text: txt });
+                        }
+                        try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, text: txt })); } catch { }
+                    } catch { }
                     continue;
                 }
 
-                const json = await resp.json().catch(() => null);
-                if (!json) continue;
+                json = await resp.json().catch(() => null);
+                if (!json) {
+                    try {
+                        const txt = await resp.text().catch(() => null);
+                        if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                            // eslint-disable-next-line no-console
+                            console.debug('[MinimalIdP] token endpoint returned non-JSON', { url: tokenEndpoint, status: resp.status, text: txt });
+                        }
+                        try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, text: txt })); } catch { }
+                    } catch { }
+                    continue;
+                }
 
-                const expiresIn = json.expires_in ? Number(json.expires_in) : undefined;
-                const payload: Tokens = {
-                    accessToken: json.access_token || null,
-                    idToken: json.id_token || null,
-                    refreshToken: json.refresh_token || null,
-                    username: json.username || json.user || null,
-                    raw: json,
-                    // expiresAt in ms since epoch
-                    ...(expiresIn ? { expiresAt: Date.now() + expiresIn * 1000 } : {}),
-                } as any;
-
-                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch { /* ignore */ }
-                emit(true);
-
-                // Clean URL if running in browser
+                // On success, store the raw response for debugging (best-effort, avoid tokens in logs unless debug enabled)
                 try {
-                    if (typeof window !== 'undefined') {
-                        const cur = new URL(window.location.href);
-                        cur.searchParams.delete('code');
-                        cur.searchParams.delete('state');
-                        window.history.replaceState({}, document.title, cur.toString());
+                    if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                        // eslint-disable-next-line no-console
+                        console.debug('[MinimalIdP] token endpoint success', { url: tokenEndpoint, json });
                     }
-                } catch { /* ignore */ }
+                    try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, json: json })); } catch { }
+                } catch { }
+                    const expiresIn = json.expires_in ? Number(json.expires_in) : undefined;
+                    const payload: Tokens = {
+                        accessToken: json.access_token || null,
+                        idToken: json.id_token || null,
+                        refreshToken: json.refresh_token || null,
+                        username: json.username || json.user || null,
+                        raw: json,
+                        // expiresAt in ms since epoch
+                        ...(expiresIn ? { expiresAt: Date.now() + expiresIn * 1000 } : {}),
+                    } as any;
 
-                return { success: true, tokens: payload };
-            } catch (err) {
-                continue;
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch { /* ignore */ }
+                    emit(true);
+
+                    // Clean URL if running in browser
+                    try {
+                        if (typeof window !== 'undefined') {
+                            const cur = new URL(window.location.href);
+                            cur.searchParams.delete('code');
+                            cur.searchParams.delete('state');
+                            window.history.replaceState({}, document.title, cur.toString());
+                        }
+                    } catch { /* ignore */ }
+
+                    return { success: true, tokens: payload };
+                } catch (err) {
+                    continue;
+                }
             }
-        }
 
         return { success: false, error: 'no-token' };
-    } catch (err: any) {
-        return { success: false, error: String(err) };
+        } catch (err: any) {
+            return { success: false, error: String(err) };
+        }
     }
-}
 
 // Refresh tokens using refresh_token grant
 export async function refreshWithRefreshToken(): Promise<boolean> {
-    if (!cfg) return false;
-    try {
-        const tokens = getTokens();
-        if (!tokens || !tokens.refreshToken) return false;
-        const tokenEndpoint = `https://${cfg.domain}/oauth2/token`;
-        const body = new URLSearchParams();
-        body.set('grant_type', 'refresh_token');
-        body.set('refresh_token', tokens.refreshToken || '');
-        body.set('client_id', cfg.clientId);
+        if (!cfg) return false;
+        try {
+            const tokens = getTokens();
+            if (!tokens || !tokens.refreshToken) return false;
+            const tokenEndpoint = `https://${cfg.domain}/oauth2/token`;
+            const body = new URLSearchParams();
+            body.set('grant_type', 'refresh_token');
+            body.set('refresh_token', tokens.refreshToken || '');
+            body.set('client_id', cfg.clientId);
 
-        const resp = await fetch(tokenEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: body.toString(),
-        });
-        if (!resp.ok) return false;
-        const json = await resp.json().catch(() => null);
-        if (!json) return false;
+            const resp = await fetch(tokenEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: body.toString(),
+            });
+            if (!resp.ok) return false;
+            const json = await resp.json().catch(() => null);
+            if (!json) return false;
 
-        const expiresIn = json.expires_in ? Number(json.expires_in) : undefined;
-        const payload: any = {
-            accessToken: json.access_token || null,
-            idToken: json.id_token || null,
-            refreshToken: json.refresh_token || tokens.refreshToken || null,
-            username: json.username || tokens.username || null,
-            raw: json,
-            ...(expiresIn ? { expiresAt: Date.now() + expiresIn * 1000 } : {}),
-        };
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch { /* ignore */ }
-        emit(true);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-export function isLoggedIn(): boolean {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return false;
-        const obj = JSON.parse(raw);
-        return !!(obj?.accessToken || obj?.idToken);
-    } catch { return false; }
-}
-
-export function getTokens(): Tokens {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; }
-}
-
-export async function signOut(): Promise<void> {
-    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(AUTH_KEY); } catch { /* ignore */ }
-    emit(false);
-}
-
-// Ensure there's a valid (non-expired) access token. If expired and refresh_token
-// is available, attempt to refresh. Returns true if valid token available.
-export async function ensureValidToken(): Promise<boolean> {
-    try {
-        const t = getTokens();
-        if (t && (t.accessToken || t.idToken)) {
-            if (t.expiresAt && Date.now() > t.expiresAt - 5000) {
-                // token expired (allow 5s clock skew), try refresh
-                const ok = await refreshWithRefreshToken();
-                return ok;
-            }
+            const expiresIn = json.expires_in ? Number(json.expires_in) : undefined;
+            const payload: any = {
+                accessToken: json.access_token || null,
+                idToken: json.id_token || null,
+                refreshToken: json.refresh_token || tokens.refreshToken || null,
+                username: json.username || tokens.username || null,
+                raw: json,
+                ...(expiresIn ? { expiresAt: Date.now() + expiresIn * 1000 } : {}),
+            };
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch { /* ignore */ }
+            emit(true);
             return true;
+        } catch {
+            return false;
         }
-        // no token: try to refresh
-        const ok = await refreshWithRefreshToken();
-        return ok;
-    } catch {
-        return false;
     }
-}
 
-export function onAuthChange(cb: (isAuth: boolean) => void): () => void {
-    listeners.add(cb);
-    // call immediately with current state
-    try { cb(isLoggedIn()); } catch { /* ignore */ }
-    return () => { listeners.delete(cb); };
-}
+    export function isLoggedIn(): boolean {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return false;
+            const obj = JSON.parse(raw);
+            return !!(obj?.accessToken || obj?.idToken);
+        } catch { return false; }
+    }
 
-export function notifyAuthChange() { emit(isLoggedIn()); }
+    export function getTokens(): Tokens {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; }
+    }
 
-export default { init, getConfig, login, handleRedirectCallback, isLoggedIn, getTokens, signOut, onAuthChange, notifyAuthChange };
+    export async function signOut(): Promise<void> {
+        try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(AUTH_KEY); } catch { /* ignore */ }
+        emit(false);
+    }
+
+    // Ensure there's a valid (non-expired) access token. If expired and refresh_token
+    // is available, attempt to refresh. Returns true if valid token available.
+    export async function ensureValidToken(): Promise<boolean> {
+        try {
+            const t = getTokens();
+            if (t && (t.accessToken || t.idToken)) {
+                if (t.expiresAt && Date.now() > t.expiresAt - 5000) {
+                    // token expired (allow 5s clock skew), try refresh
+                    const ok = await refreshWithRefreshToken();
+                    return ok;
+                }
+                return true;
+            }
+            // no token: try to refresh
+            const ok = await refreshWithRefreshToken();
+            return ok;
+        } catch {
+            return false;
+        }
+    }
+
+    export function onAuthChange(cb: (isAuth: boolean) => void): () => void {
+        listeners.add(cb);
+        // call immediately with current state
+        try { cb(isLoggedIn()); } catch { /* ignore */ }
+        return () => { listeners.delete(cb); };
+    }
+
+    export function notifyAuthChange() { emit(isLoggedIn()); }
+
+    export default { init, getConfig, login, handleRedirectCallback, isLoggedIn, getTokens, signOut, onAuthChange, notifyAuthChange };
