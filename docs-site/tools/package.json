@@ -1,17 +1,20 @@
 {
-    "name": "shieldcraft-docs-mdx-pipeline",
-    "version": "1.0.0",
-    "description": "Automated Markdown/MDX conversion pipeline for Docusaurus using remark and plugins.",
-    "main": "convert-mdx.js",
-    "scripts": {
-        "convert": "node convert-mdx.js"
-    },
-    "dependencies": {
-        "unified": "10.1.2",
-        "remark-parse": "9.0.0",
-        "remark-stringify": "9.0.1",
-        "fs-extra": "^11.2.0"
-    },
-    "author": "ShieldCraft AI Team",
-    "license": "MIT"
+  "name": "shieldcraft-docs-mdx-pipeline",
+  "version": "1.0.0",
+  "description": "Automated Markdown/MDX conversion pipeline for Docusaurus using remark and plugins.",
+  "main": "convert-mdx.js",
+  "scripts": {
+    "convert": "node convert-mdx.js"
+  },
+  "dependencies": {
+    "unified": "10.1.2",
+    "remark-parse": "9.0.0",
+    "remark-stringify": "9.0.1",
+    "fs-extra": "^11.2.0"
+  },
+  "author": "ShieldCraft AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vm-browserify": "^1.1.0"
+  }
 }

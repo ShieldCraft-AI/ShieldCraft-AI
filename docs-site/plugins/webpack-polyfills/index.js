@@ -17,6 +17,8 @@ module.exports = function () {
             stream: require.resolve('stream-browserify'),
             buffer: require.resolve('buffer/'),
             assert: require.resolve('assert/'),
+            // Polyfill Node core 'vm' for libraries that use it (e.g. asn1.js)
+            vm: require.resolve('vm-browserify'),
             util: require.resolve('util/'),
           },
         },
