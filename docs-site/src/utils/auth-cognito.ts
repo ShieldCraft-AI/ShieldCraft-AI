@@ -65,24 +65,17 @@ export function initAuth(): void {
 }
 
 export async function isLoggedIn(): Promise<boolean> {
+    console.debug('[isLoggedIn] Checking authentication status');
+
     // Fast path: if we've previously recorded an authenticated state, use it
     try {
-        if (typeof window !== 'undefined' && window.localStorage.getItem(AUTH_KEY) === '1') return true;
-    } catch { /* ignore */ }
-
-    // If tests or other code mock aws-amplify/auth, prefer their fetchAuthSession
-    try {
-        // dynamic require to avoid static import-time side-effects
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const amp = require('aws-amplify/auth');
-        if (amp && typeof amp.fetchAuthSession === 'function') {
-            try {
-                const session = await amp.fetchAuthSession();
-                const has = !!(session?.tokens?.accessToken || session?.tokens?.idToken);
-                if (has) return true;
-            } catch { /* swallow and fall back */ }
+        if (typeof window !== 'undefined' && window.localStorage.getItem(AUTH_KEY) === '1') {
+            console.debug('[isLoggedIn] AUTH_KEY found in localStorage:', AUTH_KEY);
+            return true;
         }
-    } catch { /* not available - fall back to minimal idp */ }
+    } catch (error) {
+        console.error('[isLoggedIn] Error checking AUTH_KEY in localStorage:', error);
+    }
 
     // As a last-ditch, try Amplify-compatible localStorage keys (LastAuthUser + accessToken)
     try {
@@ -90,22 +83,33 @@ export async function isLoggedIn(): Promise<boolean> {
         if (clientId && typeof window !== 'undefined') {
             const prefix = `CognitoIdentityServiceProvider.${clientId}`;
             const last = window.localStorage.getItem(`${prefix}.LastAuthUser`);
+            console.debug('[isLoggedIn] LastAuthUser key:', last);
+
             if (last) {
                 const tok = window.localStorage.getItem(`${prefix}.${last}.accessToken`);
+                console.debug('[isLoggedIn] Access token found:', tok);
                 if (tok) return true;
             }
         }
-    } catch { /* ignore */ }
+    } catch (error) {
+        console.error('[isLoggedIn] Error checking Cognito keys in localStorage:', error);
+    }
 
     ensureMinimalInit();
     try {
         // If minimal idp supports ensureValidToken, use it to refresh expired tokens
         if (typeof (MinimalIdP as any).ensureValidToken === 'function') {
             const ok = await (MinimalIdP as any).ensureValidToken();
+            console.debug('[isLoggedIn] ensureValidToken result:', ok);
             if (ok) return true;
         }
-    } catch { /* ignore */ }
-    return MinimalIdP.isLoggedIn();
+    } catch (error) {
+        console.error('[isLoggedIn] Error ensuring valid token:', error);
+    }
+
+    const minimalLoggedIn = MinimalIdP.isLoggedIn();
+    console.debug('[isLoggedIn] MinimalIdP.isLoggedIn result:', minimalLoggedIn);
+    return minimalLoggedIn;
 }
 
 export async function refreshAuthState(): Promise<boolean> {
