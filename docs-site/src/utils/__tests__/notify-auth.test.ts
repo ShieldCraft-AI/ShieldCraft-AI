@@ -180,6 +180,7 @@ describe('notifyAuthChange and onAuthChange', () => {
         Object.defineProperty(window, 'location', { value: loc, writable: true, configurable: true });
         const historySpy = jest.spyOn(window.history, 'replaceState');
 
+        (window as any).__SC_AUTH_MODE__ = 'minimal';
         const mod = require('../auth-cognito');
 
         const refreshPromise = mod.refreshAuthState();
@@ -206,5 +207,6 @@ describe('notifyAuthChange and onAuthChange', () => {
         global.fetch = originalFetch;
         cfg.Auth.Cognito.loginWith.oauth.redirectSignIn = originalRedirects;
         jest.useRealTimers();
+        delete (window as any).__SC_AUTH_MODE__;
     });
 });

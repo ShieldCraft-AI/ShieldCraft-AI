@@ -31,6 +31,7 @@ jest.doMock('aws-amplify', () => ({ Amplify: { configure: jest.fn() } }));
                 writable: true,
                 value: loc,
             })
+                ; (window as any).__SC_AUTH_MODE__ = 'minimal'
         })
 
         afterEach(() => {
@@ -44,6 +45,7 @@ jest.doMock('aws-amplify', () => ({ Amplify: { configure: jest.fn() } }));
             jest.resetAllMocks()
             localStorage.clear()
             sessionStorage.clear()
+            delete (window as any).__SC_AUTH_MODE__
         })
 
         test('refreshAuthState falls back to manual token exchange and retries with configured redirectSignIn', async () => {

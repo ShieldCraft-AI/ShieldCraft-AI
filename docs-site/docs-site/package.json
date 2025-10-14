@@ -2,6 +2,7 @@
   "dependencies": {
     "plotly": "^1.0.6",
     "react-circular-progressbar": "^2.2.0",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "vm-browserify": "^1.1.2"
   }
 }

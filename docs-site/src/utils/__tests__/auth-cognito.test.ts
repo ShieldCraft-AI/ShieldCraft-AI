@@ -48,6 +48,10 @@ jest.doMock('aws-amplify', () => ({
             // @ts-ignore
             window.location = new URL('http://localhost/');
             window.history.replaceState = jest.fn();
+            (window as any).__SC_AUTH_MODE__ = 'minimal';
+        });
+        afterEach(() => {
+            delete (window as any).__SC_AUTH_MODE__;
         });
         test('loginWithProvider constructs correct Hosted UI URL and sets location.href', async () => {
             jest.resetModules();

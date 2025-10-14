@@ -18,7 +18,14 @@ function unique(values: (string | undefined | null)[]) {
 function resolveRedirects() {
     if (typeof window === 'undefined') {
         return {
-            signIn: ['http://localhost:3000/dashboard', 'http://localhost:3001/dashboard'],
+            signIn: [
+                'http://localhost:3000/',
+                'http://localhost:3000/dashboard',
+                'http://localhost:3000/auth/callback',
+                'http://localhost:3001/',
+                'http://localhost:3001/dashboard',
+                'http://localhost:3001/auth/callback',
+            ],
             signOut: ['http://localhost:3000/', 'http://localhost:3001/'],
         };
     }
@@ -27,14 +34,28 @@ function resolveRedirects() {
     const hostname = window.location.hostname.toLowerCase();
     const isLocal = LOCAL_HOSTS.has(hostname);
 
+    const localPaths = ['/dashboard', '/auth/callback', '/'];
+    const localRedirects = localPaths.flatMap(path => ([
+        `http://localhost:3000${path}`,
+        `http://localhost:3001${path}`,
+        `${origin}${path}`,
+    ]));
+
     const signInCandidates = isLocal
         ? [
-            'http://localhost:3000/dashboard',
-            'http://localhost:3001/dashboard',
-            `${origin}/dashboard`,
+            ...localRedirects,
             ...PROD_REDIRECT_SIGN_IN
         ]
-        : [`${origin}/dashboard`, ...PROD_REDIRECT_SIGN_IN, 'http://localhost:3000/dashboard', 'http://localhost:3001/dashboard'];
+        : [
+            `${origin}/dashboard`,
+            `${origin}/auth/callback`,
+            `${origin}/`,
+            ...PROD_REDIRECT_SIGN_IN,
+            'http://localhost:3000/dashboard',
+            'http://localhost:3001/dashboard',
+            'http://localhost:3000/',
+            'http://localhost:3001/',
+        ];
 
     const signOutCandidates = isLocal
         ? [

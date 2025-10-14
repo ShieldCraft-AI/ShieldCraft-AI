@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CloudWatchAndSNSRights",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:PutDashboard",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:ListDashboards",
+                "cloudwatch:ListMetrics",
+                "cloudwatch:GetMetricData",
+                "sns:CreateTopic",
+                "sns:Subscribe",
+                "sns:ListTopics",
+                "sns:Publish",
+                "sns:GetTopicAttributes",
+                "sns:SetTopicAttributes"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

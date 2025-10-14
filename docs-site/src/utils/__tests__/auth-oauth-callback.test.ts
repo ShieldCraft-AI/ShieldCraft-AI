@@ -32,6 +32,7 @@ describe('OAuth callback handling', () => {
         sessionStorage.clear();
         document.cookie = '';
         window.history.replaceState = jest.fn();
+        (window as any).__SC_AUTH_MODE__ = 'minimal';
 
         const locationMock: Location = {
             href: 'https://shieldcraft-ai.com/',
@@ -57,6 +58,7 @@ describe('OAuth callback handling', () => {
         if (originalFetch) {
             global.fetch = originalFetch;
         }
+        delete (window as any).__SC_AUTH_MODE__;
     });
 
     test('performs manual token exchange when session lacks tokens', async () => {
