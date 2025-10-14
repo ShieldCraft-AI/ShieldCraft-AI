@@ -45,23 +45,65 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
             return false;
         }
     });
+    const [userFirstName, setUserFirstName] = useState<string | null>(null);
+
+    console.debug('[UniversalHeader] Component rendered');
 
     useEffect(() => {
+        console.debug('[UniversalHeader] useEffect triggered');
+
         let cancelled = false;
 
         const sync = async () => {
             try {
                 const authenticated = await isLoggedIn();
-                try { if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) console.debug('[UniversalHeader] initial isLoggedIn ->', authenticated); } catch { }
+                console.debug('[UniversalHeader] isLoggedIn:', authenticated);
+
                 if (!cancelled) setLoggedIn(Boolean(authenticated));
-            } catch {
+
+                if (authenticated) {
+                    console.debug('[UniversalHeader] localStorage keys:', Object.keys(localStorage));
+
+                    const lastAuthUserKey = Object.keys(localStorage).find(key => key.endsWith('LastAuthUser'));
+                    console.debug('[UniversalHeader] LastAuthUser key:', lastAuthUserKey);
+
+                    if (lastAuthUserKey) {
+                        const userPrefix = lastAuthUserKey.replace('.LastAuthUser', '');
+                        const idTokenKey = `${userPrefix}.idToken`;
+                        const idToken = localStorage.getItem(idTokenKey);
+
+                        console.debug('[UniversalHeader] Retrieved idToken:', idToken);
+
+                        if (idToken) {
+                            try {
+                                const payload = JSON.parse(atob(idToken.split('.')[1]));
+                                console.debug('[UniversalHeader] Decoded idToken payload:', payload);
+
+                                if (payload && payload.name && !cancelled) {
+                                    console.debug('[UniversalHeader] Extracted name:', payload.name);
+                                    setUserFirstName(payload.name.split(' ')[0]); // Use the first name only
+                                } else {
+                                    console.warn('[UniversalHeader] Name field not found in idToken payload');
+                                }
+                            } catch (error) {
+                                console.error('[UniversalHeader] Failed to decode idToken:', error);
+                            }
+                        } else {
+                            console.warn('[UniversalHeader] idToken not found in localStorage');
+                        }
+                    } else {
+                        console.warn('[UniversalHeader] LastAuthUser key not found in localStorage');
+                    }
+                }
+            } catch (error) {
+                console.error('[UniversalHeader] Error in sync function:', error);
                 if (!cancelled) setLoggedIn(false);
             }
         };
 
         void sync();
         const unsubscribe = onAuthChange((authenticated) => {
-            try { if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) console.debug('[UniversalHeader] onAuthChange ->', authenticated); } catch { }
+            console.debug('[UniversalHeader] onAuthChange triggered:', authenticated);
             if (!cancelled) setLoggedIn(Boolean(authenticated));
         });
 
@@ -342,6 +384,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                             <circle cx="12" cy="7" r="4" />
                                         </svg>
+                                        {userFirstName && <span style={{ marginLeft: '0.5rem' }}>{userFirstName}</span>}
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: -2 }}>
                                             <polyline points={dropdownOpen ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
                                         </svg>
