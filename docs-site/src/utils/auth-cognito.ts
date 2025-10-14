@@ -12,6 +12,19 @@ export type User = {
 export const AUTH_EVENT = MinimalIdP.AUTH_EVENT;
 export const AUTH_KEY = MinimalIdP.AUTH_KEY;
 
+function getAmplifyAuthModule(): { fetchAuthSession?: (...args: any[]) => Promise<any> } | null {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const amp = require('aws-amplify/auth');
+        if (amp && typeof amp.fetchAuthSession === 'function') {
+            return amp;
+        }
+    } catch {
+        // amplify not available in this runtime
+    }
+    return null;
+}
+
 export function initAuth(): void {
     try {
         const oauth = amplifyConfig?.Auth?.Cognito?.loginWith?.oauth;
@@ -96,16 +109,34 @@ export async function isLoggedIn(): Promise<boolean> {
 }
 
 export async function refreshAuthState(): Promise<boolean> {
-    try { await finalizeOAuthRedirect(); } catch { /* ignore */ }
+    const forceMinimal = (typeof window !== 'undefined' && (window as any).__SC_AUTH_MODE__ === 'minimal');
+    const amplifyAuth = forceMinimal ? null : getAmplifyAuthModule();
+
+    let handled = false;
+    if (!amplifyAuth) {
+        try { handled = await finalizeOAuthRedirect(); } catch { /* ignore */ }
+    }
     ensureMinimalInit();
     // Use the public notifyAuthChange so that if aws-amplify/auth is mocked
     // the Amplify fetchAuthSession path is exercised (tests rely on this).
     try { await notifyAuthChange(); } catch { /* ignore */ }
-    return isLoggedIn();
+    if (handled) {
+        try {
+            if (typeof window !== 'undefined' && window.localStorage.getItem(AUTH_KEY) === '1') {
+                return true;
+            }
+        } catch { /* ignore */ }
+    }
+    // Delegate to Amplify session detection when available; otherwise fall back to minimal store.
+    if (amplifyAuth) {
+        return isLoggedIn();
+    }
+    return handled ? true : isLoggedIn();
 }
 
-export async function finalizeOAuthRedirect(): Promise<void> {
-    if (typeof window === 'undefined') return;
+export async function finalizeOAuthRedirect(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    let tokensPersisted = false;
     try {
         ensureMinimalInit();
         const res = await MinimalIdP.handleRedirectCallback(window.location.href).catch(() => null);
@@ -121,6 +152,7 @@ export async function finalizeOAuthRedirect(): Promise<void> {
                     try { window.localStorage.setItem(`${prefix}.${user}.idToken`, res.tokens.idToken || ''); } catch { /* ignore */ }
                     try { window.localStorage.setItem(`${prefix}.${user}.refreshToken`, res.tokens.refreshToken || ''); } catch { /* ignore */ }
                     try { window.localStorage.setItem(AUTH_KEY, '1'); } catch { /* ignore */ }
+                    tokensPersisted = true;
                 }
             } catch { /* ignore */ }
             // Clear any capture of OAuth params used by older capture scripts/tests
@@ -133,11 +165,7 @@ export async function finalizeOAuthRedirect(): Promise<void> {
             } catch { /* ignore */ }
         }
     } catch { /* ignore */ }
-
-    // Notify listeners after processing the redirect and persisting tokens so
-    // UI components (which may have mounted shortly after redirect) receive
-    // an immediate auth-change event. Best-effort only.
-    try { await notifyAuthChange(); } catch { /* ignore */ }
+    return tokensPersisted;
 }
 
 export async function getCurrentUser(): Promise<User | null> {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ErrorBoundary from '@site/src/components/ErrorBoundary';
 import SiteFooter from '@site/src/components/SiteFooter';
-import { isLoggedIn, onAuthChange, notifyAuthChange, initAuth } from '@site/src/utils/auth-cognito';
+import { isLoggedIn, onAuthChange, notifyAuthChange, initAuth, refreshAuthState } from '@site/src/utils/auth-cognito';
 import { useLocation } from '@docusaurus/router';
 
 // Log deployment info for debugging cache issues
@@ -22,16 +22,59 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
     // Handle OAuth callback - Amplify v6 processes automatically, we just notify listeners
     React.useEffect(() => {
-        function scDebug(...args: any[]) {
+        let cancelled = false;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        let settleWait: (() => void) | undefined;
+
+        const scDebug = (...args: any[]) => {
             try {
                 if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
                     // eslint-disable-next-line no-console
                     console.debug('[SC-ROOT]', ...args);
                 }
             } catch { /* ignore */ }
-        }
+        };
 
-        function dumpUrlState() {
+        const clearTimer = () => {
+            if (timer !== undefined) {
+                clearTimeout(timer);
+                timer = undefined;
+            }
+            if (settleWait) {
+                const settle = settleWait;
+                settleWait = undefined;
+                settle();
+            }
+        };
+
+        const wait = (ms: number) => new Promise<void>((resolve) => {
+            clearTimer();
+            settleWait = resolve;
+            timer = setTimeout(() => {
+                settleWait = undefined;
+                timer = undefined;
+                resolve();
+            }, ms);
+        });
+
+        const pollUntilAuthenticated = async ({ maxAttempts, intervalMs, onSuccess }: { maxAttempts: number; intervalMs: number; onSuccess?: () => Promise<void> | void; }) => {
+            for (let attempt = 1; attempt <= maxAttempts && !cancelled; attempt += 1) {
+                await wait(intervalMs);
+                if (cancelled) return false;
+                const authenticated = await isLoggedIn();
+                scDebug('poll auth attempt', attempt, 'authenticated:', authenticated);
+                if (authenticated) {
+                    scDebug('authentication detected - notifying listeners');
+                    await notifyAuthChange();
+                    if (onSuccess) await onSuccess();
+                    return true;
+                }
+            }
+            scDebug('polling finished without authentication');
+            return false;
+        };
+
+        const dumpUrlState = () => {
             try {
                 if (typeof window === 'undefined') return {};
                 return {
@@ -41,7 +84,11 @@ export default function Root({ children }: { children: React.ReactNode }) {
                     hash: window.location.hash,
                 };
             } catch (err) { return { err: String(err) }; }
-        }
+        };
+
+        const cleanUrl = () => {
+            try { window.history.replaceState({}, document.title, location.pathname); } catch { /* ignore */ }
+        };
 
         const handleOAuthCallback = async () => {
             const params = new URLSearchParams(window.location.search);
@@ -49,47 +96,43 @@ export default function Root({ children }: { children: React.ReactNode }) {
             const hasQueryCode = params.has('code') || params.has('state');
             const hasHashTokens = hashParams.has('id_token') || hashParams.has('access_token');
             scDebug('handleOAuthCallback - url state:', dumpUrlState(), 'hasQueryCode:', hasQueryCode, 'hasHashTokens:', hasHashTokens);
+
             if (!hasQueryCode && !hasHashTokens) {
-                // Even without explicit callback markers, we might be landing here right after redirect.
-                // Perform a short polling window once on mount to catch freshly established sessions.
-                let attempts = 0;
-                const maxAttempts = 10; // ~5 seconds
-                const interval = setInterval(async () => {
-                    attempts++;
-                    const authenticated = await isLoggedIn();
-                    scDebug('polling attempt', attempts, 'authenticated:', authenticated);
-                    if (authenticated) {
-                        scDebug('polling detected authenticated - notifying');
-                        clearInterval(interval);
-                        await notifyAuthChange();
-                    } else if (attempts >= maxAttempts) {
-                        scDebug('polling finished without auth');
-                        clearInterval(interval);
-                    }
-                }, 500);
+                await pollUntilAuthenticated({ maxAttempts: 10, intervalMs: 500 });
                 return;
             }
-            scDebug('OAuth callback detected, waiting for Amplify to process...');
-            let attempts = 0;
-            const maxAttempts = 40; // ~20 seconds
-            const checkInterval = setInterval(async () => {
-                attempts++;
-                const authenticated = await isLoggedIn();
-                scDebug('Auth check attempt', attempts, 'authenticated:', authenticated);
 
-                if (authenticated) {
-                    scDebug('User authenticated - notifying listeners and cleaning URL');
-                    clearInterval(checkInterval);
-                    await notifyAuthChange();
-                    // Clean up URL params/hash without triggering navigation
-                    window.history.replaceState({}, document.title, location.pathname);
-                } else if (attempts >= maxAttempts) {
-                    scDebug('Auth timeout - tokens not received');
-                    clearInterval(checkInterval);
-                }
-            }, 500);
+            scDebug('OAuth callback detected, waiting for Amplify to process...');
+            let refreshSucceeded = false;
+            try {
+                refreshSucceeded = await refreshAuthState();
+                scDebug('refreshAuthState completed', { refreshSucceeded });
+            } catch (err) {
+                scDebug('refreshAuthState threw', err);
+            }
+            if (cancelled) return;
+            if (refreshSucceeded) {
+                scDebug('refreshAuthState resolved authentication, cleaning URL');
+                cleanUrl();
+                return;
+            }
+
+            await pollUntilAuthenticated({
+                maxAttempts: 40,
+                intervalMs: 500,
+                onSuccess: async () => {
+                    scDebug('Auth resolved via polling - cleaning URL');
+                    cleanUrl();
+                },
+            });
         };
+
         handleOAuthCallback();
+
+        return () => {
+            cancelled = true;
+            clearTimer();
+        };
     }, [location.pathname, location.search]);
     // For safety: also hide footer on authenticated app-like routes even if auth missed
     const path = location.pathname;
