@@ -42,7 +42,7 @@ test.describe('Full OAuth (real provider) - gated', () => {
             await page.click('button:has-text("Next")');
         } catch (e) {
             // If Google's login UI changed or interaction is blocked, fail the test with a helpful message
-            throw new Error('Google login automation failed — check selectors and anti-bot protections.');
+            throw new Error('Google login automation failed  -  check selectors and anti-bot protections.');
         }
 
         // After successful login, verify we return to the app and see the user menu

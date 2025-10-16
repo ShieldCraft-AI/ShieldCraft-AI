@@ -1,3 +1,4 @@
+import React from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import type { ReactNode } from 'react';
@@ -26,7 +27,7 @@ export default function Home(): ReactNode {
             <FullWidthFeature
               heading="Unified Security Data Plane & Governed Deployment Engine on AWS"
               description="The platform utilizes AWS Proton and CDK Constructs to seamlessly ingest, enrich, and correlate security telemetry. Actionable insights are delivered into workflows, fortified by policy-grade guardrails and deterministic cost control."
-              primaryHref="/architecture-overview"
+              primaryHref="/architecture"
               primaryLabel="Review The MLOps Governance (The Proof)"
               secondaryHref="/plugins"
               secondaryLabel="Explore The Full Product Suite"

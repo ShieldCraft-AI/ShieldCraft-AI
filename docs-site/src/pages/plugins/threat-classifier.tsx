@@ -3,6 +3,7 @@ import Link from '@docusaurus/Link';
 import { useEffect, useMemo } from 'react';
 import styles from './threat-classifier.module.css';
 import { getPluginById } from '@site/src/data/plugins/config';
+import React from 'react';
 
 type ChartPoint = {
     label: string;

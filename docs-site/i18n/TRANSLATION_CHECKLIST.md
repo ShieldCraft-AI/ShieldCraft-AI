@@ -20,19 +20,19 @@ Priority & Estimates
 - TMS integration and rollout: 3–10 days depending on scope
 
 
-PHASE 0 — PREPARATION
+PHASE 0  -  PREPARATION
 ---------------------
 - [ ] 0.1 Confirm i18n is enabled in `docusaurus.config.*` (locales + defaultLocale). (Done)
 - [ ] 0.2 Decide initial locales for pilot and rollout (e.g., `es`, `fr`). (Owner)
 - [ ] 0.3 Create this checklist file and add to repo. (Done)
 
 
-PHASE 1 — PILOT (Homepage)
+PHASE 1  -  PILOT (Homepage)
 --------------------------
 Goal: Validate extraction → translation → build → smoke-test using the homepage.
 
 - [ ] 1.1 Identify the homepage source file.
-      - Path examples: `docs-site/src/pages/index.tsx` or `docs-site/docs/site/intro.md` — locate the actual file.
+      - Path examples: `docs-site/src/pages/index.tsx` or `docs-site/docs/site/intro.md`  -  locate the actual file.
       - Owner: Dev
 
 - [ ] 1.2 Make UI strings translatable in the homepage component.
@@ -77,14 +77,14 @@ Goal: Validate extraction → translation → build → smoke-test using the hom
       - Owner: Product / Localization lead
 
 
-PHASE 2 — COMPONENT STRINGS & SITE UI
+PHASE 2  -  COMPONENT STRINGS & SITE UI
 ------------------------------------
 - [ ] 2.1 Identify other React components with hard-coded text (header, footer, buttons).
 - [ ] 2.2 Replace text with `<Translate>` or `useTranslation()`.
 - [ ] 2.3 Re-run `write-translations` and confirm message extraction.
 
 
-PHASE 3 — DOCS TRANSLATION SCAFFOLD
+PHASE 3  -  DOCS TRANSLATION SCAFFOLD
 ----------------------------------
 - [ ] 3.1 Choose translation strategy for docs:
     - Manual parallel MD files under `i18n/<locale>/docusaurus-plugin-content-docs/<version>/...` (full control), or
@@ -93,12 +93,12 @@ PHASE 3 — DOCS TRANSLATION SCAFFOLD
 - [ ] 3.3 For high-volume docs, integrate TMS and rely on translators to edit via the TMS UI.
 
 
-PHASE 4 — AUTOMATION & CI
+PHASE 4  -  AUTOMATION & CI
 -------------------------
 - [ ] 4.1 Add scripts to repo for extraction and sync:
-    - `scripts/extract-i18n.sh` — runs `docusaurus write-translations`
-    - `scripts/push-to-tms.sh` — optional
-    - `scripts/pull-from-tms.sh` — optional
+    - `scripts/extract-i18n.sh`  -  runs `docusaurus write-translations`
+    - `scripts/push-to-tms.sh`  -  optional
+    - `scripts/pull-from-tms.sh`  -  optional
 - [ ] 4.2 Add GitHub Action to:
     - Run extraction/write-translations on schedule or on changes to `main`.
     - Pull translations from TMS (or from repo)
@@ -107,7 +107,7 @@ PHASE 4 — AUTOMATION & CI
     - Post artifact / deploy to staging
 
 
-PHASE 5 — TMS & TRANSLATION MANAGEMENT
+PHASE 5  -  TMS & TRANSLATION MANAGEMENT
 -------------------------------------
 - [ ] 5.1 Select a TMS (Crowdin, Lokalise, Phrase, etc.) and create a project.
 - [ ] 5.2 Configure automatic MT in TMS for draft translation.
@@ -115,21 +115,21 @@ PHASE 5 — TMS & TRANSLATION MANAGEMENT
 - [ ] 5.4 Set up syncing hooks or CI scripts to automate push/pull.
 
 
-PHASE 6 — QA, VISUAL & MONITORING
+PHASE 6  -  QA, VISUAL & MONITORING
 --------------------------------
 - [ ] 6.1 Add pseudo-localization job to CI to detect layout issues.
 - [ ] 6.2 Add visual regression tests for a sample set of localized pages.
 - [ ] 6.3 Add link/SEO checks for localized sitemaps and meta tags.
 
 
-PHASE 7 — ROLLOUT
+PHASE 7  -  ROLLOUT
 -----------------
 - [ ] 7.1 Define rollout order (e.g., es → fr → other locales) and schedule.
 - [ ] 7.2 Monitor translation coverage and user feedback.
 - [ ] 7.3 Iterate on TMS rules and automation cadence.
 
 
-Detailed pilot checklist — homepage (to run now)
+Detailed pilot checklist  -  homepage (to run now)
 ------------------------------------------------
 - [ ] A. Locate the homepage file and identify all visible strings.
 - [ ] B. Replace strings with `<Translate id="home.<key>">Default text</Translate>`.

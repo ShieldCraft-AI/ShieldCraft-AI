@@ -15,20 +15,14 @@ const config: Config = {
   url: 'https://shieldcraft-ai.com',
   baseUrl: '/',
 
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
+
   organizationName: 'facebook',
   projectName: 'docusaurus',
   onBrokenLinks: 'warn',
-
-  i18n: {
-    defaultLocale: 'en',
-    // Add any locales you want to support here. English is the default.
-    locales: ['en', 'es', 'fr'],
-    localeConfigs: {
-      en: { label: 'English' },
-      es: { label: 'Español' },
-      fr: { label: 'Français' },
-    },
-  },
 
   presets: [
     [
@@ -105,7 +99,6 @@ const config: Config = {
           position: 'left',
         },
         { type: 'custom-login-toggle', position: 'right' },
-        { type: 'localeDropdown', position: 'right' },
       ],
     },
     colorMode: {

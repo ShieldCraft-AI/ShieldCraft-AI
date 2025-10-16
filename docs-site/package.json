@@ -21,7 +21,7 @@
     "@docusaurus/core": "3.9.1",
     "@docusaurus/preset-classic": "3.9.1",
     "@docusaurus/theme-mermaid": "^3.9.1",
-    "@mdx-js/react": "^3.0.0",
+    "@mdx-js/react": "^3.1.1",
     "aws-amplify": "^6.15.7",
     "clsx": "^2.0.0",
     "d3-geo": "^3.1.1",
@@ -29,8 +29,8 @@
     "dom-to-image-more": "^3.5.0",
     "plotly": "^1.0.6",
     "prism-react-renderer": "^2.3.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-plotly.js": "^2.6.0",
     "regression": "^2.0.1",
     "simple-statistics": "^7.8.3",
@@ -55,7 +55,7 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "ts-jest": "^29.4.5",
-    "typescript": "~5.6.2",
+    "typescript": "^5.9.3",
     "vm-browserify": "^1.1.2"
   },
   "browserslist": {

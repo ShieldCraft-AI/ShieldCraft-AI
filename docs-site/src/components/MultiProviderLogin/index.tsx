@@ -34,8 +34,7 @@ export default function MultiProviderLogin({
         // during tests.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const auth = require('../../utils/auth-cognito');
-        // eslint-disable-next-line no-console
-        console.debug('[MPL] auth keys in useMemo', Object.keys(auth || {}));
+        console.debug('[MPL] getAvailableProviders called', { authKeys: Object.keys(auth || {}) });
         const list = auth.getAvailableProviders();
         if (!Array.isArray(list)) {
             console.warn('[MultiProviderLogin] No providers available – verify Cognito configuration.');
@@ -52,7 +51,7 @@ export default function MultiProviderLogin({
     const handleProviderLogin = async (providerId: string) => {
         // debug: log dedupe state
         // eslint-disable-next-line no-console
-        console.debug('[MPL] handle start', providerId, 'inProgressBefore:', inProgress.current.has(providerId));
+        console.debug('[MPL] handle start', { providerId, inProgressBefore: inProgress.current.has(providerId) });
         if (inProgress.current.has(providerId)) return;
         inProgress.current.add(providerId);
         // eslint-disable-next-line no-console
@@ -76,7 +75,6 @@ export default function MultiProviderLogin({
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
                 const runtimeAuth = require('../../utils/auth-cognito');
                 try {
-                    // eslint-disable-next-line no-console
                     console.debug('[MPL] require.resolve for auth-cognito', require.resolve('../../utils/auth-cognito'));
                 } catch { /* ignore */ }
                 // eslint-disable-next-line no-console
@@ -185,7 +183,7 @@ export default function MultiProviderLogin({
                             handleProviderEvent(e, provider.id);
                         }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); /* eslint-disable-next-line no-console */ console.debug('[MPL] onKeyDown Enter', provider.id); handleProviderEvent(e, provider.id); } }}
-                        title={`Sign in with ${provider.name} — authenticate using your ${provider.name} account (opens ${provider.name} sign-in via AWS Cognito
+                        title={`Sign in with ${provider.name}  -  authenticate using your ${provider.name} account (opens ${provider.name} sign-in via AWS Cognito
 ).`} aria-label={`Sign in with ${provider.name}`}
                         data-tooltip={`Authenticate using your ${provider.name} account. You will be redirected to ${provider.name} to sign in; credentials are
 handled by the provider and federated via AWS Cognito.`}                                                                                                                            >

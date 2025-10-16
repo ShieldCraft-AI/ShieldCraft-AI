@@ -1,0 +1,57 @@
+name: Inject Amplify Config and Optional Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_build:
+        description: "Run docs-site build after injecting config? (yes/no)"
+        required: false
+        default: "no"
+
+jobs:
+  inject-and-optional-build:
+    name: Inject Amplify config (and build if requested)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Write Amplify runtime config
+        env:
+          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN }}
+          COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
+          COGNITO_REDIRECT_SIGNIN: ${{ secrets.COGNITO_REDIRECT_SIGNIN }}
+          COGNITO_REDIRECT_SIGNOUT: ${{ secrets.COGNITO_REDIRECT_SIGNOUT }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+        run: |
+          mkdir -p docs-site/static
+          cat > docs-site/static/amplify-config.json <<'EOF'
+          {
+            "Auth": {
+              "region": "${AWS_REGION}",
+              "userPoolId": "${USER_POOL_ID}",
+              "userPoolWebClientId": "${COGNITO_CLIENT_ID}",
+              "oauth": {
+                "domain": "${COGNITO_DOMAIN}",
+                "scope": ["email","openid"],
+                "redirectSignIn": "${COGNITO_REDIRECT_SIGNIN}",
+                "redirectSignOut": "${COGNITO_REDIRECT_SIGNOUT}",
+                "responseType": "code"
+              }
+            }
+          }
+          EOF
+
+      - name: Upload runtime config (artifact)
+        uses: actions/upload-artifact@v3
+        with:
+          name: amplify-config
+          path: docs-site/static/amplify-config.json
+
+      - name: "Optional: Run docs-site build"
+        if: ${{ github.event.inputs.run_build == 'yes' }}
+        run: |
+          cd docs-site
+          npm ci
+          npm run build

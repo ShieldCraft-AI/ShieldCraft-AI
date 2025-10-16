@@ -3,6 +3,7 @@ import Link from '@docusaurus/Link';
 import { useEffect, useMemo } from 'react';
 import detailStyles from './plugin-detail.module.css';
 import { getPluginById } from '@site/src/data/plugins/config';
+import React from 'react';
 
 const plugin = getPluginById('access-anomaly-detector');
 

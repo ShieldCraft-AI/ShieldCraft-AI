@@ -1,0 +1,53 @@
+{
+  "Auth": {
+    "region": "us-east-1",
+    "userPoolId": "us-east-1_H6KHkYeES",
+    "userPoolWebClientId": "2jio5rlqn6r2qe0otrgip4d5bp",
+    "Cognito": {
+      "userPoolClientId": "2jio5rlqn6r2qe0otrgip4d5bp",
+      "loginWith": {
+        "oauth": {
+          "domain": "shieldcraft-auth.auth.us-east-1.amazoncognito.com",
+          "providers": [
+            "Google",
+            "LoginWithAmazon"
+          ],
+          "redirectSignIn": [
+            "http://localhost:3000/dashboard",
+            "http://localhost:3001/dashboard",
+            "https://shieldcraft-ai.com/dashboard",
+            "https://www.shieldcraft-ai.com/dashboard"
+          ],
+          "redirectSignOut": [
+            "http://localhost:3000/",
+            "http://localhost:3001/",
+            "https://shieldcraft-ai.com/",
+            "https://www.shieldcraft-ai.com/"
+          ],
+          "responseType": "code"
+        }
+      }
+    },
+    "oauth": {
+      "domain": "shieldcraft-auth.auth.us-east-1.amazoncognito.com",
+      "scope": [
+        "email",
+        "openid",
+        "profile"
+      ],
+      "redirectSignIn": [
+        "http://localhost:3000/dashboard",
+        "http://localhost:3001/dashboard",
+        "https://shieldcraft-ai.com/dashboard",
+        "https://www.shieldcraft-ai.com/dashboard"
+      ],
+      "redirectSignOut": [
+        "http://localhost:3000/",
+        "http://localhost:3001/",
+        "https://shieldcraft-ai.com/",
+        "https://www.shieldcraft-ai.com/"
+      ],
+      "responseType": "code"
+    }
+  }
+}

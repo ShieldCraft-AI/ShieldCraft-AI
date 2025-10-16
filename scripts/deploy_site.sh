@@ -85,10 +85,15 @@ find "${BUILD_DIR}" -type f -name "*.html" | while read -r html; do
   fi
 done
 
+PLACEHOLDER_DEPLOY_INFO="${BUILD_DIR}/deploy-info.json"
+if [ ! -f "${PLACEHOLDER_DEPLOY_INFO}" ]; then
+  echo "[INFO] Creating placeholder deploy-info.json..."
+  mkdir -p "$(dirname "${PLACEHOLDER_DEPLOY_INFO}")"
+  echo '{"commit":"unknown","timestamp":"unknown"}' > "${PLACEHOLDER_DEPLOY_INFO}"
+fi
 
-echo "[INFO] Writing deploy metadata (commit + timestamp)..."
-DEPLOY_META_FILE="${BUILD_DIR}/deploy-info.json"
-printf '{"commit":"%s","timestamp":"%s"}\n' "$(git rev-parse --short HEAD)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${DEPLOY_META_FILE}"
+# Ensure deploy-info.json is updated with the latest commit and timestamp
+printf '{"commit":"%s","timestamp":"%s"}\n' "$(git rev-parse --short HEAD)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${PLACEHOLDER_DEPLOY_INFO}"
 
 # Rationale: We avoid --delete on the first (asset) sync to prevent a race where
 # CloudFront continues serving cached HTML that references old hashed asset filenames

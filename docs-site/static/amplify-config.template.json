@@ -1,0 +1,21 @@
+{
+    "Auth": {
+        "region": "us-east-1",
+        "userPoolId": "us-east-1_EXAMPLE",
+        "userPoolWebClientId": "exampleclientid",
+        "oauth": {
+            "domain": "your-cognito-domain.auth.us-east-1.amazoncognito.com",
+            "scope": [
+                "email",
+                "openid"
+            ],
+            "redirectSignIn": [
+                "https://your-site.example.com/monitoring"
+            ],
+            "redirectSignOut": [
+                "https://your-site.example.com/"
+            ],
+            "responseType": "code"
+        }
+    }
+}

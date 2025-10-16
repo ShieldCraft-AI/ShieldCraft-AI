@@ -20,6 +20,12 @@ jest.mock('@site/src/components/MultiProviderLogin', () => ({
     }
 }));
 
+// Mock dynamic import for deploy-info.json
+jest.mock('../../../build/deploy-info.json', () => ({
+    commit: 'test-commit',
+    timestamp: '2025-10-14T12:00:00Z',
+}), { virtual: true });
+
 // Delay importing the component until after mocks are configured in each test
 let UniversalHeader: any;
 
@@ -91,5 +97,83 @@ describe('UniversalHeader auth behavior', () => {
 
         // The button should have aria-label 'User menu' when authenticated
         await waitFor(() => expect(screen.getByLabelText(/User menu/i)).toBeInTheDocument());
+    });
+});
+
+describe('UniversalHeader version display', () => {
+    test('displays version from deploy-info.json', async () => {
+        UniversalHeader = require('@site/src/components/UniversalHeader').default || require('@site/src/components/UniversalHeader');
+
+        render(<UniversalHeader />);
+
+        await waitFor(() => {
+            expect(screen.getByText(/test-commit/i)).toBeInTheDocument();
+            expect(screen.getByText(/2025-10-14T12:00:00Z/i)).toBeInTheDocument();
+        });
+    });
+
+    test('displays fallback version when deploy-info.json is missing', async () => {
+        jest.resetModules();
+        jest.doMock('../../../build/deploy-info.json', () => {
+            throw new Error('Module not found');
+        }, { virtual: true });
+
+        UniversalHeader = require('@site/src/components/UniversalHeader').default || require('@site/src/components/UniversalHeader');
+
+        render(<UniversalHeader />);
+
+        await waitFor(() => {
+            expect(screen.getByText(/unknown/i)).toBeInTheDocument();
+        });
+    });
+});
+
+describe('UniversalHeader edge cases', () => {
+    test('handles token expiration gracefully', async () => {
+        const auth = require('@site/src/utils/auth-cognito');
+        auth.isLoggedIn.mockResolvedValue(false);
+        auth.onAuthChange.mockImplementation((cb: any) => {
+            setTimeout(() => cb(false), 0);
+            return () => { };
+        });
+
+        UniversalHeader = require('@site/src/components/UniversalHeader').default || require('@site/src/components/UniversalHeader');
+
+        render(<UniversalHeader />);
+
+        await waitFor(() => expect(screen.getByLabelText(/Login/i)).toBeInTheDocument());
+        expect(screen.getByText(/Login/i)).toBeVisible();
+    });
+
+    test('handles refresh token failure', async () => {
+        const auth = require('@site/src/utils/auth-cognito');
+        auth.isLoggedIn.mockResolvedValue(false);
+        auth.onAuthChange.mockImplementation((cb: any) => {
+            setTimeout(() => cb(false), 0);
+            return () => { };
+        });
+
+        UniversalHeader = require('@site/src/components/UniversalHeader').default || require('@site/src/components/UniversalHeader');
+
+        render(<UniversalHeader />);
+
+        await waitFor(() => expect(screen.getByLabelText(/Login/i)).toBeInTheDocument());
+        expect(screen.getByText(/Login/i)).toBeVisible();
+    });
+
+    test('handles network issues gracefully', async () => {
+        const auth = require('@site/src/utils/auth-cognito');
+        auth.isLoggedIn.mockRejectedValue(new Error('Network Error'));
+        auth.onAuthChange.mockImplementation((cb: any) => {
+            setTimeout(() => cb(false), 0);
+            return () => { };
+        });
+
+        UniversalHeader = require('@site/src/components/UniversalHeader').default || require('@site/src/components/UniversalHeader');
+
+        render(<UniversalHeader />);
+
+        await waitFor(() => expect(screen.getByLabelText(/Login/i)).toBeInTheDocument());
+        expect(screen.getByText(/Login/i)).toBeVisible();
     });
 });
