@@ -372,7 +372,7 @@ jobs:
           semgrep --config=auto src/ --json --output=semgrep-report.json || echo "Semgrep scan completed"
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-validation-reports
@@ -788,7 +788,7 @@ jobs:
     if: always()
     steps:
       - name: Download validation artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
 
       - name: Generate validation report
@@ -848,7 +848,7 @@ jobs:
           echo "5. Test rollback procedures if deploying to production" >> validation-report.md
 
       - name: Upload validation report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: validation-report
           path: validation-report.md

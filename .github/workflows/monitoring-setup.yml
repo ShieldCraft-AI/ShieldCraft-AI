@@ -166,7 +166,7 @@ jobs:
     if: always()
     steps:
       - name: Download validation results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
 
       - name: Generate comprehensive monitoring report
@@ -177,7 +177,7 @@ jobs:
           echo "Action: ${{ github.event.inputs.action || 'validate' }}" >> monitoring-report.md
 
       - name: Upload monitoring report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: monitoring-report
           path: monitoring-report.md
