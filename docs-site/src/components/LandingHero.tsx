@@ -1,3 +1,4 @@
+import React from 'react';
 import AwsBadge from './AwsBadge';
 import styles from './LandingHero.module.css';
 

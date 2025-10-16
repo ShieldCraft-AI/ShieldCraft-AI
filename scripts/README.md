@@ -5,7 +5,7 @@ This repository includes a small script that validates the Cognito refresh
 flow for staging environments where a valid refresh token is available.
 
 Files
-- `staging-refresh-check.js` — POSTs to the Cognito `/oauth2/token` endpoint
+- `staging-refresh-check.js`  -  POSTs to the Cognito `/oauth2/token` endpoint
   using the `refresh_token` grant and exits with non-zero on failure.
 
 How to run (staging-only)

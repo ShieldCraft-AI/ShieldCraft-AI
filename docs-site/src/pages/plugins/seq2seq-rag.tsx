@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react';
 import RAGLatencyChart from '@site/src/theme/components/RAGLatencyChart';
 import detailStyles from './plugin-detail.module.css';
 import { getPluginById } from '@site/src/data/plugins/config';
+import React from 'react';
 
 const plugin = getPluginById('seq2seq-rag');
 

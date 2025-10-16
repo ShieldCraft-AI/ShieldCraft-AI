@@ -149,4 +149,49 @@ describe('auth-cognito', () => {
         // Note: the boolean return value depends on Amplify's fetchAuthSession; the important side-effect
         // is that tokens were stored so Amplify can pick them up. We assert storage above.
     }, 15000);
+
+    test('redirects to /monitoring after successful login', async () => {
+        jest.resetModules();
+        jest.doMock('../docs-site/src/config/amplify-config', () => ({
+            amplifyConfig: {
+                Auth: {
+                    Cognito: {
+                        userPoolClientId: 'FAKECLIENTID',
+                        loginWith: {
+                            oauth: {
+                                domain: 'shieldcraft-auth.auth.us-east-1.amazoncognito.com',
+                                redirectSignIn: ['https://example.com/monitoring']
+                            }
+                        }
+                    }
+                }
+            }
+        }));
+
+        const authPath = require('../docs-site/src/utils/auth-cognito');
+        await authPath.loginWithProvider('Google');
+
+        const href = (window as any).location.href;
+        expect(href).toContain(`redirect_uri=${encodeURIComponent('https://example.com/monitoring')}`);
+    });
+
+    test('handles logout and clears tokens', async () => {
+        jest.resetModules();
+        const authPath = require('../docs-site/src/utils/auth-cognito');
+
+        // Mock localStorage tokens
+        const clientId = 'FAKECLIENTID';
+        const lastUserKey = `CognitoIdentityServiceProvider.${clientId}.LastAuthUser`;
+        localStorage.setItem(lastUserKey, 'user123');
+        const storedUserKey = `CognitoIdentityServiceProvider.${clientId}.user123`;
+        localStorage.setItem(`${storedUserKey}.accessToken`, 'AT123');
+        localStorage.setItem(`${storedUserKey}.idToken`, 'ID123');
+
+        await authPath.signOutUser();
+
+        // Verify tokens are cleared
+        expect(localStorage.getItem(lastUserKey)).toBeNull();
+        expect(localStorage.getItem(`${storedUserKey}.accessToken`)).toBeNull();
+        expect(localStorage.getItem(`${storedUserKey}.idToken`)).toBeNull();
+    });
 });
