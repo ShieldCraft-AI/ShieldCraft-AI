@@ -44,7 +44,7 @@ jobs:
           EOF
 
       - name: Upload runtime config (artifact)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: amplify-config
           path: docs-site/static/amplify-config.json
