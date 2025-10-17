@@ -19,6 +19,14 @@ type Tokens = { accessToken?: string | null; idToken?: string | null; refreshTok
 let cfg: MinimalIdPConfig | null = null;
 const listeners = new Set<(isAuth: boolean) => void>();
 
+function isDevHost(): boolean {
+    try {
+        if (typeof window === 'undefined') return false;
+        const h = window.location.hostname || '';
+        return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h.endsWith('.local') || h.endsWith('.test');
+    } catch { return false; }
+}
+
 export function init(config?: MinimalIdPConfig) {
     if (!config) return;
     cfg = config;
@@ -145,7 +153,7 @@ function emit(isAuth: boolean) {
     try {
         if (typeof window !== 'undefined') {
             try {
-                if ((window as any).__SC_AUTH_DEBUG__) {
+                if (isDevHost() && (window as any).__SC_AUTH_DEBUG__) {
                     // eslint-disable-next-line no-console
                     console.debug('[MinimalIdP] emit', { isAuth, storageKey: STORAGE_KEY, authKey: AUTH_KEY, tokens: (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null } })() });
                 }
@@ -182,7 +190,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
 
         const seenRedirects = new Set<string>();
         const debugEnabled = (() => {
-            try { return typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__; } catch { return false; }
+            try { return isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__; } catch { return false; }
         })();
 
         let cachedVerifier: string | null = null;
@@ -223,7 +231,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                 if (!resp.ok) {
                     let txt: string | null = null;
                     try { txt = await resp.text().catch(() => null); } catch { /* ignore */ }
-                    if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                    if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
                         // eslint-disable-next-line no-console
                         console.debug('[MinimalIdP] token endpoint non-OK response', { url: tokenEndpoint, status: resp.status, text: txt, redirectUri });
                     }
@@ -240,7 +248,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                 if (!json) {
                     try {
                         const txt = await resp.text().catch(() => null);
-                        if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                        if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
                             // eslint-disable-next-line no-console
                             console.debug('[MinimalIdP] token endpoint returned non-JSON', { url: tokenEndpoint, status: resp.status, text: txt });
                         }
@@ -251,7 +259,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
 
                 // On success, store the raw response for debugging (best-effort, avoid tokens in logs unless debug enabled)
                 try {
-                    if (typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
+                    if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
                         // eslint-disable-next-line no-console
                         console.debug('[MinimalIdP] token endpoint success', { url: tokenEndpoint, json });
                     }

@@ -20,7 +20,10 @@ import os
 import sys
 from pathlib import Path
 import re
-from typing import Any, Dict, Iterable, Optional
+import json
+import subprocess
+import zipfile
+from typing import Any, Dict, Iterable, Optional, List, Tuple
 
 import requests
 
@@ -117,6 +120,49 @@ class GitHubActionsClient:
             page += 1
         return jobs
 
+    # --- Generic Issues API helpers (safe, minimal) ---
+    def list_issues(
+        self, repo: str, per_page: int = 30, limit: int = 30, state: str = "open"
+    ) -> Iterable[Dict[str, Any]]:
+        """Yield issues (not pull requests) for the repo. Unauthenticated requests are rate-limited."""
+        fetched = 0
+        page = 1
+        while fetched < limit:
+            params = {"per_page": per_page, "page": page, "state": state}
+            data = self._request("GET", f"/repos/{repo}/issues", params=params)
+            issues = [i for i in data if not i.get("pull_request")]
+            if not issues:
+                break
+            for issue in issues:
+                yield issue
+                fetched += 1
+                if fetched >= limit:
+                    return
+            page += 1
+
+    def add_issue_labels(
+        self, repo: str, issue_number: int, labels: List[str]
+    ) -> Dict[str, Any]:
+        return self._request(
+            "POST",
+            f"/repos/{repo}/issues/{issue_number}/labels",
+            json={"labels": labels},
+        )
+
+    def create_issue_comment(
+        self, repo: str, issue_number: int, body: str
+    ) -> Dict[str, Any]:
+        return self._request(
+            "POST", f"/repos/{repo}/issues/{issue_number}/comments", json={"body": body}
+        )
+
+    def update_issue_state(
+        self, repo: str, issue_number: int, state: str = "closed"
+    ) -> Dict[str, Any]:
+        return self._request(
+            "PATCH", f"/repos/{repo}/issues/{issue_number}", json={"state": state}
+        )
+
 
 def resolve_token() -> Optional[str]:
     for var in TOKEN_ENV_VARS:
@@ -169,7 +215,184 @@ def parse_args(argv: Iterable[str]) -> argparse.Namespace:
         default="github-workflow-logs",
         help="Directory for downloaded job logs (default: %(default)s)",
     )
+    parser.add_argument(
+        "--scan-logs",
+        action="store_true",
+        help="Scan downloaded or local logs for common failure patterns (writes summary to --log-dir).",
+    )
+    parser.add_argument(
+        "--scan-workflows",
+        action="store_true",
+        help="Scan .github/workflows for deprecated artifact action versions (dry-run by default).",
+    )
+    parser.add_argument(
+        "--apply-fixes",
+        action="store_true",
+        help="Apply safe fixes to workflow files (replaces v3 -> v4 for known artifact actions).",
+    )
+    parser.add_argument(
+        "--commit",
+        action="store_true",
+        help="When used with --apply-fixes, create a local git commit with the changes.",
+    )
+    parser.add_argument(
+        "--list-issues",
+        action="store_true",
+        help="List recent issues for the repo (excludes PRs).",
+    )
+    parser.add_argument(
+        "--issue-limit",
+        type=int,
+        default=20,
+        help="Number of recent issues to fetch with --list-issues (default: 20).",
+    )
+    parser.add_argument(
+        "--apply-issue-actions",
+        action="store_true",
+        help="Apply safe triage actions to selected issues (labels/comments); requires token and is opt-in.",
+    )
+    parser.add_argument(
+        "--issue-labels",
+        help="Comma-separated list of labels to add when --apply-issue-actions is used (e.g. 'triage,needs-info')",
+    )
     return parser.parse_args(argv)
+
+
+### Log & workflow scanning helpers
+
+
+def scan_log_bytes(content: bytes, filename: str) -> List[str]:
+    """Scan raw log bytes and return a list of human-friendly findings.
+
+    The function is deliberately tolerant: many downloaded job logs are plain text
+    even when the API returns a zipped archive. We decode with 'replace'.
+    """
+    text = content.decode("utf-8", errors="replace")
+    findings: List[str] = []
+
+    # Patterns to detect
+    if "NoRegionError" in text or "You must specify a region" in text:
+        findings.append("NoRegionError: AWS region not configured in job")
+    if "Must have admin rights" in text:
+        findings.append(
+            "PermissionError: workflow scope / admin rights required to download logs"
+        )
+    if "actions/upload-artifact@v3" in text or "actions/download-artifact@v3" in text:
+        findings.append(
+            "Deprecated artifact action v3 detected (upload/download) in workflow files or logs"
+        )
+    # Playwright / E2E common failures
+    if "expect(" in text and "toBeVisible" in text:
+        findings.append("Playwright assertion failures: expect(...).toBeVisible() seen")
+    if (
+        "locator('text=" in text
+        or "Unexpected token '=' while parsing css selector" in text
+    ):
+        findings.append("Playwright selector parsing/strict-mode issues detected")
+    if (
+        "This request has been automatically failed because it uses a deprecated version"
+        in text
+    ):
+        findings.append(
+            "Workflow automatic failure due to deprecated action version (v3)"
+        )
+
+    # Grep for explicit 'failure' lines to give context
+    failure_lines = [
+        ln for ln in text.splitlines() if re.search(r"fail|error|exception", ln, re.I)
+    ]
+    if failure_lines:
+        # Add up to 5 representative failure lines
+        findings.append(
+            "Representative failure lines:\n" + "\n".join(failure_lines[:5])
+        )
+
+    return findings
+
+
+def scan_log_file(path: str) -> List[str]:
+    """Scan a log file on disk. If it's a zip, inspect contained files; otherwise scan raw bytes."""
+    try:
+        if zipfile.is_zipfile(path):
+            findings: List[str] = []
+            with zipfile.ZipFile(path, "r") as z:
+                # examine each file inside
+                for name in z.namelist():
+                    try:
+                        data = z.read(name)
+                    except Exception:
+                        continue
+                    sub = scan_log_bytes(data, name)
+                    if sub:
+                        findings.extend([f"{name}: {s}" for s in sub])
+            return findings
+        else:
+            with open(path, "rb") as fh:
+                data = fh.read()
+            return scan_log_bytes(data, path)
+    except Exception as exc:
+        return [f"Error scanning {path}: {exc}"]
+
+
+def scan_workflow_files(
+    root: str = ".github/workflows",
+) -> Dict[str, List[Tuple[int, str]]]:
+    """Scan YAML workflow files for deprecated artifact actions.
+
+    Returns a mapping path -> list of (line_no, matched_line).
+    """
+    findings: Dict[str, List[Tuple[int, str]]] = {}
+    import glob
+
+    for path in glob.glob(f"{root}/*.yml") + glob.glob(f"{root}/*.yaml"):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                lines = fh.readlines()
+        except Exception:
+            continue
+        matches: List[Tuple[int, str]] = []
+        for i, ln in enumerate(lines, start=1):
+            if (
+                "actions/upload-artifact@v3" in ln
+                or "actions/download-artifact@v3" in ln
+            ):
+                matches.append((i, ln.strip()))
+        if matches:
+            findings[path] = matches
+    return findings
+
+
+def fix_workflow_file(path: str, apply: bool = False) -> Tuple[bool, str, str]:
+    """Replace known deprecated artifact action versions in the workflow file.
+
+    Returns (changed, original_text, new_text). If apply=False this is a dry-run.
+    """
+    with open(path, "r", encoding="utf-8") as fh:
+        original = fh.read()
+    new = original
+    new = new.replace("actions/upload-artifact@v3", "actions/upload-artifact@v4")
+    new = new.replace("actions/download-artifact@v3", "actions/download-artifact@v4")
+    changed = new != original
+    if changed and apply:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(new)
+    return changed, original, new
+
+
+def maybe_git_commit(paths: List[str], message: str) -> Tuple[bool, str]:
+    """Create a local git commit for the specified files. Returns (ok, output).
+
+    This is intentionally conservative: we only run 'git add' and 'git commit' and
+    return the subprocess output. Caller must ensure a git repo is present.
+    """
+    try:
+        subprocess.check_output(["git", "add"] + paths, stderr=subprocess.STDOUT)
+        out = subprocess.check_output(
+            ["git", "commit", "-m", message], stderr=subprocess.STDOUT
+        )
+        return True, out.decode("utf-8", errors="replace")
+    except subprocess.CalledProcessError as exc:
+        return False, exc.output.decode("utf-8", errors="replace")
 
 
 def format_run_summary(run: Dict[str, Any]) -> str:
@@ -286,7 +509,8 @@ def main(argv: Iterable[str]) -> int:
             return 0
 
     print(f"Found {len(runs)} workflow run(s) for {args.repo}:")
-    log_dir = Path(args.log_dir) if args.download_logs else None
+    # Always honor --log-dir for summary output; download only happens when --download-logs is set.
+    log_dir = Path(args.log_dir)
     for run in runs:
         print(f"- {format_run_summary(run)}")
         print_job_details(
@@ -298,6 +522,124 @@ def main(argv: Iterable[str]) -> int:
             log_dir=log_dir,
             run_label=run.get("name") or run.get("path") or str(run.get("id")),
         )
+
+    # Additional scanning and optional fixes
+    summary: Dict[str, Any] = {
+        "runs_inspected": len(runs),
+        "log_scans": {},
+        "workflow_scan": {},
+        "workflow_fixes": {},
+    }
+
+    if args.scan_logs:
+        # scan downloaded logs under log_dir (or current dir if none)
+        log_base = Path(args.log_dir)
+        summary_logs: Dict[str, List[str]] = {}
+        if log_base.exists() and log_base.is_dir():
+            for entry in log_base.iterdir():
+                if entry.is_file():
+                    findings = scan_log_file(str(entry))
+                    if findings:
+                        summary_logs[str(entry)] = findings
+                        print(
+                            f"Log issues in {entry}: \n  - " + "\n  - ".join(findings)
+                        )
+        else:
+            print(f"No log directory found at {log_base}; skipping log scan")
+        summary["log_scans"] = summary_logs
+
+    if args.scan_workflows or args.apply_fixes:
+        wf_findings = scan_workflow_files()
+        summary["workflow_scan"] = {
+            k: [{"line": l, "text": t} for l, t in v] for k, v in wf_findings.items()
+        }
+        if wf_findings:
+            print(
+                "Found deprecated artifact action references in the following workflow files:"
+            )
+            for path, matches in wf_findings.items():
+                for ln, txt in matches:
+                    print(f"  - {path}:{ln}: {txt}")
+
+        if args.apply_fixes and wf_findings:
+            changed_files: List[str] = []
+            for path in wf_findings.keys():
+                changed, orig, new = fix_workflow_file(path, apply=True)
+                summary["workflow_fixes"][path] = {"changed": changed}
+                if changed:
+                    changed_files.append(path)
+                    print(f"Patched {path} (replaced v3 -> v4)")
+            if args.commit and changed_files:
+                ok, out = maybe_git_commit(
+                    changed_files, "ci: update artifact actions to v4 (automated)"
+                )
+                summary["workflow_fixes"]["git_commit"] = {"ok": ok, "output": out}
+                print("Git commit created" if ok else "Git commit failed:\n" + out)
+
+    # write summary JSON
+    if log_dir is not None:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        summary_path = log_dir / "scan-summary.json"
+        with open(summary_path, "w", encoding="utf-8") as fh:
+            json.dump(summary, fh, indent=2)
+        print(f"Wrote scan summary -> {summary_path}")
+
+    # --- Issue listing & safe triage ---
+    if args.list_issues:
+        print(f"Listing up to {args.issue_limit} recent issues for {args.repo}")
+        issues = list(
+            client.list_issues(
+                args.repo, per_page=min(30, args.issue_limit), limit=args.issue_limit
+            )
+        )
+        summary["issues"] = []
+        for issue in issues:
+            brief = {
+                "number": issue.get("number"),
+                "title": issue.get("title"),
+                "user": issue.get("user", {}).get("login"),
+                "created_at": issue.get("created_at"),
+                "labels": [l.get("name") for l in issue.get("labels", [])],
+                "url": issue.get("html_url"),
+            }
+            summary["issues"].append(brief)
+            print(
+                f"# {brief['number']}: {brief['title']} (labels={brief['labels']}) by {brief['user']}"
+            )
+
+        if args.apply_issue_actions:
+            token = resolve_token()
+            if not token:
+                print(
+                    "[WARN] --apply-issue-actions requested but no GITHUB_TOKEN/GH_TOKEN found; aborting apply"
+                )
+            else:
+                labels = [
+                    l.strip() for l in (args.issue_labels or "").split(",") if l.strip()
+                ]
+                for issue in issues:
+                    num = issue.get("number")
+                    print(f"Applying triage to issue #{num}: adding labels={labels}")
+                    if labels:
+                        try:
+                            client.add_issue_labels(args.repo, num, labels)
+                            print(f"  - labels added to #{num}")
+                        except Exception as exc:
+                            print(f"  ! failed to add labels to #{num}: {exc}")
+                    # add a short comment explaining the automated triage
+                    comment = (
+                        "Automated triage: adding labels for triage. "
+                        "If this is incorrect, please update or remove them."
+                    )
+                    try:
+                        client.create_issue_comment(args.repo, num, comment)
+                        print(f"  - comment added to #{num}")
+                    except Exception as exc:
+                        print(f"  ! failed to comment on #{num}: {exc}")
+
+        # update summary file with issues
+        with open(summary_path, "w", encoding="utf-8") as fh:
+            json.dump(summary, fh, indent=2)
 
     return 0
 
