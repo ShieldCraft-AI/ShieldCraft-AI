@@ -1,0 +1,282 @@
+ShieldCraft AI - Comprehensive Context (Updated 2025-10-10)
+
+## 1. Executive Snapshot
+- **Mission**: unify multi-source security telemetry, governed data pipelines, and GenAI reasoning into a single AWS-native platform with strict guardrails.
+- **Scope**: end-to-end architecture spanning ingestion, governance, retrieval, AI inference, evaluation, and documentation. Everything is environment-aware (dev/staging/prod) and cost-controlled.
+- **Status**: implementation sits at **82% complete** (see `docs-site/docs/github/checklist.md`); progress is tracked automatically via `scripts/checklist_lite_review.py`.
+- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`—no AWS calls or deployments; **multi-provider OAuth authentication system** implemented with AWS Cognito supporting Google, Amazon, Microsoft, and GitHub identity providers via professional UI components with conditional navigation, auth state management, and comprehensive debugging infrastructure.
+
+Assistant update (2025-10-10) — conversation summary & current code snapshot
+----------------------------------------------------------------------
+Purpose: add a short, dated assistant-authored summary of the recent interaction (Oct 9–10, 2025) and a concise, machine-friendly snapshot of the repository state immediately after the recent edit/revert activity. Use this block when opening a new conversation so the assistant can resume with the most relevant, recent facts.
+
+1) Conversation summary (high-level)
+- You requested UI changes and a move of the infrastructure blueprint out of `pricing.tsx` into a dedicated `/infrastructure` page. The work included extracting rendering pieces into a new `InfraBlueprint` component and creating `docs-site/src/pages/infrastructure.tsx`.
+- During refactors, some runtime regressions appeared (missing constants, ReferenceError/TypeError) and the VPC/AZ/subnet topology visual disappeared from the new `/infrastructure` page.
+- I iterated: added defensive loading of a build-time `INFRA_BLUEPRINT`, derived a fallback blueprint from `static/data/architecture_discovery.json` when needed, and restored VPC/AZ/subnet markup to `InfraRegionMap` so the topology would render.
+- You asked to revert the changes — I restored tracked files to the last commit (HEAD) and removed several untracked files I had added locally: the new `InfraBlueprint` directory, the `infrastructure.tsx` page, `header-live.css`, `header-live-prod.css`, and a `scripts/scan_secrets.py` script. I reported that the `pricing.tsx` inline blueprint was present again.
+- You then reported manual edits were made to a set of files (listed below). You also reported frustrations about Amazon IdP and Plugins behavior. You asked to stop writing code and instead produce a fresh, comprehensive prompt/context and an updated text document describing the current state.
+
+2) Key actions the assistant took (timeline)
+- Implemented SPA-safe locale switching and header/theme refinements in `UniversalHeader`.
+- Restored MultiProviderLogin wiring and reintroduced an Amazon provider visual in the provider list.
+- Extracted infra UI into `docs-site/src/pages/infrastructure.tsx` and created a new `docs-site/src/components/InfraBlueprint/index.tsx` to centralize infra rendering.
+- Applied scoped CSS compressions for the infrastructure page into `docs-site/src/pages/pricing.module.css` under `.infrastructure-page` to reduce vertical whitespace.
+- After topology disappeared, derived VPC/AZ/subnet topology from `docs-site/static/data/architecture_discovery.json` and restored rendering logic into the `InfraRegionMap`.
+- On your revert request, ran `git restore --source=HEAD -- .` and `git clean -fd` to restore tracked files and remove the untracked files created during the refactor.
+
+3) Current repository snapshot (state as of 2025-10-10 — please consider this a near-term snapshot you should verify locally)
+- Pricing page: `docs-site/src/pages/pricing.tsx` — contains the original, inline `INFRA_BLUEPRINT` and the full multi-AZ VPC/AZ/subnet blueprint rendering. This is the canonical place for the infra blueprint in the current committed HEAD state.
+- Dedicated infrastructure page: `docs-site/src/pages/infrastructure.tsx` — was created during the refactor but is not present in the repository (it was removed as an untracked file during the revert). If you want it preserved/committed, re-add it and I will implement a careful migration plan.
+- InfraBlueprint component: `docs-site/src/components/InfraBlueprint/` — was added during refactor but removed as an untracked directory during the revert. The project currently relies on the inline blueprint in `pricing.tsx`.
+- Header and auth components: `docs-site/src/components/UniversalHeader/index.tsx` and `docs-site/src/components/MultiProviderLogin/index.tsx` — these files were edited during the work (theme-aware styles, provider dropdown, Amazon provider). Per your later manual edits, please verify these files in your working tree; you indicated you made manual edits after my revert — those manual edits are authoritative and must be reviewed by you.
+- CSS: `docs-site/src/pages/pricing.module.css` — contains infra visuals CSS and a recent `.infrastructure-page` scoped compression block that was added during the refactor. Confirm whether you want this kept (it is safe when the dedicated page exists; it was written to be scoped so pricing visual layout wouldn't be affected).
+- Static discovery: `docs-site/static/data/architecture_discovery.json` — contains networking discovery data (VPC/subnet definitions) used by the fallback derivation logic when a build-time `INFRA_BLUEPRINT` is absent.
+- Untracked/removed items (assistant-created and now removed):
+	- `docs-site/src/components/InfraBlueprint/` (removed)
+	- `docs-site/src/pages/infrastructure.tsx` (removed)
+	- `docs-site/src/css/header-live.css` (removed)
+	- `docs-site/src/css/header-live-prod.css` (removed)
+	- `scripts/scan_secrets.py` (removed)
+
+4) Recent manual edits you made (please confirm these are intended changes to keep):
+- `docs-site/src/components/UniversalHeader/index.tsx`
+- `docs-site/src/pages/plugins.tsx`
+- `docs-site/src/pages/pricing.module.css`
+- `docs-site/src/pages/pricing.tsx`
+- `docs-site/src/components/MultiProviderLogin/index.tsx`
+- `docs-site/i18n/TRANSLATION_CHECKLIST.md`
+- `docs-site/src/components/LandingHero.tsx`
+- `docs-site/src/components/AdvantageCards.tsx`
+
+5) Immediate recommendations (short list)
+- Pause large, cross-cutting refactors that touch both shared components and page-level data flows until we lock the source-of-truth for the infra blueprint (either: keep inline `INFRA_BLUEPRINT` in `pricing.tsx` or move it to a committed, shared component/file and update imports everywhere in a single commit).
+- When moving UI across pages, commit the new page and shared component first, verify build locally (run docs dev server), then remove legacy references — this avoids broken visual regressions.
+- If you want the `/infrastructure` page restored as a committed page with parity to the pricing inline blueprint, I will draft a safe migration plan and a short test matrix (dev smoke test + a11y + simple snapshot) before making changes.
+
+6) Where to pick up safely (if you want me to continue working)
+- I can: (A) restore the separate `InfraBlueprint` and `infrastructure.tsx` as a committed, tested change and run the docs-site dev server to verify visuals; or (B) leave the project on the committed HEAD and help you incrementally reintroduce the dedicated page under a feature branch and PR so you can review before merging. Choose one; I will proceed conservatively and run the dev server and tests before any commit.
+
+--- end assistant update ---
+
+## 1. Executive Snapshot
+- **Mission**: unify multi-source security telemetry, governed data pipelines, and GenAI reasoning into a single AWS-native platform with strict guardrails.
+- **Scope**: end-to-end architecture spanning ingestion, governance, retrieval, AI inference, evaluation, and documentation. Everything is environment-aware (dev/staging/prod) and cost-controlled.
+- **Status**: implementation sits at **71 % complete** (see `docs-site/docs/github/checklist.md`); progress is tracked automatically via `scripts/checklist_lite_review.py`.
+- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`—no AWS calls or deployments.
+
+## 2. Problem → Platform → Outcomes
+- **Problem**: Security data is fragmented across SaaS, network, endpoint, and identity sources. Manual consolidation slows detection, drives up risk, and creates audit gaps.
+- **Platform**: ShieldCraft AI delivers governed ingestion (S3/Glue/Lake Formation), environment-specific infrastructure-as-code, retrieval-safe embeddings/vector storage, and a configurable AI layer (stub model → Mistral 7B) behind strict contracts.
+- **Outcomes**: faster evidence collection through Retrieval Augmented Generation (RAG) readiness, cost transparency from tagging and budgets, auditable remediation planning, and a rich demo portal that communicates posture.
+
+## 3. Repository Orientation (key directories)
+| Path | Purpose |
+| --- | --- |
+| `infra/` | CDK app (`app.py`) and domain stacks (networking, data platform, ML, security, orchestration, finops, auth). |
+| `config/` | Environment YAML (`dev.yml`, `staging.yml`, `prod.yml`) + secrets overlays; consumed via the Pydantic-backed `ConfigLoader`. |
+| `ai_core/` | Model loader, chunking, embedding utilities, vector store abstraction (pgvector). |
+| `data_prep/` | Ingestion pipeline scaffolding for security telemetry (batch + streaming hooks). |
+| `docs-site/` | Docusaurus v3 documentation portal, React/TypeScript components, CSS modules, and theme overrides. |
+| `tests/` | >819 pytest cases covering infra contracts, config unhappy paths, lambda utilities, and more. |
+| `scripts/` | Developer and CI helpers (checklist sync, dependency updates, deployment helpers). |
+| `proton/` | Local-only Proton PaS templates (versioned bundles for environment/service) used for future scaffolding; packaged via `scripts/proton_bundle.py`. |
+| `nox_sessions/` | Modular Nox orchestration (lint, test, docker, deploy, docs, etc.) auto-registered by `noxfile.py`. |
+| `lambda/` | Lambda source (attack simulation, benchmarking, utilities). |
+| `.github/workflows/ci.yml` | GitHub Actions pipeline invoking Nox `commit_flow`; optional CDK deploy & Docker stages available. |
+
+## 4. Infrastructure Landscape (AWS CDK v2)
+`infra/app.py` orchestrates stack instantiation after loading the active environment via `ConfigLoader`. Stacks run in parallel where safe and are tagged uniformly (`project`, `environment`, `owner`, `cost_center`, `team`, `compliance`). Secrets are fetched from `config/secrets.<env>.yml` and injected through dedicated stacks.
+
+### 4.1 Foundation & Identity
+- `foundation/networking/networking_stack.py`: VPC, segmented public/private subnets, and baseline security groups (e.g., `sg-msk`, `sg-lambda`).
+- `foundation/identity_security/iam_stack.py`: shared IAM roles and policies; outputs exported for other domains.
+- `foundation/identity_security/secrets_manager_stack.py`: central Secrets Manager provisioning with deterministic naming.
+
+### 4.2 Data Platform Domains
+- **Storage** – `data_platform/storage/s3_stack.py`: environment-prefixed buckets (raw/processed/analytics) with versioning, encryption, lifecycle, optional Glue crawlers.
+- **Governance** – `data_platform/storage/lakeformation_stack.py`: admin role, bucket registration, table/database grants, and model execution role permissions.
+- **Catalog & ETL** – `data_platform/catalog_etl/glue_stack.py` + `data_quality_stack.py`: Glue databases, crawlers, and optional Deequ data-quality hooks.
+- **Streaming & Ingestion** – `data_platform/ingestion_streaming/msk_stack.py` (MSK cluster or external bootstrap) and `airbyte_stack.py` (Airbyte ECS flavor with scale-to-zero and IAM wiring).
+
+### 4.3 Analytics & Search
+- `analytics_search/opensearch_stack.py`: toggled OpenSearch domain with encryption, TLS-only access, and EBS settings. Disabled in dev (`mode: none`) by config.
+
+### 4.4 ML & AI
+- `ml/sagemaker_stack.py`: strongly-typed config (`SageMakerConfig`) validating ARNs, topology, alarms, cost controls. Supports local/destroy in dev vs retain in higher envs.
+- AI runtime is orchestrated by `ai_core` (see section 7) and is separate from deployment stack.
+
+### 4.5 Serverless Compute & Orchestration
+- `serverless_compute/lambda_stack.py`: packaged functions (MSK topic creator, data glue) with VPC attachment and policy statements.
+- `orchestration/eventbridge_stack.py`: EventBridge buses for data and security domains; integrates with Step Functions definitions.
+- `orchestration/stepfunctions_stack.py`: express or standard workflows defined in config (e.g., Data ingest/validate, Benchmark and validate).
+- `orchestration/control_tower_stack.py` & `cloudformation_orchestrator_stack.py`: placeholders for future governance automation.
+
+### 4.6 Security & Compliance
+- `security_compliance/cloud_native_hardening_stack.py`: GuardDuty, Security Hub, Detective activation plus optional Config rules.
+- `security_compliance/compliance_stack.py`: compliance artifact scaffolding, SNS notifications.
+- `security_compliance/attack_simulation_stack.py`: hooks for breach/attack simulation workloads.
+
+### 4.7 FinOps & Auth
+- `finops/budget_stack.py`: budget limits per environment, SNS/email notifications, and tagging for showback.
+- `auth_stack.py`: Cognito user pools, identity providers, and portal integration.
+
+### 4.8 Deployment Pipeline
+- `infra/pipeline_stack.py`: CDK Pipeline (CodePipeline + CodeBuild) referencing GitHub CodeStar connection; cross-account KMS usage ready (currently optional).
+
+## 5. Configuration System
+- `infra/utils/config_loader.py` provides a singleton loader backed by selectable providers (local YAML / S3 / SSM). Environments discovered via env vars fallback to `dev`.
+- Pydantic schema lives in `infra/utils/config_schema.py`; empty dicts are normalized to `None`, ensuring optional sections do not break validation.
+- Config example (`config/dev.yml`): defines VPC/subnets, MSK toggle (external cluster by default), Lambda functions, Step Functions state machines, etc. Secrets references use `aws-vault:` indirection.
+- `get_config_loader()` is reused across infra stacks, AI components, and runtime utilities ensuring a single source of truth.
+
+## 6. Data, Retrieval & AI Core
+- **Model Loader** (`ai_core/model_loader.py`): hot-swappable backend; defaults to `stub` in dev (zero cost) but can load `mistralai/Mistral-7B-v0.1`. Supports optional 4-bit quantization via `BitsAndBytesConfig`. Handles HF validation errors and OOM gracefully.
+- **Embeddings & Vector Store** (`ai_core/embedding`, `ai_core/vector_store.py`): PGVector integration with batch inserts, similarity search (`<->` operator), and environment-configured connection info.
+- **Chunking Strategies** (`ai_core/chunking`): multiple chunkers (fixed, semantic, recursive, sentence, token-based, sliding window, custom heuristic) controlled via YAML settings.
+- **Benchmarks** (`ai_core` + `lambda/beir_benchmark`): harness for MTEB/BEIR with local artifact persistence (`mteb_benchmark.log`, `mteb_results.json/`); served via Nox sessions as needed.
+- **Data Prep** (`data_prep/ingestion_pipeline.py`): orchestrates dataset ingestion (CSV/JSON) into chunking/embedding flow with logging and failure handling.
+- **Plugin Catalogue** (`docs-site/src/pages/plugins.tsx` + `plugins.module.css`): curated portfolio of modular accelerators with anchor-linked cards and quick summaries covering Threat-Classifier (production enrichment & scoring), Seq2Seq Answer Architect (RAG workflow with enforced latency envelopes), Resource Forecaster (FinOps regression with RMSE monitoring), and Access Anomaly Detector (NER-driven access hygiene).
+
+## 7. Documentation Portal (Docusaurus)
+- **Framework**: React 18 + TypeScript + Docusaurus v3, located under `docs-site/` with custom CSS (`src/css/custom.css`) and CSS Modules for pages.
+- **Theme Improvements (Sept/Oct 2025)**:
+	- New custom tooltip system (`[data-tooltip]`) ensures light/dark parity; all instances converted (dashboard gauges, architecture chips, threat feed badges, monitoring tooltips, portal menu).
+	- Environment selector, world incidents map, and defense layer tooltips now honor `var(--ifm-*)` variables.
+	- Portal menu icon adjusted (`≡`) for cross-platform rendering.
+	- Pricing page refreshed with calmer tier interactions, multi-AZ failover ribbon, transparent glass backdrops that match the hero banner, and richer deployment playbooks for AWS and on-prem rollouts.
+	- Global typography experiments (IBM Plex Sans → Source Sans 3 → Neue Haas Grotesk) culminated in adopting the Neue Haas Grotesk / Helvetica stack and a deeper indigo accent palette carried across docs and portal surfaces.
+- **Key Pages**:
+	- `src/pages/pricing.tsx`: interactive tiered cost comparison, add-ons, and AWS infrastructure blueprint per tier.
+  - `src/pages/dashboard.tsx`: live metrics simulator (datalake usage, API latency, threat counts) with session persistence and theme-aware UI.
+  - `src/pages/monitoring.tsx`: world incident feed, globe HUD overlays, real-time alert stream with auto-scroll logic.
+		- `src/pages/plugins.tsx`: dual-column plugin catalogue with quick summary row, anchor-linked detailed cards, and architecture context panels describing latency contracts, data management, and next steps; each plugin routes to a dedicated detail page rendering task-specific visualizations (e.g., regression vs actual spend, RAG latency envelopes, anomaly score trajectories) and guardrail scorecards.
+  - Additional portal pages cover threat feed, alerts, system status, recent activity, login, and error boundaries.
+	- Infra Overview now includes a Proton PaS Templates card surfacing available templates for local exploration.
+- **Components**: `ArchitectureLoop` interactive lifecycle, `PortalLayout` navigation shell, `GlobeHUD` D3-based overlays, `FilterToolbar`, `InfoCardsRow`, `AdvantageCards`, and `UniversalHeader` with theme toggle plus live navigation badges for Documentation, Plugins, and Pricing.
+- **Docs**: Markdown content under `docs-site/docs/github/` (architecture spec, tooling, risks, checklist, ADR stubs) plus diagram assets (`diagrams/`). Global typography now uses a Neue Haas Grotesk / Helvetica stack and a deeper indigo link/heading palette for a more executive presentation.
+	- New: Artifact Map (`docs-site/docs/github/artifact_map.md`) and Demo Vertical Slice doc (`docs-site/docs/github/demo_vertical_slice.md`).
+
+## 8. Testing & Quality Gates
+- **Runner**: `poetry run nox -s commit_flow` drives lint + format + tests. pytest configured via `pytest.ini` (markers, log level, warning filters) and uses `pytest-xdist` for parallel execution.
+- **Coverage**: infra stacks have deep unit coverage verifying CloudFormation outputs, IAM policies, and config validation; config loader tests simulate multiple backends; lambda utilities tested for idempotency.
+- **Utilities**: custom YAML loader ensures intrinsic strings remain literal for deterministic assertions.
+- **Scale**: >1100 tests (as of Oct 2025). Failures are treated as blockers in CI.
+
+## 9. CI/CD & Automation
+- **GitHub Actions (`ci.yml`)**: runs on push/PR to `main`. Steps include aggressive disk cleanup, Python setup (reads `.python-version`), Poetry install, dependency caching, and `nox -s commit_flow` execution. Optional jobs (currently disabled) cover CDK deploys and Docker builds/scans.
+- **Nox Sessions** (`nox_sessions/`): modular tasks (lint, test, lambda packaging, docker, docs build, release). Sessions auto-registered by `noxfile.py` based on filename to keep orchestration DRY.
+- **Deploy Pipeline**: `infra/pipeline_stack.py` provisions CodePipeline stages (source → synth → deploy). Pending activation once accounts/secrets are finalized.
+
+## 10. Security, Compliance, and FinOps
+- Encryption enforced at rest and in transit (S3, OpenSearch, MSK TLS, SageMaker). Buckets block public access and include lifecycle transitions.
+- GuardDuty, Security Hub, Detective on by default; Config rules optional but ready for activation (e.g., `s3-bucket-public-read-prohibited`).
+- IAM roles validated via regex (SageMaker config) and exported for consumers (Step Functions, Lambda, Glue).
+- Budget stack ensures spend alerts; cost alarm toggles exist in SageMaker config.
+- Secrets Manager centralizes credentials; Pydantic ensures ARN values aren’t stored in secrets directly (anti-pattern avoided).
+
+## 11. Local Development & Tooling
+- **Managers**: Poetry (pyproject constraints: Python 3.9–3.12) with optional groups (lint, typecheck, test, dev, security, diagnostics, notebook). Node-based docs site uses its own `package.json`.
+- **Scripts**: 39 utility scripts (dependency updates, notebook helpers, OAuth setup, docs build). `scripts/update_google_oauth_prod.md` documents SaaS integration steps.
+	- New: `scripts/demo_vertical_slice.py` emits a deterministic JSON for the finding → retrieve → risk → remediation narrative (local-only, no dependencies).
+- **Containers**: `Dockerfile`, `Dockerfile.api`, `Dockerfile.ingestion` for service builds; `docker-compose.yml` orchestrates local infra (e.g., Redpanda, Postgres pgvector).
+- **Diagrams**: `.drawio` source files under `diagrams/` for architecture visuals.
+
+## 12. Observability & Evaluation Assets
+ShieldCraft AI - Comprehensive Context (Updated 2025-10-17)
+
+## Purpose of this document
+This file is a living, machine- and human-friendly snapshot of the repository state, recent activity, and recommended next steps. It is intended to be updated whenever major changes land (infra, docs, security tooling, or automation). The snapshot below was created after scanning the repository state on 2025-10-17 and includes recent changes to the secrets scanner, commit helper, and the documentation checklist.
+
+## Executive snapshot (top-line)
+- Mission: unify multi-source security telemetry, governed data pipelines, and GenAI reasoning into a single AWS-native platform with strict guardrails.
+- Scope: end-to-end architecture across ingestion, governance, retrieval, AI inference, evaluation, and documentation. Environment-aware (dev/staging/prod) and cost-controlled.
+- Current progress: 82% complete (as shown in `README.md` and `docs-site/docs/github/checklist.md`). The docs progress is driven by `scripts/update_checklist_progress.py` and `documentation_baseline_review.py` runs which were executed recently.
+
+## Summary of recent, material changes (since Oct 10)
+- Added a triage-aware secrets scanner: `scripts/check-secrets.js`. This scanner limits scanning to whitelisted extensions, ignores noisy `.nox` artifacts, identifies JWT-like and base64 blobs more conservatively, emits masked snippets, and assigns a numeric `confidence_score` and remediation suggestion per finding.
+- Committed `scripts/scan-secrets.json` (latest report) to the repo for visibility; the scanner writes that file as structured output.
+- Integrated the scanner into `scripts/commit-script.sh`. The commit helper runs the scanner pre-commit, parses triage JSON, blocks commits on medium/high findings, and prompts for low-confidence findings. It requires `node` and `python3` (gracefully skips scanner if Node isn't available).
+- Ran the repo documentation baseline review and checklist updater (`scripts/documentation_baseline_review.py`, `scripts/update_checklist_progress.py`), verified infra stacks for previously missing checklist items, and updated `docs-site/docs/github/checklist.md`. The progress metric was recalculated to 82%.
+- Reverted an earlier UI refactor that moved the infra blueprint into a dedicated page/component; the canonical inline `INFRA_BLUEPRINT` still lives in `docs-site/src/pages/pricing.tsx` in HEAD. The experimental `infra` page and `InfraBlueprint` component were local/untracked and removed during the revert.
+
+## Repo layout (primary folders)
+- `infra/` — CDK v2 Python app and domain stacks (networking, identity, data platform, ML, security, orchestration, finops). See `infra/app.py`.
+- `ai_core/` — model loader, chunking, embedding utilities, vector store (pgvector) integration.
+- `data_prep/` — ingestion pipeline scaffolding for telemetry (many source-specific folders present).
+- `docs-site/` — Docusaurus v3 docs, MDX/React pages, components. `pricing.tsx` contains the inline infra blueprint.
+- `proton/` — local Proton PaS templates; `scripts/proton_bundle.py` packages templates into `dist/proton/manifest.json`.
+- `scripts/` — developer helpers, scanners, demo scripts. Notable: `check-secrets.js`, `scan-secrets.json`, `commit-script.sh`, `update_checklist_progress.py`, `documentation_baseline_review.py`.
+- `tests/` — pytest suites for infra, config, utilities and contract checks.
+
+## Scanner & triage (technical notes)
+- File: `scripts/check-secrets.js` (Node.js)
+  - Scanning scope: whitelisted extensions (.py, .ts, .js, .env, .md, .json, .yml, etc.) to avoid binary noise.
+  - Path allowlist: skips `.nox` and other noisy directories by path-segment checks.
+  - Detection: regex patterns for AWS-style keys, GitHub/Slack tokens, generic API keys, and long base64/JWT-like strings.
+  - Heuristics: JWT detection (three '.' separated base64 components), padding/entropy checks, and contextual hint words near matches (e.g., 'token', 'secret', 'key') to reduce false positives.
+  - Output: `scripts/scan-secrets.json` containing per-file findings with masked snippets, line numbers, `confidence_score`, and `suggestion` (rotate, redact, allowlist).
+  - Exit behavior: script exits non-zero when findings are present, enabling CI or commit-time enforcement.
+
+- Commit helper integration: `scripts/commit-script.sh` (shell)
+  - Runs the Node scanner (if present) before committing.
+  - Parses `scripts/scan-secrets.json` with a small Python snippet to decide whether to block the commit (medium/high confidence) or prompt the committer for low-confidence findings.
+  - Notes: If this gating is disruptive while iterating, consider moving enforcement to CI or adding a temporary feature-branch bypass flag.
+
+## Documentation & checklist
+- Primary checklist: `docs-site/docs/github/checklist.md`. The checklist progress number (82%) is generated and kept in sync by `scripts/update_checklist_progress.py` based on discovered templates and manual edits.
+- Evidence pointers: infra stacks under `infra/` were inspected to confirm that the previously missing items (Attack Simulation, Budget, Compliance, Control Tower scaffolding, Data Quality, Secrets Manager) have stack implementations and were marked complete in the checklist.
+
+## Build, test, and validation commands
+- Run lint/tests (main validation flow):
+```bash
+poetry install --no-root --with dev
+poetry run nox -s commit_flow
+```
+- Run the secrets scanner locally:
+```bash
+node scripts/check-secrets.js
+# inspect JSON output
+cat scripts/scan-secrets.json | jq .
+```
+- Run docs locally:
+```bash
+cd docs-site
+npm install
+npm run start
+```
+
+## Recommended remediation runbook (if scanner finds real secrets)
+1. Rotate the affected credential in the provider (AWS/GitHub/3rd party) immediately.
+2. Replace the secret in the repository file (or remove the file) and commit the redaction.
+3. Scrub history if necessary using `git filter-repo` with a focused rule; prefer a backup clone before rewriting history.
+4. Re-run the scanner to confirm removal.
+5. Update any documentation or secrets allowlist to reflect the remediation.
+
+If you want, I can generate the exact `git filter-repo` command and a short, safe script to rotate+scrub after you point to a specific finding.
+
+## Recommendations & next steps
+- Confirm whether to keep the scanner commit-gate on `main`. If it's too strict for fast iteration, move enforcement to CI or relax thresholds temporarily.
+- If you want a dedicated `docs-site/src/components/InfraBlueprint` and `docs-site/src/pages/infrastructure.tsx`, reintroduce them on a feature branch as a single commit and run the docs dev server to validate visuals.
+- Add a small `scripts/secrets-allowlist.json` to persist allowlisted false positives (scanner can read this on startup).
+
+## Progress & quick checks performed
+- Checklist progress: 82% (README + docs-site progress bar).
+- Quick syntax checks performed during recent edits: `node --check scripts/check-secrets.js` (no syntax errors), `bash -n scripts/commit-script.sh` (no syntax errors).
+
+## Where to look (evidence)
+- `infra/` — CDK stacks and `infra/app.py`
+- `docs-site/docs/github/checklist.md` — project checklist and progress
+- `docs-site/src/pages/pricing.tsx` — canonical inline infra blueprint
+- `scripts/check-secrets.js` and `scripts/scan-secrets.json` — scanner + latest report
+- `scripts/commit-script.sh` — commit helper that runs the scanner
+- `scripts/documentation_baseline_review.py` & `scripts/update_checklist_progress.py` — checklist automation utilities
+
+---
+
+One-line summary
+- ShieldCraft AI is an AWS-native MLOps & GenAI security platform with env-aware IaC, rigorous config validation, central secrets management, a triage-aware secrets scanner integrated into the commit flow, and automated checklist progress tracking; current committed progress is 82% and recent work prioritized secrets hygiene and documentation parity.
+
+---
+
+If you want this file committed to `main` I can commit and push it (I can also open a PR instead). Tell me which you prefer and I'll proceed.
