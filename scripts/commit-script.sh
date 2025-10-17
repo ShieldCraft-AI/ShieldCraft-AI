@@ -288,6 +288,94 @@ if command -v node >/dev/null 2>&1 && [ -f scripts/pre_npm.py ]; then
 fi
 echo "[INFO] Preflight checks complete." | tee -a "$DEBUG_LOG_FILE"
 
+# --- Run secrets scanner and triage before committing ---
+echo -e "\n[INFO] Running local secrets scanner (scripts/check-secrets.js)..." | tee -a "$DEBUG_LOG_FILE"
+log_output "[INFO] Running local secrets scanner"
+# Ensure Node scanner is present
+if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-secrets.js" ]; then
+    # run scanner; don't fail script on non-zero as we'll interpret results
+    node "$REPO_ROOT/scripts/check-secrets.js" >/dev/null 2>>"$DEBUG_LOG_FILE" || true
+    if [ -f "$REPO_ROOT/scripts/scan-secrets.json" ]; then
+        # parse the JSON and detect any medium/high confidence findings
+        python3 - "$REPO_ROOT" <<'PY'
+import json,sys,os
+repo=sys.argv[1]
+path=os.path.join(repo,'scripts','scan-secrets.json')
+try:
+    j=json.load(open(path))
+except Exception as e:
+    print('[ERROR] Failed to parse scan-secrets.json:', e)
+    sys.exit(1)
+issues=[]
+for f in j.get('findings',[]):
+    fname=f.get('file')
+    for t in f.get('triage',[]):
+        sug=t.get('suggestion',{}).get('confidence','low')
+        score=t.get('confidence_score',0)
+        # treat medium/high or score>=2 as actionable
+        if sug in ('high','medium') or score>=2:
+            issues.append((fname,t))
+if issues:
+    print('SECRETS_BLOCK')
+    for fname,t in issues:
+        print(f"{fname}: {t.get('type')} line {t.get('line')} masked {t.get('masked')} conf {t.get('confidence_score')} suggestion {t.get('suggestion')}")
+    sys.exit(2)
+else:
+    # If only low-confidence items exist, print summary and allow commit after confirmation
+    low=[]
+    for f in j.get('findings',[]):
+        for t in f.get('triage',[]):
+            if t.get('suggestion',{}).get('confidence','low')=='low':
+                low.append((f.get('file'),t))
+    if low:
+        print('SECRETS_LOW')
+        for fname,t in low[:10]:
+            print(f"{fname}: {t.get('type')} line {t.get('line')} masked {t.get('masked')}")
+    else:
+        print('SECRETS_OK')
+    sys.exit(0)
+PY
+        rc=$?
+        if [ "$rc" -eq 2 ]; then
+            echo -e "\n\033[1;41mERROR: Secrets scanner found medium/high confidence issues. Commit blocked.\033[0m" | tee -a "$DEBUG_LOG_FILE"
+            echo "See scripts/scan-secrets.json for details." | tee -a "$DEBUG_LOG_FILE"
+            exit 1
+        elif [ "$rc" -eq 0 ]; then
+            # Check for low-confidence items printed by Python
+            # If low-confidence items exist, ask user to confirm
+            python3 - <<'PY' >/tmp/scan_secrets_summary.txt
+import json,sys,os
+j=json.load(open('scripts/scan-secrets.json'))
+low=[]
+for f in j.get('findings',[]):
+    for t in f.get('triage',[]):
+        if t.get('suggestion',{}).get('confidence','low')=='low':
+            low.append((f.get('file'),t.get('type'),t.get('line'),t.get('masked')))
+if low:
+    print('LOW')
+    for fname,typ,line,mask in low[:20]:
+        print(f"{fname}: {typ} line {line} masked {mask}")
+else:
+    print('OK')
+PY
+            if grep -q '^LOW' /tmp/scan_secrets_summary.txt 2>/dev/null; then
+                echo -e "\n[WARN] Scanner produced low-confidence findings (likely false positives). Review before committing:" | tee -a "$DEBUG_LOG_FILE"
+                sed -n '1,40p' /tmp/scan_secrets_summary.txt | sed -n '2,40p' | tee -a "$DEBUG_LOG_FILE"
+                read -rp "Proceed with commit despite low-confidence findings? [y/N]: " proceed_secrets
+                proceed_secrets=${proceed_secrets:-N}
+                if [[ ! "$proceed_secrets" =~ ^[Yy]$ ]]; then
+                    echo "Aborting commit so you can inspect the scanner output." | tee -a "$DEBUG_LOG_FILE"
+                    exit 1
+                fi
+            fi
+        else
+            echo "[WARN] Scanner execution returned an unexpected code $rc" | tee -a "$DEBUG_LOG_FILE"
+        fi
+    fi
+else
+    echo "[WARN] Node scanner not available or script missing; skipping secrets scan." | tee -a "$DEBUG_LOG_FILE"
+fi
+
 # --- Main commit with user's message ---
 echo -e "\n\033[1;34mCommitting changes with message: $full_commit_msg\033[0m\n" | tee -a "$DEBUG_LOG_FILE"
 log_output "[INFO] About to commit with message: $full_commit_msg"
