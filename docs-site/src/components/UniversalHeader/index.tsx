@@ -81,7 +81,13 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                 setLoggedIn(false);
                 return null;
             }
-            const userPrefix = lastAuthUserKey.replace('.LastAuthUser', '');
+            const username = localStorage.getItem(lastAuthUserKey) || '';
+            if (!username) {
+                setUserFirstName(null);
+                setLoggedIn(false);
+                return null;
+            }
+            const userPrefix = lastAuthUserKey.replace(/\.LastAuthUser$/, `.${username}`);
             const idTokenKey = `${userPrefix}.idToken`;
             const idToken = localStorage.getItem(idTokenKey);
             if (!idToken) {
@@ -126,7 +132,12 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                     if (!cancelled) setUserFirstName(null);
                     return null;
                 }
-                const userPrefix = lastAuthUserKey.replace('.LastAuthUser', '');
+                const username = localStorage.getItem(lastAuthUserKey) || '';
+                if (!username) {
+                    if (!cancelled) setUserFirstName(null);
+                    return null;
+                }
+                const userPrefix = lastAuthUserKey.replace(/\.LastAuthUser$/, `.${username}`);
                 const idTokenKey = `${userPrefix}.idToken`;
                 const idToken = localStorage.getItem(idTokenKey);
                 if (!idToken) {

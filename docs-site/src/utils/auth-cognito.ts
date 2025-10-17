@@ -511,7 +511,9 @@ export async function notifyAuthChange(forced?: boolean | null): Promise<void> {
         // before dispatching events so listeners reading localStorage will see it.
         if (isAuth) {
             try {
+                console.debug('[auth-debug] notifyAuthChange will persist token snapshot');
                 await persistAuthSnapshotToStorage().catch(() => undefined);
+                console.debug('[auth-debug] notifyAuthChange persisted snapshot (check localStorage)');
             } catch { /* ignore */ }
         }
 
@@ -526,12 +528,15 @@ export async function notifyAuthChange(forced?: boolean | null): Promise<void> {
         if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
             try {
                 const detail = { authenticated: isAuth };
+                console.debug('[auth-debug] dispatching sc-auth-change', { authenticated: isAuth });
                 if (typeof CustomEvent === 'function') {
                     window.dispatchEvent(new CustomEvent('sc-auth-change', { detail }));
+                    console.debug('[auth-debug] sc-auth-change dispatched');
                 } else if (typeof document !== 'undefined' && typeof document.createEvent === 'function') {
                     const evt = document.createEvent('CustomEvent');
                     evt.initCustomEvent('sc-auth-change', false, false, detail);
                     window.dispatchEvent(evt);
+                    console.debug('[auth-debug] sc-auth-change dispatched (legacy)');
                 }
             } catch (eventError) {
                 console.debug('[auth-cognito] notifyAuthChange window event failed', eventError);
@@ -544,6 +549,7 @@ export async function notifyAuthChange(forced?: boolean | null): Promise<void> {
 
 async function persistAuthSnapshotToStorage(): Promise<void> {
     try {
+        console.debug('[auth-debug] persistAuthSnapshotToStorage start');
         if (typeof window === 'undefined') return;
         const cfg = getAmplifyConfig();
         const clientId =
@@ -572,6 +578,12 @@ async function persistAuthSnapshotToStorage(): Promise<void> {
                     window.localStorage.setItem(`${storagePrefix}.LastAuthUser`, username);
                     if (accessToken) window.localStorage.setItem(`${userPrefix}.accessToken`, accessToken);
                     if (idToken) window.localStorage.setItem(`${userPrefix}.idToken`, idToken);
+                    console.debug('[auth-debug] persistAuthSnapshotToStorage stored keys', {
+                        storagePrefix,
+                        username,
+                        hasAccessToken: Boolean(accessToken),
+                        hasIdToken: Boolean(idToken),
+                    });
                 } catch (e) { /* ignore storage failures */ }
                 return;
             } catch (err) {
@@ -593,6 +605,12 @@ async function persistAuthSnapshotToStorage(): Promise<void> {
                     window.localStorage.setItem(`${storagePrefix}.LastAuthUser`, username);
                     if (accessToken) window.localStorage.setItem(`${userPrefix}.accessToken`, accessToken);
                     if (idToken) window.localStorage.setItem(`${userPrefix}.idToken`, idToken);
+                    console.debug('[auth-debug] persistAuthSnapshotToStorage stored keys (legacy)', {
+                        storagePrefix,
+                        username,
+                        hasAccessToken: Boolean(accessToken),
+                        hasIdToken: Boolean(idToken),
+                    });
                 } catch (e) { /* ignore storage failures */ }
                 return;
             } catch {
@@ -656,7 +674,19 @@ export async function refreshAuthState(): Promise<boolean> {
             cfg?.Auth?.userPoolWebClientId ||
             cfg?.Auth?.userPoolClientId ||
             cfg?.Auth?.Cognito?.userPoolClientId;
-        const redirectUri = resolveRedirect(oauth?.redirectSignIn, window.location.origin, '/monitoring');
+        // Prefer using the actual captured callback URL (workingUrl) for redirect_uri
+        // because it represents the URL Cognito redirected the browser to (and where
+        // the authorization code resides). This prevents mismatches when the
+        // configured redirectSignIn array contains multiple allowed paths (eg. /dashboard
+        // and /monitoring) and the current navigation used a different path.
+        let redirectUri: string;
+        try {
+            redirectUri = `${workingUrl.origin}${workingUrl.pathname}`;
+            console.debug('[auth-cognito] refreshAuthState using workingUrl-derived redirectUri', { redirectUri });
+        } catch (e) {
+            redirectUri = resolveRedirect(oauth?.redirectSignIn, window.location.origin, '/monitoring');
+            console.debug('[auth-cognito] refreshAuthState fallback redirectUri', { redirectUri });
+        }
 
         if (!domain || !clientId) {
             console.error('[auth-cognito] refreshAuthState missing domain or clientId');
@@ -674,6 +704,22 @@ export async function refreshAuthState(): Promise<boolean> {
             code,
             redirect_uri: redirectUri,
         });
+        // If a PKCE verifier was stored during the authorization request, include it
+        // so the token exchange succeeds when PKCE is required by the client.
+        try {
+            const possibleKeys = ['sc_pkce.verifier', 'sc_pkce_verifier', 'code_verifier', 'pkce.verifier', 'pkce_verifier'];
+            for (const k of possibleKeys) {
+                try {
+                    const v = sessionStorage.getItem(k);
+                    if (v) {
+                        body.set('code_verifier', v);
+                        console.debug('[auth-debug] refreshAuthState using code_verifier from sessionStorage', { key: k });
+                        break;
+                    }
+                } catch { /* ignore storage errors */ }
+            }
+        } catch { /* ignore */ }
+        console.debug('[auth-debug] refreshAuthState tokenExchange', { tokenEndpoint, clientId, redirectUri });
 
         let response = await fetch(tokenEndpoint, {
             method: 'POST',
@@ -749,6 +795,13 @@ export async function refreshAuthState(): Promise<boolean> {
         const accessToken = payload?.access_token;
         const idToken = payload?.id_token;
         const refreshToken = payload?.refresh_token;
+
+        console.debug('[auth-debug] refreshAuthState token exchange succeeded', {
+            username: username,
+            hasAccessToken: Boolean(accessToken),
+            hasIdToken: Boolean(idToken),
+            hasRefreshToken: Boolean(refreshToken),
+        });
 
         const storagePrefix = `CognitoIdentityServiceProvider.${clientId}`;
         const userPrefix = `${storagePrefix}.${username}`;

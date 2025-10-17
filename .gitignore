@@ -210,6 +210,7 @@ docs-site/.storybook
 docs-site/playwright-report/
 docs-site/test-results/
 logs/
+github-workflow-logs/
 nox_sessions/__pycache__/
 nox_sessions/*.pyc
 nox_sessions/*.pyo
