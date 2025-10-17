@@ -26,8 +26,8 @@
   </div>
   <h1 class="sc-title"><img src="../../static/img/logo.png" alt="ShieldCraft AI" style="height:38px;width:auto;vertical-align:middle;border-radius:8px;" /> ShieldCraft AI – Implementation Checklist</h1>
   <div id="progress-bar" class="sc-progress">
-  <progress id="shieldcraft-progress" value="80" max="100" aria-label="ShieldCraft overall progress" style="width:60%;height:18px;"></progress>
-  <div id="progress-label">80% Complete</div>
+  <progress id="shieldcraft-progress" value="82" max="100" aria-label="ShieldCraft overall progress" style="width:60%;height:18px;"></progress>
+  <div id="progress-label">82% Complete</div>
   </div>
   <div class="sc-legend">
     <span class="sc-pill">🟩 Complete</span>
@@ -56,6 +56,12 @@
   <li>🟩 Cost guardrails (budgets, lifecycle policies, encryption defaults)</li>
   <li>🟩 Centralized secrets (Secrets Manager) – zero static creds in code</li>
   <li>🟩 S3 encryption + lifecycle and retention governance</li>
+  <li>🟩 Attack Simulation stack implemented (attack_simulation_stack)</li>
+  <li>🟩 Budget stack implemented (budget_stack)</li>
+  <li>🟩 Compliance stack implemented (compliance_stack)</li>
+  <li>🟩 Control Tower integration scaffolding present (control_tower_stack)
+  <li>🟩 Data Quality stack implemented (data_quality_stack)</li>
+  <li>🟩 Secrets Manager stack implemented (secrets_manager_stack)</li>
 </ul>
 <div class="sc-h3">Remaining</div>
 <ul>
@@ -201,7 +207,7 @@
 
 <!-- PROGRESS FOOTER -->
 <section class="sc-card">
-  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 44 complete / (44 complete + 11 remaining) = 80%. <br>
+  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 50 complete / (50 complete + 11 remaining) = 82%. <br>
   <strong style="color:#a5b4fc;">Breakdown:</strong> 3 active items (🟥) + 8 deferred items (🕒). <br>
   <strong style="color:#a5b4fc;">Evidence Pointers:</strong>  infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
 </section>
