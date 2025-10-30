@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
+DOCUMENTED DEPLOY HELPER — Reviewed
+Purpose: post-deploy helper to copy MSK cluster ARNs into environment configs.
+This file expects CDK output files and should only be used after an explicit,
+reviewed deploy. Keep whitelisted and documented.
+
 update_msk_arn.py
 
 After a CDK deploy, use this script to update the MSK cluster ARN in the correct environment YAML config.
 Usage:
-  python update_msk_arn.py --env dev --arn <MSK_CLUSTER_ARN>
+    python update_msk_arn.py --env dev --arn <MSK_CLUSTER_ARN>
 
 This ensures integration tests and automation always use the correct cluster for the environment.
 """

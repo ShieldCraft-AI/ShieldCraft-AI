@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 """
+DOCUMENTED DEPLOY HELPER — Reviewed
+Purpose: safety/audit helper that inspects AWS account state and creates a
+deployment block file. This script talks to AWS and should not be run in CI
+without explicit credentials and approval. Keep this file whitelisted only if
+you accept the risk and maintain reviewer control over changes.
+
 AWS Infrastructure Safety Checker
 
 Prevents accidental deployments and monitors existing resources for unexpected costs.

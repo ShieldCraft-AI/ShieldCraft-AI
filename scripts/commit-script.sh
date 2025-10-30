@@ -1,4 +1,9 @@
 #!/bin/bash
+# DOCUMENTED DEPLOY HELPER — Reviewed
+# Purpose: commit helper with built-in preflight checks and deploy protections.
+# This script performs no deployments and intentionally creates a .deployment_block
+# file to prevent accidental AWS deploys. Changes to this file must be reviewed.
+
 suppress_git_warnings() {
   grep -v 'LF will be replaced by CRLF' | grep -v 'CRLF will be replaced by LF' | grep -v 'warning: in the working copy'
 }

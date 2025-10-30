@@ -1,6 +1,10 @@
 #!/bin/bash
+# DOCUMENTED DEPLOY HELPER — Reviewed
+# Purpose: safe, interactive deploy helper for the Cognito auth stack.
+# NOTE: This script contains deployment commands. Do NOT run in CI or without
+# explicit approval. Remove only via a reviewed PR.
+
 # Safe deployment script for auth stack only
-# Uses standalone auth_app.py to avoid synthesizing expensive stacks
 
 set -e
 

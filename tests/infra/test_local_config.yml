@@ -1,0 +1,10 @@
+# Minimal local config for infra synth smoke tests
+msk:
+  cluster:
+    name: "local-test-msk"
+s3:
+  buckets:
+    - "local-test-bucket"
+secrets:
+  manager:
+    prefix: "/local/test"

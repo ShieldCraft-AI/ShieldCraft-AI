@@ -9,7 +9,6 @@ type Props = {
 };
 
 export default function AppSidebar({ items }: Props) {
-    // Persistent left sidebar; no toggle. Keep focus handling minimal.
     const firstLinkRef = React.useRef<HTMLAnchorElement | null>(null);
     const [navH, setNavH] = React.useState<number>(60);
     const [loggedIn, setLoggedIn] = React.useState<boolean>(false);

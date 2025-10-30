@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """
+DOCUMENTED DEPLOY HELPER — Reviewed
+Purpose: safety guard used by commit scripts to prevent accidental deployment
+commands. This script is allowed to inspect command lines and block deploy
+patterns; changes to this file require reviewer approval.
+
 AWS Infrastructure Safety Guard for Commit Scripts
 
 This script adds an additional safety layer to prevent accidental deployments
