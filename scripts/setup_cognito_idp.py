@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Interactive helper to configure Cognito IdPs and runtime config secrets.
+"""
+DOCUMENTED DEPLOY HELPER — Reviewed
+Purpose: interactive helper to configure Cognito identity providers and seed runtime secrets.
+This script talks to AWS; do not run in CI. Any changes must be reviewed before removal from the whitelist.
+
+Interactive helper to configure Cognito IdPs and runtime config secrets.
 
 The script guides you through:
-- selecting the Cognito user pool and Hosted UI app client
-- (re)creating Google and Login with Amazon identity providers
-- updating Hosted UI callback/logout URLs and supported providers
-- seeding the Amplify runtime config secret in af-south-1
+ - selecting the Cognito user pool and Hosted UI app client
+ - (re)creating Google and Login with Amazon identity providers
+ - updating Hosted UI callback/logout URLs and supported providers
+ - seeding the Amplify runtime config secret in af-south-1
 
 It only prints high-level status messages so secrets stay off the console.
 """

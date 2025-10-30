@@ -2,7 +2,7 @@
 .provider-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     padding: 8px 10px;
     border-radius: 10px;
     cursor: pointer;
@@ -15,13 +15,15 @@
 .provider-menu {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     background: var(--ifm-color-content-inverse);
-    padding: 12px;
+    padding: 10px;
     border-radius: 12px;
     box-shadow: var(--ifm-global-shadow-lg);
     border: 1px solid var(--ifm-color-emphasis-300);
-    min-width: 280px;
+    /* slightly narrower menu to reduce empty right-side space in narrow navbars */
+    min-width: 240px;
+    max-width: 420px;
 }
 
 /* When used inside the navbar wrapper, higher-specificity rules ensure vertical layout */
@@ -47,6 +49,12 @@
     vertical-align: middle !important;
 }
 
+/* Extra left spacing for content when provider rows are forced into inline-block
+   (navbar contexts). Keeps a consistent gap in high-specificity navbar overrides. */
+.navbar-provider-menu.provider-menu .provider-row>.provider-content {
+    margin-left: 6px !important;
+}
+
 /* defensive: ensure rows inside any navbar context wrap and are full width */
 .navbar__item .navbar-provider-menu.provider-menu {
     display: block !important;
@@ -58,19 +66,21 @@
 }
 
 .provider-row {
-    display: inline-flex;
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 10px;
+    justify-content: flex-start;
+    gap: 16px;
+    /* balanced spacing between icon and content */
+    padding: 6px 8px;
     border-radius: 8px;
     cursor: pointer;
     transition: background .12s ease, transform .08s ease, box-shadow .12s ease;
-    min-height: 64px;
+    min-height: 44px;
+    /* compact rows */
     width: 100%;
     box-sizing: border-box;
-    text-align: center;
+    text-align: left;
 }
 
 .provider-row:focus {
@@ -81,71 +91,69 @@
     /* subtle focus fill */
 }
 
+/* Strong, smooth hover/focus highlight for provider rows */
+.provider-row:hover,
+.provider-row:focus-visible {
+    /* noticeably stronger brand tint for clear hover visibility */
+    background: color-mix(in srgb, var(--ifm-color-primary) 28%, transparent);
+    box-shadow: 0 12px 36px rgba(2, 6, 23, 0.10);
+    transform: translateY(-1px);
+}
+
+/* Navbar-specific hover variant (high-specificity) */
+.navbar-provider-menu.provider-menu .provider-row:hover,
+.navbar-provider-menu.provider-menu .provider-row:focus-visible {
+    background: color-mix(in srgb, var(--ifm-color-primary) 26%, transparent) !important;
+    box-shadow: 0 12px 36px rgba(2, 6, 23, 0.10) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Provider icon */
 .provider-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto;
+    flex: 0 0 32px;
+    /* slightly smaller icon to free horizontal pixels */
     box-shadow: 0 2px 6px rgba(2, 6, 23, 0.04);
 }
 
 .provider-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 2px;
     min-width: 0;
+    text-align: left;
+    flex: 1 1 auto;
+    /* allow content to expand and use available width */
 }
 
 .provider-title {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     line-height: 1.05;
-    white-space: nowrap;
+    /* allow wrapping on narrow containers to better utilize width */
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .provider-sub {
     font-size: 0.78rem;
     color: rgba(15, 23, 42, 0.6);
     opacity: 0.95;
-    white-space: nowrap;
+    /* allow wrapping for secondary text so it doesn't force excess width */
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Tooltip using data-tooltip for richer hover copy */
-.provider-row[data-tooltip]:focus::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(100% + 8px);
-    background: var(--ifm-color-content-inverse);
-    color: var(--ifm-color-content);
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.12);
-    white-space: nowrap;
-    z-index: 2000;
-}
-
-.provider-row[data-tooltip]:focus::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(100% + 4px);
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid var(--ifm-color-content-inverse);
-    z-index: 2001;
-}
+/* Tooltips removed: provider rows no longer show tooltip copy on focus/hover */
 
 /* Dark mode tweaks */
 html[data-theme=dark] .provider-dropdown {
@@ -158,12 +166,10 @@ html[data-theme=dark] .provider-sub {
     color: rgba(229, 231, 235, 0.75);
 }
 
-/* Explicitly neutralize hover visuals for provider rows to prevent hover transforms in navbar
-   Use high-specificity selectors and !important to override any other rules that may apply. */
-.provider-menu .provider-row:hover,
-.navbar-provider-menu.provider-menu .provider-row:hover,
-.provider-row:hover {
-    background: transparent !important;
-    transform: none !important;
-    box-shadow: none !important;
+/* Dark mode hover/focus variant */
+html[data-theme=dark] .provider-row:hover,
+html[data-theme=dark] .provider-row:focus-visible,
+html[data-theme=dark] .navbar-provider-menu.provider-menu .provider-row:hover {
+    background: color-mix(in srgb, var(--ifm-color-primary) 22%, transparent) !important;
+    box-shadow: 0 12px 36px rgba(2, 6, 23, 0.12) !important;
 }

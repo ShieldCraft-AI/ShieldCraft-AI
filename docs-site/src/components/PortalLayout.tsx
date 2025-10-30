@@ -42,6 +42,17 @@ function PortalContent({ title, children, showEnvSelector = true, showSearchBar 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
+      const path = window.location?.pathname || '';
+      // If landing on the monitoring page, always start with the sidebar closed
+      if (path === '/monitoring' || path.startsWith('/monitoring/')) {
+        savedSidebarValue.current = false;
+        if (!isMobile) setSidebarOpen(false);
+        try {
+          sessionStorage.setItem('portal-sidebar-open', 'false');
+        } catch { }
+        return;
+      }
+
       const saved = sessionStorage.getItem('portal-sidebar-open');
       if (saved !== null) {
         savedSidebarValue.current = saved === 'true';

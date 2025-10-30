@@ -15,6 +15,12 @@ const config: Config = {
   url: 'https://shieldcraft-ai.com',
   baseUrl: '/',
 
+  // NOTE: `metadata` at the top-level is rejected by the current Docusaurus
+  // config validation in this repo's Docusaurus version. To avoid build-time
+  // validation errors, meta tags are injected via a small local plugin
+  // (docs-site/plugins/og-meta) which adds the Open Graph / Twitter tags at
+  // runtime. See that plugin for the exact tags.
+
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
@@ -69,7 +75,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/shieldcraft-ai-preview.jpg',
+    image: 'img/ShieldCraftAI.jpeg',
     navbar: {
       title: 'ShieldCraft AI',
       logo: {
@@ -116,6 +122,10 @@ const config: Config = {
     require.resolve('./plugins/suppressWebpackVFileMessageWarnings'),
     // Provide webpack fallbacks via a local plugin that modifies the webpack config.
     require.resolve('./plugins/webpack-polyfills'),
+    // Inject Open Graph / Twitter meta tags via a lightweight plugin so the
+    // tags are present in the generated HTML without using the top-level
+    // `metadata` field (which is rejected by the current config validator).
+    require.resolve('./plugins/og-meta'),
   ],
 };
 

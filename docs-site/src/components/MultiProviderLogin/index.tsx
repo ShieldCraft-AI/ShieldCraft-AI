@@ -183,10 +183,8 @@ export default function MultiProviderLogin({
                             handleProviderEvent(e, provider.id);
                         }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); /* eslint-disable-next-line no-console */ console.debug('[MPL] onKeyDown Enter', provider.id); handleProviderEvent(e, provider.id); } }}
-                        title={`Sign in with ${provider.name}  -  authenticate using your ${provider.name} account (opens ${provider.name} sign-in via AWS Cognito
-).`} aria-label={`Sign in with ${provider.name}`}
-                        data-tooltip={`Authenticate using your ${provider.name} account. You will be redirected to ${provider.name} to sign in; credentials are
-handled by the provider and federated via AWS Cognito.`}                                                                                                                            >
+                        aria-label={`Sign in with ${provider.name}`}
+                    >
                         <div className="provider-icon" aria-hidden style={{ background: 'var(--ifm-color-content-inverse)' }}>
                             <img src={logo} alt="" width={32} height={32} style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }} />
                         </div>
