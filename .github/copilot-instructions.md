@@ -44,6 +44,17 @@ Purpose: help an AI coding agent be immediately productive in this repository. T
   - Run pytest for Python changes. Tests use markers such as `integration` and `msk` — avoid heavy integration tests in quick PRs.
   - Prefer small unit tests and smoke synths for infra changes.
 
+
+## Supplementary project rules (succinct, enforced)
+
+- All AI responses must be concise and architectural, not verbose or low-level.
+- Infrastructure drift scan schedule:
+  - dev: monthly
+  - staging: weekly
+  - prod: daily
+  - This is a showcase project: each env uses different services/costs to demonstrate acumen.
+- Update config files and schema to reflect per-env drift scan schedule.
+
 If anything about the architecture, environment defaults, or risk model is unclear, ask a single clarifying question before making destructive infra changes. After edits, provide the short "why" report above in the PR description.
 
 ## Project-specific details (read these before changing behavior)

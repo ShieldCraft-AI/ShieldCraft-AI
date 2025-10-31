@@ -20,6 +20,9 @@ DEFAULT_CLOUDFRONT_DISTRIBUTION_ID="E2C0Y8M6RGTBD7"
 BUCKET="${BUCKET:-${DEFAULT_BUCKET}}"
 CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-${DEFAULT_CLOUDFRONT_DISTRIBUTION_ID}}"
 
+# Safety / dry-run switch. Set DRY_RUN=true to print actions without executing AWS calls.
+DRY_RUN="${DRY_RUN:-false}"
+
 echo "[INFO] Using bucket: ${BUCKET}"
 echo "[INFO] Using CloudFront distribution: ${CLOUDFRONT_DISTRIBUTION_ID}"
 
@@ -102,33 +105,32 @@ printf '{"commit":"%s","timestamp":"%s"}\n' "$(git rev-parse --short HEAD)" "$(d
 # be enabled by setting ASSET_DELETE=true for a later cleanup window.
 ASSET_DELETE="${ASSET_DELETE:-false}"
 echo "[INFO] Syncing static assets to s3://${BUCKET} (immutable) (ASSET_DELETE=${ASSET_DELETE})..."
+ASSET_SYNC_CMD=(aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/")
 if [ "${ASSET_DELETE}" = "true" ]; then
-  aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/" \
-    --delete \
-    --exclude "*.html" \
-    --cache-control "public, max-age=31536000, immutable" \
-    --size-only \
-    --only-show-errors \
-    --no-progress
+  ASSET_SYNC_OPTS=(--delete --exclude "*.html" --cache-control "public, max-age=31536000, immutable" --size-only --only-show-errors --no-progress)
 else
-  aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/" \
-    --exclude "*.html" \
-    --cache-control "public, max-age=31536000, immutable" \
-    --size-only \
-    --only-show-errors \
-    --no-progress
+  ASSET_SYNC_OPTS=(--exclude "*.html" --cache-control "public, max-age=31536000, immutable" --size-only --only-show-errors --no-progress)
+fi
+
+if [ "${DRY_RUN}" = "true" ]; then
+  echo "[DRY_RUN] would run: ${ASSET_SYNC_CMD[*]} ${ASSET_SYNC_OPTS[*]}"
+else
+  if ! command -v aws >/dev/null 2>&1; then
+    echo "[ERROR] aws CLI not found in PATH. Install AWS CLI v2 or set DRY_RUN=true to skip actual cloud calls." >&2
+    exit 1
+  fi
+  "${ASSET_SYNC_CMD[@]}" "${ASSET_SYNC_OPTS[@]}"
 fi
 
 echo "[INFO] Syncing HTML with NO cache (immediate refresh)..."
-aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/" \
-  --delete \
-  --exclude "*" \
-  --include "*.html" \
-  --cache-control "no-cache, no-store, must-revalidate" \
-  --expires "0" \
-  --content-type "text/html" \
-  --only-show-errors \
-  --no-progress
+HTML_SYNC_CMD=(aws s3 sync "${BUILD_DIR}/" "s3://${BUCKET}/")
+HTML_SYNC_OPTS=(--delete --exclude "*" --include "*.html" --cache-control "no-cache, no-store, must-revalidate" --expires "0" --content-type "text/html" --only-show-errors --no-progress)
+
+if [ "${DRY_RUN}" = "true" ]; then
+  echo "[DRY_RUN] would run: ${HTML_SYNC_CMD[*]} ${HTML_SYNC_OPTS[*]}"
+else
+  "${HTML_SYNC_CMD[@]}" "${HTML_SYNC_OPTS[@]}"
+fi
 
 echo "[INFO] Creating CloudFront invalidation for critical paths on distribution ${CLOUDFRONT_DISTRIBUTION_ID}..."
 INVALIDATION_ID=$(aws cloudfront create-invalidation \

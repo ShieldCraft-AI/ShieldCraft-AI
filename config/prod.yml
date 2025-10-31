@@ -3,6 +3,7 @@ orchestrator:
   max_workers: 8
   retry: 3
   log_level: WARNING
+drift_scan_schedule: daily
 chunking:
   strategy: recursive
   fixed:
@@ -357,7 +358,7 @@ vector_store:
   db_port: 5432
   db_name: "shieldcraft_vectors_prod"
   db_user: "postgres"
-  db_password: "aws-vault:prod/vector_store/db_password"
+  db_password: "REDACTED"
   table_name: "embeddings"
   batch_size: 100
 beir:

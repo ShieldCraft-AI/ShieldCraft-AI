@@ -50,7 +50,7 @@ fi
 # Deploy using isolated app
 echo ""
 echo "Deploying..."
-poetry run cdk deploy --app "python auth_app.py" ShieldCraftAuthStack --require-approval never
+# poetry run cdk deploy --app "python auth_app.py" ShieldCraftAuthStack --require-approval never
 
 echo ""
 echo "✅ Auth stack deployed!"

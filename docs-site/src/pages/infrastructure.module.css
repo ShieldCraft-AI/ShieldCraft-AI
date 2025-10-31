@@ -1,0 +1,73 @@
+/*
+  infrastructure.module.css
+  Custom styles for the Infrastructure page, including fixes for perimeter line and service pill color.
+*/
+
+.infraRegionMap {
+    /* ...existing styles... */
+}
+
+.globalPerimeter {
+    /* Remove any border or background to eliminate vertical line */
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Service pill row for regional platforms & data services */
+.servicePillRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.servicePill {
+    background: rgba(59, 130, 246, 0.10);
+    color: #2563eb;
+    border-radius: 8px;
+    padding: 2px 10px 2px 10px;
+    font-size: 0.98em;
+    font-weight: 600;
+    border: 1px solid rgba(59, 130, 246, 0.18);
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.04);
+    transition: background 0.2s, color 0.2s;
+}
+
+.serviceMissing {
+    opacity: 0.45;
+    color: #64748b !important;
+    background: #e0e7ef !important;
+    border-color: #cbd5e1 !important;
+}
+
+.infraGroup {
+    margin-bottom: 18px;
+}
+
+.groupTitle {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.groupDescription {
+    font-size: 0.97em;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.regionWideSection {
+    margin-bottom: 18px;
+}
+
+.regionWideTitle {
+    font-size: 1.13em;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 8px;
+}

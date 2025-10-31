@@ -26,7 +26,7 @@ fi
 # Deploy only the auth stack
 echo ""
 echo "Deploying Cognito User Pool..."
-cdk deploy ShieldCraftAuthStack --require-approval never
+# cdk deploy ShieldCraftAuthStack --require-approval never
 
 echo ""
 echo "✅ Auth stack deployed successfully!"

@@ -105,7 +105,8 @@
 <div class="sc-h3">Remaining</div>
   <ul class="sc-list">
     <li>🕒 Full multi-region failover rehearsal (Deferred)</li>
-    <li>🟥 Automated drift remediation pipeline (CI drift detection + reporting in place; remediation automation next)</li>
+  <li>🟩 Drift scan scheduling (per-env, config-driven, schema-validated)</li>
+  <li>🟥 Automated drift remediation pipeline (remediation automation next)</li>
   </ul>
 </section>
 
@@ -207,7 +208,7 @@
 
 <!-- PROGRESS FOOTER -->
 <section class="sc-card">
-  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 50 complete / (50 complete + 11 remaining) = 82%. <br>
+  <div class="sc-meta"><strong style="color:#a5b4fc;">Progress Formula:</strong> 51 complete / (51 complete + 11 remaining) = 82%. <br>
   <strong style="color:#a5b4fc;">Breakdown:</strong> 3 active items (🟥) + 8 deferred items (🕒). <br>
   <strong style="color:#a5b4fc;">Evidence Pointers:</strong>  infra/ · ai_core/ · data_prep/ · tests/ · proton/ · scripts/proton_bundle.py · scripts/retrieval_spotcheck.py · scripts/update_checklist_progress.py · docs-site/src/components/Infra/InfraOverview.tsx · docs-site/docs/github/retrieval_spotcheck.md · docs-site/docs/github/deployment_dry_run_rollback.md · ShieldCraft-AI-Context.txt.</div>
 </section>

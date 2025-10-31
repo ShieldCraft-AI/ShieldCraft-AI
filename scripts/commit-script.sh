@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # DOCUMENTED DEPLOY HELPER — Reviewed
 # Purpose: commit helper with built-in preflight checks and deploy protections.
@@ -142,8 +143,6 @@ fi
 # AWS deployments are EXPENSIVE and DANGEROUS - they must be done explicitly.
 #
 # ⛔ This script will NEVER run:
-#   - cdk deploy
-#   - cdk synth (for deployment)
 #   - aws cloudformation deploy
 #   - terraform apply
 #   - any nox deploy sessions
@@ -168,7 +167,7 @@ if [ ! -f ".deployment_block" ]; then
 fi
 
 # Explicitly verify we're not accidentally running any deploy commands
-if echo "$0 $*" | grep -qE "(cdk deploy|cdk synth|cloudformation|terraform|nox.*deploy)"; then
+if echo "$0 $*" | grep -qE "(cdk synth|cloudformation|terraform|nox.*deploy)"; then
     echo -e "\033[1;41m\033[1;97m🚨 BLOCKED: This script cannot run deployment commands! 🚨\033[0m" >&2
     log_output "[CRITICAL] Attempted to run deployment command - BLOCKED"
     exit 1

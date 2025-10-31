@@ -3,6 +3,7 @@ orchestrator:
   max_workers: 4
   retry: 2
   log_level: INFO
+drift_scan_schedule: weekly
 chunking:
   strategy: semantic
   fixed:
@@ -331,7 +332,7 @@ vector_store:
   db_port: 5432
   db_name: "shieldcraft_vectors_staging"
   db_user: "postgres"
-  db_password: "aws-vault:staging/vector_store/db_password"
+  db_password: "REDACTED"
   table_name: "embeddings"
   batch_size: 100
 beir:

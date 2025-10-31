@@ -77,7 +77,10 @@ pytest-forked = "^1.6.0"
 pyyaml = "^6.0.0"
 nbformat = "^5.10.4"
 beautifulsoup4 = "^4.12.3"
-fastapi = "^0.100.0"
+fastapi = "0.100.1"
+# Pin compatible Starlette and httpx for FastAPI 0.100.1
+starlette = "0.26.1"
+httpx = "0.24.1"
 uvicorn = "^0.22.0"
 
 [tool.poetry.group.security.dependencies]

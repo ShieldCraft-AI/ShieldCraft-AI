@@ -12,6 +12,7 @@ module.exports = {
     '^@docusaurus/Link$': '<rootDir>/tests/jest-mocks/docusaurus/Link.js',
     '^@docusaurus/router$': '<rootDir>/tests/jest-mocks/docusaurus/router.js',
     '^@docusaurus/theme-common$': '<rootDir>/tests/jest-mocks/docusaurus/theme-common.js',
+  '^@theme/Layout$': '<rootDir>/tests/jest-mocks/docusaurus/Layout.js',
     '\\.(css|less|scss)$': '<rootDir>/tests/jest-mocks/styleMock.js',
     '^react-plotly.js$': '<rootDir>/tests/jest-mocks/plotlyMock.js',
     '^plotly.js$': '<rootDir>/tests/jest-mocks/plotlyMock.js',

@@ -1,7 +1,9 @@
 // @ts-nocheck
 import Layout from '@theme/Layout';
 import * as React from 'react';
+
 import styles from './pricing.module.css';
+import { ServicePill } from './pricing';
 
 type TierKey = 'starter' | 'growth' | 'enterprise';
 
@@ -43,14 +45,20 @@ const INFRA_BLUEPRINT: Record<TierKey, InfraBlueprint> = require('./pricing').IN
 // Presence map produced by scripts/check_infra_sync.py (keeps UI in sync with config values)
 const INFRA_PRESENCE: Record<string, Record<string, boolean>> = require('../data/infra_presence.json');
 
-const TIERS: Record<TierKey, { label: string }> = {
-    starter: { label: 'Starter' },
-    growth: { label: 'Growth' },
-    enterprise: { label: 'Enterprise' },
+const TIER_PRICING: Record<TierKey, number> = {
+    starter: 51,
+    growth: 1085,
+    enterprise: 4560,
+};
+const TIERS: Record<TierKey, { label: string; price: number }> = {
+    starter: { label: 'Starter', price: TIER_PRICING.starter },
+    growth: { label: 'Growth', price: TIER_PRICING.growth },
+    enterprise: { label: 'Enterprise', price: TIER_PRICING.enterprise },
 };
 
 export default function InfrastructurePage(): React.JSX.Element {
     const [infraTier, setInfraTier] = React.useState<TierKey>('starter');
+    const [hoverTier, setHoverTier] = React.useState<TierKey | null>(null);
     const mapRef = React.useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
@@ -59,13 +67,22 @@ export default function InfrastructurePage(): React.JSX.Element {
         return () => { document.body.classList.remove('infrastructure-page'); };
     }, []);
 
+
+    // Only one card can be highlighted at a time: hover takes precedence, else selection
+    const effectiveTier = hoverTier ?? infraTier;
+    // Use the ServicePill component from pricing.tsx for consistent rendering
+    const getServicePill = (service: string, key: string, present: boolean = true) => (
+        <span key={key} style={{ display: 'inline-flex' }}>
+            <ServicePill label={present ? service : `${service} (not present)`} />
+        </span>
+    );
+
     const InfraRegionMap: React.FC<{ blueprint: InfraBlueprint }> = ({ blueprint }) => (
         <div className={styles.infraRegionMap}>
+            {/* Removed perimeterConnectorLine to eliminate the short vertical line at the top of the region container */}
             {blueprint.perimeter?.length ? (
                 <section className={styles.globalPerimeter} aria-label="Global guardrails and shared services">
-                    <div className={styles.perimeterConnector} aria-hidden>
-                        <span className={styles.perimeterConnectorLine} />
-                    </div>
+                    {/* perimeterConnectorLine fully removed */}
                 </section>
             ) : null}
             <div className={styles.regionCanvas}>
@@ -76,31 +93,18 @@ export default function InfrastructurePage(): React.JSX.Element {
                 </div>
                 {blueprint.regionWide?.length ? (
                     <div className={styles.regionWideSection}>
-                        <div className={styles.regionWideTitle}>Regional platforms &amp; data services</div>
+                        <div className={styles.regionWideTitle} style={{ marginBottom: 22 }}>Regional platforms &amp; data services</div>
                         <div className={styles.regionWideGroups}>
-                            {/**
-                             * For the regional platforms section, shorten service labels by
-                             * stripping common vendor prefixes like 'aws' or 'amazon' to save
-                             * vertical space. Do this only for the displayed label; the
-                             * underlying data is left untouched.
-                             */}
                             {blueprint.regionWide.map(group => (
                                 <div key={`region-${group.title}`} className={styles.infraGroup}>
                                     <div className={styles.groupTitle}>{group.title}</div>
                                     {group.description && <p className={styles.groupDescription}>{group.description}</p>}
                                     <div className={styles.servicePillRow}>
-                                        {group.services.map(service => {
-                                            const short = String(service).replace(/\b(?:aws|amazon)[:\-\s]?/ig, '').trim();
-                                            const svcKey = String(service).replace(/\s*\(.+\)$/, '').trim();
-                                            const present = (INFRA_PRESENCE[infraTier] && INFRA_PRESENCE[infraTier][svcKey]) || false;
-                                            return (
-                                                <span
-                                                    key={`region-${group.title}-${service}`}
-                                                    className={`${styles.servicePill} ${!present ? styles.serviceMissing : ''}`}>
-                                                    {short}
-                                                </span>
-                                            );
-                                        })}
+                                        {group.services.map(service => (
+                                            <React.Fragment key={`region-${group.title}-${service}`}>
+                                                {getServicePill(service, `region-${group.title}-${service}`, true)}
+                                            </React.Fragment>
+                                        ))}
                                     </div>
                                 </div>
                             ))}
@@ -134,7 +138,9 @@ export default function InfrastructurePage(): React.JSX.Element {
                                                                     {group.description && <p className={styles.groupDescription}>{group.description}</p>}
                                                                     <div className={styles.servicePillRow}>
                                                                         {group.services.map(service => (
-                                                                            <span key={`${az.name}-${subnet.name}-${group.title}-${service}`} className={styles.servicePill}>{service}</span>
+                                                                            <React.Fragment key={`${az.name}-${subnet.name}-${group.title}-${service}`}>
+                                                                                {getServicePill(service, `${az.name}-${subnet.name}-${group.title}-${service}`)}
+                                                                            </React.Fragment>
                                                                         ))}
                                                                     </div>
                                                                 </div>
@@ -163,7 +169,9 @@ export default function InfrastructurePage(): React.JSX.Element {
                             <p className={styles.failoverDescription}>{blueprint.failover.description}</p>
                             <div className={styles.servicePillRow}>
                                 {blueprint.failover.services.map(service => (
-                                    <span key={`failover-${service}`} className={styles.servicePill}>{service}</span>
+                                    <React.Fragment key={`failover-${service}`}>
+                                        {getServicePill(service, `failover-${service}`)}
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </div>
@@ -179,7 +187,9 @@ export default function InfrastructurePage(): React.JSX.Element {
                             {group.description && <p className={styles.groupDescription}>{group.description}</p>}
                             <div className={styles.servicePillRow}>
                                 {group.services.map(service => (
-                                    <span key={`perimeter-${group.title}-${service}`} className={styles.servicePill}>{service}</span>
+                                    <React.Fragment key={`perimeter-${group.title}-${service}`}>
+                                        {getServicePill(service, `perimeter-${group.title}-${service}`)}
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </div>
@@ -189,28 +199,57 @@ export default function InfrastructurePage(): React.JSX.Element {
         </div>
     );
 
+    // Tier button copy inspired by /pricing AWS services for each tier
+    const tierCopy: Record<TierKey, string> = {
+        starter: 'Telemetry, ingestion, and S3 data lake. GuardDuty, Lambda, EventBridge.',
+        growth: 'Scale with ML ops, OpenSearch, Step Functions, and cross-account automations.',
+        enterprise: 'Global guardrails, auto-scaling compute, advanced security, and compliance.',
+    };
+
     return (
         <Layout title="Infrastructure" description="ShieldCraft AI infrastructure blueprints and global services.">
             <div className={`${styles.pricingPageWrapper} pricing-page-wrapper`}>
                 <div className={styles.pricingInner}>
-                    <h1 className={styles.pageTitle}>Infrastructure Blueprints</h1>
+                    <h1 className={styles.pageTitle} style={{ marginTop: 24, marginBottom: 24 }}>Infrastructure Blueprints</h1>
                     <div className={styles.infraHeaderSticky}>
                         <div className={styles.infraHeader}>
-                            <div className={styles.infraTierToggle} role="radiogroup" aria-label="Select infrastructure tier">
+                            <div className={styles.infraTierToggle} style={{ justifyContent: 'center', width: '100%' }} role="radiogroup" aria-label="Select infrastructure tier">
                                 {Object.keys(TIERS).map(k => {
                                     const t = k as TierKey;
+                                    // Only highlight if hovered or selected (hover takes precedence)
+                                    const isActive = (hoverTier ?? infraTier) === t;
                                     return (
                                         <button
                                             key={`infra-toggle-${t}`}
                                             type="button"
                                             role="radio"
-                                            aria-checked={infraTier === t}
-                                            className={`${styles.infraToggleButton} ${infraTier === t ? styles.infraToggleButtonActive : ''}`}
-                                            onClick={() => {
-                                                setInfraTier(t);
+                                            aria-checked={isActive}
+                                            className={isActive ? `${styles.infraToggleButton} ${styles.infraToggleButtonActive}` : styles.infraToggleButton}
+                                            onClick={() => setInfraTier(t)}
+                                            onMouseEnter={() => setHoverTier(t)}
+                                            onMouseLeave={() => setHoverTier(null)}
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 8,
+                                                padding: '28px 36px',
+                                                marginRight: 18,
+                                                minWidth: 180,
+                                                minHeight: 90,
+                                                fontSize: '1.18rem',
+                                                fontWeight: 700,
+                                                borderRadius: 18,
+                                                boxShadow: isActive ? '0 4px 24px rgba(16,185,129,0.10)' : undefined,
+                                                transition: 'all .18s',
                                             }}
                                         >
-                                            {TIERS[t].label}
+                                            <span style={{ fontWeight: 800, fontSize: '1.18em', marginBottom: 4 }}>{TIERS[t].label}</span>
+                                            <span style={{ fontSize: '1.08em', fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>
+                                                ${TIERS[t].price.toLocaleString()}/mo
+                                            </span>
+                                            <span style={{ fontSize: '.98em', fontWeight: 500, color: '#2563eb', opacity: 0.88, textAlign: 'center', lineHeight: 1.3 }}>{tierCopy[t]}</span>
                                         </button>
                                     );
                                 })}
@@ -219,7 +258,7 @@ export default function InfrastructurePage(): React.JSX.Element {
                     </div>
 
                     <div ref={mapRef}>
-                        <InfraRegionMap blueprint={INFRA_BLUEPRINT[infraTier]} />
+                        <InfraRegionMap blueprint={INFRA_BLUEPRINT[effectiveTier]} />
                     </div>
                 </div>
             </div>

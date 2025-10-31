@@ -326,6 +326,7 @@ class LakeFormationConfig(BaseModel):
     admin_role: str
     data_lake_location: str
     permissions: List["LakeFormationPermissionConfig"]
+    buckets: Optional[List[Dict[str, Any]]] = None
 
     model_config = ConfigDict(extra="ignore")
 
@@ -455,6 +456,11 @@ class VectorStoreConfig(BaseModel):
 
 
 class ShieldCraftConfig(BaseModel):
+    drift_scan_schedule: Optional[str] = Field(
+        default=None,
+        description="How often to run drift scan (monthly, weekly, daily)",
+    )
+
     @model_validator(mode="after")
     def enforce_prod_invariants_and_referential_integrity(self):
         # Enforce RETAIN for prod buckets
