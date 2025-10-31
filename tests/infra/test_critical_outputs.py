@@ -10,7 +10,11 @@ from infra.domains.data_platform.storage.s3_stack import S3Stack
 @pytest.mark.unit
 def test_secrets_manager_exports_present():
     app = App()
-    stack = SecretsManagerStack(app, "TestSecretsManagerStack", config={})
+    # Provide a minimal valid secret so outputs are created
+    secrets_config = {"TestSecret": {"name": "test-secret", "generate": True}}
+    stack = SecretsManagerStack(
+        app, "TestSecretsManagerStack", secrets_config=secrets_config
+    )
     outputs = [c for c in stack.node.children if isinstance(c, CfnOutput)]
     names = [o.node.id for o in outputs]
     assert any("Secret" in n or "Arn" in n for n in names)
@@ -19,7 +23,11 @@ def test_secrets_manager_exports_present():
 @pytest.mark.unit
 def test_s3_exports_present():
     app = App()
-    stack = S3Stack(app, "TestS3Stack", config={})
+    stack = S3Stack(
+        app,
+        "TestS3Stack",
+        config={"s3": {"buckets": [{"id": "TestBucket", "name": "test-bucket"}]}},
+    )
     outputs = [c for c in stack.node.children if isinstance(c, CfnOutput)]
     names = [o.node.id for o in outputs]
     assert any("Bucket" in n or "Arn" in n or "Name" in n for n in names)

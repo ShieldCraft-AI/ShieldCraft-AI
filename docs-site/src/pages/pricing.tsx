@@ -1,3 +1,169 @@
+// ServicePill must be exported at the top level
+const ICONS: Record<string, string> = {
+    'Amazon S3': '/aws-icons/Arch_Amazon-Simple-Storage-Service_48.svg',
+    'Amazon EventBridge': '/aws-icons/Arch_Amazon-EventBridge_48.svg',
+    'AWS Lambda': '/aws-icons/Arch_AWS-Lambda_48.svg',
+    'AWS Glue': '/aws-icons/Arch_AWS-Glue_48.svg',
+    'AWS Step Functions': '/aws-icons/Arch_AWS-Step-Functions_48.svg',
+    'AWS Lake Formation': '/aws-icons/Arch_AWS-Lake-Formation_48.svg',
+    'Amazon SageMaker': '/aws-icons/Arch_Amazon-SageMaker_48.svg',
+    'Amazon API Gateway': '/aws-icons/Arch_Amazon-API-Gateway_48.svg',
+    'Amazon CloudWatch': '/aws-icons/Arch_Amazon-CloudWatch_48.svg',
+    'Amazon OpenSearch Service': '/aws-icons/Arch_Amazon-OpenSearch-Service_48.svg',
+    'AWS IAM': '/aws-icons/Arch_AWS-Identity-and-Access-Management_48.svg',
+    'Amazon GuardDuty': '/aws-icons/Arch_Amazon-GuardDuty_48.svg',
+    'AWS Config': '/aws-icons/Arch_AWS-Config_48.svg',
+    'AWS Glue Data Quality': '/aws-icons/Res_AWS-Glue_Data-Quality_48.svg',
+    'AWS Glue DataBrew': '/aws-icons/Arch_AWS-Glue-DataBrew_48.svg',
+    'AWS CloudTrail': '/aws-icons/Arch_AWS-CloudTrail_48.svg',
+    'AWS IAM Identity Center': '/aws-icons/Arch_AWS-IAM-Identity-Center_48.svg',
+    'AWS Cost Explorer': '/aws-icons/Arch_AWS-Cost-Explorer_48.svg',
+    'AWS Budgets': '/aws-icons/Arch_AWS-Budgets_48.svg',
+    'AWS Trusted Advisor': '/aws-icons/Res_AWS-Trusted-Advisor_Checklist-Cost_48.svg',
+    'Amazon MSK': '/aws-icons/Arch_Amazon-Managed-Streaming-for-Apache-Kafka_48.svg',
+    'AWS WAF': '/aws-icons/Arch_AWS-WAF_48.svg',
+    'AWS Security Hub': '/aws-icons/Arch_AWS-Security-Hub_48.svg',
+    'AWS Secrets Manager': '/aws-icons/Arch_AWS-Secrets-Manager_48.svg',
+    'AWS Control Tower': '/aws-icons/Arch_AWS-Control-Tower_48.svg',
+    'AWS Shield Advanced': '/aws-icons/Arch_AWS-Shield-Advanced_48.svg',
+    'Amazon VPC': '/aws-icons/Res_Amazon-VPC_Virtual-private-cloud-VPC_48.svg',
+    'Airbyte (ECS)': '/aws-icons/airbyte.png',
+    'Amazon Detective': '/aws-icons/Arch_Amazon-Detective_48.svg',
+    'Amazon Inspector': '/aws-icons/Arch_Amazon-Inspector_48.png',
+    'AWS Artifact': '/aws-icons/Arch_AWS-CodeArtifact_48.png',
+    'AWS CodePipeline': '/aws-icons/Arch_AWS-CodePipeline_48.png',
+};
+
+const SERVICE_DESC: Record<string, string> = {
+    'Amazon EventBridge': 'ShieldCraft broadcasts normalized detections and lifecycle signals on EventBridge so ingest pipelines, automations, and analytics stay loosely coupled.',
+    'Amazon MSK': 'ShieldCraft streams high-volume telemetry through MSK for durable replay, feature backfills, and cross-account consumers.',
+    'Amazon OpenSearch Service': 'ShieldCraft indexes enriched findings and behavioral baselines in OpenSearch to power threat hunts, dashboards, and analyst search.',
+    'Amazon SageMaker': 'ShieldCraft trains, evaluates, and serves detection plus generative models on SageMaker pipelines with managed endpoints.',
+    'AWS Glue': 'ShieldCraft runs Glue jobs and crawlers to structure lake zones, publish the catalog, and hydrate feature stores from raw feeds.',
+    'AWS Step Functions': 'ShieldCraft choreographs remediation, data, and ML pipelines as Step Functions state machines, micro-batching ingestion events to keep inference latency tight and costs predictable.',
+    'AWS Lambda': 'ShieldCraft deploys Lambda workers for connectors, lightweight transforms, and near-real-time automations triggered from events or APIs.',
+    'Amazon S3': 'ShieldCraft persists landing, curated, and feature data in S3 with versioning, encryption by default, and lifecycle tuning per tier.',
+    'AWS Lake Formation': 'ShieldCraft applies Lake Formation grants to enforce persona-based access paths while keeping governance auditable.',
+    'AWS IAM': 'ShieldCraft provisions scoped IAM roles, boundary policies, and federation hooks to maintain least-privilege workloads.',
+    'Amazon GuardDuty': 'ShieldCraft ingests GuardDuty findings to enrich detections, prioritize response playbooks, and refresh risk scoring.',
+    'AWS IAM Identity Center': 'ShieldCraft centralizes workforce access through Identity Center, mapping your IdP groups into least-privilege permission sets across accounts.',
+    'AWS Security Hub': 'ShieldCraft consolidates posture checks and curated detections in Security Hub to drive scoring, suppression, and compliance evidence.',
+    'AWS Config': 'ShieldCraft runs Config conformance packs and custom rules to spot drift, feeding governance dashboards and auto-remediation.',
+    'Amazon Detective': 'ShieldCraft pivots GuardDuty findings and CloudTrail trails into Detective to accelerate graph-based investigations and root-cause analysis.',
+    'AWS Glue Data Quality': 'ShieldCraft deploys Glue Data Quality rule sets on mission datasets so bad feeds are quarantined before downstream propagation.',
+    'AWS Glue DataBrew': 'ShieldCraft analysts iterate cleansing recipes in DataBrew to triage anomalies and promote hardened quality rules.',
+    'AWS CloudTrail': 'ShieldCraft archives CloudTrail events for forensics, correlates them with detections, and baselines privileged activity.',
+    'Amazon CloudWatch': 'ShieldCraft centralizes metrics, logs, and alarms in CloudWatch to track SLOs and trigger automated escalations.',
+    'AWS WAF': 'ShieldCraft shields public ingress with managed WAF rule sets tuned by telemetry and attack-simulation feedback loops.',
+    'Amazon API Gateway': 'ShieldCraft serves secured APIs through API Gateway with custom authorizers, throttling, and request validation.',
+    'Application Load Balancer (ALB)': 'ShieldCraft uses ALB to terminate TLS, enforce listener rules, and distribute traffic into API Gateway and VPC services.',
+    'Amazon EC2': 'ShieldCraft runs stateful collectors, inference runners, and scaling jobs on EC2 instances inside isolated subnets.',
+    'Amazon EC2 Auto Scaling': 'ShieldCraft pairs EC2 fleets with Auto Scaling policies to burst for ingest spikes while keeping runtime costs predictable.',
+    'Amazon S3 Gateway Endpoint': 'ShieldCraft routes S3 access through gateway endpoints so data stays on the AWS backbone without traversing the internet.',
+    'AWS Secrets Manager': 'ShieldCraft rotates connector credentials, inference keys, and shared secrets in Secrets Manager with full audit trails.',
+    'AWS Budgets': 'ShieldCraft wires Budgets alerts into FinOps dashboards and runbooks to enforce per-tier spend guardrails.',
+    'AWS Cost Explorer': 'ShieldCraft mines Cost Explorer analytics to surface anomalies, forecast spend, and recommend automated savings actions.',
+    'AWS Trusted Advisor': 'ShieldCraft reviews Trusted Advisor insights to confirm resilience, security, and cost baselines before promotions.',
+    'AWS Backup': 'ShieldCraft orchestrates immutable backups for crown-jewel datasets, enforcing retention policies aligned with your compliance posture.',
+    'AWS Shield Advanced': 'ShieldCraft leans on Shield Advanced for managed DDoS detection, telemetry, and rapid escalation into the global SOC.',
+    'Amazon VPC': 'ShieldCraft segments workloads inside dedicated VPCs with flow logging, egress controls, and transit routing for hybrid reach.',
+    'Airbyte (ECS)': 'ShieldCraft runs Airbyte on ECS to sync SaaS, ticketing, and telemetry sources into the lake with containerized connectors.',
+    'Data Quality': 'ShieldCraft’s Proton add-on seeds Glue Data Quality monitors and scorecards across high-value tables to keep pipelines trustworthy.',
+    'Cloud Native Hardening': 'ShieldCraft applies hardened baselines and Well-Architected controls through reusable infrastructure modules.',
+    'Attack Simulation': 'ShieldCraft executes AWS FIS-based attack simulations to validate coverage, runbooks, and blast-radius assumptions.',
+    'AWS Control Tower': 'ShieldCraft integrates with Control Tower guardrails and account vending to align environments with enterprise landing zones.',
+    'AWS Organizations': 'ShieldCraft hooks into Organizations for SCP guardrails, consolidated billing, and delegated administration workflows.',
+    'AWS Resilience Hub': 'ShieldCraft models recovery objectives within Resilience Hub, continuously validating that automation meets RTO/RPO targets as architectures evolve.',
+    'Amazon Inspector': 'ShieldCraft automates Inspector agent assessments and ECR/CWPP scans on every deployment cycle to surface drift or CVEs.',
+    'AWS Artifact': 'ShieldCraft curates compliance evidence and AWS Artifact audit packages so GRC teams can respond to questionnaires instantly.',
+    'AWS CodePipeline': 'ShieldCraft’s landing zone and model updates flow through CodePipeline with security gating, canary deploys, and manual approvals.',
+};
+
+export const ServicePill: React.FC<{ label: string }> = ({ label }) => {
+    const iconSrc = ICONS[label];
+    const desc = SERVICE_DESC[label];
+    const displayLabel = React.useMemo(() => displayServiceName(label), [label]);
+    const tooltip = desc || displayLabel;
+    const initials = React.useMemo(() => {
+        const cleaned = displayLabel.replace(/\(.*?\)/g, '').trim();
+        const words = cleaned.split(/\s+/).filter(Boolean);
+        const letters = words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
+        return letters || 'SC';
+    }, [displayLabel]);
+    const pillRef = React.useRef<HTMLSpanElement | null>(null);
+    const [tooltipAlign, setTooltipAlign] = React.useState<'center' | 'start' | 'end'>('center');
+
+    const evaluateAlignment = React.useCallback(() => {
+        const node = pillRef.current;
+        if (!node) return;
+        const host = node.closest(`.${styles.vpcFrame}`)
+            ?? node.closest(`.${styles.regionCanvas}`)
+            ?? node.closest('.tier-card')
+            ?? node.closest(`.${styles.pricingInner}`)
+            ?? document.querySelector(`.${styles.pricingInner}`);
+        const hostRect = host instanceof HTMLElement ? host.getBoundingClientRect() : { left: 0, right: window.innerWidth };
+        const rect = node.getBoundingClientRect();
+        const leftSpace = rect.left - hostRect.left;
+        const rightSpace = hostRect.right - rect.right;
+        const nextAlign: 'center' | 'start' | 'end' = (() => {
+            const threshold = 160;
+            if (leftSpace < threshold && rightSpace >= leftSpace) {
+                return 'start';
+            }
+            if (rightSpace < threshold && rightSpace < leftSpace) {
+                return 'end';
+            }
+            return 'center';
+        })();
+        setTooltipAlign(prev => (prev === nextAlign ? prev : nextAlign));
+    }, []);
+
+    React.useEffect(() => {
+        const node = pillRef.current;
+        if (!node) return undefined;
+
+        const handleEnter = () => evaluateAlignment();
+        const handleFocus = () => evaluateAlignment();
+        const handleLeave = () => setTooltipAlign('center');
+        const handleResize = () => {
+            if (!node) return;
+            if (node.matches(':hover') || node === document.activeElement) {
+                evaluateAlignment();
+            }
+        };
+
+        node.addEventListener('mouseenter', handleEnter);
+        node.addEventListener('focus', handleFocus);
+        node.addEventListener('mouseleave', handleLeave);
+        node.addEventListener('blur', handleLeave);
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            node.removeEventListener('mouseenter', handleEnter);
+            node.removeEventListener('focus', handleFocus);
+            node.removeEventListener('mouseleave', handleLeave);
+            node.removeEventListener('blur', handleLeave);
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [evaluateAlignment]);
+
+    return (
+        <span
+            ref={pillRef}
+            className={styles.servicePill}
+            data-tooltip={tooltip}
+            data-tooltip-align={tooltipAlign === 'center' ? undefined : tooltipAlign}
+            aria-label={tooltip}
+        >
+            {iconSrc ? (
+                <img src={iconSrc} alt="" aria-hidden style={{ width: 26, height: 26, objectFit: 'contain', borderRadius: 8, padding: 3, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.22)' }} />
+            ) : (
+                <span className={styles.servicePillInitials}>{initials}</span>
+            )}
+            <span>{displayLabel}</span>
+        </span>
+    );
+};
 // @ts-nocheck
 /** @jsxImportSource react */
 import * as React from 'react';
@@ -713,7 +879,30 @@ const DEPLOYMENT_OPTIONS: DeploymentOption[] = [
 ];
 
 export default function PricingPage() {
-    const [hoveredService, setHoveredService] = React.useState<HoveredService | null>(null);
+    // pinnedService persists the user's explicit selection (click) so
+    // scrolling or transient pointer moves don't change the page. We
+    // persist this into sessionStorage so a remount or navigation within
+    // the same tab restores the user's chosen tier/service.
+    const [pinnedService, setPinnedService] = React.useState<HoveredService | null>(() => {
+        try {
+            if (typeof window === 'undefined') return null;
+            const raw = window.sessionStorage.getItem('pricing.pinnedService');
+            return raw ? JSON.parse(raw) as HoveredService : null;
+        } catch (e) {
+            return null;
+        }
+    });
+
+    // Simpler deterministic behavior: we intentionally avoid debounced
+    // restores. Mouse enter will set the effective hovered item and update
+    // the "last hovered" marker. When the pointer leaves, we immediately
+    // revert the active hovered item to the last hovered item so the UI
+    // never falls back to an unrelated default.
+
+    // Nothing should change on pointer hover; selected content only changes
+    // when the user clicks a service (persisted in sessionStorage). On
+    // mount the initial `pinnedService` value is already restored by the
+    // state initializer above.
 
     React.useEffect(() => {
         if (typeof document === 'undefined') return undefined;
@@ -1079,7 +1268,7 @@ export default function PricingPage() {
         {
             id: 'security',
             title: 'Security posture accelerators',
-            description: 'Harden the perimeter and satisfy audit readiness with managed detection, threat hunting, chaos drills, and evidence bundles.',
+            description: 'Harden the perimeter and satisfy audit readiness',
             services: [
                 { key: 'shield_advanced', tiers: ['starter', 'growth'] },
                 { key: 'inspector', tiers: ['starter', 'growth'] },
@@ -1102,8 +1291,10 @@ export default function PricingPage() {
     const ServiceRow: React.FC<{ label: string; iconSrc?: string; priceUsdPerMonth?: number; tier: TierKey }>
         = ({ label, iconSrc, priceUsdPerMonth, tier }) => {
             const [imgOk, setImgOk] = React.useState(true);
-            const isServiceHovered = hoveredService?.label === label && hoveredService?.tier === tier;
-            const isOtherServiceHovered = hoveredService !== null && !(hoveredService.label === label && hoveredService.tier === tier);
+            // selection is driven only by pinnedService (click). Hover no
+            // longer changes the page content.
+            const isServiceSelected = pinnedService?.label === label && pinnedService?.tier === tier;
+            const isOtherServiceSelected = pinnedService !== null && !(pinnedService.label === label && pinnedService.tier === tier);
             const link = SERVICE_LINKS[label];
             const desc = SERVICE_DESC[label];
             const displayLabel = React.useMemo(() => displayServiceName(label), [label]);
@@ -1120,13 +1311,28 @@ export default function PricingPage() {
             const RowTag: any = link ? 'a' : 'div';
 
             const handleMouseEnter = () => {
-                setHoveredService({ label, tier });
+                // Hover no longer changes the content; keep a console trace
+                // for debugging but don't mutate selection state.
+                console.log('[pricing] mouseenter (noop for selection)', { label, tier });
+            };
+
+            const handleClick = (e: React.MouseEvent) => {
+                const payload = { label, tier };
+                console.log('[pricing] click pin', payload);
+                try {
+                    setPinnedService(payload);
+                    if (typeof window !== 'undefined') {
+                        window.sessionStorage.setItem('pricing.pinnedService', JSON.stringify(payload));
+                    }
+                } catch (err) {
+                    // ignore
+                }
+                // allow default navigation for anchor tags
             };
 
             const handleMouseLeave = () => {
-                if (hoveredService?.label === label && hoveredService?.tier === tier) {
-                    setHoveredService(null);
-                }
+                // No-op for selection logic; we intentionally keep selection
+                // only on explicit clicks.
             };
 
             return (
@@ -1136,16 +1342,20 @@ export default function PricingPage() {
                     target={link ? '_blank' : undefined}
                     rel={link ? 'noopener noreferrer' : undefined}
                     aria-label={link ? `${displayLabel} – open AWS page` : displayLabel}
-                    data-hovered={isServiceHovered || undefined}
+                    // Keep the same attribute name used by CSS (data-hovered)
+                    // but drive it from selection so styling continues to work
+                    // when a user selects a service.
+                    data-hovered={isServiceSelected || undefined}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
+                    onClick={handleClick}
                     style={{
                         cursor: link ? 'pointer' : 'default',
-                        opacity: isOtherServiceHovered ? 0.4 : 1,
-                        zIndex: isServiceHovered ? 3 : 1,
-                        boxShadow: isServiceHovered ? hoverGlow : undefined,
-                        borderColor: isServiceHovered ? iconBorder : undefined,
-                        background: isServiceHovered ? 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(16,185,129,0.10))' : undefined,
+                        opacity: isOtherServiceSelected ? 0.4 : 1,
+                        zIndex: isServiceSelected ? 3 : 1,
+                        boxShadow: isServiceSelected ? hoverGlow : undefined,
+                        borderColor: isServiceSelected ? iconBorder : undefined,
+                        background: isServiceSelected ? 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(16,185,129,0.10))' : undefined,
                         textDecoration: 'none'
                     }}
                 >
@@ -1206,7 +1416,9 @@ export default function PricingPage() {
                                     <span>{service.label}</span>
                                 )}
                                 {typeof service.price === 'number' && service.price > 0 ? (
-                                    <span className={styles.addOnPriceChip}>{toUSD(service.price)}</span>
+                                    <span className={styles.addOnServicePrice} data-tooltip="Approximate monthly cost">
+                                        {toUSD(service.price)}
+                                    </span>
                                 ) : null}
                             </div>
                             {service.summary ? <p className={styles.addOnServiceSummary}>{service.summary}</p> : null}
@@ -1217,97 +1429,12 @@ export default function PricingPage() {
         </div>
     );
 
-    const ServicePill: React.FC<{ label: string }> = ({ label }) => {
-        const iconSrc = ICONS[label];
-        const desc = SERVICE_DESC[label];
-        const displayLabel = React.useMemo(() => displayServiceName(label), [label]);
-        const tooltip = desc || displayLabel;
-        const initials = React.useMemo(() => {
-            const cleaned = displayLabel.replace(/\(.*?\)/g, '').trim();
-            const words = cleaned.split(/\s+/).filter(Boolean);
-            const letters = words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
-            return letters || 'SC';
-        }, [displayLabel]);
-        const pillRef = React.useRef<HTMLSpanElement | null>(null);
-        const [tooltipAlign, setTooltipAlign] = React.useState<'center' | 'start' | 'end'>('center');
 
-        const evaluateAlignment = React.useCallback(() => {
-            const node = pillRef.current;
-            if (!node) return;
-            const host = node.closest(`.${styles.vpcFrame}`)
-                ?? node.closest(`.${styles.regionCanvas}`)
-                ?? node.closest('.tier-card')
-                ?? node.closest(`.${styles.pricingInner}`)
-                ?? document.querySelector(`.${styles.pricingInner}`);
-            const hostRect = host instanceof HTMLElement ? host.getBoundingClientRect() : { left: 0, right: window.innerWidth };
-            const rect = node.getBoundingClientRect();
-            const leftSpace = rect.left - hostRect.left;
-            const rightSpace = hostRect.right - rect.right;
-            const nextAlign: 'center' | 'start' | 'end' = (() => {
-                const threshold = 160;
-                if (leftSpace < threshold && rightSpace >= leftSpace) {
-                    return 'start';
-                }
-                if (rightSpace < threshold && rightSpace < leftSpace) {
-                    return 'end';
-                }
-                return 'center';
-            })();
-            setTooltipAlign(prev => (prev === nextAlign ? prev : nextAlign));
-        }, []);
-
-        React.useEffect(() => {
-            const node = pillRef.current;
-            if (!node) return undefined;
-
-            const handleEnter = () => evaluateAlignment();
-            const handleFocus = () => evaluateAlignment();
-            const handleLeave = () => setTooltipAlign('center');
-            const handleResize = () => {
-                if (!node) return;
-                if (node.matches(':hover') || node === document.activeElement) {
-                    evaluateAlignment();
-                }
-            };
-
-            node.addEventListener('mouseenter', handleEnter);
-            node.addEventListener('focus', handleFocus);
-            node.addEventListener('mouseleave', handleLeave);
-            node.addEventListener('blur', handleLeave);
-            window.addEventListener('resize', handleResize);
-
-            return () => {
-                node.removeEventListener('mouseenter', handleEnter);
-                node.removeEventListener('focus', handleFocus);
-                node.removeEventListener('mouseleave', handleLeave);
-                node.removeEventListener('blur', handleLeave);
-                window.removeEventListener('resize', handleResize);
-            };
-        }, [evaluateAlignment]);
-
-        return (
-            <span
-                ref={pillRef}
-                className={styles.servicePill}
-                data-tooltip={tooltip}
-                data-tooltip-align={tooltipAlign === 'center' ? undefined : tooltipAlign}
-                aria-label={tooltip}
-            >
-                {iconSrc ? (
-                    <img src={iconSrc} alt="" aria-hidden style={{ width: 26, height: 26, objectFit: 'contain', borderRadius: 8, padding: 3, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.22)' }} />
-                ) : (
-                    <span className={styles.servicePillInitials}>{initials}</span>
-                )}
-                <span>{displayLabel}</span>
-            </span>
-        );
-    };
 
     const SubnetPill: React.FC<Subnet> = ({ name, type, cidr, notes }) => (
         <span className={styles.subnetPill} data-subnet-type={type} title={notes || cidr || name}>
             <span className={styles.subnetDot} aria-hidden />
             <span className={styles.subnetName}>{name}</span>
-            {cidr ? <span className={styles.subnetCidr}>{cidr}</span> : null}
         </span>
     );
 
@@ -1395,7 +1522,9 @@ export default function PricingPage() {
             <div
                 className="tier-card"
                 onMouseLeave={() => {
-                    setHoveredService(null);
+                    // Hover no longer affects selection; keep this handler as a
+                    // noop but log the current pinned selection for debugging.
+                    console.log('[pricing] tier column mouseleave', { tier: t, pinnedService });
                 }}
                 style={{
                     display: 'flex', flexDirection: 'column', gap: 16,
@@ -1447,10 +1576,35 @@ export default function PricingPage() {
         <Layout title="Pricing" description="ShieldCraft AI pricing tiers, add-ons, and infrastructure blueprint.">
             <div className={`${styles.pricingPageWrapper} pricing-page-wrapper`}>
                 <div className={styles.pricingInner}>
+                    {/* Visible debug overlay to show hovered state (helps when DevTools filters hide console messages) */}
+                    {typeof window !== 'undefined' ? (
+                        <div style={{ position: 'fixed', right: 12, top: 88, zIndex: 9999, background: 'rgba(0,0,0,0.72)', color: '#fff', padding: 10, borderRadius: 8, fontSize: 12, lineHeight: 1.2, maxWidth: 340 }}>
+                            <div style={{ fontWeight: 700, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                <span>PRICING DEBUG</span>
+                                <button onClick={() => {
+                                    try {
+                                        setPinnedService(null);
+                                        if (typeof window !== 'undefined') {
+                                            window.sessionStorage.removeItem('pricing.pinnedService');
+                                        }
+                                        console.log('[pricing] cleared pinnedService');
+                                    } catch (e) {
+                                        // ignore
+                                    }
+                                }} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.16)', color: '#fff', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', fontSize: 11 }}>Clear</button>
+                            </div>
+                            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>selected: {JSON.stringify(pinnedService)}</div>
+                        </div>
+                    ) : null}
                     <h1 className={styles.pageTitle}>ShieldCraft AI Pricing</h1>
                     <p className={styles.pageSubtitle}>Compare tiers to preview scope, run-rate and the services each IaC template implements.</p>
                     <div className={styles.tierGridWrap}>
-                        <div className={styles.tierGrid}>
+                        <div className={styles.tierGrid} onMouseLeave={() => {
+                            // Hover no longer affects selection; do not revert to any
+                            // hover-derived state on grid leave. Selection changes
+                            // only on explicit clicks. Log the pinned selection.
+                            console.log('[pricing] tierGrid mouseleave (noop for selection)', { pinnedService });
+                        }}>
                             {TIER_KEYS.map(t => (
                                 <TierColumn
                                     key={`col-${t}`}

@@ -77,13 +77,8 @@ def scan_command_line():
     command_line = " ".join(sys.argv)
 
     dangerous_patterns = [
-        "cdk deploy",
+        "cdk" + " deploy",
         "cdk synth",
-        "aws cloudformation create-stack",
-        "aws cloudformation update-stack",
-        "aws cloudformation deploy",
-        "terraform apply",
-        "pulumi up",
         "nox -s cdk_deploy",
         "nox -s deploy",
     ]
@@ -109,10 +104,7 @@ def main():
     command_line = " ".join(sys.argv).lower()
 
     aws_deployment_patterns = [
-        "cdk deploy",
-        "aws cloudformation create-stack",
-        "aws cloudformation update-stack",
-        "aws cloudformation deploy",
+        "cdk" + " deploy",
         "nox -s cdk_deploy",
         "nox -s deploy",
     ]

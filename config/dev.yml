@@ -1,173 +1,112 @@
-orchestrator:
-  output_dir: orch_results/dev
-  max_workers: 2
-  retry: 1
-  log_level: INFO
+ai_core:
+  device: cpu
+  model_name: stub
+  quantize: false
+beir:
+  batch_size: 32
+  data_path: ./beir_datasets
+  datasets:
+    - scifact
+  output_path: beir_results.json
+airbyte:
+  deployment_type: ecs
+  max_task_count: 3
+  min_task_count: 1
+  mode: ecs_scale_to_zero
+app:
+  account: "879584803102"
+  enable_feature_x: true
+  env: dev
+  region: af-south-1
+  data_path: ./beir_datasets
+  datasets:
+    - scifact
+  output_path: beir_results.json
 chunking:
-  strategy: fixed
+  custom_heuristic:
+    delimiter: "
+
+      ---
+
+      "
+    min_length: 32
+    rules: {}
   fixed:
     chunk_size: 256
+    min_length: 64
     overlap: 16
-    min_length: 64
-  semantic:
-    min_length: 64
   recursive:
     max_chunk_size: 256
     min_length: 64
+  semantic:
+    min_length: 64
   sentence:
     min_length: 32
+  sliding_window:
+    min_length: 32
+    step_size: 64
+    window_size: 128
+  strategy: fixed
   token_based:
     chunk_size: 128
+    min_length: 32
     overlap: 8
-    min_length: 32
     tokenizer: dummy
-  sliding_window:
-    window_size: 128
-    step_size: 64
-    min_length: 32
-  custom_heuristic:
-    delimiter: "\n---\n"
-    min_length: 32
-    rules: {}
-app:
-  env: dev
-  region: af-south-1
-  account: "879584803102"
-  resource_prefix: shieldcraft-dev
-  log_level: DEBUG
-  enable_feature_x: true
-
-networking:
-  vpc_id: vpc-shieldcraft-dev
-  cidr: "10.0.0.0/16"
-  subnets:
-    - id: subnet-pub-a
-      cidr: "10.0.10.0/24"
-      type: PUBLIC
-    - id: subnet-priv-a
-      cidr: "10.0.1.0/24"
-      type: PRIVATE
-    - id: subnet-priv-b
-      cidr: "10.0.2.0/24"
-      type: PRIVATE
-  security_groups:
-    - id: sg-msk
-      description: Security group for MSK brokers
-      allow_all_outbound: true
-    - id: sg-lambda
-      description: Security group for Lambda functions
-      allow_all_outbound: true
-    - id: sg-default
-      description: Default security group for ShieldCraft dev VPC
-      allow_all_outbound: true
-
-s3:
+cloud_native_hardening:
+  alarm_email: devops@shieldcraft.ai
+  config_rules:
+    - s3-bucket-public-read-prohibited
+    - iam-user-no-policies-check
+  enable_cloudwatch_alarms: true
+data_quality:
+  dq_framework: deequ
+  dq_schedule: cron(0 3 * * ? *)
+  mode: inline
+drift_scan_schedule: monthly
+embedding:
+  device: cpu
+  model_name: sentence-transformers/all-MiniLM-L6-v2
+  quantize: false
+eventbridge:
+  data_bus_name: shieldcraft-dev-data-bus
+  data_event_source: shieldcraft.data.dev
+  lambda_export_name: DevMskTopicCreatorLambdaArn
+  security_bus_name: shieldcraft-dev-security-bus
+glue:
+  crawler_schedule: cron(0 2 * * ? *)
+  database_name: shieldcraft_dev_db
+  enable_data_quality: false
+lakeformation:
+  admin_role: ShieldCraftLakeAdmin
   buckets:
-    - id: RawDataBucket
-      name: shieldcraft-dev-raw
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-      enable_glue_crawler: true
-      crawler:
-        schedule: "cron(0 2 * * ? *)"
-        table_prefix: "raw_"
-      lifecycle_rules:
-        - id: transition-raw-dev
-          enabled: true
-          transitions:
-            - days: 30
-              storage_class: STANDARD_IA
-            - days: 60
-              storage_class: GLACIER
-          expiration_days: 365
-          abort_incomplete_multipart_upload_days: 7
-    - id: ProcessedDataBucket
-      name: shieldcraft-dev-processed
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-      enable_glue_crawler: true
-      crawler:
-        schedule: "cron(0 3 * * ? *)"
-        table_prefix: "processed_"
-      lifecycle_rules:
-        - id: transition-processed-dev
-          enabled: true
-          transitions:
-            - days: 30
-              storage_class: STANDARD_IA
-            - days: 60
-              storage_class: GLACIER
-          expiration_days: 365
-          abort_incomplete_multipart_upload_days: 7
     - id: AnalyticsDataBucket
       name: shieldcraft-dev-analytics
-      versioned: true
-      encryption: S3_MANAGED
-      block_public_access: BLOCK_ALL
-      removal_policy: DESTROY
-      enable_glue_crawler: true
-      crawler:
-        schedule: "cron(0 4 * * ? *)"
-        table_prefix: "analytics_"
-      lifecycle_rules:
-        - id: transition-analytics-dev
-          enabled: true
-          transitions:
-            - days: 30
-              storage_class: STANDARD_IA
-            - days: 60
-              storage_class: GLACIER
-          expiration_days: 365
-          abort_incomplete_multipart_upload_days: 7
-  lifecycle_policy_days: 30
-  enable_access_logs: true
-
-glue:
-  database_name: shieldcraft_dev_db
-  crawler_schedule: cron(0 2 * * ? *)
-  enable_data_quality: false
-
-msk:
-  mode: external # external (dev) | managed (staging/prod)
-  security_group:
-    id: MskSecurityGroup
-    description: Security group for MSK brokers
-    allow_all_outbound: true
-  external:
-    bootstrap_brokers: "redpanda:9092"
-    scram_secret_arn: ""
-  cluster:
-    id: ShieldCraftMskCluster
-    name: shieldcraft-msk-cluster
-    kafka_version: 3.5.1
-    number_of_broker_nodes: 3
-    instance_type: kafka.m5.large
-    enhanced_monitoring: PER_TOPIC_PER_BROKER
-    client_authentication:
-      sasl_scram: false
-      tls: true
-    encryption_in_transit:
-      client_broker: TLS
-      in_cluster: true
-    public_access: false
-    vpc_subnet_ids:
-      - subnet-priv-a
-      - subnet-priv-b
-    security_group_ids:
-      - sg-msk
-
+    - id: RawDataBucket
+      name: shieldcraft-dev-raw
+    - id: ProcessedDataBucket
+      name: shieldcraft-dev-processed
+  data_lake_location: s3://shieldcraft-dev-analytics
+  permissions:
+    - principal: GLUE_EXECUTION_ROLE_ARN
+      resource:
+        databaseName: shieldcraft_dev_db
+        tableName: raw_data
+      resource_type: table
+      template: etl
+    - principal: LAKEFORMATION_ADMIN_ROLE_ARN
+      resource:
+        databaseName: shieldcraft_dev_db
+      resource_type: database
+      template: admin
+    - actions:
+        - DATA_LOCATION_ACCESS
+      principal: SAGEMAKER_EXECUTION_ROLE_ARN
+      resource:
+        arn: arn:aws:s3:::shieldcraft-dev-analytics
+      resource_type: bucket
 lambda_:
   functions:
-    - id: MskTopicCreator
-      description: Lambda to create Kafka topics after MSK cluster is ready
-      handler: msk_topic_creator.lambda_handler
-      runtime: python{{ PYTHON_VERSION }}
-      memory_size: 256
-      timeout: 60
+    - description: Lambda to create Kafka topics after MSK cluster is ready
       environment:
         MSK_CLUSTER_NAME: shieldcraft-msk-cluster
         TOPICS:
@@ -177,187 +116,249 @@ lambda_:
           - name: audit-log
             partitions: 2
             replication_factor: 2
-      vpc_subnet_ids:
-        - subnet-priv-a
-        - subnet-priv-b
-      security_group_ids:
-        - sg-lambda
+      handler: msk_topic_creator.lambda_handler
+      id: MskTopicCreator
+      memory_size: 256
       policies:
         - kafka:DescribeCluster
         - kafka:GetBootstrapBrokers
         - kafka:CreateTopic
         - kafka:ListTopics
         - kafka:DescribeTopic
-
-opensearch:
-  mode: none # none (dev) | managed | self_managed
-  provision: false
+      runtime: python{{ PYTHON_VERSION }}
+      security_group_ids:
+        - sg-lambda
+      timeout: 60
+      vpc_subnet_ids:
+        - subnet-priv-a
+        - subnet-priv-b
+msk:
+  cluster:
+    client_authentication:
+      sasl_scram: false
+      tls: true
+    encryption_in_transit:
+      client_broker: TLS
+      in_cluster: true
+    enhanced_monitoring: PER_TOPIC_PER_BROKER
+    id: ShieldCraftMskCluster
+    instance_type: kafka.m5.large
+    kafka_version: 3.5.1
+    name: shieldcraft-msk-cluster
+    number_of_broker_nodes: 3
+    public_access: false
+    security_group_ids:
+      - sg-msk
+    vpc_subnet_ids:
+      - subnet-priv-a
+      - subnet-priv-b
+  external:
+    bootstrap_brokers: redpanda:9092
+    scram_secret_arn: ""
+  mode: external
   security_group:
-    id: OpenSearchSecurityGroup
-    description: Security group for OpenSearch
     allow_all_outbound: true
+    description: Security group for MSK brokers
+    id: MskSecurityGroup
+mteb:
+  batch_size: 32
+  output_path: mteb_results.json
+  tasks: null
+networking:
+  cidr: 10.0.0.0/16
+  security_groups:
+    - allow_all_outbound: true
+      description: Security group for MSK brokers
+      id: sg-msk
+    - allow_all_outbound: true
+      description: Security group for Lambda functions
+      id: sg-lambda
+    - allow_all_outbound: true
+      description: Default security group for ShieldCraft dev VPC
+      id: sg-default
+  subnets:
+    - cidr: 10.0.10.0/24
+      id: subnet-pub-a
+      type: PUBLIC
+    - cidr: 10.0.1.0/24
+      id: subnet-priv-a
+      type: PRIVATE
+    - cidr: 10.0.2.0/24
+      id: subnet-priv-b
+      type: PRIVATE
+  vpc_id: vpc-shieldcraft-dev
+opensearch:
   domain:
-    id: ShieldCraftOpenSearchDomain
-    name: shieldcraft-opensearch-dev
-    engine_version: OpenSearch_2.11
     cluster_config:
-      instanceType: m6g.large.search
       instanceCount: 2
-    node_to_node_encryption_options:
-      enabled: true
-    encryption_at_rest_options:
-      enabled: true
+      instanceType: m6g.large.search
     ebs_options:
       ebsEnabled: true
       volumeSize: 20
       volumeType: gp3
-
-airbyte:
-  mode: ecs_scale_to_zero # local | ecs_scale_to_zero (dev) | ecs_managed
-  deployment_type: ecs
-  min_task_count: 1
-  max_task_count: 3
-
-data_quality:
-  mode: inline # inline (dev) | managed
-  dq_framework: deequ
-  dq_schedule: cron(0 3 * * ? *)
-
-lakeformation:
-  admin_role: ShieldCraftLakeAdmin
-  data_lake_location: s3://shieldcraft-dev-analytics
+    encryption_at_rest_options:
+      enabled: true
+    engine_version: OpenSearch_2.11
+    id: ShieldCraftOpenSearchDomain
+    name: shieldcraft-opensearch-dev
+    node_to_node_encryption_options:
+      enabled: true
+  mode: none
+  provision: false
+  security_group:
+    allow_all_outbound: true
+    description: Security group for OpenSearch
+    id: OpenSearchSecurityGroup
+orchestrator:
+  log_level: INFO
+  max_workers: 2
+  output_dir: orch_results/dev
+  retry: 1
+s3:
   buckets:
-    - id: AnalyticsDataBucket
-      name: shieldcraft-dev-analytics
-    - id: RawDataBucket
+    - block_public_access: BLOCK_ALL
+      crawler:
+        schedule: cron(0 2 * * ? *)
+        table_prefix: raw_
+      enable_glue_crawler: true
+      encryption: S3_MANAGED
+      id: RawDataBucket
+      lifecycle_rules:
+        - abort_incomplete_multipart_upload_days: 7
+          enabled: true
+          expiration_days: 365
+          id: transition-raw-dev
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
       name: shieldcraft-dev-raw
-    - id: ProcessedDataBucket
+      removal_policy: DESTROY
+      versioned: true
+    - block_public_access: BLOCK_ALL
+      crawler:
+        schedule: cron(0 3 * * ? *)
+        table_prefix: processed_
+      enable_glue_crawler: true
+      encryption: S3_MANAGED
+      id: ProcessedDataBucket
+      lifecycle_rules:
+        - abort_incomplete_multipart_upload_days: 7
+          enabled: true
+          expiration_days: 365
+          id: transition-processed-dev
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
       name: shieldcraft-dev-processed
-  permissions:
-    - template: etl
-      principal: GLUE_EXECUTION_ROLE_ARN
-      resource_type: table
-      resource:
-        databaseName: shieldcraft_dev_db
-        tableName: raw_data
-    - template: admin
-      principal: LAKEFORMATION_ADMIN_ROLE_ARN
-      resource_type: database
-      resource:
-        databaseName: shieldcraft_dev_db
-    - principal: SAGEMAKER_EXECUTION_ROLE_ARN
-      resource_type: bucket
-      resource:
-        arn: arn:aws:s3:::shieldcraft-dev-analytics
-      actions: ["DATA_LOCATION_ACCESS"]
-
+      removal_policy: DESTROY
+      versioned: true
+    - block_public_access: BLOCK_ALL
+      crawler:
+        schedule: cron(0 4 * * ? *)
+        table_prefix: analytics_
+      enable_glue_crawler: true
+      encryption: S3_MANAGED
+      id: AnalyticsDataBucket
+      lifecycle_rules:
+        - abort_incomplete_multipart_upload_days: 7
+          enabled: true
+          expiration_days: 365
+          id: transition-analytics-dev
+          transitions:
+            - days: 30
+              storage_class: STANDARD_IA
+            - days: 60
+              storage_class: GLACIER
+      name: shieldcraft-dev-analytics
+      removal_policy: DESTROY
+      versioned: true
+  enable_access_logs: true
+  lifecycle_policy_days: 30
 sagemaker:
-  mode: local # local (dev) | managed
-  training_instance_type: ml.t3.medium
-  inference_instance_type: ml.t3.medium
   endpoint_auto_scaling: false
+  inference_instance_type: ml.t3.medium
+  mode: local
   model_registry: shieldcraft-model-registry-dev
-
-cloud_native_hardening:
-  enable_cloudwatch_alarms: true
-  alarm_email: devops@shieldcraft.ai
-  config_rules:
-    - s3-bucket-public-read-prohibited
-    - iam-user-no-policies-check
-tags:
-  project: shieldcraft-ai
-  environment: dev
-  owner: ai-solutions
-  cost_center: RND
-  team: mlops
-  compliance: standard
-eventbridge:
-  data_bus_name: shieldcraft-dev-data-bus
-  security_bus_name: shieldcraft-dev-security-bus
-  lambda_export_name: DevMskTopicCreatorLambdaArn
-  data_event_source: shieldcraft.data.dev
-
+  training_instance_type: ml.t3.medium
 stepfunctions:
-  workflow_type: express # express (dev) | standard
   state_machines:
-    - id: DataIngestAndValidate
-      name: shieldcraft-dev-data-ingest-validate
-      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
-      comment: "Orchestrates data ingestion, validation, and error handling"
+    - comment: Orchestrates data ingestion, validation, and error handling
       definition:
-        - id: IngestData
-          type: Task
-          resource: arn:aws:lambda:af-south-1:123456789012:function:IngestDataLambda
+        - catch:
+            - errors:
+                - States.ALL
+              handler: HandleIngestError
+          id: IngestData
           next: ValidateData
-          catch:
-            - handler: HandleIngestError
-              errors: ["States.ALL"]
-        - id: ValidateData
+          resource: arn:aws:lambda:af-south-1:123456789012:function:IngestDataLambda
           type: Task
-          resource: arn:aws:lambda:af-south-1:123456789012:function:ValidateDataLambda
+        - id: ValidateData
           next: IsValid
-        - id: IsValid
-          type: Choice
-          choices:
-            - condition: string_equals
-              args: ["$.validationResult", "PASS"]
+          resource: arn:aws:lambda:af-south-1:123456789012:function:ValidateDataLambda
+          type: Task
+        - choices:
+            - args:
+                - $.validationResult
+                - PASS
+              condition: string_equals
               next: Success
-            - condition: string_equals
-              args: ["$.validationResult", "FAIL"]
+            - args:
+                - $.validationResult
+                - FAIL
+              condition: string_equals
               next: HandleValidationError
           default: HandleValidationError
-        - id: Success
+          id: IsValid
+          type: Choice
+        - end: true
+          id: Success
           type: Pass
-          end: true
-        - id: HandleIngestError
+        - end: true
+          id: HandleIngestError
           type: Pass
-          end: true
-        - id: HandleValidationError
+        - end: true
+          id: HandleValidationError
           type: Pass
-          end: true
-    - id: BenchmarkAndValidate
-      name: shieldcraft-dev-benchmark-validate
+      id: DataIngestAndValidate
+      name: shieldcraft-dev-data-ingest-validate
       role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
-      comment: "Orchestrates BEIR/MTEB benchmarking and model validation (dev: costless)"
+    - comment: "Orchestrates BEIR/MTEB benchmarking and model validation (dev: costless)"
       definition:
         - id: RunBEIRBenchmark
-          type: Pass
           next: RunMTEBBenchmark
+          type: Pass
         - id: RunMTEBBenchmark
-          type: Pass
           next: ValidateBenchmarkResults
+          type: Pass
         - id: ValidateBenchmarkResults
-          type: Pass
           next: Success
-        - id: Success
           type: Pass
-          end: true
-        - id: HandleBenchmarkError
+        - end: true
+          id: Success
           type: Pass
-          end: true
-ai_core:
-  # Use free stub backend locally; switch to small local model if needed
-  model_name: "stub" # alternatives: "gpt2", "mistralai/Mistral-7B-v0.1"
-  quantize: false
-  device: "cpu"
-embedding:
-  model_name: "sentence-transformers/all-MiniLM-L6-v2"
-  quantize: false
-  device: "cpu"
+        - end: true
+          id: HandleBenchmarkError
+          type: Pass
+      id: BenchmarkAndValidate
+      name: shieldcraft-dev-benchmark-validate
+      role_arn: arn:aws:iam::123456789012:role/ShieldCraftStepFnRole
+  workflow_type: express
+tags:
+  compliance: standard
+  cost_center: RND
+  environment: dev
+  owner: ai-solutions
+  project: shieldcraft-ai
+  team: mlops
 vector_store:
-  db_host: "localhost"
-  db_port: 5432
-  db_name: "shieldcraft_vectors"
-  db_user: "postgres"
-  db_password: "aws-vault:dev/vector_store/db_password"
-  table_name: "embeddings"
   batch_size: 100
-beir:
-  datasets: ["scifact"]
-  data_path: "./beir_datasets"
-  output_path: "beir_results.json"
-  batch_size: 32
-mteb:
-  tasks: null
-  output_path: "mteb_results.json"
-  batch_size: 32
+  db_host: localhost
+  db_name: shieldcraft_vectors
+  db_password: REDACTED
+  db_port: 5432
+  db_user: postgres
+  table_name: embeddings
