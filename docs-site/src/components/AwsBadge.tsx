@@ -5,9 +5,10 @@ type AwsBadgeItem = {
     id: string; // Credly badge ID
     url?: string; // Public URL to the badge; defaults to Credly URL built from id
     mobileThumbSrc?: string; // Optional mobile thumbnail path
+    mobileThumbSrcSet?: string; // Optional srcSet for high-DPI mobile badge
     alt?: string; // Accessible label/alt
-    width?: number; // Desktop iframe width (default 150)
-    height?: number; // Desktop iframe height (default 270)
+    width?: number; // Desktop iframe width (default 220)
+    height?: number; // Desktop iframe height (default 396)
 };
 
 export default function AwsBadge({ badges }: { badges: AwsBadgeItem[] }) {
@@ -30,8 +31,8 @@ export default function AwsBadge({ badges }: { badges: AwsBadgeItem[] }) {
             {/* Desktop: Credly embeds (stacked) */}
             <div className={styles.awsBadgeDesktop}>
                 {badges.map((b) => {
-                    const width = String(b.width ?? 150);
-                    const height = String(b.height ?? 270);
+                    const width = String(b.width ?? 220);
+                    const height = String(b.height ?? 396);
                     return (
                         <div
                             key={b.id}
@@ -60,8 +61,10 @@ export default function AwsBadge({ badges }: { badges: AwsBadgeItem[] }) {
                         >
                             <img
                                 src={b.mobileThumbSrc || fallbackThumb}
+                                srcSet={b.mobileThumbSrcSet}
                                 alt={b.alt || 'AWS Certification Badge'}
-                                style={{ width: '64px', height: '64px', borderRadius: '8px', boxShadow: '0 2px 8px #23252633' }}
+                                style={{ width: '116px', height: '116px', borderRadius: '8px', boxShadow: '0 2px 8px #23252633' }}
+                                loading="lazy"
                             />
                         </a>
                     );

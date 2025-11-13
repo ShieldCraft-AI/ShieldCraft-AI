@@ -1,0 +1,12 @@
+{
+    "baseUrl": "http://localhost:3000",
+    "routes": [
+        "/",
+        "/intro",
+        "/pricing",
+        "/checklist",
+        "/aws_stack_architecture",
+        "/generative_ai_core",
+        "/adrs"
+    ]
+}

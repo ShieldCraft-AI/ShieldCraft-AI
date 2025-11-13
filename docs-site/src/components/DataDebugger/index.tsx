@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authFetch from '../../utils/auth-fetch';
+import logger from '@site/src/utils/logger';
 
 const DataDebugger: React.FC = () => {
     const [data, setData] = useState<any>(null);
@@ -26,7 +27,7 @@ const DataDebugger: React.FC = () => {
 
                 setData(data);
             } catch (err) {
-                console.error('Error loading data:', err);
+                logger.error('Error loading data:', err);
                 setError(err instanceof Error ? err.message : 'Unknown error');
             }
         };

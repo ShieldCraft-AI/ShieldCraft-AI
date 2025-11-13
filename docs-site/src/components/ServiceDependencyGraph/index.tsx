@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
+import logger from '@site/src/utils/logger';
 
 interface ServiceDependency {
     service: string;
@@ -32,7 +33,7 @@ const ServiceDependencyGraph: React.FC<DependencyGraphProps> = ({ data }) => {
             });
             setDependencies(deps);
         } catch (error) {
-            console.error('Error extracting service dependencies:', error);
+            logger.error('Error extracting service dependencies:', error);
             setDependencies([]);
         }
     }, [data]);

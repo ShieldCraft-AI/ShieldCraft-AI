@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import NAV_ITEMS from '@site/src/constants/navItems';
 
 export const SiteFooter: React.FC = () => {
@@ -8,6 +9,21 @@ export const SiteFooter: React.FC = () => {
     const textColor = 'var(--ifm-color-emphasis-700)';
     const panelBorder = '1px solid var(--ifm-color-emphasis-300)';
     const gradient = 'linear-gradient(135deg, var(--ifm-background-surface-color) 0%, var(--ifm-background-color) 100%)';
+    const logoAvifSm = useBaseUrl('/img/logo-sm.avif');
+    const logoAvifLg = useBaseUrl('/img/logo-lg.avif');
+    const logoWebpSm = useBaseUrl('/img/logo-sm.webp');
+    const logoWebpLg = useBaseUrl('/img/logo-lg.webp');
+    const logoPng = useBaseUrl('/img/logo.png');
+    const awsSolutionsAvifSm = useBaseUrl('/img/aws-certified-solutions-architect-associate-sm.avif');
+    const awsSolutionsAvifLg = useBaseUrl('/img/aws-certified-solutions-architect-associate-lg.avif');
+    const awsSolutionsWebpSm = useBaseUrl('/img/aws-certified-solutions-architect-associate-sm.webp');
+    const awsSolutionsWebpLg = useBaseUrl('/img/aws-certified-solutions-architect-associate-lg.webp');
+    const awsSolutionsPng = useBaseUrl('/img/aws-certified-solutions-architect-associate.png');
+    const awsAiAvifSm = useBaseUrl('/img/aws-certified-ai-practitioner-sm.avif');
+    const awsAiAvifLg = useBaseUrl('/img/aws-certified-ai-practitioner-lg.avif');
+    const awsAiWebpSm = useBaseUrl('/img/aws-certified-ai-practitioner-sm.webp');
+    const awsAiWebpLg = useBaseUrl('/img/aws-certified-ai-practitioner-lg.webp');
+    const awsAiPng = useBaseUrl('/img/aws-certified-ai-practitioner.png');
 
     return (
         <footer style={{
@@ -28,7 +44,11 @@ export const SiteFooter: React.FC = () => {
                 {/* Brand / Mission */}
                 <div style={{ minWidth: 200 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '.65rem', marginBottom: '.85rem' }}>
-                        <img src="/img/logo.png" alt="ShieldCraft AI" style={{ height: 34, width: 'auto', borderRadius: 6 }} />
+                        <picture>
+                            <source srcSet={`${logoAvifSm} 1x, ${logoAvifLg} 2x`} type="image/avif" />
+                            <source srcSet={`${logoWebpSm} 1x, ${logoWebpLg} 2x`} type="image/webp" />
+                            <img src={logoPng} alt="ShieldCraft AI" style={{ height: 34, width: 'auto', borderRadius: 6 }} loading="lazy" />
+                        </picture>
                         <h3 style={{ margin: 0, fontSize: '1.15rem', color: headingColor }}>ShieldCraft AI</h3>
                     </div>
                     <p style={{ margin: 0, lineHeight: 1.45, fontSize: '.9rem', color: textColor }}>
@@ -113,10 +133,18 @@ export const SiteFooter: React.FC = () => {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
                     <a href="https://aws.amazon.com/certification/certified-solutions-architect-associate/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified Solutions Architect - Associate">
-                        <img src="/img/saa.png" alt="AWS Certified Solutions Architect - Associate" title="AWS Certified Solutions Architect - Associate" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} />
+                        <picture>
+                            <source srcSet={`${awsSolutionsAvifSm} 1x, ${awsSolutionsAvifLg} 2x`} type="image/avif" />
+                            <source srcSet={`${awsSolutionsWebpSm} 1x, ${awsSolutionsWebpLg} 2x`} type="image/webp" />
+                            <img src={awsSolutionsPng} alt="AWS Certified Solutions Architect - Associate" title="AWS Certified Solutions Architect - Associate" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} loading="lazy" />
+                        </picture>
                     </a>
                     <a href="https://aws.amazon.com/certification/certified-ai-practitioner/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified AI Practitioner">
-                        <img src="/img/aif.png" alt="AWS Certified AI Practitioner" title="AWS Certified AI Practitioner" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} />
+                        <picture>
+                            <source srcSet={`${awsAiAvifSm} 1x, ${awsAiAvifLg} 2x`} type="image/avif" />
+                            <source srcSet={`${awsAiWebpSm} 1x, ${awsAiWebpLg} 2x`} type="image/webp" />
+                            <img src={awsAiPng} alt="AWS Certified AI Practitioner" title="AWS Certified AI Practitioner" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} loading="lazy" />
+                        </picture>
                     </a>
                 </div>
             </div>

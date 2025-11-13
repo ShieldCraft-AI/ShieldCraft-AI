@@ -1,3 +1,4 @@
+import logger from '@site/src/utils/logger';
 /** Minimal IdP helper for simple OAuth2 code-exchange flows.
  * Exports a tiny, testable surface: init, login, handleRedirectCallback, isLoggedIn, getTokens, signOut, onAuthChange
  */
@@ -154,8 +155,7 @@ function emit(isAuth: boolean) {
         if (typeof window !== 'undefined') {
             try {
                 if (isDevHost() && (window as any).__SC_AUTH_DEBUG__) {
-                    // eslint-disable-next-line no-console
-                    console.debug('[MinimalIdP] emit', { isAuth, storageKey: STORAGE_KEY, authKey: AUTH_KEY, tokens: (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null } })() });
+                    logger.debug('[MinimalIdP] emit', { isAuth, storageKey: STORAGE_KEY, authKey: AUTH_KEY, tokens: (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null } })() });
                 }
             } catch { /* ignore debug failures */ }
             const ev = new CustomEvent(AUTH_EVENT, { detail: { value: isAuth } });
@@ -211,8 +211,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
 
                 if (debugEnabled) {
                     try {
-                        // eslint-disable-next-line no-console
-                        console.debug('[MinimalIdP] token exchange attempt', {
+                        logger.debug('[MinimalIdP] token exchange attempt', {
                             redirectUri,
                             hasVerifier: !!cachedVerifier,
                             body: body.toString(),
@@ -232,8 +231,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                     let txt: string | null = null;
                     try { txt = await resp.text().catch(() => null); } catch { /* ignore */ }
                     if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
-                        // eslint-disable-next-line no-console
-                        console.debug('[MinimalIdP] token endpoint non-OK response', { url: tokenEndpoint, status: resp.status, text: txt, redirectUri });
+                        logger.debug('[MinimalIdP] token endpoint non-OK response', { url: tokenEndpoint, status: resp.status, text: txt, redirectUri });
                     }
                     try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, text: txt, redirectUri })); } catch { }
                     const textLower = (txt || '').toLowerCase();
@@ -249,8 +247,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                     try {
                         const txt = await resp.text().catch(() => null);
                         if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
-                            // eslint-disable-next-line no-console
-                            console.debug('[MinimalIdP] token endpoint returned non-JSON', { url: tokenEndpoint, status: resp.status, text: txt });
+                            logger.debug('[MinimalIdP] token endpoint returned non-JSON', { url: tokenEndpoint, status: resp.status, text: txt });
                         }
                         try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, text: txt })); } catch { }
                     } catch { }
@@ -260,8 +257,7 @@ export async function handleRedirectCallback(url?: string): Promise<{ success: b
                 // On success, store the raw response for debugging (best-effort, avoid tokens in logs unless debug enabled)
                 try {
                     if (isDevHost() && typeof window !== 'undefined' && (window as any).__SC_AUTH_DEBUG__) {
-                        // eslint-disable-next-line no-console
-                        console.debug('[MinimalIdP] token endpoint success', { url: tokenEndpoint, json });
+                        logger.debug('[MinimalIdP] token endpoint success', { url: tokenEndpoint, json });
                     }
                     try { if (typeof window !== 'undefined') sessionStorage.setItem('__sc_debug_oauth', JSON.stringify({ url: tokenEndpoint, status: resp.status, json: json })); } catch { }
                 } catch { }

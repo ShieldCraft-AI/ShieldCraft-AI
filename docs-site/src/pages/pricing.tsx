@@ -892,17 +892,27 @@ export default function PricingPage() {
             return null;
         }
     });
+    const [hoveredService, setHoveredService] = React.useState<HoveredService | null>(null);
 
-    // Simpler deterministic behavior: we intentionally avoid debounced
-    // restores. Mouse enter will set the effective hovered item and update
-    // the "last hovered" marker. When the pointer leaves, we immediately
-    // revert the active hovered item to the last hovered item so the UI
-    // never falls back to an unrelated default.
+    const handlePinService = React.useCallback((service: HoveredService) => {
+        setPinnedService(service);
+        setHoveredService(null);
+        try {
+            if (typeof window !== 'undefined') {
+                window.sessionStorage.setItem('pricing.pinnedService', JSON.stringify(service));
+            }
+        } catch {
+            /* ignore storage failures */
+        }
+    }, []);
 
-    // Nothing should change on pointer hover; selected content only changes
-    // when the user clicks a service (persisted in sessionStorage). On
-    // mount the initial `pinnedService` value is already restored by the
-    // state initializer above.
+    const highlightedService = hoveredService ?? pinnedService;
+    const highlightedTier: TierKey | null = highlightedService?.tier ?? null;
+
+    // Visual highlighting may react to hover, but substantive content only
+    // updates when the user clicks a service (selection persisted via
+    // sessionStorage). On mount the initial `pinnedService` value is already
+    // restored by the state initializer above.
 
     React.useEffect(() => {
         if (typeof document === 'undefined') return undefined;
@@ -1291,17 +1301,22 @@ export default function PricingPage() {
     const ServiceRow: React.FC<{ label: string; iconSrc?: string; priceUsdPerMonth?: number; tier: TierKey }>
         = ({ label, iconSrc, priceUsdPerMonth, tier }) => {
             const [imgOk, setImgOk] = React.useState(true);
-            // selection is driven only by pinnedService (click). Hover no
-            // longer changes the page content.
-            const isServiceSelected = pinnedService?.label === label && pinnedService?.tier === tier;
-            const isOtherServiceSelected = pinnedService !== null && !(pinnedService.label === label && pinnedService.tier === tier);
+            const serviceIdentity = React.useMemo<HoveredService>(() => ({ label, tier }), [label, tier]);
+            const isServiceHighlighted = highlightedService?.label === label && highlightedService?.tier === tier;
+            const isPinned = pinnedService?.label === label && pinnedService?.tier === tier;
             const link = SERVICE_LINKS[label];
             const desc = SERVICE_DESC[label];
             const displayLabel = React.useMemo(() => displayServiceName(label), [label]);
             const summary = desc ?? SERVICE_DESC_COMPACT[label] ?? displayLabel;
             const iconSurface = getCssVar('--pricing-icon-surface', 'rgba(59,130,246,0.12)');
             const iconBorder = getCssVar('--pricing-icon-border', 'rgba(59,130,246,0.22)');
-            const hoverGlow = '0 18px 32px rgba(15,23,42,0.14)';
+            const hoverGlow = '0 22px 44px rgba(15,23,42,0.18)';
+            const pinnedBorder = getCssVar('--pricing-pinned-border', 'rgba(34,197,94,0.32)');
+            const highlightBackground = isPinned
+                ? 'linear-gradient(135deg, rgba(16,185,129,0.22), rgba(59,130,246,0.12))'
+                : 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(16,185,129,0.10))';
+            const highlightBorder = isPinned ? pinnedBorder : iconBorder;
+            const highlightGlow = isPinned ? '0 28px 52px rgba(16,185,129,0.24)' : hoverGlow;
             const initials = React.useMemo(() => {
                 const cleaned = displayLabel.replace(/\(.*?\)/g, '').trim();
                 const words = cleaned.split(/\s+/).filter(Boolean);
@@ -1311,28 +1326,36 @@ export default function PricingPage() {
             const RowTag: any = link ? 'a' : 'div';
 
             const handleMouseEnter = () => {
-                // Hover no longer changes the content; keep a console trace
-                // for debugging but don't mutate selection state.
-                console.log('[pricing] mouseenter (noop for selection)', { label, tier });
-            };
-
-            const handleClick = (e: React.MouseEvent) => {
-                const payload = { label, tier };
-                console.log('[pricing] click pin', payload);
-                try {
-                    setPinnedService(payload);
-                    if (typeof window !== 'undefined') {
-                        window.sessionStorage.setItem('pricing.pinnedService', JSON.stringify(payload));
-                    }
-                } catch (err) {
-                    // ignore
-                }
-                // allow default navigation for anchor tags
+                setHoveredService(serviceIdentity);
             };
 
             const handleMouseLeave = () => {
-                // No-op for selection logic; we intentionally keep selection
-                // only on explicit clicks.
+                setHoveredService(prev => {
+                    if (!prev) return null;
+                    return prev.label === label && prev.tier === tier ? null : prev;
+                });
+            };
+
+            const handleFocus = () => {
+                setHoveredService(serviceIdentity);
+            };
+
+            const handleBlur = () => {
+                setHoveredService(prev => {
+                    if (!prev) return null;
+                    return prev.label === label && prev.tier === tier ? null : prev;
+                });
+            };
+
+            const handleClick = () => {
+                handlePinService(serviceIdentity);
+            };
+
+            const handleKeyDown = (event: React.KeyboardEvent) => {
+                if (!link && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    handlePinService(serviceIdentity);
+                }
             };
 
             return (
@@ -1342,22 +1365,24 @@ export default function PricingPage() {
                     target={link ? '_blank' : undefined}
                     rel={link ? 'noopener noreferrer' : undefined}
                     aria-label={link ? `${displayLabel} – open AWS page` : displayLabel}
-                    // Keep the same attribute name used by CSS (data-hovered)
-                    // but drive it from selection so styling continues to work
-                    // when a user selects a service.
-                    data-hovered={isServiceSelected || undefined}
+                    data-hovered={isServiceHighlighted || undefined}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                     onClick={handleClick}
+                    onKeyDown={handleKeyDown}
                     style={{
                         cursor: link ? 'pointer' : 'default',
-                        opacity: isOtherServiceSelected ? 0.4 : 1,
-                        zIndex: isServiceSelected ? 3 : 1,
-                        boxShadow: isServiceSelected ? hoverGlow : undefined,
-                        borderColor: isServiceSelected ? iconBorder : undefined,
-                        background: isServiceSelected ? 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(16,185,129,0.10))' : undefined,
+                        zIndex: isServiceHighlighted ? 3 : 1,
+                        boxShadow: isServiceHighlighted ? highlightGlow : undefined,
+                        borderColor: isServiceHighlighted ? highlightBorder : undefined,
+                        background: isServiceHighlighted ? highlightBackground : undefined,
                         textDecoration: 'none'
                     }}
+                    role={link ? undefined : 'button'}
+                    tabIndex={link ? undefined : 0}
+                    aria-pressed={link ? undefined : isPinned}
                 >
                     <div className={styles.serviceRowHeader}>
                         <div className={styles.serviceRowIdentity}>
@@ -1474,6 +1499,7 @@ export default function PricingPage() {
         const env = envForTier[t];
         const reverseMap: Record<string, string> = Object.entries(SERVICE_LABELS)
             .reduce((acc, [key, val]) => { acc[val] = key; return acc; }, {} as Record<string, string>);
+        const isTierHighlighted = highlightedTier === t;
 
         const tierTotal = React.useMemo(() => {
             if (discovery?.cost_analysis) {
@@ -1521,17 +1547,18 @@ export default function PricingPage() {
         return (
             <div
                 className="tier-card"
+                data-highlighted={isTierHighlighted || undefined}
+                data-muted={highlightedService && highlightedTier !== t ? true : undefined}
                 onMouseLeave={() => {
-                    // Hover no longer affects selection; keep this handler as a
-                    // noop but log the current pinned selection for debugging.
-                    console.log('[pricing] tier column mouseleave', { tier: t, pinnedService });
+                    setHoveredService(prev => (prev && prev.tier === t ? null : prev));
                 }}
                 style={{
                     display: 'flex', flexDirection: 'column', gap: 16,
-                    border: `1px solid ${themeVars.border}`,
+                    border: `1px solid ${isTierHighlighted ? getCssVar('--ifm-color-primary', themeVars.border) : themeVars.border}`,
                     borderRadius: 16,
                     padding: 18,
-                    boxShadow: '0 18px 40px rgba(0,0,0,.07)',
+                    boxShadow: isTierHighlighted ? '0 26px 56px rgba(15,23,42,0.16)' : '0 18px 40px rgba(0,0,0,.07)',
+                    transform: isTierHighlighted ? 'translateY(-6px)' : undefined,
                     transition: 'all 0.2s ease'
                 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, paddingBottom: 8, borderBottom: `1px solid ${getCssVar('--ifm-color-emphasis-200', 'rgba(0,0,0,.08)')}` }}>
@@ -1576,34 +1603,11 @@ export default function PricingPage() {
         <Layout title="Pricing" description="ShieldCraft AI pricing tiers, add-ons, and infrastructure blueprint.">
             <div className={`${styles.pricingPageWrapper} pricing-page-wrapper`}>
                 <div className={styles.pricingInner}>
-                    {/* Visible debug overlay to show hovered state (helps when DevTools filters hide console messages) */}
-                    {typeof window !== 'undefined' ? (
-                        <div style={{ position: 'fixed', right: 12, top: 88, zIndex: 9999, background: 'rgba(0,0,0,0.72)', color: '#fff', padding: 10, borderRadius: 8, fontSize: 12, lineHeight: 1.2, maxWidth: 340 }}>
-                            <div style={{ fontWeight: 700, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                                <span>PRICING DEBUG</span>
-                                <button onClick={() => {
-                                    try {
-                                        setPinnedService(null);
-                                        if (typeof window !== 'undefined') {
-                                            window.sessionStorage.removeItem('pricing.pinnedService');
-                                        }
-                                        console.log('[pricing] cleared pinnedService');
-                                    } catch (e) {
-                                        // ignore
-                                    }
-                                }} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.16)', color: '#fff', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', fontSize: 11 }}>Clear</button>
-                            </div>
-                            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>selected: {JSON.stringify(pinnedService)}</div>
-                        </div>
-                    ) : null}
                     <h1 className={styles.pageTitle}>ShieldCraft AI Pricing</h1>
                     <p className={styles.pageSubtitle}>Compare tiers to preview scope, run-rate and the services each IaC template implements.</p>
                     <div className={styles.tierGridWrap}>
                         <div className={styles.tierGrid} onMouseLeave={() => {
-                            // Hover no longer affects selection; do not revert to any
-                            // hover-derived state on grid leave. Selection changes
-                            // only on explicit clicks. Log the pinned selection.
-                            console.log('[pricing] tierGrid mouseleave (noop for selection)', { pinnedService });
+                            setHoveredService(null);
                         }}>
                             {TIER_KEYS.map(t => (
                                 <TierColumn

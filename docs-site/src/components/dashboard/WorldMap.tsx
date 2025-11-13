@@ -2,6 +2,7 @@ import React from 'react';
 import * as d3 from 'd3-geo';
 import { feature } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
+import logger from '@site/src/utils/logger';
 
 // Fetch world-atlas data once globally (not per component instance)
 let globalWorldData: GeoJSON.FeatureCollection | null = null;
@@ -23,7 +24,7 @@ const loadWorldData = () => {
             listeners.length = 0;
         })
         .catch(err => {
-            console.error('Failed to load world map:', err);
+            logger.error('Failed to load world map:', err);
             globalWorldData = { type: 'FeatureCollection', features: [] };
             listeners.forEach(cb => cb(globalWorldData!));
             listeners.length = 0;

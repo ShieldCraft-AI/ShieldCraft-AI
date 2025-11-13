@@ -2,6 +2,7 @@ import React from 'react';
 import * as d3 from 'd3-geo';
 import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
+import logger from '@site/src/utils/logger';
 
 export type Arc = { from: [number, number]; to: [number, number]; color?: string };
 
@@ -46,7 +47,7 @@ async function loadTopoData(): Promise<GeoJSON.FeatureCollection> {
         topoListeners = [];
         return globalTopoData;
     } catch (error) {
-        console.warn('Failed to load world topology, using fallback', error);
+        logger.warn('Failed to load world topology, using fallback', error);
         // Fallback to simplified land mass
         const fallback: GeoJSON.FeatureCollection = {
             type: 'FeatureCollection',

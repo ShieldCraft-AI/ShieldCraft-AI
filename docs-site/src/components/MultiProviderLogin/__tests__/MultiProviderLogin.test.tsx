@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import logger from '@site/src/utils/logger';
 
 import MultiProviderLogin, { CompactMultiProviderLogin, FullMultiProviderLogin } from '../index';
 import * as auth from '../../../utils/auth-cognito';
@@ -76,12 +77,9 @@ describe('MultiProviderLogin', () => {
         try {
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             const runtimeAuth = require('../../../utils/auth-cognito');
-            // eslint-disable-next-line no-console
-            console.debug('[TEST] runtimeAuth keys', Object.keys(runtimeAuth || {}));
-            // eslint-disable-next-line no-console
-            console.debug('[TEST] loginWithAmazon mock === runtimeAuth.loginWithAmazon', loginWithAmazonMock === runtimeAuth.loginWithAmazon);
-            // eslint-disable-next-line no-console
-            console.debug('[TEST] require.resolve', require.resolve('../../../utils/auth-cognito'));
+            logger.debug('[TEST] runtimeAuth keys', Object.keys(runtimeAuth || {}));
+            logger.debug('[TEST] loginWithAmazon mock === runtimeAuth.loginWithAmazon', loginWithAmazonMock === runtimeAuth.loginWithAmazon);
+            logger.debug('[TEST] require.resolve', require.resolve('../../../utils/auth-cognito'));
         } catch (err) { /* ignore */ }
 
         await userEvent.click(amazonButton);
@@ -95,7 +93,7 @@ describe('MultiProviderLogin', () => {
         ]);
         loginWithProviderMock.mockResolvedValueOnce(undefined);
 
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
 
         render(<MultiProviderLogin />);
 
@@ -103,10 +101,10 @@ describe('MultiProviderLogin', () => {
         await userEvent.click(contosoButton);
 
         // click should be graceful even though config is missing
-        expect(consoleWarnSpy).toHaveBeenCalledWith('Unknown provider:', 'Contoso');
+        expect(warnSpy).toHaveBeenCalledWith('Unknown provider:', 'Contoso');
         expect(loginWithProviderMock).not.toHaveBeenCalled();
 
-        consoleWarnSpy.mockRestore();
+        warnSpy.mockRestore();
     });
 
     it('supports keyboard activation via Enter key', async () => {

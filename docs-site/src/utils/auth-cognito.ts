@@ -1,6 +1,7 @@
 // Avoid importing aws-amplify at module load time (prevents SSR/build warnings).
 // Lazily require it only in the browser when needed.
 // @ts-nocheck
+import logger from '@site/src/utils/logger';
 
 function getAmplifyAny(): any | undefined {
     try {
@@ -25,7 +26,7 @@ function getAuthModule(): any | undefined {
         return cachedAuthModule;
     } catch (err) {
         cachedAuthModule = null;
-        console.debug('[auth-cognito] aws-amplify/auth unavailable', err);
+        logger.debug('[auth-cognito] aws-amplify/auth unavailable', err);
         return undefined;
     }
 }
@@ -75,7 +76,7 @@ function resolveRedirect(
     origin: string,
     fallbackPath: string
 ): string {
-    console.debug('[auth-cognito] resolveRedirect input', { value, origin, fallbackPath });
+    logger.debug('[auth-cognito] resolveRedirect input', { value, origin, fallbackPath });
     if (typeof value === 'string' && value.trim()) {
         return value.trim();
     }
@@ -85,7 +86,7 @@ function resolveRedirect(
             try {
                 const candidateUrl = new URL(candidate);
                 if (candidateUrl.origin === origin) {
-                    console.debug('[auth-cognito] resolveRedirect matched origin', { candidate });
+                    logger.debug('[auth-cognito] resolveRedirect matched origin', { candidate });
                     return candidate;
                 }
             } catch {
@@ -94,7 +95,7 @@ function resolveRedirect(
         }
         const first = value.find((item) => typeof item === 'string' && item.trim());
         if (first) {
-            console.debug('[auth-cognito] resolveRedirect using first fallback', { first });
+            logger.debug('[auth-cognito] resolveRedirect using first fallback', { first });
             return first.trim();
         }
     }
@@ -122,7 +123,7 @@ function readStoredAuthState(): {
         const payload = idToken ? decodeJwtPayload(idToken) : undefined;
         return { username, accessToken, idToken, refreshToken, payload };
     } catch (err) {
-        console.debug('[auth-cognito] readStoredAuthState failed', err);
+        logger.debug('[auth-cognito] readStoredAuthState failed', err);
         return null;
     }
 }
@@ -153,19 +154,19 @@ export async function loginWithProvider(provider: string): Promise<void> {
         const authModule = getAuthModule();
         if (authModule && typeof authModule.signInWithRedirect === 'function') {
             if (!isUserPoolConfigured()) {
-                console.warn('[auth-cognito] modular Auth missing configuration, using Hosted UI fallback');
+                logger.warn('[auth-cognito] modular Auth missing configuration, using Hosted UI fallback');
             } else {
                 const providerInput =
                     provider === 'LoginWithAmazon'
                         ? { provider: { custom: provider } }
                         : { provider };
                 try {
-                    console.debug('[auth-cognito] using modular signInWithRedirect', { provider });
+                    logger.debug('[auth-cognito] using modular signInWithRedirect', { provider });
                     await authModule.signInWithRedirect(providerInput as any);
                     return;
                 } catch (err) {
                     modularFailure = err;
-                    console.error('[auth-cognito] modular signInWithRedirect failed, falling back', err);
+                    logger.error('[auth-cognito] modular signInWithRedirect failed, falling back', err);
                 }
             }
         }
@@ -173,7 +174,7 @@ export async function loginWithProvider(provider: string): Promise<void> {
         const legacyAuth = getLegacyAuth();
         if (legacyAuth && typeof legacyAuth.federatedSignIn === 'function') {
             // Try federatedSignIn for social providers (Amplify v5 and below)
-            console.debug('[auth-cognito] using Amplify.federatedSignIn', { provider, redirectUri });
+            logger.debug('[auth-cognito] using Amplify.federatedSignIn', { provider, redirectUri });
             await legacyAuth.federatedSignIn({ customProvider: provider, options: { redirectSignIn: redirectUri } });
             return;
         }
@@ -195,7 +196,7 @@ export async function loginWithProvider(provider: string): Promise<void> {
                 cfg?.Auth?.Cognito?.userPoolClientId ||
                 '';
             if (domain) {
-                console.debug('[auth-cognito] redirecting to Hosted UI', { provider, domain, redirectSignIn, clientId });
+                logger.debug('[auth-cognito] redirecting to Hosted UI', { provider, domain, redirectSignIn, clientId });
                 const url = `https://${domain}/oauth2/authorize?identity_provider=${encodeURIComponent(provider)}&redirect_uri=${encodeURIComponent(redirectSignIn)}&response_type=${encodeURIComponent(responseType)}&client_id=${encodeURIComponent(clientId)}`;
                 window.location.href = url;
                 return;
@@ -219,22 +220,22 @@ export async function loginWithProvider(provider: string): Promise<void> {
                             runtimeCfg?.Auth?.Cognito?.userPoolClientId ||
                             clientId;
                         if (domain2) {
-                            console.debug('[auth-cognito] redirecting with runtime config', { provider, domain2, redirect2, clientId2 });
+                            logger.debug('[auth-cognito] redirecting with runtime config', { provider, domain2, redirect2, clientId2 });
                             const url2 = `https://${domain2}/oauth2/authorize?identity_provider=${encodeURIComponent(provider)}&redirect_uri=${encodeURIComponent(redirect2)}&response_type=${encodeURIComponent(responseType2)}&client_id=${encodeURIComponent(clientId2)}`;
                             window.location.href = url2;
                             return;
                         }
                     } else if (res.status === 404) {
-                        console.warn('[auth-cognito] amplify-config.json missing. Run scripts/pull_amplify_config.py before local login.');
+                        logger.warn('[auth-cognito] amplify-config.json missing. Run scripts/pull_amplify_config.py before local login.');
                     }
                 } catch (e) {
-                    console.error('[auth-cognito] runtime fetch failed', e);
+                    logger.error('[auth-cognito] runtime fetch failed', e);
                 }
             } else {
-                console.debug('[auth-cognito] fetch unavailable, skipping runtime config lookup');
+                logger.debug('[auth-cognito] fetch unavailable, skipping runtime config lookup');
             }
             // final fallback: go to generic sign-in doc
-            console.warn('[auth-cognito] falling back to /sign-in');
+            logger.warn('[auth-cognito] falling back to /sign-in');
             if (redirectUri) {
                 window.location.href = `${redirectUri.replace(/\/$/, '')}/sign-in`;
             } else {
@@ -243,7 +244,7 @@ export async function loginWithProvider(provider: string): Promise<void> {
             return;
         }
     } catch (error) {
-        console.error('[loginWithProvider] Error during login:', error);
+        logger.error('[loginWithProvider] Error during login:', error);
         throw error;
     }
     if (modularFailure) {
@@ -259,7 +260,7 @@ export async function isLoggedIn(): Promise<boolean> {
             await initAuth().catch(() => undefined);
             configured = isUserPoolConfigured();
             if (!configured) {
-                console.debug('[auth-cognito] isLoggedIn waiting for user pool configuration');
+                logger.debug('[auth-cognito] isLoggedIn waiting for user pool configuration');
                 return false;
             }
         }
@@ -267,10 +268,10 @@ export async function isLoggedIn(): Promise<boolean> {
         if (authModule && typeof authModule.getCurrentUser === 'function') {
             try {
                 const user = await authModule.getCurrentUser();
-                console.debug('[auth-cognito] isLoggedIn current user (modular)', { user });
+                logger.debug('[auth-cognito] isLoggedIn current user (modular)', { user });
                 return !!user;
             } catch (err) {
-                console.debug('[auth-cognito] isLoggedIn modular getCurrentUser failed', err);
+                logger.debug('[auth-cognito] isLoggedIn modular getCurrentUser failed', err);
             }
         }
 
@@ -278,20 +279,20 @@ export async function isLoggedIn(): Promise<boolean> {
         if (!legacyAuth || typeof legacyAuth.currentAuthenticatedUser !== 'function') {
             const stored = readStoredAuthState();
             if (stored) {
-                console.debug('[auth-cognito] isLoggedIn derived from stored tokens');
+                logger.debug('[auth-cognito] isLoggedIn derived from stored tokens');
                 return true;
             }
-            console.debug('[auth-cognito] isLoggedIn missing Auth.currentAuthenticatedUser');
+            logger.debug('[auth-cognito] isLoggedIn missing Auth.currentAuthenticatedUser');
             return false;
         }
         const user = await legacyAuth.currentAuthenticatedUser();
-        console.debug('[auth-cognito] isLoggedIn current user (legacy)', { user });
+        logger.debug('[auth-cognito] isLoggedIn current user (legacy)', { user });
         return !!user;
     } catch (error) {
-        console.warn('[auth-cognito] isLoggedIn failed', error);
+        logger.warn('[auth-cognito] isLoggedIn failed', error);
         const stored = readStoredAuthState();
         if (stored) {
-            console.debug('[auth-cognito] isLoggedIn recovered via stored tokens after error');
+            logger.debug('[auth-cognito] isLoggedIn recovered via stored tokens after error');
             return true;
         }
         return false;
@@ -309,7 +310,7 @@ export async function signOutUser(): Promise<void> {
         if (!legacyAuth || typeof legacyAuth.signOut !== 'function') return;
         await legacyAuth.signOut();
     } catch (error) {
-        console.error('[signOutUser] Error during logout:', error);
+        logger.error('[signOutUser] Error during logout:', error);
     }
 }
 
@@ -364,7 +365,7 @@ export async function getCurrentUser(): Promise<{ email?: string; name?: string;
                 return fallback;
             }
         }
-        console.debug('[auth-cognito] getCurrentUser falling back failed', err);
+        logger.debug('[auth-cognito] getCurrentUser falling back failed', err);
         return null;
     }
 }
@@ -373,7 +374,7 @@ export async function initAuth(options?: { force?: boolean }): Promise<void> {
     try {
         const AmplifyAny = getAmplifyAny();
         if (!AmplifyAny || typeof AmplifyAny.configure !== 'function') {
-            console.warn('[initAuth] Amplify not available for configuration');
+            logger.warn('[initAuth] Amplify not available for configuration');
             return;
         }
 
@@ -382,10 +383,10 @@ export async function initAuth(options?: { force?: boolean }): Promise<void> {
         const hasExistingAuth = Boolean(existingCfg?.Auth) && Object.keys(existingCfg.Auth || {}).length > 0;
 
         if (windowCfg && windowCfg.Auth) {
-            console.debug('[auth-cognito] configure from window object');
+            logger.debug('[auth-cognito] configure from window object');
             AmplifyAny.configure(windowCfg);
             const finalCfg = AmplifyAny.getConfig ? AmplifyAny.getConfig() : AmplifyAny.resourcesConfig;
-            console.debug('[initAuth] applied window config', {
+            logger.debug('[initAuth] applied window config', {
                 hasAuth: Boolean(finalCfg?.Auth),
                 keys: finalCfg ? Object.keys(finalCfg) : []
             });
@@ -405,31 +406,31 @@ export async function initAuth(options?: { force?: boolean }): Promise<void> {
                 if (typeof window !== 'undefined') {
                     (window as any).__SC_AMPLIFY_CONFIG__ = staticCfg;
                 }
-                console.debug('[auth-cognito] configure from static module');
+                logger.debug('[auth-cognito] configure from static module');
                 AmplifyAny.configure(staticCfg);
                 const finalCfg = AmplifyAny.getConfig ? AmplifyAny.getConfig() : AmplifyAny.resourcesConfig;
-                console.debug('[initAuth] applied static config', {
+                logger.debug('[initAuth] applied static config', {
                     hasAuth: Boolean(finalCfg?.Auth),
                     keys: finalCfg ? Object.keys(finalCfg) : []
                 });
                 return;
             }
-            console.warn('[initAuth] static amplify-config missing Auth block');
+            logger.warn('[initAuth] static amplify-config missing Auth block');
         } catch (staticError) {
-            console.error('[initAuth] unable to load static amplify-config', staticError);
+            logger.error('[initAuth] unable to load static amplify-config', staticError);
         }
 
         if (!hasExistingAuth || options?.force) {
-            console.error('[initAuth] Amplify lacks Auth configuration after initialization attempts');
+            logger.error('[initAuth] Amplify lacks Auth configuration after initialization attempts');
         }
     } catch (error) {
-        console.error('[initAuth] Error during initialization:', error);
+        logger.error('[initAuth] Error during initialization:', error);
     }
 }
 
 if (typeof window !== 'undefined') {
     void initAuth().catch((error) => {
-        console.error('[auth-cognito] auto initAuth failed', error);
+        logger.error('[auth-cognito] auto initAuth failed', error);
     });
 }
 
@@ -511,9 +512,9 @@ export async function notifyAuthChange(forced?: boolean | null): Promise<void> {
         // before dispatching events so listeners reading localStorage will see it.
         if (isAuth) {
             try {
-                console.debug('[auth-debug] notifyAuthChange will persist token snapshot');
+                logger.debug('[auth-debug] notifyAuthChange will persist token snapshot');
                 await persistAuthSnapshotToStorage().catch(() => undefined);
-                console.debug('[auth-debug] notifyAuthChange persisted snapshot (check localStorage)');
+                logger.debug('[auth-debug] notifyAuthChange persisted snapshot (check localStorage)');
             } catch { /* ignore */ }
         }
 
@@ -528,28 +529,28 @@ export async function notifyAuthChange(forced?: boolean | null): Promise<void> {
         if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
             try {
                 const detail = { authenticated: isAuth };
-                console.debug('[auth-debug] dispatching sc-auth-change', { authenticated: isAuth });
+                logger.debug('[auth-debug] dispatching sc-auth-change', { authenticated: isAuth });
                 if (typeof CustomEvent === 'function') {
                     window.dispatchEvent(new CustomEvent('sc-auth-change', { detail }));
-                    console.debug('[auth-debug] sc-auth-change dispatched');
+                    logger.debug('[auth-debug] sc-auth-change dispatched');
                 } else if (typeof document !== 'undefined' && typeof document.createEvent === 'function') {
                     const evt = document.createEvent('CustomEvent');
                     evt.initCustomEvent('sc-auth-change', false, false, detail);
                     window.dispatchEvent(evt);
-                    console.debug('[auth-debug] sc-auth-change dispatched (legacy)');
+                    logger.debug('[auth-debug] sc-auth-change dispatched (legacy)');
                 }
             } catch (eventError) {
-                console.debug('[auth-cognito] notifyAuthChange window event failed', eventError);
+                logger.debug('[auth-cognito] notifyAuthChange window event failed', eventError);
             }
         }
     } catch (err) {
-        console.error('[notifyAuthChange] error', err);
+        logger.error('[notifyAuthChange] error', err);
     }
 }
 
 async function persistAuthSnapshotToStorage(): Promise<void> {
     try {
-        console.debug('[auth-debug] persistAuthSnapshotToStorage start');
+        logger.debug('[auth-debug] persistAuthSnapshotToStorage start');
         if (typeof window === 'undefined') return;
         const cfg = getAmplifyConfig();
         const clientId =
@@ -578,7 +579,7 @@ async function persistAuthSnapshotToStorage(): Promise<void> {
                     window.localStorage.setItem(`${storagePrefix}.LastAuthUser`, username);
                     if (accessToken) window.localStorage.setItem(`${userPrefix}.accessToken`, accessToken);
                     if (idToken) window.localStorage.setItem(`${userPrefix}.idToken`, idToken);
-                    console.debug('[auth-debug] persistAuthSnapshotToStorage stored keys', {
+                    logger.debug('[auth-debug] persistAuthSnapshotToStorage stored keys', {
                         storagePrefix,
                         username,
                         hasAccessToken: Boolean(accessToken),
@@ -605,7 +606,7 @@ async function persistAuthSnapshotToStorage(): Promise<void> {
                     window.localStorage.setItem(`${storagePrefix}.LastAuthUser`, username);
                     if (accessToken) window.localStorage.setItem(`${userPrefix}.accessToken`, accessToken);
                     if (idToken) window.localStorage.setItem(`${userPrefix}.idToken`, idToken);
-                    console.debug('[auth-debug] persistAuthSnapshotToStorage stored keys (legacy)', {
+                    logger.debug('[auth-debug] persistAuthSnapshotToStorage stored keys (legacy)', {
                         storagePrefix,
                         username,
                         hasAccessToken: Boolean(accessToken),
@@ -641,7 +642,7 @@ export async function refreshAuthState(): Promise<boolean> {
                 const modularSession = await authModule.fetchAuthSession();
                 if (modularSession?.tokens?.accessToken) return true;
             } catch (sessionError) {
-                console.debug('[auth-cognito] fetchAuthSession unavailable', sessionError);
+                logger.debug('[auth-cognito] fetchAuthSession unavailable', sessionError);
             }
         }
 
@@ -651,7 +652,7 @@ export async function refreshAuthState(): Promise<boolean> {
                 const activeSession = await legacyAuth.currentSession();
                 if (activeSession) return true;
             } catch (sessionError) {
-                console.debug('[auth-cognito] currentSession unavailable', sessionError);
+                logger.debug('[auth-cognito] currentSession unavailable', sessionError);
             }
         }
 
@@ -682,18 +683,18 @@ export async function refreshAuthState(): Promise<boolean> {
         let redirectUri: string;
         try {
             redirectUri = `${workingUrl.origin}${workingUrl.pathname}`;
-            console.debug('[auth-cognito] refreshAuthState using workingUrl-derived redirectUri', { redirectUri });
+            logger.debug('[auth-cognito] refreshAuthState using workingUrl-derived redirectUri', { redirectUri });
         } catch (e) {
             redirectUri = resolveRedirect(oauth?.redirectSignIn, window.location.origin, '/monitoring');
-            console.debug('[auth-cognito] refreshAuthState fallback redirectUri', { redirectUri });
+            logger.debug('[auth-cognito] refreshAuthState fallback redirectUri', { redirectUri });
         }
 
         if (!domain || !clientId) {
-            console.error('[auth-cognito] refreshAuthState missing domain or clientId');
+            logger.error('[auth-cognito] refreshAuthState missing domain or clientId');
             return false;
         }
         if (typeof fetch !== 'function') {
-            console.error('[auth-cognito] refreshAuthState requires fetch');
+            logger.error('[auth-cognito] refreshAuthState requires fetch');
             return false;
         }
 
@@ -713,13 +714,13 @@ export async function refreshAuthState(): Promise<boolean> {
                     const v = sessionStorage.getItem(k);
                     if (v) {
                         body.set('code_verifier', v);
-                        console.debug('[auth-debug] refreshAuthState using code_verifier from sessionStorage', { key: k });
+                        logger.debug('[auth-debug] refreshAuthState using code_verifier from sessionStorage', { key: k });
                         break;
                     }
                 } catch { /* ignore storage errors */ }
             }
         } catch { /* ignore */ }
-        console.debug('[auth-debug] refreshAuthState tokenExchange', { tokenEndpoint, clientId, redirectUri });
+        logger.debug('[auth-debug] refreshAuthState tokenExchange', { tokenEndpoint, clientId, redirectUri });
 
         let response = await fetch(tokenEndpoint, {
             method: 'POST',
@@ -730,7 +731,7 @@ export async function refreshAuthState(): Promise<boolean> {
         // If the first token exchange failed, try one immediate retry against
         // the same token endpoint (some transient failures are recoverable).
         if (!response.ok) {
-            console.error('[auth-cognito] token exchange failed', response.status, response.statusText);
+            logger.error('[auth-cognito] token exchange failed', response.status, response.statusText);
             try {
                 response = await fetch(tokenEndpoint, {
                     method: 'POST',
@@ -738,7 +739,7 @@ export async function refreshAuthState(): Promise<boolean> {
                     body: body.toString(),
                 });
             } catch (retryErr) {
-                console.debug('[auth-cognito] token exchange retry failed', retryErr);
+                logger.debug('[auth-cognito] token exchange retry failed', retryErr);
             }
         }
 
@@ -776,13 +777,13 @@ export async function refreshAuthState(): Promise<boolean> {
                                     body: body2.toString(),
                                 });
                             } catch (e) {
-                                console.debug('[auth-cognito] runtime token exchange retry failed', e);
+                                logger.debug('[auth-cognito] runtime token exchange retry failed', e);
                             }
                         }
                     }
                 }
             } catch (e) {
-                console.debug('[auth-cognito] runtime token exchange retry failed', e);
+                logger.debug('[auth-cognito] runtime token exchange retry failed', e);
             }
         }
 
@@ -796,7 +797,7 @@ export async function refreshAuthState(): Promise<boolean> {
         const idToken = payload?.id_token;
         const refreshToken = payload?.refresh_token;
 
-        console.debug('[auth-debug] refreshAuthState token exchange succeeded', {
+        logger.debug('[auth-debug] refreshAuthState token exchange succeeded', {
             username: username,
             hasAccessToken: Boolean(accessToken),
             hasIdToken: Boolean(idToken),
@@ -812,7 +813,7 @@ export async function refreshAuthState(): Promise<boolean> {
             if (idToken) localStorage.setItem(`${userPrefix}.idToken`, idToken);
             if (refreshToken) localStorage.setItem(`${userPrefix}.refreshToken`, refreshToken);
         } catch (storageError) {
-            console.error('[auth-cognito] failed to persist tokens', storageError);
+            logger.error('[auth-cognito] failed to persist tokens', storageError);
             return false;
         }
 
@@ -825,26 +826,26 @@ export async function refreshAuthState(): Promise<boolean> {
         try {
             window.history.replaceState({}, document.title, workingUrl.pathname);
         } catch (historyError) {
-            console.debug('[auth-cognito] history cleanup failed', historyError);
+            logger.debug('[auth-cognito] history cleanup failed', historyError);
         }
 
         if (authModule && typeof authModule.fetchAuthSession === 'function') {
             try {
                 await authModule.fetchAuthSession();
             } catch (fetchError) {
-                console.debug('[auth-cognito] fetchAuthSession after hydrate failed', fetchError);
+                logger.debug('[auth-cognito] fetchAuthSession after hydrate failed', fetchError);
             }
         } else if (legacyAuth && typeof legacyAuth.currentSession === 'function') {
             try {
                 await legacyAuth.currentSession();
             } catch (fetchError) {
-                console.debug('[auth-cognito] currentSession after hydrate failed', fetchError);
+                logger.debug('[auth-cognito] currentSession after hydrate failed', fetchError);
             }
         }
 
         return true;
     } catch (error) {
-        console.error('[auth-cognito] refreshAuthState error', error);
+        logger.error('[auth-cognito] refreshAuthState error', error);
         return false;
     }
 }
@@ -898,14 +899,14 @@ export const loginWithHostedUI = async (): Promise<void> => {
         const authModule = getAuthModule();
         if (authModule && typeof authModule.signInWithRedirect === 'function') {
             if (!isUserPoolConfigured()) {
-                console.warn('[auth-cognito] modular Auth missing configuration, using Hosted UI fallback');
+                logger.warn('[auth-cognito] modular Auth missing configuration, using Hosted UI fallback');
             } else {
                 try {
-                    console.debug('[auth-cognito] using modular signInWithRedirect for Hosted UI');
+                    logger.debug('[auth-cognito] using modular signInWithRedirect for Hosted UI');
                     await authModule.signInWithRedirect({ provider: 'COGNITO' } as any);
                     return;
                 } catch (err) {
-                    console.error('[auth-cognito] modular Hosted UI redirect failed, falling back', err);
+                    logger.error('[auth-cognito] modular Hosted UI redirect failed, falling back', err);
                 }
             }
         }
@@ -958,20 +959,20 @@ export const loginWithHostedUI = async (): Promise<void> => {
                             return;
                         }
                     } else if (res.status === 404) {
-                        console.warn('[loginWithHostedUI] amplify-config.json missing. Run scripts/pull_amplify_config.py before local login.');
+                        logger.warn('[loginWithHostedUI] amplify-config.json missing. Run scripts/pull_amplify_config.py before local login.');
                     }
                 } catch (e) {
                     // ignore
                 }
             } else {
-                console.debug('[loginWithHostedUI] fetch unavailable, skipping runtime config lookup');
+                logger.debug('[loginWithHostedUI] fetch unavailable, skipping runtime config lookup');
             }
             // final fallback: go to generic sign-in doc
             window.location.href = `${window.location.origin.replace(/\/$/, '')}/sign-in`;
             return;
         }
     } catch (err) {
-        console.error('[loginWithHostedUI] error', err);
+        logger.error('[loginWithHostedUI] error', err);
         throw err;
     }
 };
@@ -1062,9 +1063,9 @@ export async function debugAuthSnapshot(): Promise<Record<string, unknown>> {
     } catch (error) {
         snapshot.unhandledError = String(error);
     }
-    console.groupCollapsed('[auth-cognito] debug snapshot');
-    console.log(snapshot);
-    console.groupEnd();
+    logger.groupCollapsed('[auth-cognito] debug snapshot');
+    logger.log(snapshot);
+    logger.groupEnd();
     return snapshot;
 }
 
@@ -1090,8 +1091,8 @@ export function clearAuthStorage(): { removedKeys: string[]; clearedCookies: str
             sessionStorage.clear();
         }
     } catch (error) {
-        console.error('[auth-cognito] clearAuthStorage error', error);
+        logger.error('[auth-cognito] clearAuthStorage error', error);
     }
-    console.debug('[auth-cognito] cleared auth storage', { removedKeys, clearedCookies });
+    logger.debug('[auth-cognito] cleared auth storage', { removedKeys, clearedCookies });
     return { removedKeys, clearedCookies };
 }

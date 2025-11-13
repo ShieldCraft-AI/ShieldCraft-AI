@@ -62,7 +62,6 @@ const config: Config = {
     require.resolve('./src/clientModules/loginLinkInterceptor.ts'),
     require.resolve('./src/clientModules/navbarLoginLabel.ts'),
     require.resolve('./src/clientModules/closeNavOnRoute.ts'),
-    require.resolve('./src/clientModules/prefetchDashboard.ts'),
     require.resolve('./src/clientModules/viewportDiagnostics.ts'),
     require.resolve('./src/clientModules/testModule.ts'),
   ],
@@ -87,6 +86,7 @@ const config: Config = {
           to: '/analyst-dashboard',
           label: 'Analyst Dashboard',
           position: 'left',
+          prefetch: false,
         },
         {
           type: 'docSidebar',
@@ -122,6 +122,8 @@ const config: Config = {
     require.resolve('./plugins/suppressWebpackVFileMessageWarnings'),
     // Provide webpack fallbacks via a local plugin that modifies the webpack config.
     require.resolve('./plugins/webpack-polyfills'),
+    // Force production source maps for bundle analysis (local only).
+    require.resolve('./plugins/force-sourcemap'),
     // Inject Open Graph / Twitter meta tags via a lightweight plugin so the
     // tags are present in the generated HTML without using the top-level
     // `metadata` field (which is rejected by the current config validator).
