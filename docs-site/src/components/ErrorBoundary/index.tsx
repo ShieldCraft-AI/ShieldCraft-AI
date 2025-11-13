@@ -15,7 +15,6 @@ export default class ErrorBoundary extends React.Component<React.PropsWithChildr
 
     componentDidCatch(error: any, info: any) {
         // Optional: hook up to telemetry here
-        // console.error('App error boundary caught:', error, info);
     }
 
     render(): React.ReactNode {

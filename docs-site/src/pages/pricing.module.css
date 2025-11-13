@@ -1516,7 +1516,7 @@ html[data-theme=dark] .servicePill:focus-visible {
     background: rgba(244, 249, 255, .86);
     box-shadow: 0 18px 34px rgba(15, 23, 42, .07);
     color: inherit;
-    transition: box-shadow .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
+    transition: box-shadow .22s cubic-bezier(.4, 2, .6, 1), border-color .18s ease, background .18s ease, opacity .18s ease, transform .22s cubic-bezier(.4, 2, .6, 1), filter .18s ease;
     text-decoration: none;
 }
 
@@ -1529,12 +1529,13 @@ html[data-theme=dark] .serviceRow {
     border-color: rgba(59, 130, 246, .28);
     background: linear-gradient(135deg, rgba(59, 130, 246, .14), rgba(16, 185, 129, .1));
     box-shadow: 0 18px 32px rgba(15, 23, 42, .14);
-    z-index: 2
+    z-index: 2;
+    transform: translateY(-3px) scale(1.01);
 }
 
 html[data-theme=dark] .serviceRow[data-hovered=true] {
     border-color: rgba(96, 165, 250, .38);
-    background: linear-gradient(135deg, rgba(37, 99, 235, .25), rgba(16, 185, 129, .16))
+    background: linear-gradient(135deg, rgba(37, 99, 235, .25), rgba(16, 185, 129, .16));
 }
 
 .serviceRowHeader {
@@ -1628,11 +1629,6 @@ html[data-theme=dark] .serviceRowPriceChip {
     margin-top: 2px;
     opacity: .92;
 }
-
-html[data-theme=dark] .serviceRowDescription {
-    opacity: .9;
-}
-
 
 .azCard:hover .infraGroup,
 .azCard:focus-within .infraGroup {
@@ -1934,6 +1930,21 @@ html[data-theme=light] .tier-card {
     transition: background .15s ease, box-shadow .15s ease, transform .12s ease
 }
 
+.tier-card[data-muted=true] {
+    opacity: .58;
+    filter: saturate(.82);
+}
+
+.tier-card[data-muted=true] .svc-row {
+    opacity: .6;
+    filter: grayscale(.1);
+}
+
+.tier-card[data-highlighted=true] {
+    opacity: 1;
+    filter: none;
+}
+
 html[data-theme=dark] .tier-card:focus-within {
     background: rgba(255, 255, 255, .045);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12), 0 12px 30px rgba(0, 0, 0, .12);
@@ -1971,4 +1982,10 @@ html[data-theme=light] .svc-list .svc-row+.svc-row {
 
 .price-chip {
     white-space: nowrap
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .serviceRow {
+        transition: none;
+    }
 }

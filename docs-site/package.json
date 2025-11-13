@@ -15,7 +15,9 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
     "test:e2e": "npm run build && playwright test",
-    "pas:sync": "node -e \"/* noop: copy dist/proton/manifest.json when available */\""
+    "pas:sync": "node -e \"/* noop: copy dist/proton/manifest.json when available */\"",
+    "seo:audit": "node scripts/run_lighthouse_audit.mjs",
+    "images:optimize": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.1",
@@ -28,6 +30,7 @@
     "dayjs": "^1.11.13",
     "dom-to-image-more": "^3.5.0",
     "plotly": "^1.0.6",
+    "plotly.js-basic-dist-min": "^2.35.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -51,8 +54,12 @@
     "@types/topojson-specification": "^1.0.5",
     "assert": "^2.1.0",
     "buffer": "^6.0.3",
+    "chrome-launcher": "^1.2.1",
     "crypto-browserify": "^3.12.1",
+    "icojs": "^0.20.1",
+    "lighthouse": "^12.8.2",
     "process": "^0.11.10",
+    "sharp": "^0.34.5",
     "stream-browserify": "^3.0.0",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",

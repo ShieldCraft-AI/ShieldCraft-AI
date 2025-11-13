@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import logger from '@site/src/utils/logger';
 
 // Mock the auth-cognito module used by UniversalHeader
 jest.mock('@site/src/utils/auth-cognito', () => ({
@@ -44,15 +45,11 @@ describe('UniversalHeader auth behavior', () => {
     // Diagnostic: print react resolution and identity to help track invalid hook causes
     const dumpReactInfo = () => {
         try {
-            // eslint-disable-next-line no-console
-            console.error('[test-diag] react resolved to', require.resolve('react'));
-            // eslint-disable-next-line no-console
-            console.error('[test-diag] react.version', require('react').version);
-            // eslint-disable-next-line no-console
-            console.error('[test-diag] react identity equality self-check', require('react') === require('react'));
+            logger.error('[test-diag] react resolved to', require.resolve('react'));
+            logger.error('[test-diag] react.version', require('react').version);
+            logger.error('[test-diag] react identity equality self-check', require('react') === require('react'));
         } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error('[test-diag] react dump failed', err);
+            logger.error('[test-diag] react dump failed', err);
         }
     };
 

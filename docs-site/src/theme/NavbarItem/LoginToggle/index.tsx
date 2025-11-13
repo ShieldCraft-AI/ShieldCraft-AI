@@ -7,7 +7,6 @@ import {
     getAvailableProviders
 } from '@site/src/utils/auth-cognito';
 import MultiProviderLogin from '@site/src/components/MultiProviderLogin';
-import { preloadPlotly } from '@site/src/utils/plotlyPreload';
 
 export default function LoginToggleNavbarItem() {
     const history = useHistory();
@@ -19,9 +18,6 @@ export default function LoginToggleNavbarItem() {
         const unsubscribe = onAuthChange((isAuth) => {
             setLI(isAuth);
         });
-
-        // Warm the Plotly chunk so Dashboard charts render instantly
-        preloadPlotly();
 
         return () => {
             unsubscribe();
@@ -47,8 +43,6 @@ export default function LoginToggleNavbarItem() {
         setTimeout(() => history.push('/'), 0);
     };
 
-    const onMouseEnter = () => { preloadPlotly(); };
-
     if (loggedIn) {
         return (
             <a
@@ -56,7 +50,6 @@ export default function LoginToggleNavbarItem() {
                 className="navbar__item navbar__link"
                 onClick={handleLogout}
                 aria-label="Logout"
-                onMouseEnter={onMouseEnter}
             >
                 Logout
             </a>
@@ -74,7 +67,6 @@ export default function LoginToggleNavbarItem() {
                     setShowDropdown(!showDropdown);
                 }}
                 aria-label="Login"
-                onMouseEnter={onMouseEnter}
             >
                 Login ▼
             </a>

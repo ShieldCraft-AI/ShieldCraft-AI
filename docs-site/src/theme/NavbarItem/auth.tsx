@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Props } from '@theme/NavbarItem/DefaultNavbarItem';
 import { loginWithHostedUI, signOut, isLoggedIn, getCurrentUser } from '@site/src/utils/auth-cognito';
+import logger from '@site/src/utils/logger';
 
 export default function AuthNavbarItem(_props: Props) {
     const [user, setUser] = React.useState<any>(null);
@@ -30,7 +31,7 @@ export default function AuthNavbarItem(_props: Props) {
                 setUser(null);
             }
         } catch (error) {
-            console.error('Auth check failed:', error);
+            logger.error('Auth check failed:', error);
             setUser(null);
         } finally {
             setLoading(false);
@@ -41,7 +42,7 @@ export default function AuthNavbarItem(_props: Props) {
         try {
             await loginWithHostedUI();
         } catch (error) {
-            console.error('Login failed:', error);
+            logger.error('Login failed:', error);
         }
     };
 
@@ -51,7 +52,7 @@ export default function AuthNavbarItem(_props: Props) {
             setUser(null);
             window.location.href = '/';
         } catch (error) {
-            console.error('Logout failed:', error);
+            logger.error('Logout failed:', error);
         }
     };
 

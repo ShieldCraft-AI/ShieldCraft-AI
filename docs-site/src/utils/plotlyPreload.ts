@@ -1,13 +1,19 @@
-let preloadPromise: Promise<any> | null = null;
+import type { ComponentType } from 'react';
 
-export function preloadPlotly() {
+type PlotlyModule = { default: ComponentType<any> };
+
+let plotlyPromise: Promise<PlotlyModule> | null = null;
+
+export function loadPlotly(): Promise<PlotlyModule> | null {
     if (typeof window === 'undefined') return null;
-    if (!preloadPromise) {
+    if (!plotlyPromise) {
         try {
-            preloadPromise = import('react-plotly.js');
+            plotlyPromise = import(/* webpackChunkName: "plotly-basic" */ './plotlyBasicComponent');
         } catch {
-            // ignore
+            plotlyPromise = Promise.reject(new Error('Failed to load Plotly chunk'));
         }
     }
-    return preloadPromise;
+    return plotlyPromise;
 }
+
+export const preloadPlotly = loadPlotly;

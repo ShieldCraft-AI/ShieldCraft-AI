@@ -1,11 +1,4 @@
-export default function () {
-    if (typeof window === 'undefined') return;
-    // Skip prefetch on the landing page to avoid showing the top progress bar
-    if (location.pathname === '/') return;
-    // Prefetch the chart lib shortly after load for non-landing routes
-    setTimeout(() => {
-        try {
-            import('react-plotly.js');
-        } catch { /* no-op */ }
-    }, 300);
+export default function noopDashboardPrefetch() {
+    // Plotly is now loaded on-demand within the dashboard via IntersectionObserver.
+    // Leaving a stub preserves backward compatibility for cached bundles.
 }

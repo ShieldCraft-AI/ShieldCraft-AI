@@ -6,7 +6,7 @@ import { useColorMode } from '@docusaurus/theme-common';
 import { isLoggedIn, onAuthChange, signOut, getCurrentUser, notifyAuthChange, clearAuthStorage } from '../../utils/auth-cognito';
 import MultiProviderLogin from '../MultiProviderLogin';
 import '../../css/header-login.css';
-import { preloadPlotly } from '../../utils/plotlyPreload';
+import logger from '@site/src/utils/logger';
 
 const MOBILE_BREAKPOINT = '(max-width: 960px)';
 
@@ -16,8 +16,8 @@ const navLinksForState = (authenticated: boolean) => authenticated
         { to: '/monitoring', label: 'Monitor' }
     ]
     : [
-        { to: '/architecture', label: 'Pricing' },
         { to: '/infrastructure', label: 'Infrastructure' },
+        { to: '/architecture', label: 'Pricing' },
         { to: '/plugins', label: 'Plugins' },
         { to: '/intro', label: 'Documentation' }
     ];
@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     }
 
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-        console.error('[ErrorBoundary] Caught an error:', error, errorInfo);
+        logger.error('[ErrorBoundary] Caught an error:', error, errorInfo);
     }
 
     render(): React.ReactNode {
@@ -100,7 +100,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
             setLoggedIn(true);
             return first || null;
         } catch (error) {
-            console.error('[UniversalHeader] deriveFirstNameFromStorage failed', error);
+            logger.error('[UniversalHeader] deriveFirstNameFromStorage failed', error);
             setUserFirstName(null);
             return null;
         }
@@ -123,7 +123,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                     return inferred || null;
                 }
             } catch (err) {
-                console.warn('[UniversalHeader] getCurrentUser failed, falling back to localStorage', err);
+                logger.warn('[UniversalHeader] getCurrentUser failed, falling back to localStorage', err);
             }
 
             try {
@@ -149,7 +149,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                 if (!cancelled) setUserFirstName(first || null);
                 return first || null;
             } catch (error) {
-                console.error('[UniversalHeader] Failed to derive user name:', error);
+                logger.error('[UniversalHeader] Failed to derive user name:', error);
                 if (!cancelled) setUserFirstName(null);
             }
             return null;
@@ -199,8 +199,6 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                 setUserFirstName(null);
             }
         });
-
-        preloadPlotly();
 
         return () => {
             cancelled = true;
@@ -285,7 +283,7 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                 const timestamp = typeof data?.timestamp === 'string' && data.timestamp.trim() ? data.timestamp.trim() : 'unknown';
                 setDeployInfo({ commit, timestamp });
             } catch (err) {
-                console.debug('[UniversalHeader] deploy-info fetch skipped', err);
+                logger.debug('[UniversalHeader] deploy-info fetch skipped', err);
             }
         })();
         return () => {
@@ -393,19 +391,19 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
         try {
             await signOut();
         } catch (err) {
-            console.warn('[UniversalHeader] manual logout failed', err);
+            logger.warn('[UniversalHeader] manual logout failed', err);
         }
         try {
             clearAuthStorage();
         } catch (err) {
-            console.warn('[UniversalHeader] clearAuthStorage failed', err);
+            logger.warn('[UniversalHeader] clearAuthStorage failed', err);
         }
         setLoggedIn(false);
         setUserFirstName(null);
         try {
             await notifyAuthChange(false);
         } catch (err) {
-            console.warn('[UniversalHeader] notifyAuthChange after logout failed', err);
+            logger.warn('[UniversalHeader] notifyAuthChange after logout failed', err);
         }
         setTimeout(() => history.push('/'), 0);
     }, [history, notifyAuthChange]);
@@ -606,7 +604,6 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                                 <div ref={dropdownRef} className="user-dropdown" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: isMobile ? '0.4rem' : '0.7rem' }}>
                                     <button
                                         onClick={handleLoginToggle}
-                                        onMouseEnter={preloadPlotly}
                                         className="sc-nav-pill"
                                         style={{
                                             ...navBaseStyle,

@@ -1,0 +1,97 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "generatedAt": "2025-11-13T09:05:55.024Z",
+  "summary": [
+    {
+      "route": "/",
+      "finalUrl": "http://localhost:3000/",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 95,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/index.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/index.html"
+    },
+    {
+      "route": "/intro",
+      "finalUrl": "http://localhost:3000/intro",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 95,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/intro.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/intro.html"
+    },
+    {
+      "route": "/pricing",
+      "finalUrl": "http://localhost:3000/pricing",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 95,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/pricing.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/pricing.html"
+    },
+    {
+      "route": "/checklist",
+      "finalUrl": "http://localhost:3000/checklist",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 90,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/checklist.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/checklist.html"
+    },
+    {
+      "route": "/aws_stack_architecture",
+      "finalUrl": "http://localhost:3000/aws_stack_architecture",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 96,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/aws_stack_architecture.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/aws_stack_architecture.html"
+    },
+    {
+      "route": "/generative_ai_core",
+      "finalUrl": "http://localhost:3000/generative_ai_core",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 94,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/generative_ai_core.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/generative_ai_core.html"
+    },
+    {
+      "route": "/adrs",
+      "finalUrl": "http://localhost:3000/adrs",
+      "metrics": {
+        "performance": 26,
+        "accessibility": 94,
+        "best-practices": 100,
+        "seo": 100,
+        "pwa": "n/a"
+      },
+      "jsonReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/adrs.json",
+      "htmlReport": "analysis/lighthouse/2025-11-13T09-03-21-051Z/adrs.html"
+    }
+  ]
+}
