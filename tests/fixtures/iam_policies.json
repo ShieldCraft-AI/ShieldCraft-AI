@@ -1,0 +1,70 @@
+{
+    "policies": [
+        {
+            "name": "ShieldcraftAdminPolicy",
+            "document": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "AdminAll",
+                        "Effect": "Allow",
+                        "Action": "*",
+                        "Resource": "*"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ShieldcraftReadOnlyPolicy",
+            "document": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "ReadOnly",
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:GetObject",
+                            "ec2:DescribeInstances",
+                            "logs:GetLogEvents"
+                        ],
+                        "Resource": "*"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "AutomationLimitedPolicy",
+            "document": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "Automation",
+                        "Effect": "Allow",
+                        "Action": [
+                            "lambda:InvokeFunction",
+                            "events:PutRule"
+                        ],
+                        "Resource": "arn:aws:lambda:us-east-1:111111111111:function:ShieldcraftAutomation"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ShieldcraftMonitoringPolicy",
+            "document": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "Monitoring",
+                        "Effect": "Allow",
+                        "Action": [
+                            "cloudwatch:GetMetricData",
+                            "cloudwatch:ListDashboards"
+                        ],
+                        "Resource": "arn:aws:cloudwatch:::dashboard/Shieldcraft"
+                    }
+                ]
+            }
+        }
+    ]
+}

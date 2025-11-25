@@ -1,0 +1,7 @@
+{
+    "pipeline": "evidence_ingest_stub",
+    "mode": "read-only",
+    "status": "idle",
+    "last_success": "2025-11-16T09:00:00Z",
+    "pending_batches": 0
+}

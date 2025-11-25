@@ -1,0 +1,20 @@
+{
+    "environment": "prod",
+    "signals": [
+        {
+            "metric": "embedding_cosine",
+            "baseline_value": 0.98,
+            "current_value": 0.94
+        },
+        {
+            "metric": "response_latency_ms",
+            "baseline_value": 180.0,
+            "current_value": 240.0
+        },
+        {
+            "metric": "guardrail_trigger_rate",
+            "baseline_value": 0.02,
+            "current_value": 0.05
+        }
+    ]
+}

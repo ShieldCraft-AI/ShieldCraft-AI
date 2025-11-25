@@ -1,0 +1,328 @@
+{
+    "scan_date": "2025-11-24",
+    "inputs": [
+        {
+            "path": "ShieldCraft-AI-Context.txt",
+            "summary": "Spec/context snapshot updated 2025-10-17 detailing secrets scanner rollout, Proton scaffolding, OAuth scope, and current architecture claims."
+        },
+        {
+            "path": "checklist.md",
+            "summary": "Architect checklist at repo root reporting 85% completion with Application, GuardSuite, Infra, and AI items still unchecked."
+        },
+        {
+            "path": "docs-site/docs/github/checklist.md",
+            "summary": "Docs-site mirror of the checklist (85% complete; 55 done / 10 remaining with 2 active, 8 deferred)."
+        }
+    ],
+    "checklist_alignment": {
+        "reported_percent_complete": 85,
+        "items_with_status_delta": [
+            {
+                "id": "SC-APP-UI-001",
+                "reported_status": "open",
+                "observed_status": "complete",
+                "evidence": [
+                    {
+                        "path": "docs-site/src/pages/dashboard/index.tsx",
+                        "detail": "Static Analyst Dashboard route referencing deterministic metadata."
+                    },
+                    {
+                        "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
+                        "detail": "Evidence cards for risk, retrieval, and drift snapshots."
+                    },
+                    {
+                        "path": "docs-site/tests/test_dashboard_route.js",
+                        "detail": "Jest test ensuring dashboard sections render."
+                    }
+                ]
+            },
+            {
+                "id": "SC-APP-UI-002",
+                "reported_status": "open",
+                "observed_status": "complete",
+                "evidence": [
+                    {
+                        "path": "docs-site/src/pages/dashboard/evidence.tsx",
+                        "detail": "Route wrapper for the evidence feed placeholder."
+                    },
+                    {
+                        "path": "docs-site/src/components/Dashboard/EvidenceFeed.tsx",
+                        "detail": "Static JSON evidence payloads with priority badges."
+                    },
+                    {
+                        "path": "docs-site/docs/github/analyst_evidence_feed.md",
+                        "detail": "Spec document describing the evidence envelope and sample payloads."
+                    }
+                ]
+            }
+        ]
+    },
+    "sections": [
+        {
+            "name": "Foundation & Planning",
+            "status": "complete",
+            "evidence": [
+                {
+                    "path": "infra/app.py",
+                    "detail": "CDK app composes networking, data, ML, security, compliance, and budget stacks per environment."
+                },
+                {
+                    "path": "infra/utils/config_loader.py",
+                    "detail": "Typed ConfigLoader enforces environment-aware settings and secret indirection."
+                },
+                {
+                    "path": "infra/stacks/cost/budget_service.py",
+                    "detail": "Budget stack implements per-environment cost guardrails."
+                }
+            ]
+        },
+        {
+            "name": "Data Preparation & Retrieval",
+            "status": "complete",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Hot-swappable model loader with stub fallback for cost control."
+                },
+                {
+                    "path": "ai_core/vector_store.py",
+                    "detail": "pgvector-backed retrieval abstraction aligning with spec."
+                },
+                {
+                    "path": "scripts/retrieval_spotcheck.py",
+                    "detail": "Deterministic spot-check harness producing artifacts referenced in docs."
+                }
+            ]
+        },
+        {
+            "name": "AWS Cloud Foundation",
+            "status": "complete_with_deferred_failover",
+            "evidence": [
+                {
+                    "path": "infra/stacks/networking/networking.py",
+                    "detail": "Segmented VPC and networking primitives consumed by domain stacks."
+                },
+                {
+                    "path": "infra/stacks/security/secrets_manager_service.py",
+                    "detail": "Centralized secrets provisioning with deterministic naming."
+                },
+                {
+                    "path": "infra/stacks/cloud_native/cloud_native_hardening_service.py",
+                    "detail": "GuardDuty, Security Hub, Detective, Config activation."
+                }
+            ],
+            "notes": "Multi-region failover rehearsal (SC-INFRA-STACK-002) not implemented anywhere in repo."
+        },
+        {
+            "name": "AI Core Development",
+            "status": "partial",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Loader abstraction with model swap + quantization hooks."
+                },
+                {
+                    "path": "docs-site/docs/github/retrieval_spotcheck.md",
+                    "detail": "Documented benchmark artifacts."
+                }
+            ],
+            "gaps": [
+                "No multi-agent orchestration, prompt governance registry, approval workflow, or automated hallucination/toxicity evaluation loop present."
+            ]
+        },
+        {
+            "name": "Application Layer & Integration",
+            "status": "partial",
+            "evidence": [
+                {
+                    "path": "docs-site/src/pages/dashboard/index.tsx",
+                    "detail": "Analyst dashboard summary route satisfying SC-APP-UI-001."
+                },
+                {
+                    "path": "docs-site/src/pages/dashboard/evidence.tsx",
+                    "detail": "Evidence feed route satisfying SC-APP-UI-002."
+                },
+                {
+                    "path": "docs-site/tests/test_dashboard_route.js",
+                    "detail": "Route-level Jest coverage for dashboard + evidence feed."
+                },
+                {
+                    "path": "api/app.py",
+                    "detail": "Demo FastAPI endpoints (vertical slice) not yet wired to dashboard."
+                }
+            ],
+            "gaps": [
+                "SC-APP-UI-003 (final UX/charts) not implemented.",
+                "No public API surface powering the dashboard; SC-APP-PUBLIC-API-001/002/003 remain open."
+            ]
+        },
+        {
+            "name": "GuardSuite Integration Layer",
+            "status": "partial",
+            "evidence": [
+                {
+                    "path": "docs/Guard Suite.txt",
+                    "detail": "High-level integration narrative."
+                },
+                {
+                    "path": "docs-site/docs/github/artifact_map.md",
+                    "detail": "Artifact crosswalk linking claims to evidence."
+                }
+            ],
+            "gaps": [
+                "GuardSuite CLI contract, model governance integration, and docs parity artifacts absent."
+            ]
+        },
+        {
+            "name": "Security & Governance",
+            "status": "partial",
+            "evidence": [
+                {
+                    "path": "scripts/check-secrets.js",
+                    "detail": "Node-based secrets scanner invoked by commit helper."
+                },
+                {
+                    "path": "scripts/scan-secrets.json",
+                    "detail": "Latest scanner output shipped with repo."
+                },
+                {
+                    "path": "docs-site/docs/github/threat_model_summary.md",
+                    "detail": "Documented risk & mitigation baseline."
+                }
+            ],
+            "gaps": [
+                "No SBOM generation/signing pipeline or automated IAM access review cadence implemented."
+            ]
+        },
+        {
+            "name": "Documentation & Enablement",
+            "status": "complete",
+            "evidence": [
+                {
+                    "path": "docs-site/docs/github/demo_vertical_slice.md",
+                    "detail": "Narrative covering the demo workflow."
+                },
+                {
+                    "path": "docs-site/docs/github/checklist.md",
+                    "detail": "Living checklist with styling + automation note."
+                },
+                {
+                    "path": "docs-site/docs/github/retrieval_spotcheck.md",
+                    "detail": "Published benchmark evidence referenced by UI."
+                }
+            ]
+        }
+    ],
+    "open_items": [
+        {
+            "id": "SC-APP-UI-003",
+            "status": "not_started",
+            "detail": "No high-fidelity UX or chart implementations exist beyond static cards."
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-001",
+            "status": "not_started",
+            "detail": "Dashboard lacks a public API surface; only demo endpoints exist in api/app.py."
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-002",
+            "status": "not_started",
+            "detail": "No authentication model for public dashboard API documented or implemented."
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-003",
+            "status": "not_started",
+            "detail": "Evidence/query pipeline not wired into the dashboard or API layer."
+        },
+        {
+            "id": "SC-GS-DOCS-002",
+            "status": "not_started",
+            "detail": "GuardSuite documentation parity missing beyond high-level notes."
+        },
+        {
+            "id": "SC-GS-CLI-001",
+            "status": "not_started",
+            "detail": "No GuardSuite CLI contract or schema implemented."
+        },
+        {
+            "id": "SC-GS-MODEL-001",
+            "status": "not_started",
+            "detail": "No GuardSuite model governance integration artifacts in repo."
+        },
+        {
+            "id": "SC-INFRA-STACK-002",
+            "status": "deferred",
+            "detail": "Multi-region failover rehearsal scripts/tests absent."
+        },
+        {
+            "id": "SC-INFRA-STACK-003",
+            "status": "not_started",
+            "detail": "No SBOM generation or signing pipeline in scripts or CI."
+        },
+        {
+            "id": "SC-INFRA-STACK-004",
+            "status": "not_started",
+            "detail": "No automated IAM access review cadence implemented."
+        },
+        {
+            "id": "SC-AI-AGENT-001",
+            "status": "not_started",
+            "detail": "No multi-agent orchestration framework present."
+        },
+        {
+            "id": "SC-AI-AGENT-002",
+            "status": "not_started",
+            "detail": "No prompt governance registry artifacts."
+        },
+        {
+            "id": "SC-AI-AGENT-003",
+            "status": "not_started",
+            "detail": "Approval workflow + safety rail logic not implemented."
+        },
+        {
+            "id": "SC-AI-DRIFT-001",
+            "status": "not_started",
+            "detail": "No automated relevance drift monitoring loop beyond manual reports."
+        }
+    ],
+    "risks": [
+        {
+            "id": "RISK-CHECKLIST-DRIFT",
+            "severity": "medium",
+            "detail": "Checklist still flags SC-APP-UI-001/002 as incomplete even though code + tests exist; may cause duplicated instructions."
+        },
+        {
+            "id": "RISK-APPLICATION-GAP",
+            "severity": "high",
+            "detail": "UI finalization and public API work remain unstarted, blocking downstream evidence ingest and GuardSuite integrations."
+        },
+        {
+            "id": "RISK-GUARDSUITE-DEBT",
+            "severity": "medium",
+            "detail": "CLI contract, docs parity, and model governance hooks absent; integration timeline uncertain."
+        },
+        {
+            "id": "RISK-SECURITY-AUTOMATION",
+            "severity": "medium",
+            "detail": "SBOM pipeline and IAM review cadence not implemented, leaving security claims unproven."
+        },
+        {
+            "id": "RISK-AI-GOVERNANCE",
+            "severity": "medium",
+            "detail": "Multi-agent, prompt governance, approval workflow, and drift monitoring workstreams unscheduled."
+        }
+    ],
+    "recommendations": [
+        "Update both checklists to mark SC-APP-UI-001 and SC-APP-UI-002 complete with links to dashboard routes, EvidenceFeed component, docs, and Jest tests.",
+        "Prioritize SC-APP-UI-003 and the SC-APP-PUBLIC-API-* items so that dashboard data pipelines have a real contract.",
+        "Add GuardSuite CLI/model governance stubs (schema + docs) to unblock integration sequencing.",
+        "Introduce deterministic SBOM generation/signing and IAM access review automation (nox session + CI wiring).",
+        "Plan and staff the AI governance tranche (multi-agent orchestration, prompt registry, approval workflow, drift monitoring)."
+    ],
+    "tests_verified": [
+        {
+            "path": "docs-site/tests/test_dashboard_route.js",
+            "description": "Jest test covering dashboard summary and evidence feed rendering."
+        }
+    ]
+}

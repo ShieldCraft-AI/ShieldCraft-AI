@@ -1,0 +1,41 @@
+{
+    "model_id": "shield-embed",
+    "version": "1.0.0",
+    "created_at": "2025-01-15T12:00:00Z",
+    "description": "GuardSuite-tuned embedding model for retrieval-quality scoring.",
+    "params": {
+        "dimension": 1536,
+        "context_length": 4096,
+        "quantization": "int8"
+    },
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "text": {
+                "type": "string"
+            },
+            "metadata": {
+                "type": "object"
+            }
+        },
+        "required": [
+            "text"
+        ]
+    },
+    "output_schema": {
+        "type": "object",
+        "properties": {
+            "embedding": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "minItems": 1536,
+                "maxItems": 1536
+            }
+        },
+        "required": [
+            "embedding"
+        ]
+    }
+}

@@ -1,0 +1,324 @@
+⭐ GuardSuite Platform Landing Page Specification
+
+Version: 2.0
+Route: /guardsuite
+Owner: ShieldCraft / GuardSuite
+Purpose: Convert technical visitors (HN, LinkedIn, GitHub, Product Hunt) into free scanner users and paid Blueprint subscribers by positioning VectorGuard + ComputeGuard as a unified Terraform governance platform.
+
+1. Mission of the Page
+1.1 Primary Purpose
+
+Serve as the single entry point for:
+
+The Hacker News launch
+
+Product Hunt launch
+
+Early-access testers
+
+GitHub traffic
+
+LinkedIn campaign
+
+Gumroad/LemonSqueezy purchase flow
+
+1.2 Strategic Role
+
+Transform GuardSuite from “two products” into a single cohesive platform with two governance pillars:
+
+Security Governance (VectorGuard)
+
+FinOps Governance (ComputeGuard)
+
+2. High-Level Messaging Framework
+2.1 Hero Message (The Promise)
+
+“The Executable Governance Fabric for AI Infrastructure”
+
+Subtext:
+Security and FinOps guardrails for Terraform plans. Deterministic. Offline. High-signal.
+
+2.2 Updated Hero CTAs (Conversion-Optimized)
+
+Primary CTAs:
+
+Start Zero-Trust Audit: Download VectorScan (Free)
+
+Start Cost Drift Audit: Download ComputeScan (Free)
+
+Secondary CTA:
+
+Upgrade Now: View Governance Blueprints ($79 / $129)
+
+2.3 Hero Social Proof (New Requirement)
+
+Directly under CTAs, include small badges:
+
+⭐ VectorScan: X GitHub Stars
+
+⭐ ComputeScan: Y GitHub Stars
+
+⬇️ Total Downloads: Z
+
+Purpose: Instant legitimacy for Hacker News audiences.
+
+3. Platform Messaging: The Two Pillars
+
+Present both pillars clearly:
+
+Pillar A: Security Governance (VectorGuard)
+
+Protects RAG pipelines
+
+Validates vector DB exposure
+
+Prevents embedding leaks
+
+Detects IAM drift
+
+Audit-grade Zero-Trust Score
+
+CISO-ready Compliance Ledger
+Price: $79
+
+Pillar B: FinOps Governance (ComputeGuard)
+
+Detects GPU oversizing
+
+Flags autoscaling drift
+
+Forecasts wasted GPU spend
+
+Generates Zero-Waste Score
+
+CFO-ready cost governance
+Price: $129
+
+4. Page Sections and Layout Requirements
+4.1 Section 1  -  Hero Banner
+
+Elements:
+
+H1
+
+H2
+
+Updated CTAs (free → paid path)
+
+Social Proof badges
+
+Minimal background graphic or icon
+
+4.2 Section 2  -  Why GuardSuite Exists
+
+Two short paragraphs:
+
+RAG security drift → data exfiltration risk
+
+GPU mis-sizing + autoscaling drift → runaway spend
+
+Position these as existential risks for AI infra.
+
+4.3 Section 3  -  Product Pillars (Side-by-Side Cards)
+
+Each card includes:
+
+VectorGuard
+
+Short description
+
+3–5 bullets
+
+Price
+
+CTA: View VectorGuard
+
+CTA: Download VectorScan (Free)
+
+ComputeGuard
+
+Short description
+
+3–5 bullets
+
+Price
+
+CTA: View ComputeGuard
+
+CTA: Download ComputeScan (Free)
+
+4.4 Section 4  -  Unified Compliance Ledger (Security/CISO Anchor)
+
+A full-width screenshot illustrating:
+
+Zero-Trust Score
+
+Control summaries
+
+A unified audit artifact
+
+Messaging:
+“The Security Artifact: Unified Compliance Ledger.
+Readable by humans, trusted by CISOs.”
+
+This sells VectorGuard’s Blueprint tier.
+
+4.5 Section 4.5  -  Zero-Waste Score Section (FinOps/CFO Anchor)  -  NEW
+
+This section provides equal visual weight to ComputeGuard.
+
+Required Elements:
+
+Dedicated block with full-width screenshot of Zero-Waste Score
+
+Emphasis on cost governance parity with security governance
+
+Focus on wasted GPU spend, projected savings, drift analysis
+
+Required Messaging:
+
+“The Financial Artifact: Zero-Waste Score.
+Built for FinOps, trusted by CFOs.”
+
+Required Funnel Benefit:
+
+This section must visually match the Compliance Ledger in size, prominence, and funnel power.
+
+4.6 Section 5  -  Free Tools (VectorScan + ComputeScan)
+
+Each tool card includes:
+
+Brief description
+
+Download link
+
+GitHub link
+
+“Offline. Deterministic. MIT License.”
+
+Important Funnel Clarification:
+
+Explain that each free tool is the starting point and the Blueprints provide the executive-level artifacts.
+
+4.7 Section 6  -  Demo Repository CTA
+
+A central callout:
+
+“See real failing Terraform plans for both security and FinOps.”
+
+Buttons:
+
+View Repository
+
+Run the examples
+
+This is essential for Hacker News conversion.
+
+4.8 Section 7  -  Pricing Blocks
+
+Three tiles:
+
+VectorGuard Blueprint  -  $79/yr
+
+ComputeGuard Blueprint  -  $129/yr
+
+(Optional future) Bundle  -  $179/yr
+
+All CTAs must point to their product pages on the site.
+
+4.9 Section 8  -  Trust & Security Guarantees
+
+Short cards:
+
+Offline execution
+
+No telemetry
+
+Deterministic analysis
+
+MIT License for free tools
+
+OPA/Rego compliance engine
+
+CI/CD friendly
+
+Terraform plan-focused governance
+
+5. Required Assets
+Mandatory visuals:
+
+Compliance Ledger screenshot
+
+Zero-Waste Score screenshot
+
+VectorGuard tile
+
+ComputeGuard tile
+
+Free scanner icons
+
+Demo repo logo or simplified GitHub visual
+
+Required copy:
+
+CTA copy updated to the “Start Audit” pattern
+
+Unified governance messaging
+
+Security + FinOps final funnel
+
+6. Performance Requirements
+
+Page must load in under 400 ms
+
+All images <150 KB
+
+No heavy JS
+
+Minimal animations
+
+Inline CSS preferred
+
+No external analytics for launch
+
+This is critical for Hacker News traffic.
+
+7. SEO Requirements
+
+Primary keywords:
+
+Terraform governance
+
+Terraform plan scanner
+
+RAG security
+
+GPU cost optimization
+
+FinOps automation
+
+Infrastructure governance
+
+Secondary keywords:
+
+Vector database security
+
+GPU drift
+
+Compliance ledger
+
+SEO should be subtle  -  no keyword stuffing.
+
+8. Launch Behavior Requirements
+
+When traffic hits this page from HN/Product Hunt:
+
+The free scanner CTAs must be immediately visible
+
+The hero must clearly signal “Security + FinOps platform”
+
+The two large visual anchors (Ledger + Zero-Waste Score) must appear before major scroll drop-off
+
+Upgrade CTA must be visible above the fold
+
+Links must not break under load

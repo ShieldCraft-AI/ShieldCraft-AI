@@ -1,0 +1,42 @@
+{
+    "page": 1,
+    "total": 3,
+    "items": [
+        {
+            "id": "evt-001",
+            "title": "Vectorguard drift snapshot",
+            "source": "docs/github/drift_reports/README.md",
+            "collected_at": "2025-11-16T10:00:00Z",
+            "severity": "medium",
+            "tags": [
+                "drift",
+                "vectorguard"
+            ],
+            "link": "https://github.com/shieldcraft-ai/drift_reports"
+        },
+        {
+            "id": "evt-002",
+            "title": "Ticket enrichment cache warning",
+            "source": "docs/github/retrieval_spotcheck.md",
+            "collected_at": "2025-11-15T08:30:00Z",
+            "severity": "high",
+            "tags": [
+                "retrieval",
+                "cache"
+            ],
+            "link": "https://github.com/shieldcraft-ai/retrieval_spotcheck"
+        },
+        {
+            "id": "evt-003",
+            "title": "Identity review transcript",
+            "source": "docs/github/risk_log.md",
+            "collected_at": "2025-11-14T09:15:00Z",
+            "severity": "info",
+            "tags": [
+                "identity",
+                "audit"
+            ],
+            "link": "https://github.com/shieldcraft-ai/risk_log"
+        }
+    ]
+}

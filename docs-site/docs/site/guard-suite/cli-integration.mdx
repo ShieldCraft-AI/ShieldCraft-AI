@@ -1,0 +1,36 @@
+---
+id: cli-integration
+title: CLI Guardrail Layer
+description: Wire VectorScan, ComputeProbe, and ModelCheck CLIs into CI/CD and Terraform workflows.
+---
+
+GuardSuite CLIs run locally or in CI and never transmit sensitive IaC or data. Use them to enforce guardrails before a change merges and to seed the GuardSuite upsell funnel.
+
+## CI snippet
+
+```yaml
+steps:
+  - name: VectorScan tfplan
+    run: |
+      pip install vectorscan
+      terraform show -json tfplan > tfplan.json
+      vectorscan tfplan.json --format json --out findings.json
+```
+
+## Promotion hook
+
+Pipe the JSON output into VectorGuard or ComputeGuard to auto-create remediation stories.
+
+```bash
+cat findings.json | vectorguard promote --auto
+```
+
+## CLI lineup
+
+| CLI | Purpose | Upsell |
+| --- | --- | --- |
+| `vectorscan` | Terraform drift + tagging detector | VectorGuard ($79/$449) |
+| `computeprobe` | GPU & inference spend watchdog | ComputeGuard ($129/$599) |
+| `modelcheck` | Bias/safety regression kit | ModelGuard ($199/$799) |
+
+Pair each CLI with UTM-tagged launch links so you can attribute conversions from Hacker News, LinkedIn, or marketplaces back to the right surface.

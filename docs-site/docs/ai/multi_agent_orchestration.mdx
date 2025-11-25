@@ -1,0 +1,38 @@
+---
+title: Multi-Agent Orchestration Core
+description: Deterministic AI agent pipeline for GuardSuite approvals.
+slug: /ai/multi-agent-orchestration
+---
+
+ShieldCraft orchestrates multiple deterministic agents to simulate the GuardSuite approval flow without calling external models. The orchestrator executes locally defined handlers, each consuming the shared incident plan and prior outputs.
+
+## Agents
+
+1. **threat_intel** — Normalizes severity, deduplicates signal sources, and highlights watchlist matches.
+2. **remediation_planner** — Builds step-by-step actions for SecOps and Platform teams using the intel rollup.
+3. **risk_reviewer** — Scores readiness/residual risk and lists approvers before deployment.
+
+Each handler runs as pure Python logic with no randomness, ensuring consistent snapshots in CI.
+
+## Inputs & Outputs
+
+- Inputs: JSON plan files such as `tests/fixtures/ai/sample_plan.json` containing severity, affected assets, and signal metadata.
+- Outputs: `MultiAgentOrchestrator.run(plan)` returns ordered agent trace plus the final recommendation consumed by approval workflows.
+
+## Determinism Guarantees
+
+- Agents execute in a fixed topological order with guarded dependency validation.
+- Severity scores map to fixed integers, and remediation steps are sorted by asset order.
+- Re-running the orchestrator on the same plan yields identical JSON, enabling snapshot tests or GitHub Actions gating.
+
+## Usage
+
+```python
+from ai_core.multi_agent import MultiAgentOrchestrator
+
+plan = {...}  # load deterministic plan fixture
+result = MultiAgentOrchestrator().run(plan)
+print(result["final_recommendation"])
+```
+
+Use the orchestrator output to feed downstream approval or reporting systems while keeping the AI governance story auditable.

@@ -1,0 +1,102 @@
+{
+    "metadata": {
+        "atu_id": "ATU-1",
+        "spec_version": "1.0.0",
+        "last_synced": "2025-11-18T00:00:00Z"
+    },
+    "sections": [
+        {
+            "section_id": "risk-baseline",
+            "title": "Risk Baseline",
+            "description": "Snapshot derived from docs/github/risk_log.md and mitigations.",
+            "items": [
+                {
+                    "id": "identity-access",
+                    "label": "Identity & Access",
+                    "headline": "Guard rails steady @ 0.91 posture score",
+                    "status": "steady",
+                    "last_reviewed": "2025-11-15",
+                    "evidence_source": "docs/github/risk_log.md#identity-access-controls"
+                },
+                {
+                    "id": "supply-chain",
+                    "label": "Supply Chain",
+                    "headline": "Pinned SBOM shows two pending acknowledgements",
+                    "status": "watch",
+                    "last_reviewed": "2025-11-12",
+                    "evidence_source": "docs/github/risk_log.md#software-supply-chain"
+                },
+                {
+                    "id": "ml-guardrails",
+                    "label": "ML Guardrails",
+                    "headline": "Retrieval defenses require additional evals",
+                    "status": "investigate",
+                    "last_reviewed": "2025-11-10",
+                    "evidence_source": "docs/github/risks_mitigation.md#retrieval-guardrails"
+                }
+            ]
+        },
+        {
+            "section_id": "retrieval-spotchecks",
+            "title": "Retrieval Spot-Checks",
+            "description": "Static pull from docs/github/retrieval_spotcheck.md covering guardrails.",
+            "items": [
+                {
+                    "id": "rsc-147",
+                    "label": "RSC-147 (Vector recall)",
+                    "headline": "92% of sampled answers pulled correct context blocks",
+                    "status": "steady",
+                    "last_reviewed": "2025-11-14",
+                    "evidence_source": "docs/github/retrieval_spotcheck.md#vectorscan-synopsis"
+                },
+                {
+                    "id": "rsc-148",
+                    "label": "RSC-148 (Ticket enrichment)",
+                    "headline": "Edge prompts degrade because stale incidents remain in cache",
+                    "status": "watch",
+                    "last_reviewed": "2025-11-14",
+                    "evidence_source": "docs/github/retrieval_spotcheck.md#ticket-enrichment"
+                },
+                {
+                    "id": "rsc-149",
+                    "label": "RSC-149 (SOC macro answers)",
+                    "headline": "Requires new hallucination probes before ATU-2",
+                    "status": "investigate",
+                    "last_reviewed": "2025-11-13",
+                    "evidence_source": "docs/github/retrieval_spotcheck.md#soc-responses"
+                }
+            ]
+        },
+        {
+            "section_id": "drift-summaries",
+            "title": "Signal Drift Summaries",
+            "description": "Latest drift summaries aligned with docs/github/drift_reports/ guidance.",
+            "items": [
+                {
+                    "id": "drift-prod-a",
+                    "label": "Prod · Control Plane",
+                    "headline": "Latest drift report only shows log retention delta",
+                    "status": "steady",
+                    "last_reviewed": "2025-11-16",
+                    "evidence_source": "docs/github/drift_reports/README.md#components"
+                },
+                {
+                    "id": "drift-staging-a",
+                    "label": "Staging · Data Plane",
+                    "headline": "Watch S3 bucket policy exception (approved)",
+                    "status": "watch",
+                    "last_reviewed": "2025-11-16",
+                    "evidence_source": "docs/github/drift_reports/README.md#guardrails"
+                },
+                {
+                    "id": "drift-dev-a",
+                    "label": "Dev · Sandbox",
+                    "headline": "Investigate telemetry gap for vectorguard stack",
+                    "status": "investigate",
+                    "last_reviewed": "2025-11-15",
+                    "evidence_source": "docs/github/drift_reports/README.md#ci-coverage"
+                }
+            ]
+        }
+    ]
+}

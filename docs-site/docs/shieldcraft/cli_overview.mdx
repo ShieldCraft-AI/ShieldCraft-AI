@@ -1,0 +1,22 @@
+---
+title: ShieldCraft CLI Overview
+description: Entry point for deterministic platform automation commands.
+slug: /shieldcraft/cli-overview
+---
+
+The ShieldCraft CLI provides a stable, zero-network surface for local workflows. The initial milestone introduces a single command plus standard global flags so downstream teams can begin wiring automation without waiting for evaluator or registry integrations.
+
+## Commands
+
+| Command | Description | Output |
+| --- | --- | --- |
+| `shieldcraft --version` | Prints the deterministic CLI version (sourced from `CLI_VERSION`). | Plain text `0.1.0` |
+| `shieldcraft --help` | Displays the usage banner for all commands. | Plain text |
+| `shieldcraft info` | Emits platform metadata (name, version, docs URL, description). | Human-readable text |
+| `shieldcraft info --json` | Same metadata as JSON with stable key ordering for scripting. | JSON |
+
+## Design Notes
+
+- The CLI uses a tiny command map inside `src/cli/main.py` so new commands can be registered without introducing external dependencies.
+- JSON mode always sorts keys to keep snapshot diffs deterministic.
+- The CLI intentionally omits GuardSuite evaluator references; it focuses on ShieldCraft platform metadata until future milestones expand the command surface.

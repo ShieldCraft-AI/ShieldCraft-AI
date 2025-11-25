@@ -1,0 +1,532 @@
+# GuardSuite Integration Plan for ShieldCraft AI Website
+
+This document outlines a comprehensive strategy for integrating and promoting VectorScan, VectorGuard, and the full GuardSuite ecosystem across the ShieldCraft AI website. It includes architectural placement, UI/UX considerations, SEO strategy, page structure, modal/banner usage, internal routing, and a launch pathway aligned with Hacker News and marketplace releases. This document is intended for use by GitHub Copilot within VS Code to guide implementation.
+
+---
+
+## 1. Objectives
+
+1. Surface VectorScan and VectorGuard prominently without disrupting the enterprise aesthetic of ShieldCraft AI.
+2. Provide dedicated, SEO-friendly product pages.
+3. Maximize discoverability through modals, banners, internal links, and documentation.
+4. Maintain a polished, enterprise-aligned presentation suitable for technical leads and security teams.
+5. Support HN and marketplace campaigns with dedicated landing pages and tracking.
+6. Ensure consistency with existing ShieldCraft AI brand and static-site architecture.
+
+---
+
+## 2. Current State Summary (ShieldCraft AI)
+
+* The site presents as a high-end enterprise product focused on Security, Observability, AI Governance, AWS-native Guardrails, and Automation.
+* Navigation includes: Home, Platform, Pricing, Documentation, Infrastructure, etc.
+* Tone is enterprise-first and technically authoritative.
+* Content is static, meaning lightweight components (modals, banners, routes) are ideal.
+
+---
+
+## 3. Recommended Additions (High-Level Overview)
+
+### ✔ Create Dedicated Product Pages
+
+* `/products/vectorscan`
+* `/products/vectorguard`
+* `/products/guard-suite` (optional consolidation)
+
+### ✔ Add a Non-Intrusive Banner
+
+E.g.: "New: VectorScan – Free Terraform plan scanner. Try it now →"
+
+### ✔ Add a First-Visit Modal (Non-Logged-In Users)
+
+Delayed ~7–10s.
+Shown once via cookie.
+Only on marketing pages - not docs.
+
+### ✔ Integrate Into Documentation
+
+A new "GuardSuite" section with pages covering:
+
+* VectorScan Overview
+* VectorGuard Overview
+* Policy Packs
+* CLI Usage
+* Installation
+
+### ✔ Add a Launch Landing Page
+
+* `/launch/vectorscan`
+* Used for HN, social posts, marketplaces
+* Includes trimmed copy designed for fast consumption
+
+### ✔ Add Internal Links Throughout the Site
+
+Placement:
+
+* Home hero section
+* Mid-page callout
+* Platform > Governance
+* Footer quick links
+
+---
+
+## 4. New Routes and Their Purpose
+
+### `/products/vectorscan`
+
+**Purpose:** Funnel for free users, HN visitors, and GitHub traffic.
+**Contains:**
+
+* Overview
+* Features
+* CLI usage
+* Screenshots
+* Download links
+* Comparison with VectorGuard
+* Link to `/launch/vectorscan`
+
+### `/products/vectorguard`
+
+**Purpose:** Paid offering targeted to enterprise. Reinforces upgrade path.
+**Contains:**
+
+* Policy overview (without revealing paid logic)
+* Screenshots/full audit view
+* Pricing modes
+* "Try VectorScan first" CTA
+
+### `/launch/vectorscan`
+
+**Purpose:** Campaign landing.
+**Contains:**
+
+* TL;DR
+* Show HN copy (trimmed)
+* Installation
+* Screenshots
+* Benchmark data
+* Trackable links
+
+### Optional: `/solutions/guard-suite`
+
+**Purpose:** Multi-product suite overview.
+
+---
+
+## 5. Banner Specification
+
+**Placement:** Top of site, sticky but subtle.
+**Copy Example:**
+"New: VectorScan  -  A free zero‑setup Terraform plan scanner. Scan your tfplan.json in one command. →"
+
+**Dismissibility:** Yes (persist via cookie).
+
+**Mobile Behavior:** Collapse into a single-line strip.
+
+---
+
+## 6. Modal Specification
+
+**Trigger:** 7–10 seconds after arrival.
+**Condition:** First visit or cookie-expired.
+**Pages Shown:** Home, Platform, Pricing (NOT docs or deep product pages).
+
+**Modal Content Example:**
+
+* Title: "Try VectorScan Free"
+* Subtitle: "Scan your Terraform plan in one command. No config, no accounts."
+* Buttons: "Learn More" → `/products/vectorscan` + "Close"
+
+**Tone:** Polite and minimal (enterprise-safe).
+
+---
+
+## 7. Documentation Integrations
+
+Add a new section: **GuardSuite Tools**.
+
+Within it:
+
+* VectorScan overview (mirroring GitHub README)
+* VectorGuard overview (conceptual only - no paid logic)
+* CLI usage
+* Policy philosophy
+* Becoming enterprise-ready (for upgrades)
+
+**Cross-link:** Docs → Product pages → Launch page.
+
+---
+
+## 8. SEO Strategy
+
+### Keywords to target:
+
+* "terraform plan scanner"
+* "terraform security scan"
+* "terraform encryption drift"
+* "terraform tagging enforcement"
+* "terraform drift detection"
+* "terraform policy engine"
+
+### SEO Actions:
+
+* Add meta-description to product pages
+* Ensure `h1` matches intent (e.g., "VectorScan – Terraform Plan Scanner")
+* Internal linking from home + docs
+* `shieldcraft-ai.com/products/vectorscan` must be indexable
+
+---
+
+## 9. Integration into Existing Pages
+
+### Home Page (Recommended placements):
+
+* Add mid-section: "Introducing VectorScan – Your First Guardrail"
+* Include screenshot and CTA
+* Link to `/products/vectorscan`
+
+### Infrastructure Page:
+
+* Integrate “GuardRail Enforcement Layer” graphic showing how VectorScan fits into Terraform → AWS path.
+
+### Pricing Page:
+
+* Add comparison table: VectorScan vs VectorGuard vs Full GuardSuite
+
+### Platform Page:
+
+* Add "CLI Guardrail Layer" subsection
+
+---
+
+## 10. Launch-Ready Pathway (HN + Site)
+
+1. Post Show HN.
+2. HN traffic goes to GitHub or `/launch/vectorscan`.
+3. `/launch/vectorscan` funnells to `/products/vectorscan`.
+4. `/products/vectorscan` includes subtle upsell reference to VectorGuard.
+5. Modal & banner capture other site traffic.
+
+---
+
+## 11. Asset Requirements
+
+* VectorScan hero image
+* VectorGuard premium image
+* Suite-wide branding theme
+* Screenshots (CLI output, diff mode, explain mode)
+* CTA buttons
+
+---
+
+## 12. Implementation Checklist
+
+### Pages & Routes
+
+* [ ] Create `/products/vectorscan`
+* [ ] Create `/products/vectorguard`
+* [ ] Create `/launch/vectorscan`
+* [ ] Add "Products" or "Tools" to header navigation
+
+### UI Elements
+
+* [ ] Implement top-site banner
+* [ ] Implement modal (time-delayed + cookie based)
+
+### Documentation
+
+* [ ] Add GuardSuite section in docs
+* [ ] Add deep links to product pages
+
+### Home Page
+
+* [ ] Add VectorScan callout section
+* [ ] Add cross-links in relevant areas
+
+### SEO
+
+* [ ] Add meta descriptions
+* [ ] Ensure canonical URLs
+* [ ] Add alt tags for images
+
+### Analytics & Tracking
+
+* [ ] Add UTM links for HN launch
+* [ ] Track `/launch/vectorscan`
+
+### QA
+
+* [ ] Mobile responsiveness
+* [ ] Modal behavior
+* [ ] Banner visibility + cookie logic
+* [ ] Broken link check
+
+---
+
+## 13. Summary
+
+This strategy surfaces VectorScan and VectorGuard across the ShieldCraft AI site with the right balance of visibility, professionalism, and product-led storytelling. The combination of dedicated product pages, gentle promotion via banners/modals, and strong internal linking ensures the GuardSuite ecosystem is front-and-center without disrupting enterprise-first credibility.
+
+This document is intended for direct use in VS Code with GitHub Copilot.
+
+
+
+Additions
+
+I. Purpose
+
+This document defines how ShieldCraft AI should promote VectorScan, VectorGuard, and the full Guard Suite on shieldcraft-ai.com through modals, routes, placement strategy, pricing tiers, and a conversion-optimized funnel.
+
+It is written for Copilot + implementation, so everything is explicit, structured, and production-ready.
+
+II. Guard Suite Pricing (Exact Values)
+
+(pulled from Guard suite.txt)
+
+✅ VectorGuard
+
+Free Lead Magnet: VectorScan CLI
+
+Lite SKU: $79 Zero-Trust Blueprint
+
+Enterprise SKU: $449 Implementation Kit + Scorecard
+
+✅ ComputeGuard
+
+Free Lead Magnet: ComputeProbe CLI
+
+Lite SKU: $129 Orchestrator Blueprint
+
+Enterprise SKU: $599 Chargeback SDK
+
+✅ ModelGuard
+
+Free Lead Magnet: ModelCheck CLI
+
+Lite SKU: $199 Governance Blueprint
+
+Enterprise SKU: $799 Validation Kit + Ledger
+
+✅ Bundle (Week 3 Promotion)
+
+Full Suite Pack: $1,499 (25% discount)
+
+⚡ Pre-flight Upsell (Immediate post-purchase)
+
+$19 Pre-flight Check
+(AOV booster on thank-you page)
+
+🧩 Affiliate Commission Strategy
+
+20% lifetime for affiliates
+
+70% boosted on Gumroad during launch to exploit algorithm discovery
+
+These numbers are now embedded everywhere in this spec where pricing matters.
+
+III. Where VectorScan / VectorGuard Should Appear on the Site
+
+Your site’s structure is already clean, static, AWS-themed, and professional.
+The goal is to elevate it into a conversion engine without appearing salesy.
+
+We’ll use non-disruptive, high-authority placements:
+
+A. The Dedicated Route: /guard-suite (Primary Landing Page)
+
+This page becomes the home for:
+
+1️⃣ Hero Banner
+
+“The Guard Suite  -  Executable Governance for AI, Cloud, and MLOps”
+
+CTA buttons:
+
+Download VectorScan (Free)
+
+Get VectorGuard ($79–$449)
+
+See Full Suite ($79–$1,499)
+
+2️⃣ Product Cards (matching Guard suite.txt)
+
+Each card shows:
+
+VectorGuard
+
+Protect your data layer
+
+Free CLI + $79 Lite Blueprint + $449 Enterprise Kit
+
+ComputeGuard
+
+Stop GPU waste + runaway inference costs
+
+Free CLI + $129 Lite Blueprint + $599 Enterprise SDK
+
+ModelGuard
+
+Ensure prediction integrity + AI Act compliance
+
+Free CLI + $199 Lite Blueprint + $799 Enterprise Kit
+
+3️⃣ Full Suite Pricing Block
+
+Add the bundle:
+
+Full Guard Suite Pack  -  $1,499
+(25% off when purchased together)
+
+4️⃣ Executability Section
+
+Explain the philosophy:
+
+Governance shouldn't live in documents.
+It must exist as executable code  -  Rego, IaC, SDKs, Ledgers.
+
+This matches your Guard Suite positioning exactly.
+
+5️⃣ Deep Link to Docs
+
+vectorscan
+
+vectorguard
+
+computeguard
+
+modelguard
+
+6️⃣ Conversion CTA
+
+Buttons:
+
+Download VectorScan (free)
+
+Buy VectorGuard Lite ($79)
+
+Buy VectorGuard Enterprise ($449)
+
+B. Modal Trigger (Non-intrusive)
+
+Appears only for non-logged-in visitors
+Triggers after 7 seconds on any Guard Suite related page.
+Text:
+
+New: The Guard Suite
+Free CLI + executable blueprints that enforce Security, FinOps, and Model Governance.
+VectorScan is free. VectorGuard starts at $79.
+
+Buttons:
+
+Download VectorScan (free)
+
+Explore the Guard Suite
+
+This modal drives conversions without hurting UX.
+
+C. Homepage Integration
+
+Subtle, not salesy.
+
+Add this block under the hero:
+New from ShieldCraft  -  The Guard Suite
+
+Three cards, auto-resized:
+
+VectorScan (Free) – drift + encryption detections
+
+VectorGuard ($79–$449) – Zero-Trust security
+
+ComputeGuard ($129–$599) – GPU Waste Governance
+
+ModelGuard ($199–$799) – Prediction Integrity + AI Act Mapping
+
+Below it:
+
+Full Suite  -  $1,499 (25% off)
+
+This introduces the suite without overwhelming the main site.
+
+IV. Funnel & User Flow (Real Pricing Integrated)
+
+User behavior + revenue flow:
+
+1. User downloads VectorScan (free)
+
+Immediate value
+
+They see preview of VectorGuard
+
+2. Modal Suggestion → Guard Suite
+
+Introduce $79 Lite SKU
+
+Or $449 Enterprise SKU
+
+3. Thank-You Page Upsell
+
+After purchase show:
+
+Add Pre-flight Check for $19 (recommended)
+This alone adds ~15–20% AOV.
+
+4. Post-Purchase Automation
+
+If user buys VectorGuard Lite:
+
+After 48h → offer VectorGuard Enterprise for $449 (minus what they paid)
+
+After 7 days → offer Full Suite Pack ($1,499)
+
+V. Promotion Strategy (Pricing Applied)
+A. LinkedIn (Authority Signalling)
+
+Day 0: VectorGuard launch  -  emphasize $4.45M breach risk
+
+Day +2: policy deep dive (sell $79 Lite SKU)
+
+Day +7: Executive post → sell $449 Enterprise SKU
+
+Week 3: announce full bundle ($1,499)
+
+B. Reddit + HN + Dev.to
+
+All call to action:
+
+Download VectorScan (free)
+VectorGuard Lite starts at $79
+
+C. Gumroad + LemonSqueezy
+
+Prices match exactly:
+
+$79 / $129 / $199 Lite SKUs
+
+$449 / $599 / $799 Enterprise SKUs
+
+$1,499 bundle
+
+VI. Implementation Notes
+Routing
+
+Create route:
+
+/guard-suite
+
+Modal Conditions
+
+show once per day
+
+only when not logged in
+
+delay: 7 seconds
+
+CTA → /guard-suite
+
+Copy Style
+
+human first
+
+short sentences
+
+avoids corporate jargon
+
+emphasizes executable, not conceptual

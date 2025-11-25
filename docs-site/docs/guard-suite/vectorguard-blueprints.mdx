@@ -1,0 +1,44 @@
+---
+title: VectorGuard Blueprints
+description: Zero-Trust blueprint catalog that converts VectorScan findings into automated guardrails.
+slug: /guard-suite/vectorguard-blueprints
+---
+
+## Overview
+
+VectorGuard converts VectorScan findings into executable Zero-Trust blueprints without exposing the proprietary Rego or IAM modules that power them. The GuardSuite Master Spec requires two catalog SKUs plus a shared promotion flow that produces GuardScore/GuardBoard evidence. Use this page whenever you need to explain what the paid upgrade unlocks or how procurement should evaluate a policy pack.
+
+## Blueprint Catalog
+
+| Blueprint | Price | `blueprintId` | Coverage | Outputs |
+| --- | --- | --- | --- | --- |
+| Zero-Trust Lite | $79 | `GV-LITE-001` | Encryption defaults, tagging parity, IAM least-privilege checks for AWS & Terraform Cloud. | Markdown + JSON ledgers, FixPack references, GuardScore delta summary. |
+| Enterprise Kit | $449 | `GV-ENT-010` | Everything from Lite plus drift remediation modules, GuardBoard ingest packs, auto-rollbacks, and SLA-backed GuardScore metrics. | GuardBoard bundle (`guardboard.json`), signed ledger, remediation runbooks. |
+| GuardBoard Accelerator (bundle tie-in) | Included in $1,499 Full Suite Pack | `GV-BUNDLE-025` | Connects GuardBoard, GuardScore, and bundle automation (ComputeGuard, ModelGuard). | Combined GuardBoard + GuardScore artifacts for exec reporting. |
+
+All blueprints share:
+
+- `supportedClouds`: `aws`, `aws_gov`, and Terraform Cloud pipelines.
+- FixPack mapping so remediation hints like `fixpack:PILLAR-XXX-000` remain consistent across the platform.
+- Channel metadata (`gumroad`, `github_marketplace`, `direct`) so finance can reconcile SKUs.
+
+## Promotion Flow
+
+```bash
+cat artifacts/vectorscan.json \
+	| vectorguard promote --blueprint zero-trust-lite \
+	--channel gumroad --export guardboard.json
+```
+
+1. VectorScan writes `findingId`, `policy`, and `upgradeHint` fields.
+2. `vectorguard promote` resolves the hint, validates licensing, and attaches required Terraform/IAM modules.
+3. The command emits GuardScore deltas and GuardBoard bundles without re-scanning the plan, satisfying the "no re-upload" promise.
+4. Optional `--apply` triggers drift remediation using the same FixPack metadata referenced by the Pillar evaluator.
+
+## Evidence & Reporting
+
+- **Lite SKU:** produces Markdown + JSON ledgers with `planHash`, `commitSha`, `severityTotals`, and `badgeEligibility` so compliance teams can file proof-of-control.
+- **Enterprise SKU:** adds GuardBoard ingest bundles, signed GuardScore metrics, and auto-generated rollback scripts.
+- **Bundle consumers:** combine GuardBoard output with ComputeGuard/ModelGuard metrics to show a unified GuardSuite posture.
+
+When referencing pricing pages or sales collateral, link back to this doc so buyers know exactly what "Lite" vs "Enterprise" means without surfacing proprietary policy code.

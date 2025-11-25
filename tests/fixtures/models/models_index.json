@@ -1,0 +1,12 @@
+{
+    "models": [
+        {
+            "model_id": "shield-embed",
+            "file": "model_shield-embed.json"
+        },
+        {
+            "model_id": "shield-rerank",
+            "file": "model_shield-rerank.json"
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+---
+id: vectorscan-overview
+title: VectorScan Overview
+description: Install, configure, and run the free Terraform plan scanner that powers GuardSuite funnels.
+---
+
+VectorScan ships as a zero-setup CLI. It runs locally, reads `tfplan.json`, and emits findings that map directly to VectorGuard policy packs. Use it as your free lead magnet before promoting guardrails to paid SKUs.
+
+## Install
+
+```bash
+pip install vectorscan
+```
+
+## Run
+
+```bash
+vectorscan ./plan/tfplan.json --format sarif --out findings.sarif
+```
+
+### Flags you will use daily
+
+- `--format json|sarif|markdown` – choose the artifact for CI, GitHub code scanning, or executive recaps.
+- `--explain` – add remediation notes and blast-radius estimates inline.
+- `--promote` – send findings straight into GuardSuite APIs once credentials are configured.
+
+## Output formats
+
+- JSON (machine-to-machine)
+- SARIF (GitHub code scanning)
+- Markdown (executive recap)
+
+Next: promote any finding into VectorGuard using `vectorguard promote <findingId>`.
+
+## Upgrade funnel
+
+1. Run VectorScan locally or in CI.
+2. Share the Markdown artifact with leadership.
+3. Promote the noisier findings into the $79 VectorGuard Zero-Trust blueprint.
+4. When you need automation, step up to the $449 enterprise kit or the $1,499 full bundle.
+
+> **Tip:** Keep VectorScan installed even after you upgrade. GuardSuite never locks the CLI behind a paywall.

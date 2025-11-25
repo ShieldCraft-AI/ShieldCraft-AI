@@ -1,0 +1,25 @@
+{
+    "plan_id": "PLAN-SEC-001",
+    "severity": "high",
+    "env": "prod",
+    "tags": [
+        "guardrail:iam",
+        "playbook:exposure"
+    ],
+    "affected_assets": [
+        "app-api",
+        "infra-control-plane"
+    ],
+    "signals": [
+        {
+            "source": "guardduty",
+            "indicator": "UnauthorizedAccess:EC2/SSHBruteForce",
+            "confidence": 0.92
+        },
+        {
+            "source": "securityhub",
+            "indicator": "IAMUser/ExcessivePermissions",
+            "confidence": 0.81
+        }
+    ]
+}

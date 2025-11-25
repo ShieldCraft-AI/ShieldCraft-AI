@@ -1,0 +1,106 @@
+---
+title: GuardSuite CLI Guide
+description: Wiring VectorScan and VectorGuard CLIs into CI/CD, Terraform plan promotion, and GuardScore evidence capture.
+slug: /guard-suite/cli-integration
+---
+
+## Overview
+
+The GuardSuite CLI layer connects VectorScan (free) and VectorGuard/GuardBoard (paid) without new infrastructure. Section 7 of the GuardSuite Master Spec mandates identical behavior across GitHub Actions, GitLab, and AWS CodeBuild, all while running in air-gapped mode by default. This guide documents the flags, environment variables, and CI snippets that keep that promise.
+
+## Flag Matrix
+
+| Command | Flag | Purpose |
+| --- | --- | --- |
+| `vectorscan` | `--no-network` (default) | Guarantees the scanner never attempts outbound calls. |
+| `vectorscan` | `--format {json,sarif,markdown}` | Produces the three evidence types required by the spec. |
+| `vectorscan` | `--finding-prefix <campaign>` | Stamps findings with launch metadata (HN, marketplace, etc.). |
+| `vectorguard promote` | `--blueprint <id>` | Maps to `GV-LITE-001`, `GV-ENT-010`, or bundle IDs documented in the blueprint catalog. |
+| `vectorguard promote` | `--export guardboard.json` | Emits GuardBoard/GuardScore bundles for downstream dashboards. |
+| `vectorguard promote` | `--dry-run` | Validates licensing + blueprint matching without producing artifacts (change-management friendly). |
+
+## Environment Variables
+
+| Variable | Description |
+| --- | --- |
+| `GUARDSUITE_TOKEN` | Short-lived token for paid channels (Gumroad, GitHub Marketplace, direct). Not required for VectorScan. |
+| `GUARDSUITE_CHANNEL` | One of `direct`, `gumroad`, `github_marketplace`. Drives pricing + bundle attribution. |
+| `GUARDSUITE_ACCOUNT` | Optional account label for GuardBoard multi-tenant rollouts. |
+
+Store these secrets in GitHub Actions secrets, GitLab variables, or AWS Parameter Store/Secrets Manager. The CLIs never print the values back to stdout.
+
+## GitHub Actions Example
+
+```yaml
+name: Terraform Plan + GuardSuite
+on: [push]
+jobs:
+	plan:
+		runs-on: ubuntu-latest
+		steps:
+			- uses: actions/checkout@v4
+			- uses: hashicorp/setup-terraform@v3
+			- run: terraform init && terraform plan -out tfplan && terraform show -json tfplan > tfplan.json
+			- name: Run VectorScan
+				run: |
+					python -m pip install vectorscan
+					vectorscan tfplan.json --format json --out artifacts/vectorscan.json --finding-prefix HN-LAUNCH
+			- name: Promote to VectorGuard Lite
+				env:
+					GUARDSUITE_TOKEN: ${{ secrets.GUARDSUITE_TOKEN }}
+					GUARDSUITE_CHANNEL: gumroad
+				run: |
+					cat artifacts/vectorscan.json | vectorguard promote \
+						--blueprint zero-trust-lite --export guardboard.json
+```
+
+- Exit codes bubble through GitHub Actions automatically (3 = findings, 4 = plan error).
+- Store `artifacts/vectorscan.json` and `guardboard.json` as workflow artifacts for auditors.
+
+## GitLab CI/CD Example
+
+```yaml
+guard_suite:
+	image: python:3.11
+	stage: test
+	script:
+		- pip install vectorscan vectorguard
+		- vectorscan tfplan.json --format sarif --out artifacts/vectorscan.sarif --finding-prefix GL-PROD
+		- cat artifacts/vectorscan.sarif | vectorguard promote \
+				--blueprint zero-trust-lite --channel github_marketplace \
+				--export guardboard.json
+	variables:
+		GUARDSUITE_TOKEN: $GUARDSUITE_TOKEN
+	artifacts:
+		paths:
+			- artifacts/
+```
+
+- GitLab's protected variables keep the token scoped to the appropriate branch.
+- Use `before_script` to fetch Terraform plans if they live in a separate job.
+
+## AWS CodeBuild Snippet
+
+```yaml
+phases:
+	install:
+		commands:
+			- pip install vectorscan vectorguard
+	build:
+		commands:
+			- vectorscan tfplan.json --format markdown --out report.md --finding-prefix CODEBUILD
+			- cat report.md | vectorguard promote --blueprint enterprise-kit --export guardboard.json
+artifacts:
+	files:
+		- report.md
+		- guardboard.json
+```
+
+- Token storage: reference AWS Secrets Manager and export `GUARDSUITE_TOKEN` right before the build.
+- Use CodeBuild reports to surface SARIF output for security hubs.
+
+## GuardScore / GuardBoard Outputs
+
+- Every promotion run writes GuardScore deltas (`severityTotals`, `badgeEligibility`, `latencyMs`).
+- GuardBoard bundles (`guardboard.json`) include `planHash`, `commitSha`, `timestamp`, and `channel`, satisfying the audit trail requirement.
+- Feed these artifacts into `/products/vectorguard`, `/launch/vectorscan`, and pricing narratives to keep marketing claims aligned with technical reality.

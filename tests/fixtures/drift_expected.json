@@ -1,0 +1,35 @@
+{
+    "status": {
+        "environment": "prod",
+        "state": "critical",
+        "last_evaluated_ts": "2025-11-20T00:00:00Z",
+        "ready": false
+    },
+    "signals": [
+        {
+            "metric": "embedding_cosine",
+            "baseline_value": 0.98,
+            "current_value": 0.94,
+            "deviation_pct": -4.08,
+            "severity": "low"
+        },
+        {
+            "metric": "response_latency_ms",
+            "baseline_value": 180.0,
+            "current_value": 240.0,
+            "deviation_pct": 33.33,
+            "severity": "high"
+        },
+        {
+            "metric": "guardrail_trigger_rate",
+            "baseline_value": 0.02,
+            "current_value": 0.05,
+            "deviation_pct": 150.0,
+            "severity": "high"
+        }
+    ],
+    "recommendations": [
+        "scale inference capacity to reduce latency drift",
+        "audit guardrail configurations for trigger anomalies"
+    ]
+}

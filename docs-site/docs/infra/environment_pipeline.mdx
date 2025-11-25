@@ -1,0 +1,27 @@
+---
+title: Environment Provisioning Pipeline
+description: Deterministic scaffold for ShieldCraft environment orchestration.
+slug: /infra/environment-pipeline
+---
+
+The Environment Provisioning Pipeline coordinates deterministic configuration checks before any AWS calls are made. The current milestone implements a lightweight Python interface so engineers can reason about environment metadata without touching CDK or actual accounts.
+
+## Key Concepts
+
+- **EnvironmentConfig** lives in `infra/environment/environment_config.py` and enforces a strict schema (env name, 12-digit account ID, AWS region).
+- **Provision function** (`provision_environment`) returns a placeholder payload with invariant fields so unit tests and documentation stay in sync.
+- **No side effects:** the loader never touches AWS APIs or local files beyond the deterministic defaults declared in code.
+
+## Placeholder Payload
+
+```json
+{
+  "requested_env": "staging",
+  "account_id": "111111111111",
+  "region": "us-east-2",
+  "provisioning_state": "placeholder",
+  "generated_at": "2025-01-01T00:00:00Z"
+}
+```
+
+Use this stub to wire CI workflows, CDK wrappers, or future GitOps pipelines while we finish the failover rehearsal automation.

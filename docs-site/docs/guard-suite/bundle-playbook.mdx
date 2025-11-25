@@ -1,0 +1,58 @@
+---
+title: GuardSuite Bundle Playbook
+description: Sequencing VectorScan → VectorGuard → GuardBoard bundles with pricing and upsell cues.
+slug: /guard-suite/bundle-playbook
+---
+
+## Overview
+
+The GuardSuite launch plan (Master Spec Section 7, "Becoming enterprise-ready") requires a scripted funnel from free CLI adoption to bundle conversion. This page explains the catalog (Full Suite Pack, Pro Kit, Enterprise Kit) and how pre-flight upsells fit into procurement reviews.
+
+## Contract Requirements
+
+- **Bundle Transparency:** Publish included SKUs (`includes` array from `guardSuitePricing`) plus one-time vs subscription pricing.
+- **Upsell Hook:** $19 Pre-flight Check must be offered immediately after purchase with deterministic revenue tracking.
+- **Channel Handling:** Document fee impact for Gumroad, GitHub Marketplace, and direct invoices so finance teams can reconcile totals.
+
+## Feature Snapshot
+
+- Full Suite Pack ($1,499) bundles VectorScan, VectorGuard, ComputeGuard, ModelGuard, GuardBoard Lite, and GuardScore automation.
+- Pro Kit focuses on Zero-Trust blueprints + remediation SDKs for teams not ready for GuardBoard.
+- Enterprise Kit introduces GuardBoard Enterprise, GuardScore SLAs, and managed remediation cadences.
+- Affiliate and marketplace fee disclosures (20% lifetime, 70% boosted on launch-week Gumroad) inline with marketing checklist.
+
+## Bundle Comparison
+
+| Bundle | Price | Included SKUs | Primary Buyer | Activation Path |
+| --- | --- | --- | --- | --- |
+| VectorScan Funnel | Free CLI + $19 Pre-flight Check | `vectorscan`, GuardScore quickstart, GuardBoard Lite viewer | Staff engineer validating Terraform drift | Run CLI → export GuardScore JSON → optional $19 pre-flight upsell for automated remediation checklist. |
+| VectorGuard Lite | $79 Zero-Trust Blueprint | VectorScan artifacts, Zero-Trust Lite blueprint, FixPack catalog, GuardBoard Lite seat | Platform team piloting policy-as-code | Promo link from VectorScan findings → checkout → unlock blueprint + FixPack bundle. |
+| VectorGuard Enterprise | $449 Implementation Kit + Scorecard | Lite contents + remediation SDK, GuardScore ledger, executive scorecard template | Director of Cloud Security preparing for audit | Contact form or sales email triggered from `/products/vectorguard` → invoice → enable SDK + ledger download. |
+| ComputeGuard Lite | $129 Orchestrator Blueprint | ComputeProbe CLI, GPU guardrails, budget alarms, GuardScore hooks | MLOps lead owning GPU efficiency | Install ComputeProbe → import blueprint module → configure budgets + GuardScore target. |
+| ComputeGuard Enterprise | $599 Chargeback SDK | Lite contents + chargeback SDK + anomaly ledger | FinOps or Capacity Planning | Bundle purchase from GuardSuite landing → deliver SDK + onboarding call. |
+| ModelGuard Lite | $199 Governance Blueprint | ModelCheck CLI, eval harness, policy ledger starter | Responsible AI lead needing AI Act prep | Install CLI → follow governance blueprint → export guardrail ledger. |
+| ModelGuard Enterprise | $799 Validation Kit + Ledger | Lite contents + validation kit, auditor-friendly ledger, variance dashboards | Compliance lead / Chief Risk Officer | Enterprise quote triggered from docs CTA → deliver kit + ledger via secure download. |
+| Full GuardSuite Pack | $1,499 (25% off) | All Lite + Enterprise SKUs plus GuardBoard Enterprise, GuardScore automation, affiliate tracking bundle | Exec sponsor wanting unified governance | Guided funnel: VectorScan → VectorGuard upsell → bundle landing page with checkout + affiliate attribution. |
+
+This table mirrors the GuardSuite Master Spec pricing and ensures the docs remain the single source-of-truth for SKUs, buyers, and activation workflows.
+
+## GuardBoard Snapshot
+
+> _Screenshot placeholder_: GuardBoard Lite dashboard capture will be attached once the design team exports the final PNG; keeping the note here maintains the spec breadcrumb without blocking parity.
+
+- **GuardBoard Lite** ships with the Full Suite Pack and offers read-only dashboards for GuardScore deltas, FixPack adoption, and evidence aging. It consumes the same JSON emitted by VectorScan, ComputeProbe, and ModelCheck so no extra ingestion plumbing is required.
+- **GuardBoard Enterprise** (Enterprise Kit + Full Pack) layers SLA tracking, remediation cadences, and badge eligibility exports for compliance teams. Docs reference this section so revenue operations can cite a canonical description during audits.
+
+## Procurement Workflow
+
+1. **VectorScan download** — visitors land on `/products/vectorscan`, install the CLI, and optionally add the $19 Pre-flight Check.
+2. **VectorGuard promotion** — VectorScan findings link to `/products/vectorguard`, where users pick Lite ($79) or Enterprise ($449) SKUs.
+3. **Bundle CTA** — After purchasing any Enterprise SKU, the thank-you flow surfaces the $1,499 Full GuardSuite Pack with a 25% discount and affiliate attribution.
+4. **Fulfillment** — Docs instruct customers to pull assets from `dist/guardsuite/` via signed download links; GuardBoard licenses are delivered as JSON manifests with checksum metadata for audit trails.
+
+## Channel & Upsell Tracking
+
+- **UTM discipline:** All docs CTAs include `?utm_source=docs&utm_medium=bundle-playbook&utm_campaign=guardsuite-q4` so marketing can attribute conversions.
+- **Affiliate commissions:** Highlight the default 20% lifetime commission and note the 70% launch-week boost on Gumroad; finance references this section when reconciling payouts.
+- **Marketplace fees:** GitHub Marketplace introduces a 5% fee; Gumroad subtracts variable processing (estimate 8%). The playbook calls this out so pricing math stays transparent.
+- **Audit hooks:** Every upsell references GuardScore ledger IDs, ensuring procurement teams can map purchases to compliance evidence without extra follow-up.

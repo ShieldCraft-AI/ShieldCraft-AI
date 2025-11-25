@@ -1,0 +1,42 @@
+---
+title: VectorScan Overview
+description: Zero-setup Terraform plan scanner that initiates the GuardSuite upgrade funnel.
+slug: /guard-suite/vectorscan-overview
+---
+
+## Why VectorScan Exists
+
+VectorScan is the GuardSuite entry point promised in Section 7 of the GuardSuite Master Spec. It scans a deterministic `tfplan.json`, emits GuardScore-ready evidence, and keeps your Terraform plan local so no secrets leave the build environment. The scanner is:
+
+- **Zero setup.** `pip install vectorscan` pulls a single dependency bundle with vendored policies.
+- **Network silent.** Runs with `--no-network` by default to satisfy the "no account, no upload" clause.
+- **Upgrade aware.** Every finding includes `findingId`, `policy`, `severity`, and `upgradeHint` so `vectorguard promote` can act on the same artifact later.
+
+## Installation & First Scan
+
+```bash
+python -m pip install --upgrade vectorscan
+vectorscan plan/tfplan.json \
+	--format json --out artifacts/vectorscan.json \
+	--finding-prefix VS-2025Q4
+```
+
+- `--format` accepts `json`, `sarif`, or `markdown` to satisfy CI, GitHub Code Scanning, and executive snapshot requirements.
+- `--finding-prefix` matches the spec's requirement to stamp findings with campaign metadata (HN launch, marketplace, etc.).
+- Exit codes: `0` (clean), `3` (findings), `4` (schema/plan error) so pipelines can halt deterministically.
+
+### Optional flags
+
+| Flag | Purpose |
+| --- | --- |
+| `--explain` | Annotates each policy with remediation guidance and GuardSuite blueprint IDs. |
+| `--diff` | Shows the Terraform resource delta so analysts can confirm accuracy before promotion. |
+| `--promote` | Creates a promotion bundle for VectorGuard without requiring immediate network egress. |
+
+## Output Anatomy
+
+```json
+{
+	"findingId": "VS-2025Q4-001",
+	"policy": "encryption-required",
+	"resource": "aws_s3_bucket.data",

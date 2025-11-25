@@ -1,0 +1,31 @@
+{
+    "batch_id": "batch-preview-001",
+    "page": 1,
+    "total": 2,
+    "items": [
+        {
+            "id": "ing-002",
+            "title": "Identity transcript ingest",
+            "source": "docs/github/risk_log.md",
+            "collected_at": "2025-11-16T07:30:00Z",
+            "severity": "medium",
+            "tags": [
+                "identity",
+                "audit"
+            ],
+            "link": "https://github.com/shieldcraft-ai/risk_log"
+        },
+        {
+            "id": "ing-001",
+            "title": "Vectorguard payload ingest",
+            "source": "docs/github/drift_reports/README.md",
+            "collected_at": "2025-11-15T05:45:00Z",
+            "severity": "info",
+            "tags": [
+                "drift",
+                "vectorguard"
+            ],
+            "link": "https://github.com/shieldcraft-ai/drift_reports"
+        }
+    ]
+}

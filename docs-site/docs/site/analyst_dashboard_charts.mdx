@@ -1,0 +1,30 @@
+---
+id: analyst_dashboard_charts
+slug: /site/analyst-dashboard-charts
+title: Analyst Dashboard Charts
+sidebar_label: Dashboard Charts
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This stub document records the static requirements and references for the Analyst Dashboard visualizations that satisfy **SC-APP-UI-003**. The prototype does not fetch runtime data; each chart is hydrated from docs artifacts and fixtures referenced below.
+
+## Components
+
+<Tabs>
+  <TabItem value="score" label="Score Trend" default>
+    - Component: `ScoreTrendChart`
+    - Source: `docs/specs/guardscore_snapshot.md` (deterministic guardscore sample)
+    - Notes: Inline sparkline SVG with median badges for each severity band.
+  </TabItem>
+  <TabItem value="volume" label="Evidence Volume">
+    - Component: `EvidenceVolumeBars`
+    - Source: `docs/github/analyst_evidence_feed.md`
+    - Notes: Static 3-month payload counts highlight ingestion reliability.
+  </TabItem>
+</Tabs>
+
+## Usage
+
+Both charts render inside `ChartsPanel` on `/dashboard`. They provide storytelling hooks for analysts demoing score movements and evidence intake without needing backend connectivity.

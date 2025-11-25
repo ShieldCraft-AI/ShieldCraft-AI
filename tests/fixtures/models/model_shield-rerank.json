@@ -1,0 +1,51 @@
+{
+    "model_id": "shield-rerank",
+    "version": "0.5.2",
+    "created_at": "2025-02-02T08:30:00Z",
+    "description": "Cross-encoder reranker optimized for low-latency GuardSuite dashboards.",
+    "params": {
+        "max_pairs": 50,
+        "architecture": "cross-encoder",
+        "precision": "fp16"
+    },
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string"
+            },
+            "candidates": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "maxItems": 50
+            }
+        },
+        "required": [
+            "query",
+            "candidates"
+        ]
+    },
+    "output_schema": {
+        "type": "object",
+        "properties": {
+            "scores": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            },
+            "ordering": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "required": [
+            "scores",
+            "ordering"
+        ]
+    }
+}

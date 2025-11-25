@@ -1,0 +1,28 @@
+---
+title: SBOM Pipeline Scaffold
+description: Deterministic CycloneDX generation and publishing hooks.
+slug: /infra/sbom-pipeline
+---
+
+The SBOM pipeline produces a CycloneDX document without touching any external services. It is intentionally deterministic so CI runs can diff outputs and publish a known-good artifact.
+
+## Components
+
+- `scripts/sbom/generate_sbom.py` parses `pyproject.toml` dependencies (or falls back to the default tuple) and returns a CycloneDX-compatible payload. When `cyclonedx-python-lib` is installed the same document is rendered via the official library; otherwise the stub remains in use.
+- `scripts/sbom/publish_sbom.py` wraps the generator and writes `artifacts/sbom/shieldcraft-sbom.json`. Passing `--destination` allows callers to redirect writes in tests.
+- `tests/integration/test_sbom_pipeline.py` verifies schema keys, deterministic component ordering, SHA-256 hashing, and that repeated publishes produce identical artifacts.
+
+## Determinism Rules
+
+1. No timestamps or UUIDs beyond the fixed `2025-01-01T00:00:00Z` metadata stamp.
+2. Components are always sorted alphabetically and hashed with SHA-256 of `name+version` for reproducibility.
+3. The publisher never shells out or performs network I/O; it only writes beneath `artifacts/sbom/` (or a caller-provided override during tests).
+
+## Running the Scaffold
+
+```bash
+python scripts/sbom/generate_sbom.py --output build/sbom.json
+python scripts/sbom/publish_sbom.py --destination artifacts/sbom
+```
+
+When the `sbom` Nox session is registered (`nox -s sbom`) it simply invokes the publisher and enforces the deterministic hash comparisons described above.

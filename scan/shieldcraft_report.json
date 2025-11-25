@@ -1,0 +1,420 @@
+{
+    "checklist_path": "checklist.md",
+    "reported_completion_percent": 85,
+    "status_summary": {
+        "complete": 11,
+        "partial": 2,
+        "missing": 12
+    },
+    "items": [
+        {
+            "id": "SC-FOUND-001",
+            "title": "Repository bootstrapped",
+            "category": "Foundation",
+            "status": "complete",
+            "notes": "Root docs and manifests establish the ShieldCraft-AI workspace, dependency graph, and build tooling.",
+            "evidence": [
+                {
+                    "path": "README.md",
+                    "detail": "Project overview spells out platform goals, architecture pillars, and contribution model."
+                },
+                {
+                    "path": "package.json",
+                    "detail": "Node/Docusaurus tooling pinned for dashboard + docs builds, confirming repo scaffolding."
+                }
+            ]
+        },
+        {
+            "id": "SC-FOUND-002",
+            "title": "Documentation baseline created",
+            "category": "Foundation",
+            "status": "complete",
+            "notes": "Docs-site contains the styled checklist and supporting reference material referenced throughout the repo.",
+            "evidence": [
+                {
+                    "path": "docs-site/docs/github/checklist.md",
+                    "detail": "Published implementation tracker mirrors the root checklist with 85% progress."
+                },
+                {
+                    "path": "docs-site/docusaurus.config.ts",
+                    "detail": "Docs theme, navigation, and metadata are wired for the GuardSuite/ShieldCraft narratives."
+                }
+            ]
+        },
+        {
+            "id": "SC-FOUND-003",
+            "title": "Initial infra + config wiring",
+            "category": "Foundation",
+            "status": "complete",
+            "notes": "Typed config schema plus CDK app composition cover networking, data, security, and tagging baselines.",
+            "evidence": [
+                {
+                    "path": "infra/app.py",
+                    "detail": "CDK entrypoint composes networking, secrets, Glue, MSK, Lambda, and budget stacks per environment."
+                },
+                {
+                    "path": "infra/utils/config_loader.py",
+                    "detail": "Singleton config loader enforces backend selection, schema validation, and secret indirection."
+                }
+            ]
+        },
+        {
+            "id": "SC-FOUND-004",
+            "title": "Docs-site scaffold",
+            "category": "Foundation",
+            "status": "complete",
+            "notes": "Docusaurus pages, theme config, and landing routes exist, giving the dashboard a stable publishing surface.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/pages/index.tsx",
+                    "detail": "Homepage surfaces GuardSuite CTAs plus static dashboard entry points."
+                },
+                {
+                    "path": "docs-site/docusaurus.config.ts",
+                    "detail": "Global metadata, navbar links, and footer entries wire GuardSuite routes."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-CORE-001",
+            "title": "Core application structure",
+            "category": "Application",
+            "status": "complete",
+            "notes": "Static dashboard routes and the demo FastAPI surface illustrate the vertical slice referenced in the checklist.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/pages/dashboard/index.tsx",
+                    "detail": "Dashboard shell lays out metadata panel plus summary component."
+                },
+                {
+                    "path": "api/app.py",
+                    "detail": "FastAPI demo endpoints expose the vertical-slice payload used in docs."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-CONFIG-001",
+            "title": "Config schema + validator",
+            "category": "Application",
+            "status": "complete",
+            "notes": "Pydantic schema plus extensive unit coverage validate configuration inputs across backends.",
+            "evidence": [
+                {
+                    "path": "infra/utils/config_schema.py",
+                    "detail": "Schema defines every section (networking, lambda, lakeformation, etc.) with validation hooks."
+                },
+                {
+                    "path": "tests/config/test_config_loader.py",
+                    "detail": "Pytest suite covers thread safety, backend selection, env overrides, and strict mode errors."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-UI-000",
+            "title": "Initial UI scaffolding",
+            "category": "Application",
+            "status": "complete",
+            "notes": "Dashboard routes render within the shared layout and include deterministic metadata blocks.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/pages/dashboard/index.tsx",
+                    "detail": "Route composes Layout + metadata hero + DashboardSummary component."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-UI-001",
+            "title": "Analyst Dashboard (static surface)",
+            "category": "Application",
+            "status": "complete",
+            "notes": "Static cards show risk, retrieval, and drift evidence directly from docs artifacts with Jest coverage.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
+                    "detail": "Summary sections render deterministic cards backed by docs references."
+                },
+                {
+                    "path": "docs-site/tests/test_dashboard_route.js",
+                    "detail": "Jest test asserts each summary section renders the expected copy."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-UI-002",
+            "title": "Analyst Dashboard (data model + evidence ingest)",
+            "category": "Application",
+            "status": "complete",
+            "notes": "Evidence feed placeholder mirrors the ingestion envelope and is validated by tests.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/components/Dashboard/EvidenceFeed.tsx",
+                    "detail": "Static JSON payload demonstrates the future evidence envelope and priority badges."
+                },
+                {
+                    "path": "docs-site/tests/test_dashboard_route.js",
+                    "detail": "Ensures the evidence feed route renders the placeholder items."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-UI-003",
+            "title": "Analyst Dashboard (finalized UX + charts)",
+            "category": "Application",
+            "status": "partial",
+            "notes": "DashboardSummary still renders text cards only; none of the chart dependencies declared in package.json are used, and no chart components exist.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
+                    "detail": "Component only lays out flexbox cards with copy/pills—no chart primitives or data viz."
+                },
+                {
+                    "path": "package.json",
+                    "detail": "chart.js and react-chartjs-2 are installed but unused, underscoring the missing UX polish."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-001",
+            "title": "Public API surface for dashboard",
+            "category": "Application",
+            "status": "missing",
+            "notes": "The only API file exposes demo endpoints (`/demo-vertical-slice` and `/evaluate`) and nothing serves the dashboard evidence feed.",
+            "evidence": [
+                {
+                    "path": "api/app.py",
+                    "detail": "FastAPI app returns canned payloads via scripts/demo_vertical_slice.py and has no dashboard routes."
+                },
+                {
+                    "path": "docs-site/src/utils/auth-fetch.ts",
+                    "detail": "Fetch helper exists but is not wired to any publicly documented dashboard API."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-002",
+            "title": "Authentication model",
+            "category": "Application",
+            "status": "missing",
+            "notes": "Minimal IdP helper only mocks PKCE flows client-side; there is no server-side auth or token validation backing a public API.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/utils/minimal-idp.ts",
+                    "detail": "Utility stores tokens locally and prints debug info but never calls a ShieldCraft backend."
+                },
+                {
+                    "path": "api/app.py",
+                    "detail": "Endpoints accept arbitrary `findingId` without any auth guard or token verification."
+                }
+            ]
+        },
+        {
+            "id": "SC-APP-PUBLIC-API-003",
+            "title": "Evidence/query pipeline",
+            "category": "Application",
+            "status": "missing",
+            "notes": "Evidence feed still pulls from a hard-coded array and there is no ingestion path or query contract that feeds the dashboard.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/components/Dashboard/EvidenceFeed.tsx",
+                    "detail": "Uses a static `evidenceItems` array rather than calling an API."
+                },
+                {
+                    "path": "scripts/demo_vertical_slice.py",
+                    "detail": "Demo script emits JSON locally but is not orchestrated into a service or queue feeding the UI."
+                }
+            ]
+        },
+        {
+            "id": "SC-GS-DOCS-001",
+            "title": "GuardSuite documentation foundation",
+            "category": "GuardSuite",
+            "status": "complete",
+            "notes": "GuardSuite index plus core MDX pages (VectorScan overview, blueprints, CLI guide) are authored and linked into the sidebar.",
+            "evidence": [
+                {
+                    "path": "docs-site/docs/guard-suite/index.md",
+                    "detail": "Index lists each required doc and ties them back to marketing routes."
+                },
+                {
+                    "path": "docs-site/docs/guard-suite/vectorscan-overview.mdx",
+                    "detail": "Explains install, outputs, and upgrade hooks for the free CLI."
+                }
+            ]
+        },
+        {
+            "id": "SC-GS-DOCS-002",
+            "title": "Full GuardSuite docs parity",
+            "category": "GuardSuite",
+            "status": "partial",
+            "notes": "Bundle playbook is stubbed with a TODO block, so the funnel and pricing exhibits called for in the spec are not delivered yet.",
+            "evidence": [
+                {
+                    "path": "docs-site/docs/guard-suite/bundle-playbook.mdx",
+                    "detail": "File ends with '**TODO:** Add full bundle comparison tables...' indicating missing parity content."
+                },
+                {
+                    "path": "docs-site/src/pages/products/vectorscan.tsx",
+                    "detail": "Product page references bundle funnels, showing the docs dependency that still lacks full depth."
+                }
+            ]
+        },
+        {
+            "id": "SC-GS-CLI-001",
+            "title": "GuardSuite CLI contract integration",
+            "category": "GuardSuite",
+            "status": "missing",
+            "notes": "Docs describe CLI usage but the repo only ships a placeholder CLI shim; there is no implemented GuardSuite CLI contract.",
+            "evidence": [
+                {
+                    "path": "cli.py",
+                    "detail": "Stub CLI simply returns 0 and prints a version, highlighting the lack of real commands."
+                },
+                {
+                    "path": "docs-site/docs/guard-suite/cli-integration.mdx",
+                    "detail": "Guide promises CI snippets for `vectorscan`/`vectorguard` but no corresponding binaries exist in repo."
+                }
+            ]
+        },
+        {
+            "id": "SC-GS-MODEL-001",
+            "title": "GuardSuite model governance integration",
+            "category": "GuardSuite",
+            "status": "missing",
+            "notes": "AI core contains a generic model loader with stub fallback, but nothing ties GuardSuite policy packs or approvals into the model lifecycle.",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Implements HuggingFace/stub switching with no GuardSuite governance hooks."
+                },
+                {
+                    "path": "ai_core/vector_store.py",
+                    "detail": "Pgvector scaffold exists but is not wired into GuardSuite promotion or approval flows."
+                }
+            ]
+        },
+        {
+            "id": "SC-INFRA-STACK-001",
+            "title": "CDK baseline",
+            "category": "Infra",
+            "status": "complete",
+            "notes": "Environment-aware CDK app plus typed config deliver the baseline infrastructure stack referenced by the checklist.",
+            "evidence": [
+                {
+                    "path": "infra/app.py",
+                    "detail": "Instantiates networking, data, security, compliance, and budget stacks with tagging."
+                },
+                {
+                    "path": "config/dev.yml",
+                    "detail": "Configuration enumerates every stack input (VPC, MSK, LakeFormation, Lambda, etc.)."
+                }
+            ]
+        },
+        {
+            "id": "SC-INFRA-STACK-002",
+            "title": "Multi-region failover rehearsal",
+            "category": "Infra",
+            "status": "missing",
+            "notes": "Infra TODO explicitly calls this out as unchecked work; there are no scripts or tests simulating cross-region failover.",
+            "evidence": [
+                {
+                    "path": "INFRA_TODO.md",
+                    "detail": "P0 checklist still lists 'Multi-region failover rehearsal' as unchecked."
+                }
+            ]
+        },
+        {
+            "id": "SC-INFRA-STACK-003",
+            "title": "SBOM generation pipeline",
+            "category": "Infra",
+            "status": "missing",
+            "notes": "No SBOM tooling appears under scripts or CI, and the infra TODO plus prior repo scans flag this gap.",
+            "evidence": [
+                {
+                    "path": "INFRA_TODO.md",
+                    "detail": "'SBOM generation pipeline' remains unchecked in the infra roadmap."
+                },
+                {
+                    "path": "repo_scan.md",
+                    "detail": "Previous audit reiterates that no SBOM generation/signing pipeline exists."
+                }
+            ]
+        },
+        {
+            "id": "SC-INFRA-STACK-004",
+            "title": "IAM automated access-review cadence",
+            "category": "Infra",
+            "status": "missing",
+            "notes": "Neither scripts nor docs define an automated IAM review job; the TODO list still lists this requirement as open.",
+            "evidence": [
+                {
+                    "path": "INFRA_TODO.md",
+                    "detail": "Item 'IAM automated access-review cadence' is still unchecked."
+                }
+            ]
+        },
+        {
+            "id": "SC-AI-AGENT-001",
+            "title": "Multi-agent orchestration core",
+            "category": "AI",
+            "status": "missing",
+            "notes": "AI core only offers a single-model loader and vector store; no orchestrator or agent graph exists.",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Implements single-model loading without any agent coordination."
+                },
+                {
+                    "path": "ai_core/__init__.py",
+                    "detail": "Package exposes only loader/vector store scaffolds."
+                }
+            ]
+        },
+        {
+            "id": "SC-AI-AGENT-002",
+            "title": "Prompt-governance registry",
+            "category": "AI",
+            "status": "missing",
+            "notes": "No prompt registry or governance catalog is present; AI modules focus solely on loading models and pgvector scaffolding.",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Contains model selection logic but no prompt governance definitions."
+                }
+            ]
+        },
+        {
+            "id": "SC-AI-AGENT-003",
+            "title": "Approval workflow + safety rail",
+            "category": "AI",
+            "status": "missing",
+            "notes": "Docs and code lack any approval workflow, safety rail enforcement, or GuardScore-aware gating for AI responses.",
+            "evidence": [
+                {
+                    "path": "ai_core/model_loader.py",
+                    "detail": "Returns raw generations or stub echoes without approval or policy checks."
+                },
+                {
+                    "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
+                    "detail": "ML guardrails section references manual follow-up, underscoring the absence of automated approval rails."
+                }
+            ]
+        },
+        {
+            "id": "SC-AI-DRIFT-001",
+            "title": "Continuous relevance drift monitoring",
+            "category": "AI",
+            "status": "missing",
+            "notes": "Dashboard references drift reports stored in docs, but there is no automated monitoring loop or service emitting alerts.",
+            "evidence": [
+                {
+                    "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
+                    "detail": "Drift section pulls static text referencing docs rather than live drift metrics."
+                },
+                {
+                    "path": "docs-site/docs/github/analyst_dashboard.md",
+                    "detail": "Documentation explains the dashboard relies on manual markdown updates for drift snapshots."
+                }
+            ]
+        }
+    ]
+}

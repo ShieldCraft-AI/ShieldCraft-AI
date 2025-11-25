@@ -1,0 +1,9 @@
+{
+    "diagnostic": "registry-modules=10",
+    "lint_version": "1.0",
+    "status": "ok",
+    "stderr": "",
+    "stdout": "",
+    "target": "lint-registry-contracts",
+    "timestamp": "SNAPSHOT"
+}

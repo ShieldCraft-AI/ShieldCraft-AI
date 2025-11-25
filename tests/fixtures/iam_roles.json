@@ -1,0 +1,41 @@
+{
+    "roles": [
+        {
+            "name": "ShieldcraftAdmin",
+            "arn": "arn:aws:iam::111111111111:role/ShieldcraftAdmin",
+            "last_used": "2024-12-01T00:00:00Z",
+            "policies": [
+                "ShieldcraftAdminPolicy"
+            ],
+            "tags": {
+                "owner": "platform",
+                "env": "prod"
+            }
+        },
+        {
+            "name": "ShieldcraftReadOnly",
+            "arn": "arn:aws:iam::111111111111:role/ShieldcraftReadOnly",
+            "last_used": "2024-11-15T00:00:00Z",
+            "policies": [
+                "ShieldcraftReadOnlyPolicy"
+            ],
+            "tags": {
+                "owner": "analytics",
+                "env": "prod"
+            }
+        },
+        {
+            "name": "ShieldcraftAutomation",
+            "arn": "arn:aws:iam::111111111111:role/ShieldcraftAutomation",
+            "last_used": "2024-11-20T00:00:00Z",
+            "policies": [
+                "AutomationLimitedPolicy",
+                "ShieldcraftMonitoringPolicy"
+            ],
+            "tags": {
+                "owner": "automation",
+                "env": "staging"
+            }
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+---
+title: IAM Access Review Automation
+description: Deterministic IAM role and policy inspection pipeline.
+slug: /infra/iam-review
+---
+
+The IAM access review automation inspects local fixtures to simulate a least-privilege audit without calling AWS APIs. Every run loads `tests/fixtures/iam_roles.json` and `tests/fixtures/iam_policies.json`, applies static heuristics, and emits JSON + Markdown reports under `artifacts/iam/`.
+
+## Inputs
+
+- `scripts/iam/iam_review.py` — Parses the role/policy fixtures, normalizes statements, and scores each role (critical/high/medium/low) based on wildcard usage and privilege breadth.
+- `tests/fixtures/iam_roles.json` — Canonical list of demo roles with tags, last-used timestamps, and attached policies.
+- `tests/fixtures/iam_policies.json` — Deterministic policy documents referenced by the roles fixture.
+
+## Outputs
+
+- `scripts/iam/iam_report.py` converts the review into:
+  - `artifacts/iam/iam_access_review.json` — Canonical structured payload for CI/CD consumption.
+  - `artifacts/iam/iam_access_review.md` — Human-readable summary table containing risk level, issues, and attached policies per role.
+- `nox -s iam_review` runs the publisher, hashes the JSON body, and logs the artifact path.
+
+## Deterministic Constraints
+
+1. Generated timestamps are fixed at `2025-01-01T00:00:00Z`.
+2. Role ordering is purely alphabetical; policy summaries use normalized service/action ordering.
+3. The pipeline never relies on AWS IAM APIs or network calls—fixtures are the single source of truth.
+4. Re-running the report rewrites the same JSON/Markdown payloads without diff churn, enabling snapshot comparison.
+
+## Workflow
+
+```bash
+python scripts/iam/iam_review.py | jq '.'
+python scripts/iam/iam_report.py --destination artifacts/iam
+nox -s iam_review
+```
+
+Use the JSON output for automated gating (e.g., block merges when new wildcard privileges appear) and the Markdown report for manual reviews or checklist evidence.
