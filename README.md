@@ -1,3 +1,5 @@
+# R30 - Visual & Layout stability pass
+This commit introduces R30: hero stabilization, spine tokens, scrollable architecture column, premium button, and a lightweight motion layer. All changes target layout stability and enterprise polish.
 <div align="center" style="display: flex; align-items: center; justify-content: center; margin-bottom:2em">
   <img src="https://img.shields.io/badge/AI%20Security-Shieldcraft%20AI-blueviolet?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Shieldcraft AI" />
   <a href="https://github.com/Dee66/shieldcraft-ai/actions/workflows/ci.yml" style="margin-left: 1.5em; float: right;">

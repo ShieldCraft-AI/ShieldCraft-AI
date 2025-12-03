@@ -1,0 +1,193 @@
+:root {
+    font-feature-settings: 'ss03' 1, 'zero' 1;
+
+    /* Elevated, explicit contrast tokens for the landing page */
+    --sc-text-strong: rgba(255, 255, 255, 1);
+    --sc-text-body: rgba(255, 255, 255, 0.95);
+    --sc-text-body-strong: rgba(255, 255, 255, 0.98);
+    --sc-text-subtle: rgba(255, 255, 255, 0.82);
+    --sc-text-muted: rgba(255, 255, 255, 0.72);
+}
+
+.h1 {
+    font-size: var(--font-3xl);
+    font-weight: 760;
+    line-height: 1.15;
+    letter-spacing: calc(var(--tracking-h1-h2) - 0.015em);
+    color: var(--sc-text-strong);
+    max-width: min(820px, 90vw);
+}
+
+.h2 {
+    font-size: var(--font-xl);
+    font-weight: 780;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--sc-text-strong);
+}
+
+h2,
+.scArchTitle {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.12;
+    font-weight: 780;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.h3 {
+    font-size: var(--font-lg);
+    font-weight: 700;
+    line-height: var(--line-tight-lg);
+    letter-spacing: -0.015em;
+    color: var(--sc-text-strong);
+}
+
+.h4 {
+    font-size: var(--font-md);
+    font-weight: 620;
+    letter-spacing: var(--tracking-h3-h4);
+    line-height: 1.35;
+    color: var(--sc-text-strong);
+}
+
+.lead {
+    font-size: var(--font-lg);
+    letter-spacing: calc(var(--tracking-subtitle) - 0.01em);
+    color: var(--sc-text-body);
+    line-height: 1.55;
+    max-width: var(--sc-body-max-width);
+    font-weight: 520;
+}
+
+.body {
+    font-size: var(--font-md);
+    line-height: 1.55;
+    letter-spacing: calc(var(--tracking-body) + 0.005em);
+    color: var(--sc-text-body);
+    max-width: var(--sc-body-max-width);
+    font-weight: var(--weight-card-body);
+}
+
+.scSectionTitle {
+    font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+    font-weight: 780;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    color: var(--sc-text-strong);
+}
+
+.scSectionSubtitle {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    opacity: 0.9;
+    line-height: 1.55;
+    font-weight: 540;
+    letter-spacing: calc(var(--tracking-body) + 0.005em);
+    text-align: center;
+    max-width: var(--sc-body-max-width);
+    margin: 0 auto clamp(var(--sc-space-5), 4vw, var(--sc-space-7));
+}
+
+.scSectionSubtitle {
+    color: rgba(255, 255, 255, 0.96) !important;
+    opacity: 1 !important;
+}
+
+.small {
+    font-size: var(--font-sm);
+    letter-spacing: var(--tracking-body);
+    line-height: var(--line-small);
+    color: var(--sc-text-muted);
+}
+
+.muted {
+    color: var(--sc-text-muted);
+}
+
+.caps {
+    text-transform: uppercase;
+    letter-spacing: calc(var(--tracking-meta) + 0.04em);
+    font-weight: 680;
+    font-size: var(--font-xs);
+    color: var(--sc-text-subtle);
+}
+
+.scCardSmTitle,
+h3 {
+    color: rgba(255, 255, 255, 0.97) !important;
+    font-weight: 700 !important;
+}
+
+.scCardSmBody,
+.contextCard p {
+    color: rgba(255, 255, 255, 0.94) !important;
+    opacity: 1 !important;
+}
+
+.architectureSection p,
+.architectureSection li,
+.architectureSection span {
+    color: rgba(255, 255, 255, 0.96) !important;
+}
+
+body,
+p {
+    font-weight: 540;
+    opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+    .scSectionTitle {
+        font-size: clamp(22px, 6.5vw, 28px);
+    }
+
+    .scSectionSubtitle {
+        font-size: clamp(15px, 4.5vw, 18px);
+    }
+
+    .scCardSmTitle {
+        font-size: 15px;
+    }
+
+    .scCardSmBody {
+        font-size: 13.5px;
+    }
+}
+
+/* --------- FORCE READABILITY (append after existing rules/media queries) --------- */
+.scPage,
+.scPage * {
+    color: var(--sc-text-body) !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Headings & section titles must be maximally legible */
+.scPage h1,
+.scPage h2,
+.scPage h3,
+.scPage h4,
+.scPage .scSectionTitle,
+.scPage .scCardSmTitle,
+.scPage .contextCard h3 {
+    color: var(--sc-text-strong) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Card bodies / microcopy */
+.scPage .scCardSmBody,
+.scPage .contextCard p,
+.scPage .scArchDetailCard p,
+.scPage .architectureCard p {
+    color: var(--sc-text-body) !important;
+    opacity: 1 !important;
+}
+
+/* Eyebrow, small text */
+.scPage .contextEyebrow,
+.scPage .caps,
+.scPage .small {
+    color: var(--sc-text-subtle) !important;
+    opacity: 1 !important;
+}

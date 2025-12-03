@@ -1,0 +1,43 @@
+/* Code block and inline code styles that reference design tokens */
+@import "./shieldcraft-tokens.css";
+
+pre.sc-codeblock,
+code.sc-codeblock {
+    font-family: var(--sc-font-mono);
+    background: var(--sc-color-subtle);
+    color: var(--sc-color-text);
+    padding: var(--sc-spacing-sm);
+    border-radius: var(--sc-radius-md);
+    box-shadow: var(--sc-shadow-inner);
+    overflow: auto;
+    max-width: 100%;
+}
+
+pre.sc-codeblock {
+    display: block;
+    white-space: pre;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Soft scroll shadows - subtle masks to imply scrollable content */
+.sc-codeblock {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.sc-inline-code {
+    font-family: var(--sc-font-mono);
+    background: var(--sc-color-subtle);
+    padding: 0 var(--sc-spacing-xs);
+    border-radius: var(--sc-radius-sm);
+    font-size: 0.94em;
+    color: var(--sc-color-text);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .sc-codeblock,
+    .sc-inline-code {
+        transition: none !important;
+    }
+}

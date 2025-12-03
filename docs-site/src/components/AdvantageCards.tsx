@@ -52,11 +52,17 @@ const cards: Card[] = [
     },
 ];
 
-export default function AdvantageCards() {
+type Props = {
+    heading?: string;
+    subcopy?: string;
+};
+
+export default function AdvantageCards({ heading, subcopy }: Props) {
     useReveal();
     return (
         <section className={`${styles.cardsSection} ${styles.center} sc-reveal`}>
-            <h2 className={styles.heading}>ShieldCraft AI, your Strategic Security Advantage</h2>
+            <h2 className={styles.heading}>{heading ?? 'ShieldCraft AI, your Strategic Security Advantage'}</h2>
+            {subcopy && <p className={styles.subcopy}>{subcopy}</p>}
             <div className={styles.cardsRow}>
                 {cards.map((card) => (
                     <Link

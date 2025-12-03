@@ -1,4 +1,4 @@
-# ShieldCraft-AI Repo Scan — 2025-11-24
+# ShieldCraft-AI Repo Scan  -  2025-11-24
 
 **Inputs:** `checklist.md`, `ShieldCraft-AI-Context.txt`, `docs-site/**`, `src/**`, `tests/**`, `artifacts/ai-dev/**`
 
@@ -7,11 +7,11 @@
 - Progress bar in `checklist.md` still displays **94 %** → update required to avoid stakeholder drift.
 
 ## Repository Health
-| Area               | Status                                                                               |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| Pytest (repo root) | `693 passed / 3 failed` — `_shim` placeholder + two config validator cases still red |
-| Docs-site build    | Not rerun during scan; last recorded status unknown                                  |
-| Lint/Type checks   | Not rerun during scan; rely on prior run history                                     |
+| Area               | Status                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| Pytest (repo root) | `693 passed / 3 failed`  -  `_shim` placeholder + two config validator cases still red |
+| Docs-site build    | Not rerun during scan; last recorded status unknown                                    |
+| Lint/Type checks   | Not rerun during scan; rely on prior run history                                       |
 
 ## Outstanding Issues
 1. **Test failures:**
@@ -24,7 +24,7 @@
 All checklist items from **SC-FOUND-001** through **SC-AI-DRIFT-001** remain fully implemented with evidence across `docs-site/`, `src/`, `tests/`, and newly added artifacts.
 
 ## Remaining Items
-- None — checklist is fully checked, pending the clean-up tasks above.
+- None  -  checklist is fully checked, pending the clean-up tasks above.
 
 ## Risk Areas
 - **Config validator parity:** `dev.yml` vs `staging.yml` fingerprints still diverge → investigate schema normalization.

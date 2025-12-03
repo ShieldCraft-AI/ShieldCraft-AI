@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from '../pages/portal.module.css';
 import PortalSidebar from './PortalSidebar';
@@ -187,7 +187,7 @@ export default function PortalLayout({
   children,
   showEnvSelector = true,
   showSearchBar = true,
-}: Props): JSX.Element {
+}: Props): React.ReactElement {
   return (
     <Layout title={title} description={description} noFooter wrapperClassName="portalWrapper">
       <PortalMockProvider>

@@ -1,0 +1,17 @@
+/* src/styles/line-height.css */
+p,
+li,
+dd,
+dt {
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+    line-height: 1.12;
+}
+
+.small-line {
+    line-height: 1.4;
+}

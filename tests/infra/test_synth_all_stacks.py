@@ -45,7 +45,7 @@ def test_synth_all_stacks_minimal(tmp_path, monkeypatch):
                 raising=False,
             )
     except Exception:
-        # If boto3 is not installed in the test environment, continue — our goal
+        # If boto3 is not installed in the test environment, continue  -  our goal
         # is to prevent runtime calls where possible.
         pass
 
@@ -101,18 +101,18 @@ def test_synth_all_stacks_minimal(tmp_path, monkeypatch):
             except Exception as e:
                 skipped[f"{name}.{obj.__name__}"] = repr(e)
 
-    # Attempt to synth — if some stacks failed to instantiate this may still succeed
+    # Attempt to synth  -  if some stacks failed to instantiate this may still succeed
     try:
         app.synth()
     except Exception as e:  # synth may fail; record it
         pytest.fail(f"CDK synth failed: {e}")
 
-    # Report skipped modules as a test output but don't fail the run — they need
+    # Report skipped modules as a test output but don't fail the run  -  they need
     # per-stack investigation. However assert we at least instantiated one stack.
     if not instantiated:
         pytest.skip(f"No stacks instantiated; skipped: {skipped}")
 
-    # Optionally, fail if too many stacks were skipped — here we just print them
+    # Optionally, fail if too many stacks were skipped  -  here we just print them
     if skipped:
         pytest.warns(
             UserWarning,

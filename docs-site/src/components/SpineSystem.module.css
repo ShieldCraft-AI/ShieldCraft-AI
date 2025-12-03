@@ -1,0 +1,32 @@
+/* Spine system tokens used across many components */
+.spineNarrow {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.spineNarrow {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.spineStandard {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 28px;
+    padding-right: 28px;
+}
+
+.spineWide {
+    max-width: 1480px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+}

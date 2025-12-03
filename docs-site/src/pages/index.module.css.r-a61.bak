@@ -1,0 +1,174 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.heroWrap {
+  width: 100%;
+  margin: 0 auto;
+  padding-top: clamp(var(--sc-space-12), 10vw, var(--sc-space-16));
+  padding-bottom: calc(clamp(var(--sc-space-10), 8vw, var(--sc-space-14)) - 48px);
+  display: flex;
+  justify-content: center;
+}
+
+.heroSubtleGlow {
+  position: relative;
+}
+
+.heroSubtleGlow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -48px;
+  transform: translateX(-50%);
+  width: min(780px, 82%);
+  height: 140px;
+  background: var(--sc-subtle-glow);
+  filter: blur(28px);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dpGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(20px, 3vw, 28px);
+  margin-top: clamp(var(--sc-space-4), 4vw, var(--sc-space-6));
+  justify-content: center;
+  width: 100%;
+  align-items: stretch;
+  grid-auto-rows: minmax(118px, auto);
+}
+
+.scCardSm {
+  composes: scCardHighlight from '../styles/sc-architecture.css';
+  background: var(--sc-surface-1);
+  border: 1px solid var(--sc-border-soft);
+  padding: clamp(18px, 2.8vw, 22px);
+  border-radius: var(--sc-card-radius);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 118px;
+  justify-content: space-between;
+  margin: 0 auto;
+  box-shadow: var(--sc-shadow-soft);
+  transition: var(--sc-card-transition);
+  will-change: transform, box-shadow;
+}
+
+.scCardSm:hover,
+.scCardSm:focus-within {
+  border-color: var(--sc-border-strong);
+  background: var(--sc-surface-2);
+  transform: translateZ(0) translateY(-2px);
+  box-shadow: var(--sc-shadow-soft);
+}
+
+:global(html[data-theme='light']) .scCardSm {
+  background: var(--sc-surface-1);
+  border-color: var(--sc-border-soft);
+  box-shadow: var(--sc-shadow-soft);
+}
+
+:global(html[data-theme='light']) .scCardSm:hover,
+:global(html[data-theme='light']) .scCardSm:focus-within {
+  border-color: var(--sc-border-strong);
+  background: var(--sc-surface-2);
+}
+
+.scCardSmTitle {
+  font-size: clamp(0.96rem, 1.15vw, 1rem);
+  font-weight: 640;
+  line-height: 1.28;
+  letter-spacing: var(--tracking-card-title);
+  color: var(--sc-text-strong);
+  margin: 0 0 2px;
+}
+
+.scCardSmBody {
+  font-size: clamp(0.86rem, 1.05vw, 0.9rem);
+  font-weight: var(--weight-card-body);
+  color: var(--sc-text-body);
+  line-height: 1.48;
+  letter-spacing: var(--tracking-body);
+  opacity: 0.88;
+}
+
+.coreOpsDesc {
+  font-size: var(--font-sm);
+  text-align: center;
+  max-width: 700px;
+  margin: clamp(20px, 2vw, 28px) auto clamp(28px, 3vw, 36px);
+  opacity: 0.82;
+  letter-spacing: var(--tracking-body);
+}
+
+.coreOpsActions {
+  margin-top: clamp(var(--sc-space-5), 5vw, var(--sc-space-7));
+  display: flex;
+  justify-content: center;
+}
+
+.coreOpsCard {
+  background: var(--sc-surface-card);
+  border: 1px solid var(--sc-border-card);
+  border-radius: var(--sc-radius-card-xl, 18px);
+  padding: clamp(22px, 4vw, 28px) clamp(24px, 5vw, 32px);
+  box-shadow: var(--sc-shadow-card);
+  transition: transform var(--motion-hover), box-shadow var(--motion-hover), background var(--motion-hover);
+  max-width: 520px;
+  margin: 0 auto;
+  transform: translateZ(0);
+}
+
+.coreOpsCard:hover,
+.coreOpsCard:focus-within {
+  background: var(--sc-surface-card-strong);
+  transform: translateZ(0) translateY(-2px) scale(1.003);
+  box-shadow: var(--sc-shadow-hover-soft);
+}
+
+.scButtonSecondary {
+  width: 100%;
+  justify-content: center;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(var(--sc-space-4), 3vw, var(--sc-space-5));
+  color: var(--sc-text-subtle);
+  text-align: center;
+  opacity: 0.88;
+  font-size: var(--font-xs);
+  letter-spacing: var(--tracking-body);
+  max-width: 640px;
+  margin: clamp(48px, 6vw, 72px) auto 0;
+}
+
+.footer a {
+  opacity: 0.82;
+  font-weight: 540;
+  letter-spacing: var(--tracking-button);
+  transition: opacity 160ms ease;
+}
+
+.footer a:hover {
+  opacity: 1;
+}
+
+.footerCta {
+  margin-bottom: var(--sc-space-6);
+  align-self: center;
+}
+
+:global(main > .scSection:first-of-type) {
+  margin-top: clamp(64px, 7vw, 80px);
+}

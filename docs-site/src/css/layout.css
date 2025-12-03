@@ -1,0 +1,122 @@
+/* -----------------------------------------------
+     ShieldCraft AI - Global Layout System
+     ($200k agency foundational reset)
+     ----------------------------------------------- */
+
+/* ---- Viewport-safe spacing scale ---- */
+:root {
+    --space-2xs: 8px;
+    --space-xs: 12px;
+    --space-sm: 16px;
+    --space-md: 24px;
+    --space-lg: 40px;
+    --space-xl: 64px;
+    --space-2xl: 96px;
+
+    --w-narrow: 840px;
+    --w-standard: 960px;
+    --w-wide: 1180px;
+
+    --text-muted: #9aa0b4;
+}
+
+/* ---- Base section rules (applies to every block) ---- */
+.sc-section {
+    width: 100%;
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+    box-sizing: border-box;
+}
+
+/* ---- Variants (width containers) ---- */
+.sc-narrow {
+    max-width: var(--w-narrow);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.sc-standard {
+    max-width: var(--w-standard);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.sc-wide {
+    max-width: var(--w-wide);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* ---- Nested content safe reset ---- */
+.sc-section>* {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* ---- Grid presets ---- */
+.sc-grid-2,
+.sc-grid-3,
+.sc-grid-auto {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+/* 2-col fixed */
+.sc-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+}
+
+/* 3-col fixed */
+.sc-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* auto-fit flexible */
+.sc-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+/* ---- Typography rhythm ---- */
+.sc-heading {
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: -0.25px;
+    color: #f4f6ff;
+    line-height: 1.15;
+}
+
+.sc-subtext {
+    margin-bottom: var(--space-md);
+    max-width: 70ch;
+    font-size: 1.06rem;
+    line-height: 1.48;
+    color: var(--text-muted);
+}
+
+/* ---- Vertical rhythm fix: first section under hero ---- */
+body .sc-first {
+    padding-top: var(--space-2xl);
+}
+
+/* ---- Hero isolation rules (keeps hero full-bleed) ---- */
+#hero,
+.sc-hero {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: var(--space-2xl) 0 var(--space-xl);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+#hero *,
+.sc-hero * {
+    max-width: none !important;
+}
+
+/* ---- Footer top spacing ---- */
+.sc-after-sections {
+    margin-top: var(--space-2xl);
+}

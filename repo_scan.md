@@ -7,42 +7,42 @@
 
 ## Deterministic Findings by Capability
 
-### 1. Foundation & Planning — COMPLETE
+### 1. Foundation & Planning  -  COMPLETE
 - `infra/app.py` composes networking, data, ML, security, compliance, and budget stacks per environment, enforcing shared tags and dependency ordering.
 - `infra/utils/config_loader.py` provides the typed, single-source configuration loader with Secrets Manager indirection, validating sections before CDK synthesis.
 - `infra/stacks/cost/budget_service.py` (invoked via `BudgetStack` inside `infra/app.py`) wires deterministic per-environment spend guardrails required by the spec.
 
-### 2. Data Preparation & Retrieval — COMPLETE
+### 2. Data Preparation & Retrieval  -  COMPLETE
 - `ai_core/model_loader.py` (and sibling chunking/vector modules) implements the hot-swappable model abstraction with stub-vs-real selection required for guarded experimentation.
 - `ai_core/vector_store.py` and `ai_core/embedding/` house the pgvector-backed retrieval layer that the spec calls for.
 - `scripts/retrieval_spotcheck.py` plus `docs-site/docs/github/retrieval_spotcheck.md` capture the deterministic spot-check harness and evidence artifacts backing the checklist items.
 
-### 3. AWS Cloud Foundation — COMPLETE WITH DEFERRED MULTI-REGION
+### 3. AWS Cloud Foundation  -  COMPLETE WITH DEFERRED MULTI-REGION
 - `infra/stacks/networking/networking.py` provisions the segmented VPC, subnets, and flow-log plumbing consumed by the other stacks.
 - `infra/stacks/security/secrets_manager_service.py` and `infra/stacks/cost/budget_service.py` confirm centralized secrets + cost guardrails are codified.
 - `infra/stacks/cloud_native/cloud_native_hardening_service.py` enables GuardDuty, Security Hub, Detective, and Config hooks per the security baseline.
 - No automation or scripts exist for multi-region failover rehearsals (SC-INFRA-STACK-002 remains open as listed in both checklists).
 
-### 4. AI Core Development & Experimentation — PARTIAL
+### 4. AI Core Development & Experimentation  -  PARTIAL
 - `ai_core/model_loader.py` and `docs-site/docs/github/retrieval_spotcheck.md` satisfy the baseline loader + benchmark requirements.
 - Missing: multi-agent orchestration, prompt-governance registry, approval workflow, and the automated hallucination/toxicity loop (checklist items SC-AI-AGENT-001/002/003 and SC-AI-DRIFT-001 remain unimplemented anywhere in the repo).
 
-### 5. Application Layer & Integration — PARTIAL
+### 5. Application Layer & Integration  -  PARTIAL
 - `docs-site/src/pages/dashboard/index.tsx` (plus `docs-site/src/components/Dashboard/DashboardSummary.tsx`) implements the static Analyst Dashboard requested by SC-APP-UI-001 with deterministic evidence pulled from docs artifacts.
 - `docs-site/src/pages/dashboard/evidence.tsx` and `docs-site/src/components/Dashboard/EvidenceFeed.tsx` fulfill SC-APP-UI-002 by exposing a placeholder evidence feed.
 - `docs-site/tests/test_dashboard_route.js` adds Jest coverage for both dashboard routes.
 - `api/app.py` exposes a demo `/demo-vertical-slice` endpoint but no public dashboard API contract; SC-APP-UI-003 and the SC-APP-PUBLIC-API-* items still lack concrete implementation or documentation.
 
-### 6. GuardSuite Integration Layer — PARTIAL
+### 6. GuardSuite Integration Layer  -  PARTIAL
 - `docs/Guard Suite.txt`, `ShieldCraft-AI-Context.txt`, and `docs-site/docs/github/artifact_map.md` collectively describe the integration narrative and evidence map.
 - The GuardSuite CLI contract (SC-GS-CLI-001), model governance integration (SC-GS-MODEL-001), and full docs parity (SC-GS-DOCS-002) have no code, scripts, or docs in the repo.
 
-### 7. Security & Governance — PARTIAL
+### 7. Security & Governance  -  PARTIAL
 - `scripts/check-secrets.js` + `scripts/scan-secrets.json` implement the deterministic secrets scanner wired into `scripts/commit-script.sh`.
 - `docs-site/docs/github/threat_model_summary.md` and `docs-site/docs/github/risk_log.md` capture the documented risk baseline cited by the dashboard components.
 - SBOM generation/signing and automated IAM access-review cadence (SC-INFRA-STACK-003/004) are still theoretical; no scripts or CI hooks exist for them.
 
-### 8. Documentation & Enablement — COMPLETE
+### 8. Documentation & Enablement  -  COMPLETE
 - `docs-site/docs/github/demo_vertical_slice.md`, `docs-site/docs/github/artifact_map.md`, and `docs-site/docs/github/checklist.md` provide the evidence, artifact crosswalk, and automation described in the spec.
 - `ShieldCraft-AI-Context.txt` is up to date (Oct 17 snapshot) and captures the secrets scanner work plus Proton scaffolding.
 

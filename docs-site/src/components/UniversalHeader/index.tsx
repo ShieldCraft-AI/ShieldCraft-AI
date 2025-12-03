@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import React, { Component, ErrorInfo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from '@docusaurus/Link';
 import { useLocation, useHistory } from '@docusaurus/router';
@@ -6,6 +5,7 @@ import { useColorMode } from '@docusaurus/theme-common';
 import { isLoggedIn, onAuthChange, signOut, getCurrentUser, notifyAuthChange, clearAuthStorage } from '../../utils/auth-cognito';
 import MultiProviderLogin from '../MultiProviderLogin';
 import '../../css/header-login.css';
+import '../../styles/header.css';
 import logger from '@site/src/utils/logger';
 
 const MOBILE_BREAKPOINT = '(max-width: 960px)';
@@ -49,7 +49,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     }
 }
 
-export default function UniversalHeader({ height = '60px' }: UniversalHeaderProps): JSX.Element {
+export default function UniversalHeader({ height = '60px' }: UniversalHeaderProps): React.ReactElement {
     const location = useLocation();
     const history = useHistory();
     const { colorMode, setColorMode } = useColorMode();
@@ -364,21 +364,20 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
 
     const navBaseStyle = useMemo<React.CSSProperties>(() => ({
         textDecoration: 'none',
-        color: isDarkMode ? '#e5e7eb' : '#0f172a',
-        padding: '0.38rem 1.18rem',
-        borderRadius: 14,
-        // Use a consistent, non-bold weight for nav labels per UX request
+        color: isDarkMode ? '#f4f4f9' : '#0f172a',
+        padding: '0.38rem 1.05rem',
+        borderRadius: 12,
         fontWeight: 500,
-        fontSize: '1.08rem',
-        background: 'linear-gradient(90deg, rgba(34,211,238,0.10) 0%, rgba(59,130,246,0.08) 100%)',
-        boxShadow: '0 1.5px 8px rgba(34,211,238,0.07)',
-        transition: 'background .18s cubic-bezier(.4,2,.6,1), box-shadow .18s cubic-bezier(.4,2,.6,1), color .18s',
+        fontSize: '1.02rem',
+        background: 'transparent',
+        boxShadow: 'none',
+        transition: 'color .18s ease, border-color .18s ease',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: '0.5rem',
         position: 'relative',
-        border: '1.5px solid transparent',
+        border: '1px solid transparent',
     }), [isDarkMode]);
 
     const handleLoginToggle = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -437,15 +436,10 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
     return (
         <ErrorBoundary>
             <header
+                className="scNavGlass"
                 ref={headerRef}
                 style={{
-                    background: isDarkMode
-                        ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
-                        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                    padding: isMobile ? '0.58rem 1.1rem' : '0.82rem 2.8rem', // ~10% less height
-                    borderBottom: isDarkMode
-                        ? '1.5px solid rgba(165, 180, 252, 0.22)'
-                        : '1.5px solid rgba(100, 116, 139, 0.18)',
+                    padding: isMobile ? '0.58rem 1.1rem' : '0.82rem 2.8rem',
                     position: 'sticky',
                     top: 0,
                     zIndex: 5000,
@@ -457,44 +451,26 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                     boxSizing: 'border-box',
                     maxWidth: '100vw',
                     borderRadius: '0 0 18px 18px',
-                    boxShadow: isDarkMode
-                        ? '0 4px 32px rgba(34,211,238,0.10), 0 1.5px 8px rgba(59,130,246,0.10)'
-                        : '0 4px 32px rgba(34,211,238,0.10), 0 1.5px 8px rgba(59,130,246,0.10)',
                     transition: 'background 0.3s, border-color 0.3s, box-shadow 0.3s',
                 }}
             >
                 <div style={headerRowStyle}>
                     <Link
                         to="/"
-                        style={{
-                            textDecoration: 'none',
-                            color: isDarkMode ? '#e5e7eb' : '#0f172a',
-                            fontSize: isMobile ? '1.18rem' : '1.38rem',
-                            fontWeight: 800,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.7rem',
-                            transition: 'color 0.3s',
-                            padding: isMobile ? '0.1rem 0.2rem' : '0.1rem 0.5rem',
-                            borderRadius: 12,
-                        }}
+                        className="scNavBrand"
+                        aria-label="ShieldCraft home"
                     >
-                        <img
-                            src="/img/logo.png"
-                            alt="ShieldCraft AI"
-                            style={{
-                                height: isMobile ? 32 : 38,
-                                width: 'auto',
-                                display: 'block',
-                                filter: isDarkMode
-                                    ? 'drop-shadow(0 1px 0 rgba(255,255,255,0.06))'
-                                    : 'drop-shadow(0 1px 0 rgba(0,0,0,0.06))',
-                                opacity: 0.98,
-                                borderRadius: 8,
-                                marginRight: 2,
-                            }}
-                        />
-                        <span>ShieldCraft AI</span>
+                        <picture>
+                            <source srcSet="/img/logo-sm.webp" type="image/webp" />
+                            <img
+                                src="/img/logo.png"
+                                alt="ShieldCraft AI"
+                                className="scNavLogo"
+                                height={22}
+                                width={110}
+                                style={{ height: 22, width: 'auto' }}
+                            />
+                        </picture>
                     </Link>
 
                     {!isMobile && hydrated && (
@@ -520,31 +496,8 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                                         className="sc-nav-pill"
                                         style={{
                                             ...navBaseStyle,
-                                            padding: '0.3rem 1rem', // Adjusted padding for better spacing
-                                            borderRadius: 8,
-                                            fontSize: '1.05rem',
-                                            // Do not bold active nav items — always use the same weight
-                                            fontWeight: 500,
-                                            background: isActive
-                                                ? (isDarkMode ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.04)') // much more subtle selected background
-                                                : 'transparent',
-                                            color: isActive
-                                                ? (isDarkMode ? '#f8fafc' : '#0b1220') // slight contrast but not full white
-                                                : navBaseStyle.color,
-                                            boxShadow: isActive
-                                                ? (isDarkMode ? '0 2px 8px rgba(2,6,23,0.06)' : '0 2px 8px rgba(2,6,23,0.04)')
-                                                : 'none',
-                                            transform: 'scale(1)', // Default scale
-                                            transition: 'transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease',
-                                            textDecoration: 'none',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; // Change background on hover
-                                            e.currentTarget.style.border = '1px solid rgba(99,102,241,0.5)'; // Add border on hover
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = 'transparent'; // Reset background on mouse leave
-                                            e.currentTarget.style.border = '1px solid transparent'; // Reset border on mouse leave
+                                            color: isActive ? '#ffffff' : navBaseStyle.color,
+                                            borderColor: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
                                         }}
                                     >
                                         {label}

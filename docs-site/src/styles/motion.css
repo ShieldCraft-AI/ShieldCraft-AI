@@ -1,0 +1,26 @@
+/* src/styles/motion.css - CREATE */
+.sc-anim-fast {
+    transition: all 140ms var(--sc-ease);
+}
+
+.sc-anim-med {
+    transition: all 240ms var(--sc-ease);
+}
+
+.sc-anim-slow {
+    transition: all 420ms var(--sc-ease);
+}
+
+.sc-elevate {
+    transform: translateY(-6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sc-anim-fast,
+    .sc-anim-med,
+    .sc-anim-slow {
+        transition: none !important;
+        animation: none !important;
+    }
+}

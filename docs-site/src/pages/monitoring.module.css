@@ -18,7 +18,7 @@
     --card-tile-bg: rgba(255, 255, 255, 0.035);
     --banner-bg-start: rgba(245, 158, 11, 0.12);
     --banner-bg-end: rgba(245, 158, 11, 0.04);
-    --domain-bg: rgba(255, 255, 255, 0.03);
+    --domain-bg: var(--sc-border-soft);
 }
 
 [data-theme='light'] {
@@ -32,7 +32,7 @@
     --card-tile-bg: rgba(15, 23, 42, 0.04);
     --banner-bg-start: rgba(245, 158, 11, 0.15);
     --banner-bg-end: rgba(245, 158, 11, 0.05);
-    --domain-bg: rgba(15, 23, 42, 0.04);
+    --domain-bg: var(--sc-border-soft);
 }
 
 .mono {
@@ -68,7 +68,7 @@
     border-radius: 10px;
     padding: 0.65rem 0.75rem;
     box-sizing: border-box;
-    overflow: hidden;
+    background: var(--sc-border-soft);
     cursor: default;
     transition: border-color 0.2s ease;
 }
@@ -550,7 +550,7 @@
     font-size: .7rem;
     line-height: 1.3;
     color: var(--hud-text);
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--sc-border-soft);
     border: 1px solid var(--hud-hairline);
     border-radius: 8px;
     padding: .4rem .45rem;

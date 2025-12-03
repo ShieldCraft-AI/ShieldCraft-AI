@@ -1,27 +1,109 @@
-.rowSection {
+.rowRoot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  max-width: 1080px;
+  margin: 0 auto;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 2.5em 0 2em 0;
-  /* background: #fff; */
-  box-sizing: border-box;
+  padding: var(--space-lg) 0;
 }
 
-.rowContainer {
+.column {
   display: flex;
-  gap: 3em;
-  max-width: 1200px;
-  width: 100%;
-  justify-content: center;
-  padding: 2em 3em;
-  box-sizing: border-box;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
-@media (max-width: 700px) {
-  .rowContainer {
-    flex-direction: column;
-    gap: 1.5em;
-    align-items: center;
-    padding: 1em;
+.infoCard {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.infoCard h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #e5e9ff;
+}
+
+.infoCard p {
+  margin: 0 0 var(--space-sm) 0;
+  line-height: 1.42;
+  color: var(--muted-text);
+}
+
+.infoCard ul {
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.infoCard ul li {
+  margin-bottom: 6px;
+  line-height: 1.42;
+  letter-spacing: -0.1px;
+}
+
+.infoCard ul li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .rowRoot {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+}
+
+.row {
+  display: contents;
+  /* grid handled by parent */
+}
+
+/* Card primitive (premium version) */
+.card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: var(--space-lg) var(--space-md);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.50);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+/* Heading & body refinement */
+.card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  color: #dfe3ff;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.45;
+  color: var(--muted-text);
+}
+
+/* Ensure description spacing is consistent when present */
+.description {
+  margin-bottom: var(--space-sm) !important;
+}
+
+
+/* Mobile tightening */
+@media (max-width: 900px) {
+  .card {
+    padding: var(--space-md);
   }
 }

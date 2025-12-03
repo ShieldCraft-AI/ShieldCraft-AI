@@ -90,6 +90,7 @@ s3:
       versioned: true
       encryption: S3_MANAGED
       block_public_access: BLOCK_ALL
+      removal_policy: RETAIN
       lifecycle_rules:
         - id: transition-analytics-prod
           enabled: true

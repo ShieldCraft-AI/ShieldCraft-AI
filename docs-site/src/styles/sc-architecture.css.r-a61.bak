@@ -1,0 +1,272 @@
+/* src/styles/sc-architecture.css
+   Updated - R-A33 architecture grid stabilization.
+   Notes:
+   - .scArch now is a fluid visual container only (no outer padding/width).
+   - .scArchFrame provides internal padding only and aligns to scContainerWide.
+   - scArchRow uses a responsive 3-column layout with a constrained center column.
+*/
+
+:global(:root) {
+    /* Card material tokens (R-A58). Legacy tokens (e.g., --sc-shadow-card-xl) are deprecated. */
+    --sc-card-surface: var(--sc-surface-1);
+    --sc-card-surface-light: var(--sc-surface-1);
+    --sc-card-overlay: rgba(255, 255, 255, 0.02);
+    --sc-card-border: var(--sc-border-soft);
+    --sc-card-border-strong: var(--sc-border-strong);
+    --sc-card-padding: clamp(20px, 4vw, 28px);
+    --sc-card-radius: var(--sc-radius-card-lg);
+    --sc-card-shadow-soft: var(--sc-shadow-soft);
+    --sc-card-shadow-hard: var(--sc-shadow-hard);
+    --sc-card-shadow: var(--sc-shadow-soft);
+    --sc-card-hover-shadow: var(--sc-shadow-hard);
+    --sc-card-transition: border-color 120ms ease, background 140ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+
+.scCardHighlight {
+    background: linear-gradient(to bottom, var(--sc-border-soft), rgba(255, 255, 255, 0));
+}
+
+:global(html[data-theme='light']) .scCardHighlight {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.2));
+}
+
+/* Visual frame: keep surface, border, shadow, but remove outer padding */
+.scArch {
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    background: var(--sc-card-surface);
+    border: 1px solid var(--sc-card-border);
+    border-radius: var(--sc-card-radius);
+    box-shadow: var(--sc-card-shadow);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    z-index: 3;
+}
+
+/* Internal frame: small, consistent inner padding for cards / grid */
+.scArchFrame {
+    background: var(--sc-card-surface);
+    border: 1px solid var(--sc-card-border-strong);
+    border-radius: var(--sc-card-radius);
+    padding: var(--sc-space-6);
+    box-shadow: var(--sc-card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sc-arch-grid-gap);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Top overview (title + principles) - modest two-column split */
+.scArchOverview {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: var(--sc-arch-grid-gap);
+    align-items: stretch;
+}
+
+/* Principles card visual style preserved */
+.scArchPrinciples {
+    background: var(--sc-card-surface);
+    border: 1px solid var(--sc-card-border);
+    border-radius: var(--sc-card-radius);
+    padding: var(--sc-card-padding);
+    box-shadow: var(--sc-card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 100%;
+    transition: var(--sc-card-transition);
+}
+
+.scArchPrinciples h4 {
+    margin: 0 0 8px;
+    font-weight: 660;
+    font-size: 1rem;
+    color: var(--sc-text-strong);
+}
+
+.scArchPrinciples p {
+    margin: 0;
+    font-size: 0.93rem;
+    color: var(--sc-text-body);
+    opacity: 0.85;
+}
+
+/* Row for the main architecture content: left / center / right */
+.scArchRow {
+    display: grid;
+    grid-template-columns: 1fr minmax(360px, 1.2fr) 1fr;
+    gap: var(--sc-arch-grid-gap);
+    align-items: start;
+}
+
+/* Column children are simple vertical stacks */
+.scArchColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sc-space-5);
+}
+
+/* Card details / narrative */
+.scArchDetailCard {
+    background: var(--sc-card-surface);
+    border: 1px solid var(--sc-card-border);
+    border-radius: var(--sc-card-radius);
+    padding: var(--sc-card-padding);
+    backdrop-filter: blur(12px);
+    transition: opacity var(--motion-fade), var(--sc-card-transition);
+    box-shadow: var(--sc-card-shadow);
+    margin-bottom: 0;
+    position: relative;
+}
+
+/* Tag grid for services */
+.scArchTags {
+    margin-top: var(--sc-space-3);
+    margin-bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: calc(var(--sc-arch-tag-gap) + 4px);
+}
+
+/* Minor visual tweaks */
+.scArchTitle {
+    font-size: 22px;
+    font-weight: 660;
+    letter-spacing: var(--tracking-h1-h2);
+    margin-top: 12px;
+    margin-bottom: 12px;
+    text-align: center;
+    color: var(--sc-text-strong);
+}
+
+.scArchSubtitle {
+    font-size: var(--sc-arch-subtitle-size);
+    line-height: 1.62;
+    letter-spacing: -0.01em;
+    opacity: 0.85;
+    margin-bottom: clamp(24px, 4vw, 32px);
+    max-width: 560px;
+    color: var(--sc-text-body);
+    text-align: center;
+}
+
+.scArchDetailCard p {
+    line-height: 1.55;
+    opacity: 0.92;
+    letter-spacing: var(--type-letter-body);
+    margin-bottom: var(--sc-space-3);
+}
+
+.scArchDetailCard h4 {
+    margin-bottom: var(--sc-space-2);
+    font-weight: 650;
+    letter-spacing: -0.2px;
+    color: var(--sc-text-strong);
+}
+
+.scArchDetailCard.enter {
+    opacity: 0;
+    transform: translateY(6px);
+}
+
+.scArchDetailCard.enter-active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Principles / usage helper blocks */
+.implBlock {
+    background: var(--sc-card-surface);
+    border: 1px solid var(--sc-card-border);
+    padding: var(--sc-card-padding);
+    border-radius: var(--sc-card-radius);
+    box-shadow: var(--sc-card-shadow);
+    transition: var(--sc-card-transition);
+}
+
+:global(.principlesCard),
+:global(.usageBlockEmbedded),
+:global(.archNarrative) {
+    background: var(--sc-surface-1);
+    border: 1px solid var(--sc-border-strong);
+    box-shadow: var(--sc-shadow-soft);
+    transition: var(--sc-card-transition);
+}
+
+:global(.principlesCard:hover),
+:global(.usageBlockEmbedded:hover),
+:global(.archNarrative:hover) {
+    border-color: var(--sc-border-strong);
+    transform: translateZ(0) translateY(-2px);
+    box-shadow: var(--sc-shadow-hard);
+}
+
+:global(.principlesCard:active),
+:global(.usageBlockEmbedded:active),
+:global(.archNarrative:active) {
+    transform: translateZ(0) scale(0.992);
+}
+
+.principlesCard:focus-visible,
+.usageBlockEmbedded:focus-visible,
+.archNarrative:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--sc-accent-1), var(--sc-shadow-hard);
+    transform: translateZ(0) translateY(-2px) scale(1.002);
+}
+
+/* utility spacing */
+.scArchSectionSpacing {
+    margin-top: var(--sc-space-4);
+}
+
+/* small-screen responsiveness */
+@media (max-width: 900px) {
+    .scArchRow {
+        grid-template-columns: 1fr;
+    }
+
+    .scArchOverview {
+        grid-template-columns: 1fr;
+    }
+
+    .scArchFrame {
+        padding: var(--sc-space-5);
+        gap: var(--sc-space-6);
+    }
+}
+
+/* vignette & visual layering preserved */
+.scArch::before {
+    content: "";
+    position: absolute;
+    inset: -12% -12% auto -12%;
+    height: 160px;
+    background: var(--sc-arch-vignette);
+    filter: blur(16px);
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.scArch>* {
+    position: relative;
+    z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scArch::before {
+        opacity: 0;
+        filter: none;
+    }
+}
+
+/* fallback small tweaks */
+.light .scArchDetailCard {
+    background: var(--sc-surface-1);
+    border-color: var(--sc-border-soft);
+}

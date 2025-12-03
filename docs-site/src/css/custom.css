@@ -4,6 +4,15 @@
  * work well for content-centric websites.
  */
 
+@import './layout.css';
+
+/* Neutralize legacy global overlays; hero now controls watermark */
+body::before {
+  content: none !important;
+  display: none !important;
+}
+
+
 /* You can override the default Infima variables here. */
 :root {
   /* ShieldCraft cyan theme for documentation */
@@ -20,10 +29,10 @@
   --ifm-color-success-dark: #16a34a;
   --ifm-color-success-darker: #15803d;
 
-  /* Warning color (orange) */
-  --ifm-color-warning: #f59e0b;
-  --ifm-color-warning-dark: #d97706;
-  --ifm-color-warning-darker: #b45309;
+  .vs-deploy h3 {
+    margin: 0 0 6px 0;
+    color: var(--vs-foreground) !important;
+  }
 
   /* Danger color (red) */
   --ifm-color-danger: #ef4444;
@@ -37,6 +46,21 @@
 
   /* Shared aurora background used across marketing pages */
   --sc-aurora-bg: radial-gradient(120% 120% at 50% 0%, rgba(226, 232, 240, 0.96), rgba(221, 214, 254, 0.52) 46%, rgba(191, 219, 254, 0.65) 82%);
+  /* Modal background defaults (opaque) to prevent background bleed-through */
+  /* Default to an opaque light card in LTR (light) mode so underlying copy
+      never shows through. Dark mode will override this variable below. */
+  --guard-modal-bg: rgba(255, 255, 255, 0.98);
+  --guard-modal-fg: var(--vs-fg);
+  /* Backdrop darkness for modal overlay; tunable per-theme */
+  --guard-modal-backdrop: rgba(0, 0, 0, 0.50);
+
+  /* VectorScan theme tokens (defaults - lightish) */
+  --vs-page-bg: linear-gradient(180deg, rgba(248, 250, 252, 1) 0%, rgba(245, 243, 255, 1) 100%);
+  --vs-foreground: var(--vs-fg);
+  --vs-muted: rgba(51, 65, 85, 0.78);
+  --vs-surface: rgba(255, 255, 255, 0.04);
+  --vs-card-border: rgba(2, 6, 23, 0.06);
+  --vs-accent: var(--vs-purple);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -55,11 +79,1659 @@
 
   /* Shared aurora background used across marketing pages */
   --sc-aurora-bg: radial-gradient(120% 120% at 50% 0%, rgba(37, 99, 235, 0.12), rgba(14, 23, 42, 0.42) 56%, rgba(7, 11, 26, 0.92) 96%);
+  /* Modal dark-mode defaults */
+  /* Slightly lighten the modal in dark mode to avoid overwhelming the page */
+  --guard-modal-bg: var(--vs-surface);
+  --guard-modal-fg: var(--vs-fg);
+  /* Slightly lighter backdrop in dark mode */
+  --guard-modal-backdrop: rgba(0, 0, 0, 0.50);
+
+  /* Dark theme tokens */
+  --vs-page-bg: linear-gradient(180deg, rgba(8, 10, 16, 1) 0%, rgba(4, 6, 10, 1) 100%);
+  --vs-foreground: #e6eef7;
+  --vs-muted: rgba(230, 238, 247, 0.78);
+  --vs-surface: rgba(18, 20, 26, 0.48);
+  --vs-card-border: rgba(255, 255, 255, 0.06);
+  --vs-accent: var(--vs-purple);
 }
 
-body.aurora-surface {
-  background: var(--sc-aurora-bg);
-  background-attachment: fixed;
-  min-height: 100%;
-  transition: background 0.3s ease;
+/* Support theme toggles applied to the html element too (Docusaurus may set this) */
+html[data-theme='dark'] {
+  --vs-page-bg: linear-gradient(180deg, rgba(8, 10, 16, 1) 0%, rgba(4, 6, 10, 1) 100%);
+  --vs-foreground: #e6eef7;
+  --vs-muted: rgba(230, 238, 247, 0.78);
+  --vs-surface: rgba(18, 20, 26, 0.48);
+  --vs-card-border: rgba(255, 255, 255, 0.06);
+  --vs-accent: var(--vs-purple);
+}
+
+html[data-theme='light'] {
+  --vs-page-bg: linear-gradient(180deg, rgba(248, 250, 252, 1) 0%, rgba(245, 243, 255, 1) 100%);
+  --vs-foreground: #0f172a;
+  --vs-muted: rgba(51, 65, 85, 0.78);
+  --vs-surface: rgba(255, 255, 255, 0.04);
+  --vs-card-border: rgba(2, 6, 23, 0.06);
+  --vs-accent: var(--vs-purple);
+}
+
+/* GuardSuite promo banner styles (polish to match site tokens) */
+.guardSuiteBanner {
+  box-sizing: border-box;
+  background: var(--ifm-background-surface-color, #ffffff);
+  color: var(--ifm-font-color-base, #0f172a);
+  border: 1px solid rgba(14, 165, 233, 0.12);
+  /* subtle cyan border */
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.06);
+  /* Keep the banner a compact, centered floating card; allow a bit more room */
+  width: auto;
+  /* Slightly tighter max width now the pill is removed */
+  max-width: min(1000px, calc(100% - 48px));
+  margin: 0 auto;
+  /* Add extra right padding so the close button doesn't overlap the centered content */
+  padding: 0.75rem 2.75rem 0.75rem 1.25rem;
+  transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.guardSuiteBanner__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  /* Ensure content area leaves room for the close button */
+  padding-right: 0.5rem;
+}
+
+/* Hover / activation state to engage users on the landing page */
+.guardSuiteBanner:hover,
+.guardSuiteBanner:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.12);
+  border-color: var(--ifm-color-primary, #22d3ee);
+}
+
+.guardSuiteBanner:focus {
+  outline: 3px solid rgba(34, 211, 238, 0.18);
+  outline-offset: 4px;
+}
+
+/* pill removed  -  no styles needed */
+
+.guardSuiteBanner__content p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--ifm-color-emphasis-700, #334155);
+}
+
+/* Ensure no underline appears on the anchor or its children on hover */
+.guardSuiteBanner,
+.guardSuiteBanner * {
+  text-decoration: none !important;
+}
+
+/* action buttons removed  -  banner is a single clickable link */
+
+.guardSuiteBanner__close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--ifm-color-emphasis-500, #64748b);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  z-index: 3;
+}
+
+.guardSuiteBanner__close:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .guardSuiteBanner {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+  }
+
+  .guardSuiteBanner__content {
+    gap: 8px;
+  }
+
+  .guardSuiteBanner__content p {
+    font-size: 0.9rem;
+  }
+
+  .guardSuiteBanner__actions {
+    /* actions removed */
+  }
+}
+
+/* Product page layout for GuardSuite product pages */
+.guardProductPage {
+  padding: 48px 24px;
+  display: block;
+  /* Keep the site-wide page background transparent so the shared canvas token shows through */
+  background: transparent !important;
+  color: var(--ifm-font-color-base, #0f172a);
+}
+
+.guardProductPage>section {
+  max-width: 980px;
+  margin: 0 auto 32px auto;
+}
+
+.guardProductHero {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+  padding: 24px 24px 36px 24px;
+}
+
+.guardProductHero__badge {
+  display: inline-block;
+  background: var(--ifm-color-primary, #22d3ee);
+  color: white;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.guardProductHero__main {
+  max-width: 64ch;
+}
+
+.guardProductHero__lead {
+  margin-bottom: 20px;
+  font-size: 1.0625rem;
+  color: var(--vs-muted);
+}
+
+.guardProductHero__side {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+}
+
+.guardProductHero h1 {
+  margin: 12px 0 14px 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.guardProductHero p {
+  margin: 0 auto 20px auto;
+  max-width: 900px;
+  color: var(--vs-muted);
+}
+
+.guardProductHero__stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 0;
+  width: 100%;
+}
+
+.guardProductHero__stats article {
+  text-align: center;
+  border: 1px solid rgba(2, 6, 23, 0.06);
+  background: var(--vs-surface);
+  padding: 18px;
+  border-radius: 10px;
+  width: 100%;
+  min-height: 120px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.guardProductHero__stats article:hover,
+.guardProductHero__stats article:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.12);
+  border-color: var(--ifm-color-primary, #22d3ee);
+}
+
+/* Ensure ghost link appears on its own row and has no underline */
+.guardProductHero__ghost {
+  margin-top: 12px;
+}
+
+.guardProductHero__ghost .button--link {
+  text-decoration: none !important;
+  border: none;
+  padding: 0.2rem 0;
+  color: var(--ifm-color-primary, #22d3ee);
+  background: transparent;
+}
+
+.guardProductHero__ghost .button--link:hover {
+  text-decoration: none !important;
+  text-decoration-skip-ink: none;
+  color: var(--ifm-color-primary-dark, #16c5dc);
+}
+
+.guardProductHero__stats span {
+  display: block;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.guardProductHero__actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.guardProductSections article {
+  margin: 20px 0;
+  padding: 18px;
+  background: var(--vs-surface);
+  border-radius: 8px;
+  border-left: 3px solid rgba(34, 211, 238, 0.08);
+}
+
+.guardProductSections h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.guardProductSections p {
+  margin-bottom: 12px;
+}
+
+.guardProductSections ul {
+  padding-left: 18px;
+}
+
+.guardProductSections li {
+  margin-bottom: 8px;
+}
+
+.guardProductSections li::marker {
+  color: var(--ifm-color-primary, #22d3ee);
+}
+
+.guardProductSections h2 {
+  margin-bottom: 8px;
+}
+
+.guardProductSections p {
+  max-width: 900px;
+}
+
+.guardProductComparison__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px 24px;
+  align-items: start;
+}
+
+.guardProductComparison {
+  padding: 0 18px 24px 18px;
+}
+
+.guardProductComparison__header {
+  font-weight: 700;
+  padding-bottom: 6px;
+}
+
+.guardProductAside {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.03);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* Add horizontal padding for content sections to avoid flush-left text */
+.guardProductSections,
+.guardProductComparison,
+.guardProductAside {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Light / dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .guardProductPage {
+    /* keep product page transparent in dark mode too */
+    background: transparent !important;
+    color: var(--ifm-font-color-base, #e6eef7);
+  }
+
+  .guardProductAside {
+    background: var(--vs-surface);
+  }
+
+  /* dark-mode variant for translucent cards so contrast remains good */
+  .guardProductHero__stats article {
+    background: rgba(18, 20, 26, 0.48);
+    border-color: var(--vs-card-border);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ===== VectorScan premium theme pieces ===== */
+.vs-page {
+  background: var(--vs-page-bg) !important;
+  color: var(--vs-foreground) !important;
+}
+
+/* Ensure every section inside the VS page is constrained and centered. */
+.vs-page section {
+  max-width: 1100px;
+  margin: 0 auto 32px auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+
+.vs-hero {
+  position: relative;
+  padding: 72px 0 48px 0;
+  overflow: visible;
+}
+
+.vs-hero__visual {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.42;
+  /* reduce visual intensity so copy remains legible */
+}
+
+/* subtle dark overlay between visual and copy to improve contrast */
+.vs-hero__visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(4, 6, 10, 0.0) 10%, rgba(4, 6, 10, 0.62) 85%);
+  pointer-events: none;
+}
+
+.vs-hero__svg {
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+}
+
+.vs-hero__content {
+  position: relative;
+  z-index: 3;
+  /* sit above overlay */
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.vs-hero__copy {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vs-badge {
+  display: inline-block;
+  color: var(--vs-fg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 18px;
+  background: transparent;
+  /* no pill container to keep it minimal */
+  padding: 0;
+}
+
+.vs-hero__title {
+  font-size: 2.25rem;
+  line-height: 1.03;
+  margin: 8px 0 12px 0;
+  color: var(--vs-foreground) !important;
+  font-weight: 700;
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+
+.vs-hero__subtitle {
+  color: var(--vs-muted) !important;
+  max-width: 68ch;
+  margin: 0 auto 22px auto;
+  font-size: 1.0625rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+}
+
+.vs-hero__ctas {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.vs-hero__trust small {
+  color: var(--vs-muted);
+  background: transparent;
+  padding: 0;
+  display: inline-block;
+  letter-spacing: 0.01em;
+}
+
+/* subtle stream animation */
+.stream rect {
+  transform-origin: 0 0;
+}
+
+.stream .s1 {
+  animation: stream-move 7s linear infinite;
+}
+
+.stream .s2 {
+  animation: stream-move 9s linear infinite;
+}
+
+.stream .s3 {
+  animation: stream-move 11s linear infinite;
+}
+
+@keyframes stream-move {
+  0% {
+    transform: translateX(-40%) rotate(-4deg) scaleX(0.9);
+  }
+
+  50% {
+    transform: translateX(8%) rotate(0deg) scaleX(1);
+  }
+
+  100% {
+    transform: translateX(120%) rotate(4deg) scaleX(0.9);
+  }
+}
+
+/* Enhanced hero motion: staggered lines, node pulse, core shimmer */
+.vs-hero .stream .s1 {
+  animation: stream-move 9s linear infinite;
+  animation-delay: 0s;
+}
+
+.vs-hero .stream .s2 {
+  animation: stream-move 11s linear infinite;
+  animation-delay: 0.8s;
+}
+
+.vs-hero .stream .s3 {
+  animation: stream-move 13s linear infinite;
+  animation-delay: 1.6s;
+}
+
+@keyframes node-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
+
+  50% {
+    transform: scale(1.38);
+    opacity: 0.26;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
+}
+
+.vs-hero .stream .node {
+  transform-origin: center center;
+  animation: node-pulse 4.6s ease-in-out infinite;
+}
+
+.vs-hero .stream .node1 {
+  animation-delay: 0s;
+}
+
+.vs-hero .stream .node2 {
+  animation-delay: 0.8s;
+}
+
+.vs-hero .stream .node3 {
+  animation-delay: 1.6s;
+}
+
+@keyframes core-shimmer {
+  0% {
+    opacity: 0.95;
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.01);
+  }
+
+  100% {
+    opacity: 0.95;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.vs-hero .core .block {
+  animation: core-shimmer 6.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.vs-hero .core .block:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.vs-hero .core .block:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.vs-hero .core .block:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.vs-hero .core .block:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.vs-hero .core .block:nth-child(5) {
+  animation-delay: 0.8s;
+}
+
+/* Value pillars */
+.vs-pillars {
+  padding: 48px 0 40px 0;
+  text-align: center;
+}
+
+.vs-pillars__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--vs-foreground) !important;
+  margin-bottom: 20px;
+}
+
+.vs-pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vs-pillars__card {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 18px;
+  border-radius: 10px;
+  text-align: left;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.vs-pillars__card:focus,
+.vs-pillars__card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  border-color: rgba(var(--vs-purple-rgb), 0.36);
+}
+
+.vs-pillars__icon {
+  font-size: 1.35rem;
+}
+
+.vs-pillars__cardTitle {
+  color: var(--vs-foreground) !important;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.vs-pillars__cardText {
+  color: var(--vs-muted) !important;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1024px) {
+  .vs-pillars__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-pillars__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vs-hero__title {
+    font-size: 1.5rem;
+  }
+
+  .vs-hero {
+    padding: 40px 0;
+  }
+}
+
+/* Cinematic purple vignette */
+.vs-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.12) 60%, rgba(0, 0, 0, 0.0) 100%);
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream rect {
+    animation: none !important;
+  }
+
+  .vs-pillars__card {
+    transition: none !important;
+  }
+}
+
+/* End VectorScan theme */
+
+/* ===== Layout fixes: center copy and constrain width for key sections ===== */
+/* Make determinism section content centered and readable */
+.vs-determinism__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+  padding: 0 12px;
+}
+
+.vs-determinism__left h2,
+.vs-determinism__left p {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vs-invariants {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px 18px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.vs-invariants li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--vs-surface);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--vs-card-border);
+}
+
+.vs-invariants li strong {
+  display: block;
+  color: var(--vs-foreground) !important;
+  font-weight: 700;
+}
+
+.vs-invariants li span {
+  color: var(--vs-muted) !important;
+  font-size: 0.95rem;
+}
+
+/* Signature / Invariants grid container */
+.vs-signature__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 12px;
+}
+
+.vs-signature__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.vs-signature__grid article h3 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.vs-signature__grid article p {
+  text-align: center;
+  color: var(--vs-muted);
+}
+
+/* CLI section: center examples and notes */
+.vs-cli {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.vs-cli__grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.vs-cli__example {
+  text-align: center;
+}
+
+.vs-cli__note {
+  color: var(--vs-muted);
+  margin-top: 8px;
+}
+
+/* Risk calculator layout: constrain and center controls + output */
+.vs-risk__inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.vs-risk__controls label {
+  display: block;
+  color: var(--vs-muted);
+  margin-bottom: 12px;
+}
+
+.vs-risk__value {
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.vs-risk__output {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+
+  .vs-determinism__inner,
+  .vs-risk__inner,
+  .vs-cli__grid,
+  .vs-signature__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vs-determinism__inner {
+    padding: 0 18px;
+  }
+
+  .vs-cli__grid {
+    max-width: 100%;
+  }
+
+  .vs-invariants {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Microflow (How it works) */
+.vs-microflow {
+  padding: 40px 0 48px 0;
+  text-align: center;
+}
+
+.vs-microflow__title {
+  color: var(--vs-foreground) !important;
+  font-size: 1.25rem;
+  margin-bottom: 18px;
+}
+
+.vs-microflow__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vs-microflow__step {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 18px;
+  border-radius: 10px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-microflow__icon {
+  width: 56px;
+  height: 56px;
+}
+
+.vs-microflow__stepTitle {
+  color: var(--vs-foreground) !important;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.vs-microflow__stepText {
+  color: var(--vs-muted) !important;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .vs-microflow__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .guardProductHero h1 {
+    font-size: 1.5rem;
+  }
+
+  .guardProductHero {
+    display: block;
+  }
+
+  .guardProductHero__stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .guardProductComparison__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Integrations grid */
+.vs-integrations {
+  padding: 40px 0 56px 0;
+  text-align: center;
+}
+
+.vs-integrations .vs-lead {
+  color: var(--vs-muted);
+  margin-bottom: 18px;
+}
+
+.vs-integrations__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vs-integration {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 14px;
+  border-radius: 10px;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.vs-integration:hover,
+.vs-integration:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  border-color: rgba(var(--vs-purple-rgb), 0.36);
+}
+
+.vs-integration__icon {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-integration__body h3 {
+  margin: 0;
+  color: var(--vs-foreground) !important;
+  font-size: 1.02rem;
+}
+
+.vs-integration__body .vs-small {
+  margin: 6px 0;
+  color: var(--vs-muted) !important;
+  font-size: 0.95rem;
+}
+
+.vs-integration__hint code {
+  background: var(--vs-surface);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--vs-fg);
+}
+
+@media (max-width: 900px) {
+  .vs-integrations__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-integrations__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vs-integration {
+    align-items: flex-start;
+  }
+}
+
+/* Pricing cards */
+.vs-pricing {
+  padding: 48px 0 64px 0;
+  text-align: center;
+}
+
+.vs-pricing .vs-lead {
+  color: var(--vs-muted) !important;
+  margin-bottom: 18px;
+}
+
+.vs-pricing__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vs-tier {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 220px;
+}
+
+.vs-tier__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vs-tier__price {
+  font-size: 1.35rem;
+  color: var(--vs-foreground) !important;
+  font-weight: 700;
+}
+
+.vs-tier__bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  color: var(--vs-muted);
+}
+
+.vs-tier__bullets li {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.vs-tier__cta {
+  margin-top: auto;
+}
+
+.vs-tier__cta .btn {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.vs-tier--pro {
+  border-image: linear-gradient(90deg, rgba(var(--vs-purple-rgb), 0.6), rgba(34, 211, 238, 0.3)) 1;
+}
+
+.vs-tier--enterprise {
+  border-image: linear-gradient(90deg, rgba(34, 211, 238, 0.08), rgba(var(--vs-purple-rgb), 0.18)) 1;
+}
+
+.vs-pricing__footnote {
+  margin-top: 12px;
+  color: var(--vs-muted);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 900px) {
+  .vs-pricing__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-pricing__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FAQ */
+.vs-faq {
+  padding: 40px 0 48px 0;
+}
+
+.vs-faq__item {
+  background: var(--vs-surface) !important;
+  padding: 16px 18px !important;
+  border-radius: 10px;
+  border: 1px solid var(--vs-card-border) !important;
+  margin-bottom: 12px;
+}
+
+.vs-faq__item summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+  outline: none;
+}
+
+.vs-faq__answer {
+  margin-top: 8px;
+  color: var(--vs-muted);
+}
+
+/* Final CTA */
+.vs-finalcta {
+  padding: 120px 0 140px 0;
+  background: linear-gradient(180deg, rgba(var(--vs-purple-rgb), 0.04), rgba(8, 10, 16, 0.0));
+  box-shadow: 0 20px 80px rgba(var(--vs-purple-rgb), 0.04) inset;
+}
+
+.vs-finalcta__inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vs-finalcta__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.vs-finalcta .btn {
+  padding: 20px 32px;
+  border-radius: 12px;
+}
+
+.vs-finalcta .btn--primary {
+  background: linear-gradient(90deg, var(--vs-purple), var(--ifm-color-primary));
+  color: white;
+  border: none;
+}
+
+@media (max-width: 640px) {
+  .vs-finalcta__actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* Security & compliance band */
+.vs-security {
+  padding: 48px 0 56px 0;
+  background: linear-gradient(180deg, rgba(var(--vs-purple-rgb), 0.04), rgba(var(--vs-purple-rgb), 0.02));
+  color: var(--vs-fg);
+}
+
+.vs-security__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vs-security .vs-lead {
+  color: var(--vs-muted);
+  margin-bottom: 18px;
+}
+
+.vs-security__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.vs-security__grid article {
+  background: var(--vs-surface);
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px solid var(--vs-card-border);
+}
+
+.vs-security__icon {
+  margin-bottom: 8px;
+}
+
+.vs-security h3 {
+  margin: 0 0 8px 0;
+  color: var(--vs-foreground) !important;
+}
+
+.vs-security p {
+  margin: 0;
+  color: var(--vs-muted) !important;
+}
+
+@media (max-width: 900px) {
+  .vs-security__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-security__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Deployment quickstart */
+.vs-deploy {
+  padding: 40px 0 56px 0;
+  text-align: center;
+}
+
+.vs-deploy .vs-lead {
+  color: var(--vs-muted);
+  margin-bottom: 18px;
+}
+
+.vs-deploy__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vs-deploy__grid article {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.vs-deploy h3 {
+  margin: 0 0 6px 0;
+  color: var(--vs-fg);
+}
+
+.vs-code {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--vs-foreground);
+  font-family: monospace;
+  font-size: 0.95rem;
+  overflow-x: auto;
+}
+
+.vs-deploy .vs-small {
+  color: var(--vs-muted);
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .vs-deploy__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-deploy__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Accessibility + Theme tokens for VectorScan pages ===== */
+/* Define a small set of tokens used across the VS theme so dark/light actually change. */
+.vs-page {
+  --vs-foreground: var(--vs-fg);
+  --vs-muted: var(--vs-muted);
+  --vs-surface: var(--vs-surface);
+  --vs-card-border: var(--vs-border);
+  --vs-accent: var(--vs-purple);
+}
+
+[data-theme='dark'] .vs-page,
+body[data-theme='dark'] .vs-page,
+.theme-dark .vs-page {
+  --vs-foreground: var(--vs-fg);
+  --vs-muted: var(--vs-muted);
+  --vs-surface: var(--vs-surface);
+  --vs-card-border: var(--vs-border);
+}
+
+[data-theme='light'] .vs-page,
+body[data-theme='light'] .vs-page,
+.theme-light .vs-page {
+  --vs-foreground: var(--vs-fg);
+  --vs-muted: var(--vs-muted);
+  --vs-surface: var(--vs-surface);
+  --vs-card-border: var(--vs-border);
+}
+
+/* Ensure primary typography colors follow tokens */
+.vs-page,
+.vs-page h1,
+.vs-page h2,
+.vs-page h3,
+.vs-page p,
+.vs-page li,
+.vs-page summary,
+.vs-page code {
+  color: var(--vs-foreground) !important;
+}
+
+.vs-page p,
+.vs-page li,
+.vs-page summary {
+  color: var(--vs-muted) !important;
+}
+
+/* Cards and panels should use the surface token */
+.vs-pillars__card,
+.vs-microflow__step,
+.vs-integration,
+.vs-tier,
+.vs-faq__item,
+.vs-deploy__grid article,
+.vs-signature__grid article,
+.vs-invariants li,
+.vs-risk__box {
+  background: var(--vs-surface) !important;
+  border: 1px solid var(--vs-card-border) !important;
+  color: var(--vs-foreground) !important;
+}
+
+/* Enforce token-driven visuals late in the cascade so other rules don't override them */
+.vs-page .vs-pillars__card,
+.vs-page .vs-microflow__step,
+.vs-page .vs-integration,
+.vs-page .vs-tier,
+.vs-page .vs-faq__item,
+.vs-page .vs-deploy__grid article,
+.vs-page .vs-signature__grid article,
+.vs-page .vs-invariants li,
+.vs-page .vs-risk__box {
+  background: var(--vs-surface) !important;
+  border-color: var(--vs-card-border) !important;
+  color: var(--vs-foreground) !important;
+}
+
+/* Force muted text color for descriptions */
+.vs-page .vs-pillars__cardText,
+.vs-page .vs-microflow__stepText,
+.vs-page .vs-integration__body .vs-small,
+.vs-page .vs-pricing .vs-lead,
+.vs-page .vs-security p,
+.vs-page .vs-invariants li span,
+.vs-page p,
+.vs-page li,
+.vs-page summary {
+  color: var(--vs-muted) !important;
+}
+
+/* Ensure code blocks remain readable */
+.vs-page .vs-code,
+.vs-page pre,
+.vs-page code {
+  color: var(--vs-foreground) !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Card hover/interaction polish: subtle lift, shadow and pointer */
+.vs-pillars__card:hover,
+.vs-pillars__card:focus-within,
+.vs-microflow__step:hover,
+.vs-microflow__step:focus-within,
+.vs-integration:hover,
+.vs-integration:focus-within,
+.vs-tier:hover,
+.vs-tier:focus-within,
+.vs-faq__item:hover,
+.vs-faq__item:focus-within,
+.vs-deploy__grid article:hover,
+.vs-deploy__grid article:focus-within,
+.vs-signature__grid article:hover,
+.vs-signature__grid article:focus-within,
+.vs-invariants li:hover,
+.vs-invariants li:focus-within,
+.vs-risk__box:hover,
+.vs-risk__box:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  border-color: rgba(var(--vs-purple-rgb), 0.36) !important;
+  cursor: pointer;
+}
+
+/* Card cursor enforcement: single pointer icon when hovering over card containers; children inherit pointer */
+.vs-pillars__card,
+.vs-microflow__step,
+.vs-integration,
+.vs-tier,
+.vs-faq__item,
+.vs-deploy__grid article,
+.vs-signature__grid article,
+.vs-invariants li,
+.vs-risk__box,
+.vs-cli__example {
+  cursor: pointer;
+}
+
+.vs-pillars__card *,
+.vs-microflow__step *,
+.vs-integration *,
+.vs-tier *,
+.vs-faq__item *,
+.vs-deploy__grid article *,
+.vs-signature__grid article *,
+.vs-invariants li *,
+.vs-risk__box *,
+.vs-cli__example * {
+  cursor: inherit !important;
+}
+
+/* CLI code contrast tuning */
+.vs-cli__example .vs-code {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.45));
+  color: var(--vs-foreground);
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 1rem;
+  box-shadow: inset 12px 0 24px -12px rgba(0, 0, 0, 0.45), inset -12px 0 24px -12px rgba(0, 0, 0, 0.45);
+  overflow-x: auto;
+}
+
+/* Ensure headings remain readable when theme changes */
+.vs-page h1,
+.vs-page h2,
+.vs-page h3 {
+  color: var(--vs-foreground) !important;
+}
+
+
+/* Make headings clearer and separate sections */
+.vs-page section>h2,
+.vs-page section>h3 {
+  color: var(--vs-foreground) !important;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.vs-signature__grid article {
+  padding: 18px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.vs-signature__grid article h3 {
+  margin-bottom: 8px;
+}
+
+/* CLI examples should preserve whitespace and sit in a clear card */
+.vs-cli__example {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-card-border);
+  padding: 14px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.vs-cli__example .vs-code {
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--vs-foreground);
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 1rem;
+  box-shadow: inset 12px 0 24px -12px rgba(0, 0, 0, 0.45), inset -12px 0 24px -12px rgba(0, 0, 0, 0.45);
+  overflow-x: auto;
+}
+
+/* Risk calculator outputs as distinct boxes */
+.vs-risk__box {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.vs-risk__tier {
+  font-weight: 800;
+  color: var(--vs-accent);
+  margin-top: 6px;
+}
+
+/* Add breathing room between grouped elements so content doesn't run together */
+.vs-determinism,
+.vs-signature,
+.vs-cli,
+.vs-risk {
+  padding-top: 22px;
+  padding-bottom: 28px;
+}
+
+/* Slightly larger gap between signature items on small screens */
+@media (max-width: 900px) {
+  .vs-signature__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* R-A16 - Navbar polish */
+.navbar {
+  background: rgba(8, 10, 18, 0.96) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--sc-nav-border, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  transition: top 180ms ease;
+}
+
+.navbar,
+.navbar[data-theme="dark"],
+.navbar__inner,
+.navbar--fixed-top {
+  background: rgba(8, 10, 18, 0.96) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+}
+
+@media (min-width: 996px) {
+  .navbar {
+    top: 12px;
+  }
+}
+
+.navbar__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--sc-space-4, 16px);
+}
+
+.navbar__items {
+  gap: var(--sc-space-3, 12px);
+}
+
+.navbar__brand .navbar__title {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 255, 0.85);
+}
+
+.navbar__link {
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: var(--sc-fg-muted, rgba(235, 238, 255, 0.82));
+  opacity: 0.85;
+  transition: opacity 160ms ease, color 160ms ease;
+}
+
+.navbar__link:hover,
+.navbar__link:focus-visible {
+  opacity: 0.9;
+  color: var(--sc-fg-strong, #ffffff);
+  text-shadow: 0 0 8px rgba(123, 108, 255, 0.35);
+}
+
+.navbar__link--active {
+  color: var(--sc-accent-1, #7b6cff) !important;
+  font-weight: 600;
+  opacity: 1;
+  background: transparent;
+  border-bottom: 1px solid rgba(123, 108, 255, 0.4);
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--sc-accent-1, #7b6cff) inset;
+}
+
+/* Final global override for ShieldCraft pages */
+body[data-theme='dark'] {
+  --sc-text-strong: rgba(255, 255, 255, 1);
+  --sc-text-body: rgba(255, 255, 255, 0.94);
+  --sc-text-subtle: rgba(255, 255, 255, 0.82);
+}
+
+body[data-theme='light'] {
+  --sc-text-strong: rgba(15, 23, 42, 1);
+  --sc-text-body: rgba(15, 23, 42, 0.92);
+  --sc-text-subtle: rgba(51, 65, 85, 0.82);
+}
+
+/* Override Docusaurus / Infima interference */
+.markdown p,
+.markdown li {
+  color: var(--sc-text-body) !important;
+}
+
+/* FINAL FIX — GLOBAL READABILITY OVERRIDE (no refactor) */
+:root,
+html[data-theme='dark'],
+body[data-theme='dark'] {
+  --sc-text-strong: #ffffff !important;
+  --sc-text-body: #e8e8e8 !important;
+  --sc-text-subtle: #d0d0d0 !important;
+}
+
+/* FORCE ALL TEXT ON LANDING PAGE TO BE READABLE */
+.scPage,
+.scPage * {
+  color: var(--sc-text-body) !important;
+}
+
+/* HEADINGS + LABELS */
+.scPage h1,
+.scPage h2,
+.scPage h3,
+.scPage h4,
+.scSectionTitle,
+.scCardSmTitle,
+.scArchTitle {
+  color: var(--sc-text-strong) !important;
+  opacity: 1 !important;
+}
+
+/* ARCHITECTURE CARDS / TAGS / NODES */
+.scArchFrame *,
+.architectureCard *,
+.archDiagramAnchor * {
+  color: var(--sc-text-body) !important;
+  opacity: 1 !important;
+}
+
+/* FINAL: ShieldCraft landing page cascade overrides (minimal & surgical) */
+html[data-theme='dark'] .scPage,
+body[data-theme='dark'] .scPage,
+.scPage {
+  --vs-muted: rgba(255, 255, 255, 0.86) !important;
+  --vs-foreground: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Explicit selectors to neutralize VectorScan .vs-page overrides on landing */
+.scPage .vs-page p,
+.scPage .vs-page li,
+.scPage .vs-page summary,
+.scPage .vs-page .vs-small,
+.scPage .vs-page .vs-muted {
+  color: var(--sc-text-body) !important;
+  opacity: 1 !important;
+}
+
+/* Highest-specificity fallback */
+body[data-theme='dark'] .scPage *[style*="color:"] {
+  color: var(--sc-text-body) !important;
+}
+
+/* Small safety: make sure buttons and labels inherit readable color */
+.scPage button,
+.scPage a,
+.scPage .btn,
+.scPage .button {
+  color: var(--sc-text-strong) !important;
 }

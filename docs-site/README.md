@@ -1,4 +1,7 @@
+## R35 - Typography & Accessibility Lock
 # Website
+ Wide spines reintroduced, 2:1 architecture layout enforced, heading overlap fixed, card heights normalized, spacing tokens used to restore consistent vertical rhythm.
+ Next: R37 will perform optical typography tuning and micro-interaction refinements.
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 

@@ -1,0 +1,28 @@
+font-size: clamp(16px, 2.2vw, 20px);
+margin: 0 0 8px 0;
+color: var(--text-primary);
+font-size: var(--type-sm);
+color: var(--text-secondary);
+line-height:1.55;
+margin:0;
+
+.cardBase {
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--sc-surface-1);
+    border: 1px solid var(--sc-border-soft);
+    box-shadow: var(--sc-shadow-soft);
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.cardBase:hover {
+    background: var(--sc-surface-2);
+    border-color: var(--sc-border-strong);
+}
+
+.cardBase h3 {
+    margin: 0 0 8px 0;
+}

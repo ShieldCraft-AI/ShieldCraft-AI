@@ -1,0 +1,51 @@
+:root .cardRoot {
+    border-radius: 18px;
+    padding: var(--sc-space-xl);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(14px);
+}
+
+@media (max-width: 860px) {
+    :root .cardRoot {
+        padding: var(--sc-space-lg);
+    }
+}
+
+/* FIX PACK 6 - unified card row spacing; remove explicit height/min-height/padding */
+.cardRow {
+    margin-top: var(--sc-space-xl);
+    margin-bottom: var(--sc-space-xl);
+    display: grid;
+    gap: var(--sc-space-lg);
+}
+
+@media (max-width: 900px) {
+    .cardRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* FIX PACK 7 - Card coherence pass */
+.card {
+    padding: var(--sc-space-xl);
+    border-radius: 16px;
+    background: var(--sc-border-soft);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: var(--sc-space-md);
+}
+
+.card p {
+    line-height: 1.55;
+    margin-bottom: var(--sc-space-md);
+}
+
+.card ul {
+    margin-top: var(--sc-space-md);
+    display: grid;
+    gap: var(--sc-space-sm);
+}

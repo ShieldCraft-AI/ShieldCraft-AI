@@ -1,4 +1,7 @@
 import React from 'react';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import GuardSuiteBanner from '@site/src/components/GuardSuitePromo/GuardSuiteBanner';
+import GuardSuiteModal from '@site/src/components/GuardSuitePromo/GuardSuiteModal';
 import ErrorBoundary from '@site/src/components/ErrorBoundary';
 import { Amplify } from 'aws-amplify';
 import SiteFooter from '@site/src/components/SiteFooter';
@@ -7,6 +10,8 @@ import { useLocation } from '@docusaurus/router';
 
 export default function Root({ children }: { children: React.ReactNode }) {
     const location = useLocation();
+    const { siteConfig } = useDocusaurusContext();
+    const promoEnabled = !(siteConfig?.customFields && siteConfig.customFields.enableGuardSuitePromo === false);
     const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
     // NOTE 2025-10-16: Prior version forced window.location.replace() after refreshAuthState success.
     // To revert that behaviour, reintroduce the reload guard in handleOAuthCallback and onAuthChange.
@@ -180,8 +185,13 @@ export default function Root({ children }: { children: React.ReactNode }) {
     return (
         <ErrorBoundary>
             <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-                <div style={{ flex: '1 0 auto' }}>{children}</div>
+                <div style={{ flex: '1 0 auto' }}>
+                    {children}
+                </div>
                 {showFooter && <SiteFooter />}
+                {/* Promo components: banner and delayed modal. They internally guard which routes to show on. */}
+                <GuardSuiteBanner enabled={promoEnabled} />
+                <GuardSuiteModal enabled={promoEnabled} pathname={location.pathname} />
             </div>
         </ErrorBoundary>
     );

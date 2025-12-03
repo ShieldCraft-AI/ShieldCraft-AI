@@ -1,8 +1,22 @@
 @import '../css/design-tokens.css';
 
 .resilienceSection {
-    padding: calc(var(--sc-section-padding-y) * 2) var(--sc-space-5);
+    padding: var(--sc-section-padding-y) var(--sc-space-5);
     background: transparent !important;
+    margin-bottom: var(--sc-space-lg) !important;
+}
+
+/* FIX PACK 27 - tighten top spacing and heading rhythm */
+.resilienceSection {
+    padding-top: var(--space-lg) !important;
+}
+
+.resilienceSection h2 {
+    line-height: 1.15 !important;
+}
+
+.resilienceSection h2 {
+    margin-bottom: var(--sc-space-sm) !important;
 }
 
 .center {
@@ -16,15 +30,42 @@
     font-size: var(--sc-text-md);
     line-height: 1.65;
     list-style: disc;
-    padding-left: 1.6em;
+    padding-left: var(--sc-space-sm);
 }
 
 .resilienceList li {
-    margin: 0 0 var(--sc-space-4);
+    margin: 0 0 var(--sc-space-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .resilienceList li {
         transition: none !important;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .resilienceSection * {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+/* Constrain deep-dive content to readable width */
+.deepDiveWrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    min-height: 0 !important;
+    height: auto !important;
+}
+
+/* FIX PACK 11 - rhythm stabilizers */
+.resilienceTitle {
+    margin-top: 0 !important;
+    margin-bottom: var(--space-sm) !important;
+}
+
+.resilienceText {
+    margin-bottom: var(--space-md) !important;
+    line-height: 1.45;
 }

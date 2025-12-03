@@ -43,7 +43,7 @@ Add this step before your `npm run build` in the job that publishes the site.
 Notes
 -----
 - `COGNITO_DOMAIN` is your Cognito hosted UI domain (e.g. `my-app.auth.us-east-1.amazoncognito.com`).
-- `COGNITO_CLIENT_ID` is the app client id (public) — not a secret.
+- `COGNITO_CLIENT_ID` is the app client id (public)  -  not a secret.
 - Keep secrets in GitHub/CI secrets and do not commit them.
 - Our AWS Secrets Manager footprint (including the GitHub OAuth client secret) now lives in `af-south-1`; align `aws-region` configuration accordingly.
 - Alternatively, inject `window.__SC_AMPLIFY_CONFIG__` by templating your HTML or using a small JS file created in CI.

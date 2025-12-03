@@ -1,29 +1,29 @@
 /* ShieldCraft Design Tokens (Phase 1) */
 :root {
     /* Color Palette */
-    --sc-color-bg: #0d0f11;
-    --sc-color-bg-surface: #16181b;
-    --sc-color-bg-surface-alt: #1d2024;
-    --sc-color-border: #262b31;
-    --sc-color-border-accent: #39414d;
-    --sc-color-accent: #818cf8;
-    /* indigo 400 */
-    --sc-color-accent-strong: #6366f1;
-    /* indigo 500 */
-    --sc-color-accent-fade: #30334a;
-    --sc-color-on-accent: #121214;
+    --sc-color-bg: #050714;
+    --sc-color-bg-surface: #0c0f1e;
+    --sc-color-bg-surface-alt: #14182c;
+    --sc-color-border: rgba(255, 255, 255, 0.08);
+    --sc-color-border-accent: rgba(255, 255, 255, 0.16);
+    --sc-color-accent: #8f7bff;
+    --sc-color-accent-strong: #b6a6ff;
+    --sc-color-accent-fade: rgba(140, 120, 255, 0.14);
+    --sc-color-on-accent: #0d0f1e;
     /* text placed on accent backgrounds */
-    --sc-color-text: #e5e7ef;
-    --sc-color-text-dim: #9ca3af;
-    --sc-color-text-faint: #6b7280;
-    --sc-color-glow: 210 90% 60%;
+    --sc-color-text: rgba(255, 255, 255, 0.92);
+    --sc-color-text-dim: rgba(236, 238, 255, 0.72);
+    --sc-color-text-faint: rgba(209, 214, 235, 0.58);
+    --sc-color-glow: 253 100% 79%;
     /* for shadow hsl reference */
-    --sc-color-gradient-start: #1a1c20;
-    --sc-color-gradient-end: #23263b;
-    --sc-color-focus-ring: #6366f1;
+    --sc-color-gradient-start: #090b18;
+    --sc-color-gradient-end: #040711;
+    --sc-color-focus-ring: #8f7bff;
     --sc-color-success: #34d399;
     --sc-color-danger: #f87171;
     --sc-color-warn: #fbbf24;
+    /* Accent glow alias for semi-transparent gradients (used by landing hero) */
+    --sc-color-accent-glow: rgba(143, 123, 255, 0.32);
 
     /* Portal theme aliases for consistent styling across portal pages */
     --portal-text-color: var(--sc-color-text);
@@ -34,19 +34,19 @@
     --portal-background-color: var(--sc-color-bg);
 
     /* Sidebar theme variables for consistent appearance */
-    --sc-sidebar-bg: linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.82));
-    --sc-sidebar-border: rgba(148, 163, 184, 0.18);
-    --sc-text: #e5e7eb;
-    --sc-muted: #93c5fd;
-    --sc-hover-bg: rgba(34, 211, 238, 0.08);
-    --sc-hover-border: rgba(148, 163, 184, 0.18);
-    --sc-footer: rgba(229, 231, 235, 0.7);
+    --sc-sidebar-bg: linear-gradient(180deg, rgba(7, 10, 22, 0.92), rgba(5, 7, 18, 0.85));
+    --sc-sidebar-border: rgba(255, 255, 255, 0.08);
+    --sc-text: var(--sc-color-text);
+    --sc-muted: rgba(182, 166, 255, 0.65);
+    --sc-hover-bg: rgba(143, 123, 255, 0.08);
+    --sc-hover-border: rgba(255, 255, 255, 0.18);
+    --sc-footer: rgba(8, 10, 20, 0.82);
 
     /* Elevation (box-shadows) */
     --sc-elev-0: none;
-    --sc-elev-1: 0 2px 4px -2px rgba(0, 0, 0, .4), 0 4px 10px -2px rgba(0, 0, 0, .35);
-    --sc-elev-2: 0 4px 8px -2px rgba(0, 0, 0, .5), 0 8px 22px -4px rgba(0, 0, 0, .45);
-    --sc-elev-focus: 0 0 0 1px var(--sc-color-accent-strong), 0 0 0 4px #6366f155;
+    --sc-elev-1: 0 2px 6px rgba(3, 5, 16, 0.35), 0 6px 14px rgba(3, 5, 16, 0.45);
+    --sc-elev-2: 0 8px 20px rgba(3, 5, 16, 0.46), 0 14px 32px rgba(3, 5, 16, 0.52);
+    --sc-elev-focus: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 4px rgba(143, 123, 255, 0.32);
 
     /* Radii */
     --sc-radius-xs: 4px;
@@ -66,6 +66,13 @@
     --sc-space-8: 40px;
     --sc-space-9: 52px;
 
+    /* Named spacing aliases for readability */
+    --sc-space-xs: var(--sc-space-2);
+    --sc-space-sm: var(--sc-space-4);
+    --sc-space-md: var(--sc-space-6);
+    --sc-space-lg: var(--sc-space-8);
+    /* mapped to existing largest token per instructions */
+    --sc-space-xl: var(--sc-space-9);
     /* Typography (Fluid) */
     --sc-font-sans: 'Inter', 'IBM Plex Sans', 'Roboto', system-ui, sans-serif;
     --sc-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
@@ -98,9 +105,9 @@ html[data-theme='light'] {
     --sc-color-bg-surface-alt: #f1f5f9;
     --sc-color-border: #d9dde3;
     --sc-color-border-accent: #b6bcc4;
-    --sc-color-accent: #4f46e5;
+    --sc-color-accent: #6f60ff;
     /* slightly deeper indigo for contrast on light */
-    --sc-color-accent-strong: #4338ca;
+    --sc-color-accent-strong: #4f46e5;
     --sc-color-accent-fade: #e8ebff;
     --sc-color-text: #1e2125;
     --sc-color-text-dim: #5a6472;
@@ -112,7 +119,7 @@ html[data-theme='light'] {
     /* Elevation adjustments (lighter, softer shadows) */
     --sc-elev-1: 0 2px 4px -2px rgba(0, 0, 0, .08), 0 4px 10px -2px rgba(0, 0, 0, .06);
     --sc-elev-2: 0 4px 10px -2px rgba(0, 0, 0, .12), 0 12px 24px -6px rgba(0, 0, 0, .10);
-    --sc-elev-focus: 0 0 0 1px var(--sc-color-accent), 0 0 0 4px rgba(79, 70, 229, .25);
+    --sc-elev-focus: 0 0 0 1px rgba(111, 96, 255, 0.35), 0 0 0 4px rgba(111, 96, 255, 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -149,7 +156,7 @@ html[data-theme='light'] {
 
 .sc-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, #2a2f37, transparent);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
     margin: var(--sc-space-7) 0;
 }
 

@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component<React.PropsWithChildr
                     boxShadow: '0 14px 30px rgba(0,0,0,.08)'
                 }}>
                     <div style={{ padding: 20, borderBottom: '1px solid var(--ifm-color-emphasis-200)' }}>
-                        <h1 style={{ margin: 0 }}>Something went wrong</h1>
+                        <h1 style={{ margin: 0 }}>Oh dear, something went wrong</h1>
                         <p style={{ margin: '6px 0 0', opacity: .85 }}>An unexpected error occurred while rendering this page.</p>
                     </div>
                     <div style={{ padding: 20 }}>

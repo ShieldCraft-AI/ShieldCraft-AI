@@ -1,0 +1,10 @@
+/* global focus-visible enhancement */
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.18);
+    outline-offset: 2px;
+    border-radius: 8px;
+}

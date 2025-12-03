@@ -12,14 +12,14 @@
 .ctaRow {
     display: flex;
     justify-content: center;
-    gap: 2em;
-    margin-top: 1.5em;
+    gap: 1.25rem;
+    margin-top: var(--sc-space-md);
 }
 
 .ctaButton {
     background: var(--sc-color-accent);
     color: var(--sc-color-on-accent);
-    padding: .75em 2em;
+    padding: .6em 1.5em;
     border-radius: var(--sc-radius-md);
     font-weight: 600;
     text-decoration: none;

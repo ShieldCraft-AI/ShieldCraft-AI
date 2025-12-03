@@ -3,6 +3,7 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import type { ReactNode } from 'react';
 import { guardSuitePricing } from '@site/src/data/guardSuitePricing';
+import React from 'react';
 
 const DOC_LINKS = [
     {

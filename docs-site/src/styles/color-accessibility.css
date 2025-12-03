@@ -1,0 +1,21 @@
+/* src/styles/color-accessibility.css */
+.high-contrast {
+    color: #ffffff;
+    background: #0b1220;
+}
+
+.accents-strong {
+    color: var(--accent-a);
+}
+
+.accessible-accent {
+    color: var(--accent-b);
+    text-decoration: none;
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --text-primary: #ffffff;
+        --text-secondary: #e6f0ff;
+    }
+}

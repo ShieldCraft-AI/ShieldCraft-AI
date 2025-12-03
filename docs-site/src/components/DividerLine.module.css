@@ -1,0 +1,14 @@
+/* R-S14 - Divider Ambient Glow */
+.dividerAmbient {
+    position: relative;
+    height: 1px;
+    min-height: 1px;
+    background: rgba(255, 255, 255, 0.045);
+    margin: 18px auto;
+}
+
+@media (max-width: 600px) {
+    .dividerAmbient {
+        margin: var(--sc-space-6) auto;
+    }
+}

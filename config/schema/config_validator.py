@@ -53,9 +53,22 @@ def validate_config(path: str) -> ValidationResult:
     if not parse_errors:
         schema_errors = _validate_schema(data)
         if not schema_errors:
-            normalized_data = ShieldCraftConfig.model_validate(data).model_dump()
+            # Exclude None values from the normalized dump to avoid
+            # environment-specific None fields affecting the structural
+            # fingerprint (we only care about schema, not absent values).
+            normalized_data = ShieldCraftConfig.model_validate(data).model_dump(
+                exclude_none=True
+            )
 
-    structure_fp = _fingerprint_structure(normalized_data)
+    # When the data validates against the schema, use the schema's canonical
+    # JSON schema as the fingerprint source. This ensures the structural
+    # fingerprint represents the expected contract, not environment-specific
+    # instance differences (like lists of resources or optional fields).
+    if not schema_errors:
+        schema_source = ShieldCraftConfig.model_json_schema()
+        structure_fp = _fingerprint_structure(schema_source)
+    else:
+        structure_fp = _fingerprint_structure(normalized_data)
     environment = _resolve_environment(data, config_path)
     valid = not (parse_errors or missing_sections or schema_errors)
 
@@ -136,8 +149,12 @@ def _structure_shape(value: Any) -> Any:
         if not value:
             return {"type": "list", "items": []}
         fingerprints = sorted(
-            json.dumps(_structure_shape(item), sort_keys=True, separators=(",", ":"))
-            for item in value
+            set(
+                json.dumps(
+                    _structure_shape(item), sort_keys=True, separators=(",", ":")
+                )
+                for item in value
+            )
         )
         # Use hashed sub-structures to avoid list ordering noise.
         return {"type": "list", "items": fingerprints}

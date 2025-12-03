@@ -86,7 +86,9 @@ const config: Config = {
           to: '/analyst-dashboard',
           label: 'Analyst Dashboard',
           position: 'left',
-          prefetch: false,
+          // Use string 'false' to avoid React passing a boolean attribute
+          // into the DOM (React warns when a non-boolean attribute receives a boolean).
+          prefetch: 'false',
         },
         {
           type: 'docSidebar',

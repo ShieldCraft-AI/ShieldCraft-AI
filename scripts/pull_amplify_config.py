@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DOCUMENTED DEPLOY HELPER — Reviewed
+DOCUMENTED DEPLOY HELPER  -  Reviewed
 Purpose: fetch runtime Amplify config from AWS Secrets Manager for docs usage.
 This script reads secrets and writes to a local docs file; do not run in CI
 without secure credentials. Changes require reviewer approval.

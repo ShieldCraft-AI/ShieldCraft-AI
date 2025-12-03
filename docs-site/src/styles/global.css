@@ -1,0 +1,116 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    height: 100%;
+    background: var(--sc-canvas-bg);
+    color: var(--sc-text-body);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: var(--font-md);
+    letter-spacing: var(--tracking-body);
+    line-height: var(--line-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+    content: none !important;
+    display: none !important;
+}
+
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    font-size: var(--font-md);
+    line-height: var(--line-body);
+    letter-spacing: var(--tracking-body);
+}
+
+.scSubtleGlow {
+    background: radial-gradient(60% 60% at 50% 50%, var(--sc-glow-soft-2), transparent 70%);
+    filter: blur(38px);
+    pointer-events: none;
+}
+
+.scMicroGlow {
+    background: radial-gradient(60% 60% at 50% 50%, var(--sc-glow-soft), transparent 70%);
+    filter: blur(28px);
+    pointer-events: none;
+    opacity: 0.4;
+    position: absolute;
+}
+
+.navbar {
+    background: rgba(12, 15, 24, 0.72) !important;
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--sc-border-1);
+    box-shadow: var(--sc-shadow-2);
+    color: var(--sc-text-muted);
+}
+
+.navbar__link {
+    opacity: 0.88;
+    color: var(--sc-text-muted);
+    font-size: var(--font-sm);
+    font-weight: 540;
+    letter-spacing: var(--tracking-button);
+    text-transform: none;
+}
+
+.navbar__link:hover,
+.navbar__link:focus-visible {
+    opacity: 0.9;
+    color: var(--sc-text-strong);
+    text-shadow: 0 0 18px var(--sc-glow-soft-2);
+}
+
+.navbar__link--active {
+    color: var(--sc-accent-1, #7b6cff) !important;
+    opacity: 1;
+    background: transparent;
+    border-bottom: 1px solid rgba(123, 108, 255, 0.4);
+    border-radius: 0;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px var(--sc-accent-1, #7b6cff) inset;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 160ms ease;
+}
+
+a:hover {
+    opacity: 0.9;
+    text-shadow: 0 0 8px rgba(123, 108, 255, 0.35);
+}
+
+img,
+video,
+canvas {
+    border-radius: var(--sc-radius-md);
+}
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 4px;
+    background: #000;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+}
+
+.skip-link:focus {
+    top: 4px;
+}
+
+@import '../components/FocusVisible.css';

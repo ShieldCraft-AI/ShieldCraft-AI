@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DOCUMENTED DEPLOY HELPER — Reviewed
+DOCUMENTED DEPLOY HELPER  -  Reviewed
 Purpose: interactive helper to configure Cognito identity providers and seed runtime secrets.
 This script talks to AWS; do not run in CI. Any changes must be reviewed before removal from the whitelist.
 

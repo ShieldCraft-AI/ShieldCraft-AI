@@ -1,0 +1,82 @@
+/* ShieldCraft Design Tokens - canonical source of truth
+   Do not put raw hex or px values outside this file.
+*/
+:root {
+    /* Color tokens */
+    --sc-color-primary: #8B5CF6;
+    --sc-color-primary-soft: #A78BFA;
+    --sc-color-accent-cyan: #22D3EE;
+    --sc-color-accent-blue: #3B82F6;
+
+    --sc-color-light-bg: #F7F9FC;
+    --sc-color-light-surface: #FFFFFF;
+    --sc-color-light-subtle: #F2F5FA;
+    --sc-color-light-border: #E4E7EC;
+
+    --sc-color-dark-bg: #080A10;
+    --sc-color-dark-surface: #151822;
+    --sc-color-dark-subtle: #1D2230;
+    --sc-color-dark-border: #2A3142;
+
+    --sc-color-text: #0B1220;
+    --sc-color-text-muted: #6B7280;
+
+    /* Severity mapping */
+    --sc-color-critical: #E11D48;
+    --sc-color-high: #F97316;
+    --sc-color-medium: #FBBF24;
+    --sc-color-low: #10B981;
+
+    /* Spacing scale (px values allowed here) */
+    --sc-spacing-xxs: 4px;
+    --sc-spacing-xs: 8px;
+    --sc-spacing-sm: 12px;
+    --sc-spacing-md: 16px;
+    --sc-spacing-lg: 32px;
+    --sc-spacing-xl: 48px;
+    --sc-spacing-xxl: 80px;
+
+    /* Radius */
+    --sc-radius-sm: 6px;
+    --sc-radius-md: 12px;
+    --sc-radius-lg: 18px;
+
+    /* Shadow tokens */
+    --sc-shadow-sm: 0 6px 14px rgba(6, 11, 25, 0.06);
+    --sc-shadow-md: 0 10px 30px rgba(6, 11, 25, 0.10);
+    --sc-shadow-inner: inset 0 0 12px rgba(0, 0, 0, 0.18);
+
+    /* Typography tokens */
+    --sc-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --sc-font-mono: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    --sc-font-size-base: 16px;
+    --sc-line-height-base: 1.45;
+
+    /* Motion tokens */
+    --sc-motion-skeleton-duration: 2s;
+    --sc-motion-skeleton-easing: linear;
+
+    /* Focus */
+    --sc-focus-outline: 3px solid var(--sc-color-accent-cyan);
+
+    /* chart/visualization defaults */
+    --sc-chart-axis: var(--sc-color-text-muted);
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+    --sc-color-bg: var(--sc-color-light-bg);
+    --sc-color-surface: var(--sc-color-light-surface);
+    --sc-color-subtle: var(--sc-color-light-subtle);
+    --sc-color-border: var(--sc-color-light-border);
+    --sc-color-text: #0B1220;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+    --sc-color-bg: var(--sc-color-dark-bg);
+    --sc-color-surface: var(--sc-color-dark-surface);
+    --sc-color-subtle: var(--sc-color-dark-subtle);
+    --sc-color-border: var(--sc-color-dark-border);
+    --sc-color-text: #E6EDF3;
+}

@@ -1,0 +1,201 @@
+:root {
+    --sc-shadow-hover-soft: 0 22px 56px rgba(5, 8, 21, 0.32);
+    --sc-baseline: 8px;
+    --sc-surface-0: rgba(3, 4, 12, 0.9);
+    --sc-surface-1: rgba(6, 7, 18, 0.94);
+    --sc-surface-2: rgba(10, 12, 24, 0.96);
+    --sc-border-soft: rgba(255, 255, 255, 0.04);
+    --sc-border-strong: rgba(255, 255, 255, 0.09);
+    --sc-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.38);
+    --sc-shadow-hard: 0 24px 72px rgba(0, 0, 0, 0.58);
+}
+
+:global(html[data-theme='light']) :root {
+    --sc-surface-0: rgba(245, 246, 250, 0.9);
+    --sc-surface-1: rgba(250, 252, 255, 0.96);
+    --sc-surface-2: rgba(253, 254, 255, 0.98);
+    --sc-border-soft: rgba(17, 23, 40, 0.06);
+    --sc-border-strong: rgba(17, 23, 40, 0.12);
+    --sc-shadow-soft: 0 16px 32px rgba(17, 23, 40, 0.16);
+    --sc-shadow-hard: 0 22px 48px rgba(17, 23, 40, 0.28);
+}
+
+/* Layout container utilities */
+.scPage {
+    width: 100%;
+    margin: 0;
+    padding: calc(clamp(48px, 6vw, 96px) + 72px) 0;
+}
+
+.scContainer,
+.scContainerWide,
+.scContainerNarrow {
+    width: 100%;
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(var(--sc-space-5), 4vw, var(--sc-space-7));
+    padding-right: clamp(var(--sc-space-5), 4vw, var(--sc-space-7));
+    box-sizing: border-box;
+}
+
+/* Global section layout utilities */
+:is(section, footer).scSection {
+    width: 100%;
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-block: clamp(80px, 9vw, 140px);
+    padding: clamp(56px, 6vw, 92px) clamp(var(--sc-space-4), 5vw, var(--sc-space-7));
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.scSection>.scArch {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+}
+
+.scSection.archSectionOverride {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.scSectionCardGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(var(--sc-space-4), 3vw, var(--sc-space-5));
+    margin: 0 auto;
+    padding-left: clamp(var(--sc-space-3), 4vw, var(--sc-space-4));
+    padding-right: clamp(var(--sc-space-3), 4vw, var(--sc-space-4));
+    box-sizing: border-box;
+}
+
+
+
+
+.scSectionTitle {
+    text-align: center;
+    margin: 0 auto clamp(var(--sc-space-2), 3vw, var(--sc-space-4));
+    max-width: var(--sc-body-max-width);
+    position: relative;
+}
+
+.scSectionTitle::after {
+    content: "";
+    display: block;
+    width: 66px;
+    height: 2px;
+    margin: 16px auto 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(143, 123, 255, 0.6), rgba(255, 255, 255, 0));
+    opacity: 0.56;
+}
+
+.scSectionSubtitle {
+    max-width: 760px;
+    margin: 0 auto clamp(var(--sc-space-5), 4vw, var(--sc-space-6));
+    text-align: center;
+}
+
+#data-plane-heading,
+#core-ops-heading,
+#platform-arch-heading,
+#aws-native-heading {
+    position: relative;
+}
+
+#data-plane-heading::after,
+#core-ops-heading::after,
+#platform-arch-heading::after,
+#aws-native-heading::after {
+    content: "";
+    position: absolute;
+    inset: auto 38% -16px 38%;
+    height: 24px;
+    background: radial-gradient(circle at 50% 50%, rgba(123, 108, 255, 0.16) 0%, transparent 70%);
+    filter: blur(12px);
+    opacity: 0.24;
+    pointer-events: none;
+}
+
+section.scSection[aria-labelledby="data-plane-heading"],
+section.scSection[aria-labelledby="core-ops-heading"],
+section.scSection[aria-labelledby="platform-arch-heading"] {
+    padding-top: clamp(56px, 6.5vw, 92px);
+    padding-bottom: clamp(56px, 6.5vw, 92px);
+}
+
+:global(html[data-theme='light']) section.scSection[aria-labelledby="platform-arch-heading"],
+:global(html[data-theme='light']) section.scSection[aria-labelledby="aws-native-heading"] {
+    box-shadow: none;
+}
+
+#platform-arch-heading.scSectionTitle {
+    margin-top: clamp(32px, 4.5vw, 48px);
+    margin-bottom: var(--sc-space-2);
+}
+
+section.scSection[aria-labelledby="platform-arch-heading"] .scSectionSubtitle {
+    margin-bottom: clamp(var(--sc-space-5), 4vw, var(--sc-space-6));
+}
+
+section.scSection[aria-labelledby="platform-arch-heading"] .scArch {
+    margin-top: 16px;
+    margin-bottom: clamp(56px, 7vw, 112px);
+}
+
+:global(main > .scSection:first-of-type) {
+    margin-top: clamp(80px, 9vw, 140px);
+}
+
+section.scSection[aria-labelledby="platform-arch-heading"] .scContainerWide>.scContainer {
+    margin-bottom: clamp(24px, 3.5vw, 36px);
+}
+
+@media (max-width: 600px) {
+
+    .scSection {
+        padding: clamp(44px, 10vw, 72px) clamp(var(--sc-space-3), 5vw, var(--sc-space-4));
+    }
+
+    .scSectionSubtitle {
+        margin-bottom: clamp(var(--sc-space-5), 4vw, var(--sc-space-6));
+    }
+
+    .scSectionCardGroup {
+        padding-left: clamp(var(--sc-space-3), 5vw, var(--sc-space-4));
+        padding-right: clamp(var(--sc-space-3), 5vw, var(--sc-space-4));
+    }
+}
+
+footer.scSection {
+    padding-top: clamp(44px, 5.5vw, 68px);
+    padding-bottom: clamp(48px, 5.5vw, 72px);
+    padding-left: clamp(var(--sc-space-4), 4vw, var(--sc-space-6));
+    padding-right: clamp(var(--sc-space-4), 4vw, var(--sc-space-6));
+}
+
+main>footer.scSection {
+    margin-top: clamp(40px, 6vw, 84px);
+    margin-bottom: clamp(40px, 6vw, 84px);
+    padding-top: clamp(44px, 5.5vw, 68px);
+    background: var(--sc-footer-surface, rgba(7, 9, 18, 0.78));
+    border-color: var(--sc-nav-border, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--sc-shadow-hover-soft);
+    backdrop-filter: blur(18px);
+    padding-bottom: clamp(48px, 5.5vw, 72px);
+    padding-left: clamp(var(--sc-space-4), 4vw, var(--sc-space-6));
+    padding-right: clamp(var(--sc-space-4), 4vw, var(--sc-space-6));
+}
+
+main>footer.scSection::after {
+    display: none;
+}

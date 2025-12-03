@@ -1,0 +1,120 @@
+:root {
+    font-feature-settings: 'ss03' 1, 'zero' 1;
+    --sc-text-strong: rgba(255, 255, 255, 0.96);
+    --sc-text-body: rgba(255, 255, 255, 0.84);
+}
+
+.h1 {
+    font-size: var(--font-3xl);
+    font-weight: 700;
+    line-height: var(--line-hero);
+    letter-spacing: var(--tracking-h1-h2);
+    color: var(--sc-text-strong);
+    max-width: min(820px, 90vw);
+}
+
+.h2 {
+    font-size: var(--font-xl);
+    font-weight: var(--weight-title);
+    line-height: var(--line-tight);
+    letter-spacing: var(--tracking-h1-h2);
+    color: var(--sc-text-strong);
+}
+
+h2,
+.scArchTitle {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.16;
+    font-weight: 680;
+    letter-spacing: var(--tracking-h1-h2);
+    margin: 0;
+}
+
+.h3 {
+    font-size: var(--font-lg);
+    font-weight: var(--weight-card-title);
+    line-height: var(--line-tight-lg);
+    letter-spacing: var(--tracking-card-title);
+    color: var(--sc-text-strong);
+}
+
+.h4 {
+    font-size: var(--font-md);
+    font-weight: 620;
+    letter-spacing: var(--tracking-h3-h4);
+    line-height: 1.35;
+    color: var(--sc-text-strong);
+}
+
+.lead {
+    font-size: var(--font-lg);
+    letter-spacing: var(--tracking-subtitle);
+    color: var(--sc-text-body);
+    line-height: var(--line-tight-lg);
+    max-width: var(--sc-body-max-width);
+}
+
+.body {
+    font-size: var(--font-md);
+    line-height: var(--line-body);
+    letter-spacing: var(--tracking-body);
+    color: var(--sc-text-body);
+    max-width: var(--sc-body-max-width);
+    font-weight: var(--weight-card-body);
+}
+
+.scSectionTitle {
+    font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+    font-weight: 680;
+    letter-spacing: var(--tracking-h1-h2);
+    line-height: 1.18;
+    color: var(--sc-text-strong);
+}
+
+.scSectionSubtitle {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    opacity: 0.9;
+    line-height: 1.52;
+    font-weight: 460;
+    letter-spacing: var(--tracking-body);
+    text-align: center;
+    max-width: var(--sc-body-max-width);
+    margin: 0 auto clamp(var(--sc-space-5), 4vw, var(--sc-space-7));
+}
+
+.small {
+    font-size: var(--font-sm);
+    letter-spacing: var(--tracking-body);
+    line-height: var(--line-small);
+    color: var(--sc-text-muted);
+}
+
+.muted {
+    color: var(--sc-text-muted);
+}
+
+.caps {
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-meta);
+    font-weight: 640;
+    font-size: var(--font-xs);
+    color: var(--sc-text-subtle);
+}
+
+@media (max-width: 600px) {
+    .scSectionTitle {
+        font-size: clamp(22px, 6.5vw, 28px);
+    }
+
+    .scSectionSubtitle {
+        font-size: clamp(15px, 4.5vw, 18px);
+    }
+
+    .scCardSmTitle {
+        font-size: 15px;
+    }
+
+    .scCardSmBody {
+        font-size: 13.5px;
+    }
+}

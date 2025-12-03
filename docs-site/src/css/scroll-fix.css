@@ -4,7 +4,6 @@
 main>div {
     position: relative;
     z-index: 10;
-    background: inherit;
 }
 
 /* Specifically ensure subsequent sections stay above hero */
@@ -12,14 +11,13 @@ main>div {
 .sc-wide-content {
     position: relative;
     z-index: 15;
-    background: inherit;
 }
 
 /* Force proper background inheritance for all content sections */
 .sc-full-bleed,
 .sc-wide-content,
 main>div {
-    background: inherit !important;
+    /* background inheritance removed to prevent hero gradient repetition */
 }
 
 /* Ensure hero section is properly contained */
@@ -34,5 +32,5 @@ main>div {
 html[data-theme] .sc-full-bleed,
 html[data-theme] .sc-wide-content,
 html[data-theme] main>div {
-    background: inherit !important;
+    /* background inheritance removed to prevent hero gradient repetition */
 }

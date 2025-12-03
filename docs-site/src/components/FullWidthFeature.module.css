@@ -3,12 +3,13 @@
 .band {
     width: 100%;
     box-sizing: border-box;
-    padding: clamp(2.5rem, 7vh, 5rem) 0;
-    background: transparent !important;
+    padding: 0;
+    background: transparent;
+    margin: 0;
 }
 
 html[data-theme='light'] .band {
-    background: transparent !important;
+    background: transparent;
 }
 
 .inner {
@@ -24,48 +25,49 @@ html[data-theme='light'] .band {
     letter-spacing: .12em;
     text-transform: uppercase;
     color: var(--sc-color-text-faint);
-    margin-bottom: .5rem;
+    margin-bottom: var(--sc-space-sm);
 }
 
 .heading {
-    margin: 0 auto .6rem;
+    margin: 0 auto var(--sc-space-md);
     font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3rem);
     font-weight: 800;
     letter-spacing: .4px;
-    line-height: 1.1;
-    background: linear-gradient(95deg, #fff, #c7d2fe 40%, #818cf8 70%);
+    line-height: 1.15;
+    background: linear-gradient(95deg, var(--sc-color-gradient-start), var(--sc-color-accent-strong) 40%, var(--sc-color-accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 html[data-theme='light'] .heading {
-    background: linear-gradient(95deg, #111, #374151 40%, #4f46e5 70%);
+    background: linear-gradient(95deg, var(--sc-color-gradient-start), var(--sc-color-accent-strong) 40%, var(--sc-color-accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 .desc {
-    margin: 0 auto 1.6rem;
+    margin: 0 auto var(--sc-space-sm);
     max-width: 70ch;
     font-size: var(--sc-text-lg);
     color: var(--sc-color-text-dim);
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 .ctaRow {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--sc-space-4);
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--sc-space-sm);
 }
 
 .ctaPrimary {
     background: var(--sc-color-accent-strong);
     color: var(--sc-color-on-accent);
     border-radius: var(--sc-radius-md);
-    padding: .9rem 1.6rem;
+    padding: var(--sc-space-sm) var(--sc-space-5);
     font-weight: 600;
     text-decoration: none;
     box-shadow: var(--sc-elev-1);
@@ -85,7 +87,7 @@ html[data-theme='light'] .heading {
     color: var(--sc-color-accent-strong);
     border: 2px solid var(--sc-color-accent-strong);
     border-radius: var(--sc-radius-md);
-    padding: .9rem 1.4rem;
+    padding: var(--sc-space-sm) var(--sc-space-sm);
     font-weight: 600;
     text-decoration: none;
     transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), border-color var(--sc-dur-fast) var(--sc-ease-standard), background-color var(--sc-dur-fast);
@@ -98,4 +100,29 @@ html[data-theme='light'] .heading {
     border-color: var(--sc-color-accent);
     transform: translateY(-3px);
     outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .band * {
+        transition: none;
+        animation: none;
+        transform: none;
+    }
+}
+
+/* Enterprise CTA minimal wrapper (variant only) */
+.enterpriseCTA {
+    margin: 0;
+    padding: var(--sc-space-lg) 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sc-space-md);
+}
+
+/* FIX PACK 27 - Enterprise CTA polish */
+.enterpriseCTA {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.50);
+    border-radius: 12px;
+    padding: var(--space-xl) var(--space-md) !important;
 }

@@ -1,20 +1,20 @@
 import React from 'react';
-import AwsBadge from './AwsBadge';
 import styles from './LandingHero.module.css';
-
-export default function LandingHero() {
+import pageStyles from '../pages/index.module.css';
+import PremiumButton from './ButtonPremium';
+export default function LandingHero(): React.ReactElement {
     return (
-        <header className={styles.heroRoot}>
-            <div className={styles.backLayer} aria-hidden="true" />
+        <section className={styles.hero}>
             <div className={styles.heroInner}>
-                <div className={styles.heroContent}>
-                    <h1 className={styles.heroHeading}>Autonomous AI Security</h1>
-                    <h2 className={styles.heroSubheading}>Govern and Scale GenAI on AWS.</h2>
-                    <p className={styles.heroLead}>
-                        Built on a security-optimized MLOps platform, ShieldCraft AI leverages a domain-trained foundation model to drive Policy-Guarded Automation. The platform enforces auditable and reversible fixes at speed, guaranteeing Instant Posture Hardening across accounts and regions.
-                    </p>
+                <h1 className={`${styles.title} ${styles.heroHeading}`}>Autonomous AI Security</h1>
+                <p className={`${styles.subtitle} ${styles.heroSubheading}`}>
+                    Govern and scale GenAI on AWS with deterministic, policy-guarded automation.
+                </p>
+                <div className={`${styles.buttonRow} ${styles.heroButtonRow}`}>
+                    <PremiumButton className={pageStyles.scButtonPrimary}>Get Started</PremiumButton>
+                    <PremiumButton variant="secondary" className={pageStyles.scButtonSecondary}>Documentation</PremiumButton>
                 </div>
             </div>
-        </header>
+        </section>
     );
 }

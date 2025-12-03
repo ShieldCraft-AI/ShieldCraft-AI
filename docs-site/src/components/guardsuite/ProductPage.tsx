@@ -43,74 +43,90 @@ export function ProductPage({
     return (
         <Layout title={title} description={metaDescription}>
             <main className="guardProductPage">
-                <section className="guardProductHero">
-                    {heroBadge ? <span className="guardProductHero__badge">{heroBadge}</span> : null}
-                    <h1>{title}</h1>
-                    <p>{heroDescription}</p>
-                    <div className="guardProductHero__stats">
-                        {stats.map((stat) => (
-                            <article key={stat.label}>
-                                <span>{stat.value}</span>
-                                <p>{stat.label}</p>
+                <div className="container">
+                    <section className="guardProductHero">
+                        <div className="guardProductHero__main">
+                            {heroBadge ? <span className="guardProductHero__badge">{heroBadge}</span> : null}
+                            <h1>{title}</h1>
+                            <p className="guardProductHero__lead">{heroDescription}</p>
+
+                            <div className="guardProductHero__actions">
+                                {ctas.filter(c => c.variant !== 'ghost').map((cta) => {
+                                    const className = `button button--${cta.variant ?? 'primary'}`;
+                                    return (
+                                        <Link
+                                            key={cta.label}
+                                            className={className}
+                                            to={cta.href}>
+                                            {cta.label}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+
+                            {ctas.some(c => c.variant === 'ghost') ? (
+                                <div className="guardProductHero__ghost">
+                                    {ctas.filter(c => c.variant === 'ghost').map((cta) => (
+                                        <Link key={cta.label} className="button button--link" to={cta.href}>
+                                            {cta.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
+
+                        <aside className="guardProductHero__side">
+                            <div className="guardProductHero__stats">
+                                {stats.map((stat) => (
+                                    <article key={stat.label}>
+                                        <span>{stat.value}</span>
+                                        <p>{stat.label}</p>
+                                    </article>
+                                ))}
+                            </div>
+                        </aside>
+                    </section>
+
+                    <section className="guardProductSections">
+                        {sections.map((section) => (
+                            <article key={section.title}>
+                                <h2>{section.title}</h2>
+                                <p>{section.body}</p>
+                                {section.bullets ? (
+                                    <ul>
+                                        {section.bullets.map((bullet) => (
+                                            <li key={bullet}>{bullet}</li>
+                                        ))}
+                                    </ul>
+                                ) : null}
                             </article>
                         ))}
-                    </div>
-                    <div className="guardProductHero__actions">
-                        {ctas.map((cta) => {
-                            const className = cta.variant === 'ghost'
-                                ? 'button button--link'
-                                : `button button--${cta.variant ?? 'primary'}`;
-                            return (
-                                <Link
-                                    key={cta.label}
-                                    className={className}
-                                    to={cta.href}>
-                                    {cta.label}
-                                </Link>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                <section className="guardProductSections">
-                    {sections.map((section) => (
-                        <article key={section.title}>
-                            <h2>{section.title}</h2>
-                            <p>{section.body}</p>
-                            {section.bullets ? (
-                                <ul>
-                                    {section.bullets.map((bullet) => (
-                                        <li key={bullet}>{bullet}</li>
-                                    ))}
-                                </ul>
-                            ) : null}
-                        </article>
-                    ))}
-                </section>
-
-                {comparison ? (
-                    <section className="guardProductComparison">
-                        <h2>{comparison.heading}</h2>
-                        <div className="guardProductComparison__grid">
-                            <div className="guardProductComparison__header">Feature</div>
-                            <div className="guardProductComparison__header">VectorScan</div>
-                            <div className="guardProductComparison__header">VectorGuard</div>
-                            {comparison.rows.map((row) => (
-                                <React.Fragment key={row.feature}>
-                                    <div>{row.feature}</div>
-                                    <div>{row.vectorscan}</div>
-                                    <div>{row.vectorguard}</div>
-                                </React.Fragment>
-                            ))}
-                        </div>
                     </section>
-                ) : null}
 
-                {asideNote ? (
-                    <section className="guardProductAside">
-                        <p>{asideNote}</p>
-                    </section>
-                ) : null}
+                    {comparison ? (
+                        <section className="guardProductComparison">
+                            <h2>{comparison.heading}</h2>
+                            <div className="guardProductComparison__grid">
+                                <div className="guardProductComparison__header">Feature</div>
+                                <div className="guardProductComparison__header">VectorScan</div>
+                                <div className="guardProductComparison__header">VectorGuard</div>
+                                {comparison.rows.map((row) => (
+                                    <React.Fragment key={row.feature}>
+                                        <div>{row.feature}</div>
+                                        <div>{row.vectorscan}</div>
+                                        <div>{row.vectorguard}</div>
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </section>
+                    ) : null}
+
+                    {asideNote ? (
+                        <section className="guardProductAside">
+                            <p>{asideNote}</p>
+                        </section>
+                    ) : null}
+                </div>
             </main>
         </Layout>
     );

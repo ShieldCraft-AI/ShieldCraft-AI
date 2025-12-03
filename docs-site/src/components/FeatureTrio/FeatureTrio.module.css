@@ -1,0 +1,12 @@
+.trioGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--sc-space-xl);
+    max-width: 1280px;
+    margin: var(--sc-space-2xl) auto;
+    padding: 0 var(--sc-space-lg);
+}
+
+.featureCard {
+    padding: var(--sc-space-xl) var(--sc-space-lg);
+}

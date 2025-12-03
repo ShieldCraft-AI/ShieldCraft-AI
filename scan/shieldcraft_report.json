@@ -165,7 +165,7 @@
             "evidence": [
                 {
                     "path": "docs-site/src/components/Dashboard/DashboardSummary.tsx",
-                    "detail": "Component only lays out flexbox cards with copy/pills—no chart primitives or data viz."
+                    "detail": "Component only lays out flexbox cards with copy/pills - no chart primitives or data viz."
                 },
                 {
                     "path": "package.json",

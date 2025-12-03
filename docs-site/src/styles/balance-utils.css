@@ -1,0 +1,13 @@
+/* optical alignment helpers for final polish */
+.optical-left {
+    transform: translateX(-1px);
+}
+
+.optical-center {
+    transform: translateY(0.5px);
+}
+
+.container-centered {
+    margin-left: auto;
+    margin-right: auto;
+}

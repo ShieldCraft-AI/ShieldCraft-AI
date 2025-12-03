@@ -76,14 +76,19 @@
 html,
 body {
   font-family: var(--sc-font);
-  background: url('/img/logo.png') center center fixed;
-  background-size: contain;
   color: var(--sc-color-text);
   /* Hide all scrollbars but allow scrolling */
   scrollbar-width: none;
   /* Firefox */
   -ms-overflow-style: none;
   /* IE 10+ */
+}
+
+/* Root-level watermark overlays handled by hero only */
+html[data-theme='dark'] body::before,
+html[data-theme='light'] body::before {
+  content: none !important;
+  display: none !important;
 }
 
 html,
@@ -101,64 +106,6 @@ main {
   /* Increased significantly to ensure content stays above hero when scrolling */
 }
 
-/* Unified layered site-wide background to match landing hero (dark) */
-html[data-theme='dark'],
-html[data-theme='dark'] body {
-  background:
-    radial-gradient(1600px circle at 50% 50%, rgba(129, 140, 248, .12), transparent 70%),
-    radial-gradient(1800px circle at 50% 120%, rgba(99, 102, 241, .10), transparent 75%),
-    #0d0f11;
-  background-color: #0d0f11;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-html[data-theme='dark'] body::before {
-  content: '';
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(360px, 40vw, 840px);
-  aspect-ratio: 1 / 1;
-  background: url(/img/logo.png) center / contain no-repeat;
-  opacity: .035;
-  filter: saturate(1.08) brightness(1.0) blur(.4px);
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .8) 58%, rgba(0, 0, 0, 0) 78%);
-  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .8) 58%, rgba(0, 0, 0, 0) 78%);
-}
-
-/* Light theme unified background matching hero light treatment */
-html[data-theme='light'],
-html[data-theme='light'] body {
-  background:
-    radial-gradient(1600px circle at 50% 50%, rgba(99, 102, 241, .20), transparent 70%),
-    radial-gradient(1800px circle at 50% 120%, rgba(165, 180, 252, .16), transparent 76%),
-    #ffffff;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-html[data-theme='light'] body::before {
-  content: '';
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(360px, 40vw, 840px);
-  aspect-ratio: 1 / 1;
-  background: url(/img/logo.png) center / contain no-repeat;
-  opacity: .055;
-  filter: saturate(1.04) brightness(.92) blur(.4px);
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .8) 58%, rgba(0, 0, 0, 0) 78%);
-  mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .8) 58%, rgba(0, 0, 0, 0) 78%);
-}
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {

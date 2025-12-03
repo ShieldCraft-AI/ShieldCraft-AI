@@ -1,0 +1,330 @@
+/* Local vectorscan page CSS overrides - scoped to .vs-page */
+
+.vs-page section {
+    /* Phase 1: set consistent section rhythm for the page */
+    scroll-margin-top: var(--sc-spacing-xl) !important;
+    padding-top: var(--sc-spacing-xl) !important;
+    padding-bottom: var(--sc-spacing-xl) !important;
+}
+
+/* Pricing section uses one-step reduction for 2xl -> xl */
+.vs-page .vs-pricing {
+    padding-top: var(--sc-spacing-xl) !important;
+    /* was --sc-spacing-2xl */
+    padding-bottom: var(--sc-spacing-xl) !important;
+}
+
+/* Restore card visual hierarchy (Phase 2) - scoped to this page only */
+.vs-page .vs-card {
+    background: var(--sc-surface, var(--sc-color-dark-surface)) !important;
+    border: 1px solid var(--sc-border) !important;
+    box-shadow: var(--sc-shadow-sm) !important;
+    /* Equal-height/structure */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 320px !important;
+    overflow-anchor: none !important;
+    will-change: transform !important;
+    margin-bottom: var(--sc-spacing-md) !important;
+    padding: var(--sc-spacing-lg) !important;
+}
+
+.vs-page .vs-card:hover {
+    border-color: var(--sc-color-primary-soft) !important;
+    box-shadow: var(--sc-shadow-md) !important;
+    transform: translateY(-3px) !important;
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease !important;
+    /* restore upward lift */
+}
+
+/* Inner content container to prevent CTA floating (Phase 3) */
+.vs-page .vs-card__content {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--sc-spacing-sm) !important;
+    padding-block: var(--sc-spacing-md) !important;
+}
+
+/* Normalize vertical breathing inside cards: headings keep SM, body lists/paras tighten to XS */
+.vs-page .vs-card__content>h3 {
+    line-height: 1.15 !important;
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+.vs-page .vs-card__content>p,
+.vs-page .vs-card__content>li,
+.vs-page .vs-card__content>ul {
+    line-height: 1.42 !important;
+    margin-bottom: var(--sc-spacing-xs) !important;
+}
+
+/* Normalize list padding so bullets align across card types */
+.vs-page .vs-card ul {
+    padding-left: var(--sc-spacing-sm) !important;
+}
+
+/* Improve density/readability: slightly more line-height on paragraphs and list items */
+.vs-page .vs-card p,
+.vs-page .vs-card li {
+    line-height: 1.42 !important;
+    letter-spacing: -0.1px !important;
+}
+
+/* Normalize paragraph spacing inside cards */
+.vs-page .vs-card p {
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* Reduce excess spacing inside lists and normalize list line-height */
+.vs-page .vs-card ul li {
+    margin-bottom: var(--sc-spacing-xs) !important;
+    line-height: 1.42 !important;
+}
+
+/* Integrations body spacing to separate hint/code from headings */
+.vs-page .vs-integration__body {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: var(--sc-spacing-sm) !important;
+}
+
+/* Hero cinematic feel (Phase 4) */
+.vs-page .vs-hero {
+    background: radial-gradient(120% 120% at 50% 0%,
+            var(--vs-gradient-dark-1, rgba(139, 92, 246, 0.12)),
+            var(--vs-gradient-dark-2, rgba(11, 8, 20, 0.08)) 60%,
+            var(--vs-gradient-dark-3, rgba(2, 6, 23, 0.02)) 100%) !important;
+    padding-top: var(--sc-spacing-2xl) !important;
+    padding-bottom: var(--sc-spacing-xl) !important;
+}
+
+.vs-page .vs-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 40% at 50% 0%,
+            var(--sc-color-primary-soft) 0%,
+            transparent 70%);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* Light mode depth fixes (Phase 5) */
+[data-theme="light"] .vs-page .vs-card {
+    background: var(--sc-light-surface-strong, rgba(255, 255, 255, 0.98)) !important;
+    border: 1px solid var(--sc-color-light-border-strong, rgba(2, 6, 23, 0.08)) !important;
+    box-shadow: var(--sc-shadow-sm-light, 0 8px 26px rgba(2, 6, 23, 0.06)) !important;
+}
+
+/* Typography hierarchy (Phase 6) */
+.vs-page .vs-section-title {
+    margin-bottom: var(--sc-spacing-md) !important;
+}
+
+.vs-page .vs-subtitle {
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* Pricing contrast and CTA hierarchy (Phase 7) */
+.vs-page .vs-pricing {
+    border-top: 1px solid var(--sc-border) !important;
+    padding-top: var(--sc-spacing-xl) !important;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent 100%) !important;
+}
+
+/* Integrations: ensure hint readability while preserving max-height/overflow */
+.vs-page .vs-integration__hint {
+    line-height: 1.4 !important;
+    margin-top: var(--sc-spacing-xs) !important;
+    margin-bottom: var(--sc-spacing-xs) !important;
+}
+
+.vs-page .vs-pricing .button--primary:hover {
+    box-shadow: 0 0 24px var(--sc-color-primary-soft) !important;
+}
+
+/* Reduce section separation for related flows (Phase 8) */
+.vs-page .architectural-guarantees+.cli-experience,
+.vs-page .security-compliance+.deployment-quickstart {
+    margin-top: var(--sc-spacing-lg) !important;
+    /* tighten spacing */
+}
+
+/* FAQ cards (Phase 9) */
+.vs-page .vs-faq-item {
+    background: var(--sc-surface) !important;
+    border: 1px solid var(--sc-border) !important;
+    border-radius: var(--sc-radius-md) !important;
+    padding: var(--sc-spacing-lg) !important;
+    margin-bottom: var(--sc-spacing-md) !important;
+}
+
+/* Stabilizers: limit integration hints and deployment pre blocks to avoid layout jump */
+.vs-page .vs-integration__hint {
+    max-height: 7rem !important;
+    overflow: auto !important;
+}
+
+.vs-page .deployment-quickstart pre {
+    max-height: 8rem !important;
+    overflow: auto !important;
+}
+
+/* Deployment steps h3 spacing to create consistent gap before code blocks */
+.vs-page .deployment-quickstart h3 {
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* Deployment steps paragraph breathing */
+.vs-page .vs-deploy__grid article p {
+    margin-top: var(--sc-spacing-xs) !important;
+    margin-bottom: var(--sc-spacing-xs) !important;
+}
+
+/* Microflow & Pillars matching card density */
+.vs-page .vs-microflow__step,
+.vs-page .vs-pillars__card {
+    padding: var(--sc-spacing-lg) !important;
+}
+
+/* Footer CTA (Phase 10) */
+.vs-page .vs-footer-cta {
+    text-align: center !important;
+    padding: var(--sc-spacing-xl) !important;
+    background: radial-gradient(80% 60% at 50% 20%, var(--sc-color-primary-soft) 0%, transparent 80%) !important;
+    border-radius: var(--sc-radius-md) !important;
+    margin-top: var(--sc-spacing-xl) !important;
+}
+
+/* Ensure overrides are scoped and do not affect other pages */
+.vs-page {
+    isolation: isolate;
+}
+
+/* Phase-6: visual elevation, tightened long-content spacing, grid top alignment */
+.vs-page .vs-card {
+    box-shadow: var(--sc-shadow-sm) !important;
+}
+
+.vs-page .vs-card:hover {
+    box-shadow: var(--sc-shadow-md) !important;
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease !important;
+}
+
+.vs-page .vs-tier__bullets li,
+.vs-page .vs-integration__body p,
+.vs-page .deployment-quickstart p {
+    margin-bottom: var(--sc-spacing-xs) !important;
+}
+
+.vs-page .vs-pricing__grid,
+.vs-page .vs-integrations__grid,
+.vs-page .vs-deploy__grid,
+.vs-page .vs-microflow__grid,
+.vs-page .vs-pillars__grid {
+    align-items: flex-start !important;
+    gap: var(--sc-spacing-sm) !important;
+}
+
+/* Ensure integrations and deploy grids explicitly align to top */
+.vs-page .vs-integrations__grid,
+.vs-page .vs-deploy__grid {
+    align-items: start !important;
+}
+
+/* Pricing CTA consistent top offset */
+.vs-page .vs-tier__cta {
+    margin-top: var(--sc-spacing-xs) !important;
+}
+
+/* Icon spacing across cards */
+.vs-page .vs-icon {
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* Deploy grid pre breathing */
+.vs-page .vs-deploy__grid pre {
+    margin-top: var(--sc-spacing-xs) !important;
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* CTA vertical density: normalized across tier and card CTAs */
+.vs-page .vs-tier__cta,
+.vs-page .vs-card__cta {
+    margin-top: var(--sc-spacing-xs) !important;
+    padding-top: var(--sc-spacing-sm) !important;
+    line-height: 1.15 !important;
+}
+
+
+/* Remove trailing bottom margin inside card content to avoid double spacing */
+.vs-page .vs-card__content>*:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Guard: ensure last child inside CTA blocks doesn't add extra bottom spacing */
+.vs-page .vs-card__cta>*:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* --- Page-scoped micro-polish additions (safe, non-invasive) --- */
+/* Responsive density: reduce card padding on small screens to improve fold-first view */
+@media (max-width: 640px) {
+    .vs-page .vs-card {
+        padding: var(--sc-spacing-md) !important;
+    }
+
+    /* Compact grid gaps on small screens */
+    .vs-page .vs-pricing__grid,
+    .vs-page .vs-integrations__grid,
+    .vs-page .vs-deploy__grid,
+    .vs-page .vs-microflow__grid,
+    .vs-page .vs-pillars__grid {
+        gap: var(--sc-spacing-xs) !important;
+    }
+}
+
+/* Focus-visible outlines for a11y inside the page */
+.vs-page a:focus-visible,
+.vs-page button:focus-visible,
+.vs-page input:focus-visible,
+.vs-page select:focus-visible,
+.vs-page textarea:focus-visible,
+.vs-page [tabindex]:focus-visible {
+    outline: 3px solid var(--sc-color-accent-cyan, #22d3ee) !important;
+    outline-offset: 2px !important;
+}
+
+/* Respect reduced motion preferences for this page */
+@media (prefers-reduced-motion: reduce) {
+    .vs-page * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Code readability: consistent monospace and modest font-size on code blocks */
+.vs-page pre,
+.vs-page code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace !important;
+    font-size: 0.95rem !important;
+}
+
+/* Ensure small icons keep spacing (redundant-safe) */
+.vs-page .vs-icon {
+    margin-bottom: var(--sc-spacing-sm) !important;
+}
+
+/* Keep small-grid cohesion on desktop as well (no change to align-items) */
+.vs-page .vs-pricing__grid,
+.vs-page .vs-integrations__grid,
+.vs-page .vs-deploy__grid,
+.vs-page .vs-microflow__grid,
+.vs-page .vs-pillars__grid {
+    gap: var(--sc-spacing-sm) !important;
+}
+
+/* End of micro-polish additions */

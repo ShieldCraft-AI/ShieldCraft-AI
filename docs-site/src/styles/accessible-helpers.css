@@ -1,0 +1,8 @@
+/* src/styles/accessible-helpers.css */
+.large-text {
+    font-size: var(--font-lg);
+}
+
+.focus-target {
+    outline-offset: 4px;
+}

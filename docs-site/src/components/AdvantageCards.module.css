@@ -4,46 +4,66 @@
     text-align: center;
 }
 
+/* Container for advantage cards - spacing controlled by outer .section token */
 .cardsSection {
-    padding: clamp(3rem, 9vh, 5.5rem) 0 var(--sc-space-9);
-    width: 100%;
-    box-sizing: border-box;
+    max-width: 1280px;
+    margin: var(--sc-space-2xl) auto;
+    padding: clamp(2.25rem, 7vh, 4rem) 0 var(--sc-space-lg);
     position: relative;
-    --p: var(--sc-hero-progress, 0);
-    opacity: clamp(0, calc((var(--p) - .15) * 2.2), 1);
-    transform: translateY(calc((1 - var(--p)) * 38px));
-    transition: opacity .6s var(--sc-ease-emphasized), transform .9s var(--sc-ease-emphasized);
-    background: transparent !important;
-    margin-top: 0;
-    border-top: none;
+    overflow: visible;
 }
 
+.cardsSection::before {
+    /* subtle decorative gradient, kept small to avoid forcing height */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: radial-gradient(ellipse at center,
+            rgba(110, 64, 255, 0.22) 0%,
+            rgba(110, 64, 255, 0.12) 40%,
+            rgba(110, 64, 255, 0) 85%);
+    pointer-events: none;
+    filter: blur(32px);
+    z-index: 1;
+    height: auto;
+}
+
+.cardsSection>* {
+    position: relative;
+    z-index: 2;
+}
 
 .heading {
-    margin: 0 auto .6rem;
+    margin: 0 auto var(--sc-space-md);
     font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3rem);
     font-weight: 800;
     letter-spacing: .4px;
-    line-height: 1.1;
-    background: linear-gradient(95deg, #fff, #c7d2fe 40%, #818cf8 70%);
+    line-height: 1.15;
+    background: linear-gradient(95deg, var(--sc-color-gradient-start), var(--sc-color-accent-strong) 40%, var(--sc-color-accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    text-align: center;
 }
 
-html[data-theme='light'] .cardsSection {
-    background: transparent !important;
+.subcopy {
+    margin: 0 auto var(--sc-space-lg);
+    max-width: 720px;
+    color: var(--sc-color-text-dim);
+    text-align: center;
+    opacity: .95;
 }
 
 .cardsRow {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--sc-space-6);
-    padding: 0 var(--sc-space-6) var(--sc-space-6);
+    gap: var(--sc-space-md);
+    padding: 0 var(--sc-space-md) var(--sc-space-md);
     width: 100%;
     box-sizing: border-box;
-    margin-top: 80px;
 }
 
 .card {
@@ -52,115 +72,106 @@ html[data-theme='light'] .cardsSection {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    background: linear-gradient(145deg, var(--sc-color-bg-surface), var(--sc-color-bg-surface-alt));
-    border: 1px solid var(--sc-color-border);
-    border-radius: var(--sc-radius-xl);
-    padding: calc(var(--sc-space-6) * .9) var(--sc-space-5) var(--sc-space-5);
+    background: none;
+    border: none;
+    border-radius: var(--sc-radius-md);
+    padding: 0;
     text-align: left;
     color: var(--sc-color-text);
-    box-shadow: var(--sc-elev-1);
-    margin: var(--sc-space-5) var(--sc-space-4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: var(--sc-space-5) var(--sc-space-sm);
     transition: transform var(--sc-dur-medium) var(--sc-ease-emphasized), box-shadow var(--sc-dur-fast) var(--sc-ease-standard), border-color var(--sc-dur-fast), background var(--sc-dur-medium);
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    min-height: 270px;
-    /* widened so long headers fit on one line on desktop */
 }
 
 .card:hover,
 .card:focus-visible {
     transform: translateY(-6px) scale(1.02);
-    box-shadow: var(--sc-elev-2), 0 0 0 1px #6366f155;
+    box-shadow: var(--sc-elev-2), var(--sc-elev-focus);
     border-color: var(--sc-color-accent-strong);
     outline: none;
 }
 
 .card h3 {
-    margin: 0 0 .65em;
+    margin: 0 0 var(--space-xs);
     font-size: clamp(1.05rem, .8rem + .9vw, 1.65rem);
     font-weight: 640;
-    line-height: 1.2;
+    line-height: 1.15;
     letter-spacing: .6px;
-    background: linear-gradient(95deg, #fff, #c7d2fe 35%, #818cf8 70%);
+    background: linear-gradient(95deg, var(--sc-color-gradient-start), var(--sc-color-accent-strong) 35%, var(--sc-color-accent) 70%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 .card p {
-    font-size: clamp(.76rem, .68rem + .34vw, .98rem);
-    line-height: 1.5;
+    margin: 0 0 var(--sc-space-sm) !important;
+    line-height: 1.45;
     color: var(--sc-color-text-dim);
-    margin: 0;
+    line-height: 1.15;
     display: flex;
     flex-direction: column;
 }
 
-/* Allow benefit line to stand out with spacing */
 .card p b {
-    font-size: clamp(.8rem, .7rem + .38vw, 1.05rem);
-    font-weight: 600;
-    color: var(--sc-color-accent-strong);
-    margin-bottom: .4rem;
+    font-size: clamp(.76rem, .68rem + .34vw, .98rem);
+    line-height: 1.45;
+    color: var(--sc-color-text-dim);
+    margin: 0 0 var(--space-sm) !important;
 }
 
-/* Subtle decorative gradient overlay for depth */
-/* removed decorative overlay to prevent any perceived dark cast after hero */
+/* Decorative overlay disabled to avoid forcing heights */
 .card::after {
     display: none;
-}
-
-@media (max-width: 980px) {
-    .card {
-        min-height: 260px;
-    }
 }
 
 @media (max-width: 640px) {
     .card {
         max-width: 100%;
-        min-height: 250px;
     }
 }
 
-/* Prevent heading wrap on sufficiently wide viewports */
 @media (min-width: 900px) {
+    .cardsSection {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--sc-space-xl);
+    }
+
     .card h3 {
         white-space: nowrap;
     }
 }
 
-/* List + CTA enhancements */
 .cardList {
     list-style: none;
-    margin: .75rem 0 0;
+    margin: var(--sc-space-sm) 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: .4rem;
+    gap: var(--sc-space-xs);
     font-size: clamp(.66rem, .6rem + .3vw, .82rem);
-    line-height: 1.4;
+    line-height: 1.45;
     color: var(--sc-color-text-dim);
 }
 
 .cardList li {
     position: relative;
-    padding-left: 1.5rem;
-    /* Increased padding for better alignment */
+    padding-left: var(--sc-space-md);
     font-size: clamp(.7rem, .65rem + .3vw, .9rem);
-    line-height: 1.6;
+    line-height: 1.45;
     color: var(--sc-color-text);
 }
 
-/* Adjusted vertical alignment of checkmark icon */
 .cardList li:before {
     content: '\2713';
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    /* Center vertically */
     font-size: 1rem;
     color: var(--sc-color-accent-strong);
 }
@@ -168,8 +179,9 @@ html[data-theme='light'] .cardsSection {
 .cardCta {
     margin-top: auto;
     display: inline-flex;
+    justify-content: flex-start;
     align-items: center;
-    gap: .35rem;
+    gap: var(--sc-space-sm);
     font-size: var(--sc-text-xs);
     letter-spacing: .55px;
     font-weight: 600;
@@ -185,10 +197,43 @@ html[data-theme='light'] .cardsSection {
     color: var(--sc-color-accent-strong);
 }
 
-@media (prefers-reduced-motion: reduce) {
+/* FIX PACK 3 - unified card root styles */
+:root .cardRoot {
+    border-radius: 18px;
+    padding: var(--sc-space-xl);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(14px);
+}
 
-    .card,
-    .card:hover {
-        transform: none !important;
+@media (max-width: 860px) {
+    :root .cardRoot {
+        padding: var(--sc-space-lg);
     }
+}
+
+/* FIX PACK 6 - remove forced heights and tighten spacing */
+.cardsSection::before {
+    height: auto !important;
+}
+
+.card {
+    min-height: auto !important;
+}
+
+.cardsSection {
+    padding-top: var(--sc-space-lg) !important;
+    padding-bottom: var(--sc-space-lg) !important;
+}
+
+/* Emergency override: remove any pseudo-elements forcing large vertical slabs */
+.cardsSection::before,
+.cardsSection::after {
+    content: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.card {
+    height: auto !important;
+    min-height: auto !important;
 }

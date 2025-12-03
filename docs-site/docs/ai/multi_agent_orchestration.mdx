@@ -8,9 +8,9 @@ ShieldCraft orchestrates multiple deterministic agents to simulate the GuardSuit
 
 ## Agents
 
-1. **threat_intel** — Normalizes severity, deduplicates signal sources, and highlights watchlist matches.
-2. **remediation_planner** — Builds step-by-step actions for SecOps and Platform teams using the intel rollup.
-3. **risk_reviewer** — Scores readiness/residual risk and lists approvers before deployment.
+1. **threat_intel**  -  Normalizes severity, deduplicates signal sources, and highlights watchlist matches.
+2. **remediation_planner**  -  Builds step-by-step actions for SecOps and Platform teams using the intel rollup.
+3. **risk_reviewer**  -  Scores readiness/residual risk and lists approvers before deployment.
 
 Each handler runs as pure Python logic with no randomness, ensuring consistent snapshots in CI.
 

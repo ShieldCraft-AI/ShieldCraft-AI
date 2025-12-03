@@ -68,29 +68,29 @@ const mockData = {
             description: "Data lineage, quality monitoring, and access governance",
             category: "Governance",
             environments: {
-                dev: { estimated_monthly_cost_usd: 55 },
+                            < button
                 staging: { estimated_monthly_cost_usd: 125 },
-                prod: { estimated_monthly_cost_usd: 245 }
-            }
-        },
-        observability: {
-            capability_name: "Observability & Monitoring",
-            description: "Comprehensive monitoring, logging, and alerting system",
-            category: "Operations",
-            environments: {
-                dev: { estimated_monthly_cost_usd: 65 },
-                staging: { estimated_monthly_cost_usd: 145 },
-                prod: { estimated_monthly_cost_usd: 285 }
-            }
+            prod: { estimated_monthly_cost_usd: 245 }
+        }
+    },
+    observability: {
+        capability_name: "Observability & Monitoring",
+        description: "Comprehensive monitoring, logging, and alerting system",
+        category: "Operations",
+        environments: {
+            dev: { estimated_monthly_cost_usd: 65 },
+            staging: { estimated_monthly_cost_usd: 145 },
+            prod: { estimated_monthly_cost_usd: 285 }
         }
     }
+}
 };
 
 const ArchitectureDashboard: React.FC = () => {
     const [selectedEnvironment, setSelectedEnvironment] = useState<'dev' | 'staging' | 'prod'>('dev');
 
     return (
-        <div style={{ color: 'white', padding: '20px', minHeight: '100vh' }}>
+        <div style={{ color: 'white', padding: '20px' }}>
             <h1 style={{ textAlign: 'center', color: '#60a5fa' }}>Architecture Dashboard</h1>
 
             <div style={{ textAlign: 'center', margin: '20px 0' }}>
@@ -114,81 +114,81 @@ const ArchitectureDashboard: React.FC = () => {
             </div>
 
             {/* DIRECT CAPABILITY DISPLAY - NO EXTERNAL COMPONENTS */}
-            <div style={{
-                color: 'white',
-                background: 'rgba(30, 41, 59, 0.8)',
-                border: '1px solid #475569',
-                borderRadius: '12px',
-                padding: '30px',
-                margin: '20px 0'
+                                                // minHeight: '180px'
+            color: 'white',
+            background: 'rgba(30, 41, 59, 0.8)',
+            border: '1px solid #475569',
+            borderRadius: '12px',
+            padding: '30px',
+            margin: '20px 0'
             }}>
-                <h2 style={{ color: '#60a5fa', textAlign: 'center', marginBottom: '20px' }}>
-                    🛡️ Architecture Capabilities - {selectedEnvironment.toUpperCase()}
-                </h2>
+            <h2 style={{ color: '#60a5fa', textAlign: 'center', marginBottom: '20px' }}>
+                🛡️ Architecture Capabilities - {selectedEnvironment.toUpperCase()}
+            </h2>
 
-                <p style={{ textAlign: 'center', marginBottom: '30px', color: '#e2e8f0' }}>
-                    8 core capabilities delivering comprehensive MLOps security platform
-                </p>
+            <p style={{ textAlign: 'center', marginBottom: '30px', color: '#e2e8f0' }}>
+                8 core capabilities delivering comprehensive MLOps security platform
+            </p>
 
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '20px'
-                }}>
-                    {Object.entries(mockData.capabilities).map(([key, capability]) => {
-                        const currentCost = capability.environments[selectedEnvironment]?.estimated_monthly_cost_usd || 0;
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '20px'
+            }}>
+                {Object.entries(mockData.capabilities).map(([key, capability]) => {
+                    const currentCost = capability.environments[selectedEnvironment]?.estimated_monthly_cost_usd || 0;
 
-                        return (
-                            <div
-                                key={key}
-                                style={{
-                                    background: 'rgba(30, 41, 59, 0.6)',
-                                    border: '1px solid #374151',
-                                    borderRadius: '8px',
-                                    padding: '20px',
-                                    minHeight: '180px'
-                                }}
-                            >
-                                <h4 style={{ color: '#ffffff', margin: '0 0 10px 0', fontSize: '16px' }}>
-                                    {capability.capability_name}
-                                </h4>
+                    return (
+                        <div
+                            key={key}
+                            style={{
+                                background: 'rgba(30, 41, 59, 0.6)',
+                                border: '1px solid #374151',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                minHeight: '180px'
+                            }}
+                        >
+                            <h4 style={{ color: '#ffffff', margin: '0 0 10px 0', fontSize: '16px' }}>
+                                {capability.capability_name}
+                            </h4>
 
-                                <p style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.4', margin: '0 0 15px 0' }}>
-                                    {capability.description}
-                                </p>
+                            <p style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.4', margin: '0 0 15px 0' }}>
+                                {capability.description}
+                            </p>
 
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                borderTop: '1px solid #374151',
+                                paddingTop: '10px'
+                            }}>
+                                <div>
+                                    <span style={{ color: '#34d399', fontWeight: 'bold', fontSize: '18px' }}>
+                                        ${currentCost}
+                                    </span>
+                                    <span style={{ color: '#9ca3af', fontSize: '12px', marginLeft: '4px' }}>
+                                        /month
+                                    </span>
+                                </div>
                                 <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    borderTop: '1px solid #374151',
-                                    paddingTop: '10px'
+                                    background: 'rgba(96, 165, 250, 0.2)',
+                                    color: '#60a5fa',
+                                    fontSize: '11px',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    textTransform: 'uppercase'
                                 }}>
-                                    <div>
-                                        <span style={{ color: '#34d399', fontWeight: 'bold', fontSize: '18px' }}>
-                                            ${currentCost}
-                                        </span>
-                                        <span style={{ color: '#9ca3af', fontSize: '12px', marginLeft: '4px' }}>
-                                            /month
-                                        </span>
-                                    </div>
-                                    <div style={{
-                                        background: 'rgba(96, 165, 250, 0.2)',
-                                        color: '#60a5fa',
-                                        fontSize: '11px',
-                                        padding: '4px 8px',
-                                        borderRadius: '4px',
-                                        textTransform: 'uppercase'
-                                    }}>
-                                        {capability.category}
-                                    </div>
+                                    {capability.category}
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
+        </div >
     );
 };
 

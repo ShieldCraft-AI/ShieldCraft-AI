@@ -1,0 +1,372 @@
+:root {
+    --sc-space-xxl: 96px;
+    --sc-space-xl: 72px;
+    --sc-space-lg: 64px;
+    --sc-space-md: 48px;
+    --sc-space-sm: 32px;
+    --sc-space-xs: 24px;
+
+    /* Width constraints */
+    --sc-width-narrow: 820px;
+    --sc-width-standard: 960px;
+    --sc-width-wide: 1180px;
+
+    /* Section spacing */
+    --sc-section-gap: var(--sc-space-22);
+    --sc-section-gap-lg: var(--sc-space-26);
+
+    /* Layout padding */
+    --sc-page-pad: 24px;
+
+    /* Spacing scale */
+    --space-xxs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+
+    /* Typography scale */
+    --font-xs: 0.78rem;
+    /* labels, meta */
+    --font-sm: 14px;
+    /* captions, nav */
+    --font-md: 16px;
+    /* body */
+    --font-lg: clamp(18px, 2.5vw, 22px);
+    /* section subtitles */
+    --font-xl: clamp(24px, 3vw, 36px);
+    /* section titles */
+    --font-2xl: clamp(32px, 3.8vw, 48px);
+    /* hero subheadline */
+    --font-3xl: clamp(32px, 4vw, 44px);
+    /* hero headline */
+
+    /* Line-height scale */
+    --line-small: 1.42;
+    --line-body: 1.56;
+    --line-tight: 1.14;
+    --line-tight-lg: 1.22;
+    --line-hero: 1.14;
+
+    /* Letter-spacing tokens */
+    --tracking-h1-h2: -0.015em;
+    --tracking-h3-h4: -0.01em;
+    --tracking-subtitle: -0.01em;
+    --tracking-card-title: -0.01em;
+    --tracking-body: -0.005em;
+    --tracking-button: -0.01em;
+    --tracking-meta: 0.14em;
+
+    /* Weight tokens */
+    --weight-title: 680;
+    --weight-subtitle: 460;
+    --weight-card-title: 620;
+    --weight-card-body: 420;
+
+    /* Readability */
+    --sc-body-max-width: 700px;
+
+    /* Legacy aliases (retain until modules migrate) */
+    --type-h1: var(--font-3xl);
+    --type-h2: var(--font-xl);
+    --type-h3: var(--font-lg);
+    --type-h4: var(--font-lg);
+    --type-body: var(--font-md);
+    --type-body-lg: var(--font-lg);
+    --type-caption: var(--font-sm);
+    --type-small: var(--font-sm);
+    --type-sm: var(--font-sm);
+    --type-subtitle: var(--font-lg);
+    --type-lg: var(--font-lg);
+    --type-base: var(--font-md);
+    --type-letter-body: var(--tracking-body);
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Card elevations */
+    --elevation-1: 0 2px 6px rgba(0, 0, 0, 0.25);
+    --elevation-2: 0 4px 10px rgba(0, 0, 0, 0.28);
+    --elevation-3: 0 8px 16px rgba(0, 0, 0, 0.32);
+
+    /* Glows */
+    --glow-soft: 0 0 24px rgba(120, 140, 255, 0.25);
+
+    /* Layout widths */
+    --page-max-width: 1280px;
+    --page-content-width: 960px;
+
+    /* Site canvas */
+    --sc-canvas-bg: #050714;
+    --sc-canvas-gradient: linear-gradient(175deg, rgba(10, 12, 24, 0.96) 0%, rgba(6, 8, 20, 0.94) 38%, rgba(3, 6, 18, 0.96) 100%);
+    --sc-vignette-overlay: radial-gradient(80% 60% at 50% 0%, rgba(21, 24, 46, 0.65), transparent 70%);
+
+    /* Spacing system */
+    --sc-space-1: 8px;
+    --sc-space-2: 12px;
+    --sc-space-3: 20px;
+    --sc-space-4: 32px;
+    --sc-space-5: 48px;
+    --sc-space-6: 72px;
+    --sc-space-7: 96px;
+    --sc-space-8: 120px;
+    --sc-space-9: 160px;
+    --sc-space-10: 200px;
+    --sc-space-11: 240px;
+    --sc-space-12: 280px;
+
+    /* Vertical rhythm spacing */
+    --sc-space-5: 20px;
+    --sc-space-8: 32px;
+    --sc-space-10: 40px;
+    --sc-space-14: 56px;
+    --sc-space-18: 72px;
+    --sc-space-22: 96px;
+    --sc-space-26: 120px;
+
+    /* Vertical rhythm (maps to spacing system) */
+    --sc-vr-1: var(--sc-space-3);
+    --sc-vr-2: var(--sc-space-4);
+    --sc-vr-3: var(--sc-space-5);
+    --sc-vr-4: var(--sc-space-6);
+    --sc-vr-5: var(--sc-space-7);
+
+    /* Horizontal grid system */
+    --sc-grid-max: 1180px;
+    --sc-grid-narrow: 880px;
+    --sc-grid-hero: 780px;
+    --sc-grid-pad: var(--sc-space-4);
+
+    --sc-grid-gap-1: var(--sc-space-2);
+    --sc-grid-gap-2: var(--sc-space-3);
+    --sc-grid-gap-3: var(--sc-space-4);
+
+    /* Section dividers */
+    --sc-section-divider: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+    --sc-section-vignette: radial-gradient(60% 80% at 50% 10%, rgba(12, 14, 24, 0), rgba(5, 7, 16, 0.85));
+
+    /* Glow palette */
+    --sc-glow-soft: rgba(143, 123, 255, 0.12);
+    --sc-glow-soft-2: rgba(143, 123, 255, 0.18);
+    --sc-glow-hero: rgba(143, 123, 255, 0.24);
+    --sc-glow-card: rgba(255, 255, 255, 0.06);
+
+    /* Elevation palette */
+    --sc-shadow-1: 0 4px 14px rgba(2, 4, 12, 0.42);
+    --sc-shadow-2: 0 8px 22px rgba(3, 5, 16, 0.44);
+    --sc-shadow-3: 0 14px 38px rgba(3, 5, 16, 0.52);
+    --sc-shadow-4: 0 22px 48px rgba(3, 5, 16, 0.58);
+
+    /* Radius scale */
+    --sc-radius-sm: 8px;
+    --sc-radius-md: 12px;
+    --sc-radius-lg: 16px;
+    --sc-radius-xl: 22px;
+    --sc-radius-card-xl: 20px;
+}
+
+/* Core palette */
+:root {
+    --sc-surface-0: #04050e;
+    --sc-surface-1: rgba(9, 11, 22, 0.94);
+    --sc-surface-2: rgba(16, 20, 34, 0.88);
+
+    --sc-text-strong: rgba(255, 255, 255, 0.98);
+    --sc-text-body: rgba(232, 236, 255, 0.92);
+    --sc-text-muted: rgba(199, 205, 233, 0.82);
+    --sc-text-subtle: rgba(178, 186, 216, 0.68);
+
+    --sc-border-soft: rgba(255, 255, 255, 0.08);
+    --sc-border-strong: rgba(255, 255, 255, 0.16);
+    --sc-border-1: var(--sc-border-soft);
+
+    --sc-accent-1: #8f7bff;
+    --sc-accent-soft: rgba(143, 123, 255, 0.18);
+
+    --sc-canvas-bg: var(--sc-surface-0);
+    --sc-canvas-gradient: linear-gradient(180deg, #04050e 0%, #090b16 65%, #0d1020 100%);
+    --sc-canvas-vignette: radial-gradient(140% 140% at 50% 20%, rgba(255, 255, 255, 0.02), transparent 72%);
+
+    --sc-nav-surface: rgba(6, 8, 20, 0.86);
+    --sc-footer-surface: rgba(5, 7, 18, 0.9);
+    --sc-nav-border: var(--sc-border-soft);
+
+    --sc-fg-strong: var(--sc-text-strong);
+    --sc-fg-muted: var(--sc-text-body);
+    --sc-fg-dim: var(--sc-text-muted);
+
+    --sc-focus-ring: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 4px rgba(143, 123, 255, 0.28);
+    --sc-motion-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --sc-motion-soft: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Light theme overrides */
+:root[data-theme='light'] {
+    --sc-surface-0: #fafbfe;
+    --sc-surface-1: rgba(255, 255, 255, 0.94);
+    --sc-surface-2: rgba(233, 236, 248, 0.9);
+
+    --sc-text-strong: rgba(18, 24, 40, 0.96);
+    --sc-text-body: rgba(22, 28, 44, 0.9);
+    --sc-text-muted: rgba(22, 28, 44, 0.78);
+    --sc-text-subtle: rgba(22, 28, 44, 0.64);
+
+    --sc-border-soft: rgba(17, 24, 39, 0.08);
+    --sc-border-strong: rgba(17, 24, 39, 0.14);
+
+    --sc-accent-soft: rgba(111, 96, 255, 0.18);
+
+    --sc-canvas-bg: #f6f7fb;
+    --sc-canvas-gradient: linear-gradient(180deg, #fafbfe 0%, #f2f4fa 100%);
+    --sc-canvas-vignette: radial-gradient(140% 140% at 50% 20%, rgba(12, 16, 34, 0.06), transparent 75%);
+    --sc-nav-surface: rgba(255, 255, 255, 0.9);
+    --sc-footer-surface: linear-gradient(180deg, #f1f3f9 0%, #e9edf5 100%);
+    --sc-nav-border: rgba(17, 24, 39, 0.08);
+}
+
+/* R95 - Contrast safety token (update) */
+:root {
+    --sc-min-contrast-boost: rgba(0, 0, 0, 0.06);
+    /* used subtly in borders/shadows to improve legibility */
+}
+
+/* R113 - subtle premium card elevation */
+:root {
+    --sc-card-bg: var(--sc-surface-2);
+    --sc-card-border: var(--sc-border-1);
+    --sc-primary-600: #8f7bff;
+    --sc-primary-500: #b6a6ff;
+    --sc-surface-light-0: #ffffff;
+    --sc-surface-light-1: #f9fafe;
+    --sc-surface-light-2: #ffffff;
+    --sc-border-light-1: rgba(0, 0, 0, 0.08);
+}
+
+/* R124 - system-wide type smoothing */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* R126 - light mode adjustments */
+.light {
+    --sc-card-bg: rgba(0, 0, 0, 0.03);
+    --sc-card-border: rgba(0, 0, 0, 0.08);
+}
+
+/* Hero Tokens (R131 refresh) */
+:root {
+    --sc-hero-max-width: 920px;
+    --sc-hero-padding-y: var(--sc-space-6);
+    --sc-hero-title-size: var(--font-3xl);
+    --sc-hero-subtitle-size: var(--font-2xl);
+    --sc-hero-radius: var(--sc-radius-lg);
+    --sc-hero-glow-size: 580px;
+    --sc-hero-glow-opacity: 0.18;
+    --sc-hero-glow-color: var(--sc-glow-hero);
+    --sc-hero-title-weight: 700;
+    --sc-hero-title-letter: var(--tracking-h1-h2);
+    --sc-hero-title-line: var(--line-hero);
+    --sc-hero-subtitle-weight: 480;
+    --sc-hero-subtitle-letter: var(--tracking-h3-h4);
+    --sc-hero-subtitle-line: var(--line-tight-lg);
+    --sc-hero-subtitle-max: 660px;
+}
+
+/* R-A22 - Architecture block tokens */
+:root {
+    --sc-arch-bg: var(--sc-surface-1);
+    --sc-arch-frame: var(--sc-surface-2);
+    --sc-arch-border: var(--sc-border-1);
+    --sc-arch-radius: 18px;
+    --sc-arch-pad-y: 48px;
+    --sc-arch-pad-x: 48px;
+    --sc-arch-grid-gap: 48px;
+    --sc-arch-tag-gap: 10px;
+    --sc-arch-sticky-top: 120px;
+
+    --sc-arch-shadow-1: 0 12px 34px rgba(0, 0, 0, 0.32);
+    --sc-arch-shadow-2: 0 18px 48px rgba(0, 0, 0, 0.38);
+
+    --sc-arch-title-size: 26px;
+    --sc-arch-subtitle-size: 15px;
+
+    --sc-arch-vignette: radial-gradient(90% 60% at 50% 0%, rgba(143, 123, 255, 0.16), transparent 74%);
+
+    --sc-subtle-glow: radial-gradient(60% 60% at 50% 50%, rgba(143, 123, 255, 0.18), transparent 70%);
+}
+
+/* R-A23 - Selector alignment tokens */
+:root {
+    --sc-selector-bg: var(--sc-surface-1);
+    --sc-selector-border: var(--sc-border-1);
+    --sc-selector-radius: 14px;
+    --sc-selector-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
+
+    --sc-selector-title-size: 0.95rem;
+    --sc-selector-body-size: 0.87rem;
+
+    --sc-selector-hover-bg: rgba(255, 255, 255, 0.05);
+    --sc-selector-active-bg: linear-gradient(120deg, rgba(143, 123, 255, 0.24), rgba(22, 28, 58, 0.0));
+}
+
+/* R-A24 - Diagram embedding tokens */
+:root {
+    --sc-diagram-bg: rgba(5, 7, 16, 0.72);
+    --sc-diagram-border: rgba(255, 255, 255, 0.06);
+    --sc-diagram-radius: 16px;
+    --sc-diagram-shadow: 0 10px 36px rgba(0, 0, 0, 0.28);
+
+    --sc-diagram-pad-x: 28px;
+    --sc-diagram-pad-y: 28px;
+
+    --sc-diagram-max-width: 100%;
+    --sc-diagram-max-height: 540px;
+}
+
+/* R-A28 - Premium surface system */
+:root {
+    --sc-surface-card: rgba(255, 255, 255, 0.035);
+    --sc-surface-card-strong: rgba(255, 255, 255, 0.05);
+    --sc-border-card: rgba(255, 255, 255, 0.06);
+    --sc-border-card-strong: rgba(255, 255, 255, 0.08);
+    --sc-radius-card: 14px;
+    --sc-radius-card-lg: 16px;
+    --sc-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.32);
+    --sc-shadow-card-lg: 0 12px 32px rgba(0, 0, 0, 0.38);
+}
+
+:root[data-theme='light'] {
+    --sc-surface-card: rgba(255, 255, 255, 0.96);
+    --sc-surface-card-strong: rgba(255, 255, 255, 0.98);
+    --sc-border-card: rgba(0, 0, 0, 0.06);
+    --sc-border-card-strong: rgba(0, 0, 0, 0.09);
+    --sc-shadow-card: 0 8px 22px rgba(15, 23, 42, 0.16);
+    --sc-shadow-card-lg: 0 14px 32px rgba(15, 23, 42, 0.22);
+}
+
+[data-theme="light"] .scCard {
+    background: var(--sc-surface-light-1);
+    border: 1px solid var(--sc-border-light-1);
+}
+
+:root {
+    --sc-sticky-top: 96px;
+}
+
+/* R-WM1 - Hero watermark tokens */
+:root {
+    --sc-watermark-url: url('/img/shield-mark.svg');
+    --sc-watermark-size: 640px;
+    --sc-watermark-opacity: 0.18;
+    --sc-watermark-offset-y: 4%;
+}
+
+:root[data-theme='light'] {
+    --sc-watermark-opacity: 0.08;
+}

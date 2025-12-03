@@ -128,7 +128,7 @@ async function run() {
     const summaryJsonPath = path.join(outputDir, 'summary.json');
     const summaryMdPath = path.join(outputDir, 'summary.md');
     const mdContent = [
-        `# Lighthouse Audit — ${new Date().toISOString()}`,
+        `# Lighthouse Audit  -  ${new Date().toISOString()}`,
         '',
         '| Route | Perf | A11y | Best Practices | SEO | PWA |',
         '| --- | --- | --- | --- | --- | --- |',

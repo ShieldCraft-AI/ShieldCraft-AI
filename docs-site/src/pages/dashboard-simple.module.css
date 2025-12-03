@@ -291,7 +291,7 @@
 }
 
 .metric:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--sc-border-soft);
 }
 
 .metricLabel {

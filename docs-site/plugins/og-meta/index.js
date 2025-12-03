@@ -7,7 +7,7 @@ module.exports = function ogMetaPlugin(context, options) {
     name: 'og-meta',
     injectHtmlTags() {
       const absoluteImage = 'https://shieldcraft-ai.com/img/ShieldCraftAI.jpeg';
-      const ogTitle = 'ShieldCraft AI — Secure, Governed GenAI at Enterprise Scale';
+      const ogTitle = 'ShieldCraft AI  -  Secure, Governed GenAI at Enterprise Scale';
       const shortDescription = 'Production-grade AWS reference architecture that automates governance and FinOps guardrails across the MLOps lifecycle.';
       return {
         headTags: [

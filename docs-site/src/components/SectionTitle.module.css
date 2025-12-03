@@ -1,0 +1,20 @@
+/* R60 - Section title consistency */
+.sectionHeader {
+    margin: 18px 0;
+    text-align: center;
+}
+
+.sectionTitle {
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+    margin-bottom: var(--sc-space-6, 24px);
+}
+
+.sectionSubtitle {
+    opacity: 0.55;
+    font-size: 14px;
+    margin-top: -4px;
+    margin-bottom: var(--sc-space-10, 40px);
+}

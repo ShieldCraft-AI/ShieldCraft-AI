@@ -1,5 +1,5 @@
 #!/bin/bash
-# DOCUMENTED DEPLOY HELPER — Reviewed
+# DOCUMENTED DEPLOY HELPER  -  Reviewed
 # Purpose: safe, interactive deploy helper for the Cognito auth stack.
 # NOTE: This script contains deployment commands. Do NOT run in CI or without
 # explicit approval. Remove only via a reviewed PR.
