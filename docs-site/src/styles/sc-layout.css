@@ -20,6 +20,8 @@
     --sc-border-strong: rgba(17, 23, 40, 0.12);
     --sc-shadow-soft: 0 16px 32px rgba(17, 23, 40, 0.16);
     --sc-shadow-hard: 0 22px 48px rgba(17, 23, 40, 0.28);
+    --sc-text-strong: rgb(17, 23, 40);
+    --sc-text-body: rgb(17, 23, 40);
 }
 
 /* Layout container utilities */
@@ -215,10 +217,22 @@ section.scSection[aria-labelledby="platform-arch-heading"] .scContainerWide>.scC
     color: rgba(255, 255, 255, 0.94) !important;
 }
 
+html[data-theme='light'] .architectureSection,
+html[data-theme='light'] .architectureCard,
+html[data-theme='light'] .archDiagramAnchor {
+    color: rgb(55, 65, 81) !important;
+}
+
 .architectureCard p,
 .architectureCard li,
 .architectureCard span {
     color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html[data-theme='light'] .architectureCard p,
+html[data-theme='light'] .architectureCard li,
+html[data-theme='light'] .architectureCard span {
+    color: rgb(55, 65, 81) !important;
 }
 
 @media (max-width: 600px) {
@@ -317,8 +331,10 @@ body[data-theme='dark'] .scPage .vs-page,
     overflow: visible !important;
 }
 
-html,
-body,
-* {
-    cursor: default !important;
+/* Remove cursor override - let interactive elements be pointer */
+button,
+a,
+[role="button"],
+[role="tab"] {
+    cursor: pointer !important;
 }

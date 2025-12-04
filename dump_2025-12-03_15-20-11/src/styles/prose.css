@@ -1,0 +1,19 @@
+/* src/styles/prose.css */
+.prose p {
+    font-size: var(--font-md);
+    color: var(--sc-text-body);
+    margin-bottom: 16px;
+    line-height: var(--line-body);
+    letter-spacing: var(--tracking-body);
+    max-width: var(--sc-body-max-width);
+}
+
+.prose ul,
+.prose ol {
+    margin-left: 18px;
+    margin-bottom: 18px;
+}
+
+.prose strong {
+    color: var(--sc-text-strong);
+}

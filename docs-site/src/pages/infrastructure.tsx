@@ -46,9 +46,9 @@ const INFRA_BLUEPRINT: Record<TierKey, InfraBlueprint> = require('./pricing').IN
 const INFRA_PRESENCE: Record<string, Record<string, boolean>> = require('../data/infra_presence.json');
 
 const TIER_PRICING: Record<TierKey, number> = {
-    starter: 51,
-    growth: 1085,
-    enterprise: 4560,
+    starter: 800,
+    growth: 1900,
+    enterprise: 6500,
 };
 const TIERS: Record<TierKey, { label: string; price: number }> = {
     starter: { label: 'Starter', price: TIER_PRICING.starter },

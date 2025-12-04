@@ -11,8 +11,8 @@
     --hud-hairline: rgba(148, 163, 184, 0.16);
     --hud-text: #e5e7eb;
     --hud-text-dim: #94a3b8;
-    --card-bg-start: rgba(15, 23, 42, 0.72);
-    --card-bg-end: rgba(17, 24, 39, 0.72);
+    --card-bg-start: rgba(15, 23, 42, 0.85);
+    --card-bg-end: rgba(17, 24, 39, 0.85);
     --card-hover-border: rgba(34, 211, 238, 0.3);
     --card-subtle-bg: rgba(255, 255, 255, 0.04);
     --card-tile-bg: rgba(255, 255, 255, 0.035);
@@ -43,13 +43,13 @@
 .container {
     display: grid;
     grid-template-columns: 1.05fr 1.5fr 1.05fr;
-    gap: 0.65rem;
+    gap: 1rem;
     align-items: start;
 }
 
 .col {
     display: grid;
-    gap: 0.8rem;
+    gap: 1rem;
 }
 
 .colLeft,
@@ -65,12 +65,10 @@
     position: relative;
     background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
     border: 1px solid var(--hud-hairline);
-    border-radius: 10px;
-    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
     box-sizing: border-box;
-    background: var(--sc-border-soft);
     cursor: default;
-    transition: border-color 0.2s ease;
 }
 
 .card:hover {
@@ -81,35 +79,52 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: .4rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--hud-hairline);
 }
 
 .cardTitle {
     margin: 0;
     font-size: 1rem;
+    font-weight: 600;
     color: var(--hud-accent);
 }
 
 .statusPill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 2px 8px;
+    gap: 7px;
+    padding: 4px 12px;
     border-radius: 999px;
     border: 1px solid var(--hud-hairline);
-    font-size: .65rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: .04em;
+    letter-spacing: 0.06em;
     color: var(--hud-text);
     background: var(--card-subtle-bg);
+    transition: all 0.2s ease;
 }
 
 .statusPill::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .statusPill.healthy {
@@ -140,12 +155,13 @@
 .threatBanner {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    padding: .75rem .85rem;
-    border: 1px solid rgba(245, 158, 11, 0.25);
-    border-radius: 6px;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 10px;
     background: linear-gradient(135deg, var(--banner-bg-start), var(--banner-bg-end));
-    margin-bottom: .85rem;
+    margin-bottom: 1.15rem;
+    box-shadow: 0 2px 12px rgba(245, 158, 11, 0.08);
 }
 
 .threatBanner .label {
@@ -164,29 +180,38 @@
 .threatKPIs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: .65rem;
-    margin-bottom: .75rem;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
 }
 
 .threatKpi {
     background: var(--domain-bg);
     border: 1px solid var(--hud-hairline);
-    border-radius: 6px;
-    padding: .65rem .5rem;
+    border-radius: 8px;
+    padding: 0.85rem 0.65rem;
     text-align: center;
+    transition: all 0.2s ease;
+}
+
+.threatKpi:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--hud-accent);
 }
 
 .threatKpiLabel {
-    font-size: .65rem;
+    font-size: 0.7rem;
     color: var(--hud-text-dim);
-    letter-spacing: .04em;
-    margin-bottom: .25rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
 }
 
 .threatKpiValue {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 750;
     color: var(--hud-accent);
+    letter-spacing: -0.01em;
 }
 
 .severityRow {
@@ -200,21 +225,29 @@
 .sevChip {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    padding: .3rem .6rem;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
     border-radius: 999px;
     border: 1px solid var(--hud-hairline);
-    font-size: .72rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
     color: var(--hud-text);
     background: var(--domain-bg);
+    transition: all 0.2s ease;
+}
+
+.sevChip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .sevDot {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: currentColor;
+    box-shadow: 0 0 8px currentColor;
 }
 
 .sevChip.sevCrit {
@@ -246,19 +279,23 @@
     position: relative;
     background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
     border: 1px solid var(--hud-hairline);
-    border-radius: 10px;
-    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
     box-sizing: border-box;
     overflow: hidden;
     cursor: default;
-    transition: border-color 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .compliancePostureRow:hover {
     border-color: var(--card-hover-border);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .complianceHalf,

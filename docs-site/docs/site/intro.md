@@ -1,5 +1,7 @@
 ---
 title: ShieldCraft AI
+description: AWS-native AI-driven cybersecurity platform for autonomous threat detection, remediation, and GenAI governance at enterprise scale
+keywords: [AWS security, cloud security, GenAI governance, autonomous remediation, threat intelligence, MLOps security, FinOps, security automation]
 sidebar_position: 1
 ---
 

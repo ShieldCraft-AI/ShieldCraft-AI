@@ -3993,54 +3993,54 @@
   },
   "cost_analysis": {
     "eventbridge": {
-      "dev": 0.5,
-      "staging": 5.0,
-      "prod": 50.0
+      "dev": 4.95,
+      "staging": 13.83,
+      "prod": 77.84
     },
     "cloud_native_hardening": {
-      "dev": 2.5,
-      "staging": 15.0,
-      "prod": 100.0
+      "dev": 24.75,
+      "staging": 41.49,
+      "prod": 155.67
     },
     "sagemaker": {
       "dev": 0.0,
-      "staging": 89.55,
-      "prod": 805.2
+      "staging": 247.68,
+      "prod": 1253.49
     },
     "lakeformation": {
       "dev": 0.0,
-      "staging": 5.0,
-      "prod": 50.0
+      "staging": 13.83,
+      "prod": 77.84
     },
     "security": {
-      "dev": 5.0,
-      "staging": 25.0,
-      "prod": 200.0
+      "dev": 49.5,
+      "staging": 69.15,
+      "prod": 311.35
     },
     "opensearch": {
       "dev": 0.0,
-      "staging": 61.6,
-      "prod": 938.91
+      "staging": 170.38,
+      "prod": 1461.64
     },
     "airbyte": {
       "dev": 0.0,
-      "staging": 120.0,
-      "prod": 360.0
+      "staging": 331.9,
+      "prod": 560.43
     },
     "lambda": {
-      "dev": 2.5,
-      "staging": 25.0,
-      "prod": 200.0
+      "dev": 24.75,
+      "staging": 69.15,
+      "prod": 311.35
     },
     "networking": {
-      "dev": 25.0,
-      "staging": 100.0,
-      "prod": 400.0
+      "dev": 247.52,
+      "staging": 276.59,
+      "prod": 622.7
     },
     "stepfunctions": {
-      "dev": 1.0,
-      "staging": 10.0,
-      "prod": 100.0
+      "dev": 9.9,
+      "staging": 27.66,
+      "prod": 155.67
     },
     "iam": {
       "dev": 0.0,
@@ -4048,19 +4048,19 @@
       "prod": 0.0
     },
     "s3": {
-      "dev": 9.0,
-      "staging": 36.0,
-      "prod": 105.0
+      "dev": 89.11,
+      "staging": 99.57,
+      "prod": 163.46
     },
     "glue": {
-      "dev": 5.0,
-      "staging": 45.0,
-      "prod": 180.0
+      "dev": 49.5,
+      "staging": 124.46,
+      "prod": 280.21
     },
     "msk": {
       "dev": 0.0,
-      "staging": 547.5,
-      "prod": 1971.0
+      "staging": 1514.31,
+      "prod": 3068.34
     }
   },
   "dependency_graph": {

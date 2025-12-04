@@ -61,6 +61,13 @@ body::before {
   --vs-surface: rgba(255, 255, 255, 0.04);
   --vs-card-border: rgba(2, 6, 23, 0.06);
   --vs-accent: var(--vs-purple);
+
+  /* Light mode text colors - DEFAULT */
+  --sc-text-strong: rgb(17, 23, 40);
+  --sc-text-body: rgb(17, 23, 40);
+  --sc-text-body-strong: rgb(17, 23, 40);
+  --sc-text-subtle: rgb(55, 65, 81);
+  --sc-text-muted: rgb(75, 85, 99);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -93,6 +100,13 @@ body::before {
   --vs-surface: rgba(18, 20, 26, 0.48);
   --vs-card-border: rgba(255, 255, 255, 0.06);
   --vs-accent: var(--vs-purple);
+
+  /* Dark mode text colors */
+  --sc-text-strong: rgba(255, 255, 255, 1);
+  --sc-text-body: rgba(255, 255, 255, 0.95);
+  --sc-text-body-strong: rgba(255, 255, 255, 0.98);
+  --sc-text-subtle: rgba(255, 255, 255, 0.82);
+  --sc-text-muted: rgba(255, 255, 255, 0.72);
 }
 
 /* Support theme toggles applied to the html element too (Docusaurus may set this) */
@@ -1670,8 +1684,7 @@ body[data-theme='light'] {
   color: var(--sc-text-body) !important;
 }
 
-/* FINAL FIX — GLOBAL READABILITY OVERRIDE (no refactor) */
-:root,
+/* FINAL FIX - GLOBAL READABILITY OVERRIDE (no refactor) */
 html[data-theme='dark'],
 body[data-theme='dark'] {
   --sc-text-strong: #ffffff !important;
@@ -1679,59 +1692,123 @@ body[data-theme='dark'] {
   --sc-text-subtle: #d0d0d0 !important;
 }
 
+html[data-theme='light'],
+body[data-theme='light'] {
+  --sc-text-strong: rgb(17, 23, 40) !important;
+  --sc-text-body: rgb(17, 23, 40) !important;
+  --sc-text-subtle: rgb(55, 65, 81) !important;
+}
+
 /* FORCE ALL TEXT ON LANDING PAGE TO BE READABLE */
-.scPage,
-.scPage * {
+html[data-theme='dark'] .scPage,
+html[data-theme='dark'] .scPage * {
   color: var(--sc-text-body) !important;
 }
 
+html[data-theme='light'] .scPage,
+html[data-theme='light'] .scPage * {
+  color: rgb(17, 23, 40) !important;
+}
+
 /* HEADINGS + LABELS */
-.scPage h1,
-.scPage h2,
-.scPage h3,
-.scPage h4,
-.scSectionTitle,
-.scCardSmTitle,
-.scArchTitle {
+html[data-theme='dark'] .scPage h1,
+html[data-theme='dark'] .scPage h2,
+html[data-theme='dark'] .scPage h3,
+html[data-theme='dark'] .scPage h4,
+html[data-theme='dark'] .scSectionTitle,
+html[data-theme='dark'] .scCardSmTitle,
+html[data-theme='dark'] .scArchTitle {
   color: var(--sc-text-strong) !important;
   opacity: 1 !important;
 }
 
+html[data-theme='light'] .scPage h1,
+html[data-theme='light'] .scPage h2,
+html[data-theme='light'] .scPage h3,
+html[data-theme='light'] .scPage h4,
+html[data-theme='light'] .scSectionTitle,
+html[data-theme='light'] .scCardSmTitle,
+html[data-theme='light'] .scArchTitle {
+  color: rgb(17, 23, 40) !important;
+  opacity: 1 !important;
+}
+
 /* ARCHITECTURE CARDS / TAGS / NODES */
-.scArchFrame *,
-.architectureCard *,
-.archDiagramAnchor * {
+html[data-theme='dark'] .scArchFrame *,
+html[data-theme='dark'] .architectureCard *,
+html[data-theme='dark'] .archDiagramAnchor * {
   color: var(--sc-text-body) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme='light'] .scArchFrame *,
+html[data-theme='light'] .architectureCard *,
+html[data-theme='light'] .archDiagramAnchor * {
+  color: rgb(55, 65, 81) !important;
   opacity: 1 !important;
 }
 
 /* FINAL: ShieldCraft landing page cascade overrides (minimal & surgical) */
 html[data-theme='dark'] .scPage,
-body[data-theme='dark'] .scPage,
-.scPage {
+body[data-theme='dark'] .scPage {
   --vs-muted: rgba(255, 255, 255, 0.86) !important;
   --vs-foreground: rgba(255, 255, 255, 0.98) !important;
 }
 
+html[data-theme='light'] .scPage,
+body[data-theme='light'] .scPage {
+  --vs-muted: rgba(17, 23, 40, 0.8) !important;
+  --vs-foreground: rgba(17, 23, 40, 0.98) !important;
+  --sc-text-body-strong: rgb(31, 41, 55) !important;
+  --sc-text-muted: rgb(75, 85, 99) !important;
+}
+
 /* Explicit selectors to neutralize VectorScan .vs-page overrides on landing */
-.scPage .vs-page p,
-.scPage .vs-page li,
-.scPage .vs-page summary,
-.scPage .vs-page .vs-small,
-.scPage .vs-page .vs-muted {
+html[data-theme='dark'] .scPage .vs-page p,
+html[data-theme='dark'] .scPage .vs-page li,
+html[data-theme='dark'] .scPage .vs-page summary,
+html[data-theme='dark'] .scPage .vs-page .vs-small,
+html[data-theme='dark'] .scPage .vs-page .vs-muted {
   color: var(--sc-text-body) !important;
   opacity: 1 !important;
 }
 
+html[data-theme='light'] .scPage .vs-page p,
+html[data-theme='light'] .scPage .vs-page li,
+html[data-theme='light'] .scPage .vs-page summary,
+html[data-theme='light'] .scPage .vs-page .vs-small,
+html[data-theme='light'] .scPage .vs-page .vs-muted,
+html[data-theme='light'] .scPage p,
+html[data-theme='light'] .scPage li,
+html[data-theme='light'] .scPage span,
+html[data-theme='light'] .scPage .vs-small,
+html[data-theme='light'] .scPage .vs-muted,
+html[data-theme='light'] .scSectionSubtitle,
+html[data-theme='light'] .scCardSmBody {
+  color: rgb(55, 65, 81) !important;
+  opacity: 1 !important;
+}
+
 /* Highest-specificity fallback */
-body[data-theme='dark'] .scPage *[style*="color:"] {
+html[data-theme='dark'] body .scPage *[style*="color:"] {
   color: var(--sc-text-body) !important;
 }
 
+html[data-theme='light'] body .scPage *[style*="color:"] {
+  color: rgb(55, 65, 81) !important;
+}
+
 /* Small safety: make sure buttons and labels inherit readable color */
-.scPage button,
-.scPage a,
-.scPage .btn,
-.scPage .button {
+html[data-theme='dark'] .scPage button,
+html[data-theme='dark'] .scPage a,
+html[data-theme='dark'] .scPage .btn,
+html[data-theme='dark'] .scPage .button {
   color: var(--sc-text-strong) !important;
+}
+
+html[data-theme='light'] .scPage button,
+html[data-theme='light'] .scPage a,
+html[data-theme='light'] .scPage .btn,
+html[data-theme='light'] .scPage .button {
+  color: rgb(17, 23, 40) !important;
 }

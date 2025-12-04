@@ -283,7 +283,7 @@ const CAPABILITIES: Capability[] = [
         id: 'ingest',
         label: 'Signals ingestion & harmonisation',
         summary: 'Normalize SaaS, endpoint, and network telemetry with managed schemas while Step Functions throttle inference fan-out for cost-aware latency.',
-        monthly: { starter: 4200, growth: 7300, enterprise: 11200 },
+        monthly: { starter: 204, growth: 1298, enterprise: 3427 },
         aws: ['Amazon EventBridge', 'AWS Lambda', 'AWS Step Functions', 'Amazon S3'],
         awsByTier: {
             starter: ['Amazon EventBridge', 'AWS Lambda', 'AWS Step Functions', 'Amazon S3'],
@@ -295,7 +295,7 @@ const CAPABILITIES: Capability[] = [
         id: 'mlops',
         label: 'Model operations & orchestration',
         summary: 'Train, evaluate, and promote detections across environments with approvals.',
-        monthly: { starter: 3100, growth: 5200, enterprise: 8800 },
+        monthly: { starter: 150, growth: 926, enterprise: 2692 },
         aws: ['Amazon SageMaker', 'AWS Step Functions', 'AWS Glue'],
         awsByTier: {
             starter: ['Amazon SageMaker'],
@@ -307,7 +307,7 @@ const CAPABILITIES: Capability[] = [
         id: 'governance',
         label: 'Security governance & guardrails',
         summary: 'Enforce compliance, identity federation, and detective controls with Identity Center, Security Hub, Config, and Detective.',
-        monthly: { starter: 1800, growth: 2400, enterprise: 3600 },
+        monthly: { starter: 87, growth: 427, enterprise: 1101 },
         aws: ['AWS IAM', 'AWS IAM Identity Center', 'AWS Config', 'AWS Security Hub', 'Amazon GuardDuty', 'Amazon Detective'],
         awsByTier: {
             starter: ['AWS IAM', 'Amazon GuardDuty'],
@@ -319,7 +319,7 @@ const CAPABILITIES: Capability[] = [
         id: 'finops',
         label: 'FinOps & resilience',
         summary: 'Guard spend, automate immutable backups, and validate recovery objectives while hardening ingress for burst workloads.',
-        monthly: { starter: 1200, growth: 1950, enterprise: 4200 },
+        monthly: { starter: 59, growth: 349, enterprise: 1280 },
         aws: ['AWS Budgets', 'AWS Cost Explorer', 'AWS Backup', 'AWS Resilience Hub', 'AWS WAF', 'AWS Shield Advanced'],
         awsByTier: {
             starter: ['AWS Budgets', 'AWS Backup'],
@@ -967,8 +967,6 @@ export default function PricingPage() {
     } | null;
 
     const [discovery] = React.useState<Discovery>(staticDiscovery as Discovery);
-
-    // infra blueprint was moved to a dedicated /infrastructure page. Use that page for detailed view.
 
     const totalsByTier = React.useMemo(() => {
         if (discovery?.cost_analysis) {

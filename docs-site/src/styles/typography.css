@@ -9,6 +9,14 @@
     --sc-text-muted: rgba(255, 255, 255, 0.72);
 }
 
+html[data-theme='light'] {
+    --sc-text-strong: rgb(17, 23, 40);
+    --sc-text-body: rgb(17, 23, 40);
+    --sc-text-body-strong: rgb(17, 23, 40);
+    --sc-text-subtle: rgb(55, 65, 81);
+    --sc-text-muted: rgb(75, 85, 99);
+}
+
 .h1 {
     font-size: var(--font-3xl);
     font-weight: 760;
@@ -93,6 +101,10 @@ h2,
     opacity: 1 !important;
 }
 
+html[data-theme='light'] .scSectionSubtitle {
+    color: rgb(17, 23, 40) !important;
+}
+
 .small {
     font-size: var(--font-sm);
     letter-spacing: var(--tracking-body);
@@ -118,16 +130,32 @@ h3 {
     font-weight: 700 !important;
 }
 
+html[data-theme='light'] .scCardSmTitle,
+html[data-theme='light'] h3 {
+    color: #000000 !important;
+}
+
 .scCardSmBody,
 .contextCard p {
-    color: rgba(255, 255, 255, 0.94) !important;
+    color: #ffffff !important;
     opacity: 1 !important;
+}
+
+html[data-theme='light'] .scCardSmBody,
+html[data-theme='light'] .contextCard p {
+    color: #000000 !important;
 }
 
 .architectureSection p,
 .architectureSection li,
 .architectureSection span {
     color: rgba(255, 255, 255, 0.96) !important;
+}
+
+html[data-theme='light'] .architectureSection p,
+html[data-theme='light'] .architectureSection li,
+html[data-theme='light'] .architectureSection span {
+    color: rgb(17, 23, 40) !important;
 }
 
 body,
@@ -170,7 +198,7 @@ p {
 .scPage .scSectionTitle,
 .scPage .scCardSmTitle,
 .scPage .contextCard h3 {
-    color: var(--sc-text-strong) !important;
+    color: #ffffff !important;
     text-shadow: none !important;
     opacity: 1 !important;
 }
@@ -184,10 +212,23 @@ p {
     opacity: 1 !important;
 }
 
+html[data-theme='light'] .scPage .contextCard p,
+html[data-theme='light'] .scPage .contextCard h3 {
+    color: #000000 !important;
+}
+
 /* Eyebrow, small text */
 .scPage .contextEyebrow,
 .scPage .caps,
 .scPage .small {
     color: var(--sc-text-subtle) !important;
     opacity: 1 !important;
+}
+
+/* NUCLEAR OVERRIDE FOR CONTEXTCARD - MUST BE LAST */
+html[data-theme='light'] .contextCard h3,
+html[data-theme='light'] .contextCard p,
+html[data-theme='light'] .scPage .contextCard h3,
+html[data-theme='light'] .scPage .contextCard p {
+    color: #000000 !important;
 }

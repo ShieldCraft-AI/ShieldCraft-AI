@@ -2,21 +2,91 @@
     display: grid;
     min-height: 60vh;
     place-items: center;
-    padding: 2rem
+    padding: 2rem;
 }
 
 .card {
     background: var(--ifm-background-surface-color);
     border: 1px solid color-mix(in srgb, var(--ifm-color-emphasis-300) 40%, transparent);
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, .05);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     max-width: 720px;
-    width: 100%
+    width: 100%;
+    text-align: center;
+}
+
+.iconWrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+    background: linear-gradient(135deg, rgba(143, 123, 255, 0.15), rgba(91, 68, 204, 0.1));
+    border: 2px solid rgba(143, 123, 255, 0.3);
+    border-radius: 50%;
+    font-size: 3.5rem;
+}
+
+.card h1 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.card p {
+    color: var(--ifm-color-emphasis-700);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.linkGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.linkCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(143, 123, 255, 0.08);
+    border: 1px solid rgba(143, 123, 255, 0.2);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--ifm-color-primary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.linkCard:hover {
+    background: rgba(143, 123, 255, 0.15);
+    border-color: rgba(143, 123, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(143, 123, 255, 0.2);
 }
 
 .hint {
     color: var(--ifm-color-emphasis-600);
-    margin-top: .5rem;
-    font-size: .9rem
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Light mode adjustments */
+[data-theme='light'] .iconWrapper {
+    background: linear-gradient(135deg, rgba(143, 123, 255, 0.12), rgba(91, 68, 204, 0.08));
+    border-color: rgba(143, 123, 255, 0.25);
+}
+
+[data-theme='light'] .linkCard {
+    background: rgba(143, 123, 255, 0.06);
+    border-color: rgba(143, 123, 255, 0.18);
+}
+
+[data-theme='light'] .linkCard:hover {
+    background: rgba(143, 123, 255, 0.12);
+    border-color: rgba(143, 123, 255, 0.35);
 }

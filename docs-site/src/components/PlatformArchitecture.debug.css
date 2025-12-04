@@ -1,4 +1,0 @@
-/* debug outlines - temporary, remove after QA */
-.arch-layout.debug * {
-    outline: 1px dashed rgba(255, 255, 255, 0.06);
-}

@@ -9,7 +9,7 @@ const DOC_LINKS = [
     {
         label: 'GuardSuite Documentation Index',
         description: 'Track required GuardSuite documentation pages and their completion status.',
-        href: '/guard-suite/index',
+        href: '/guard-suite',
     },
     {
         label: 'VectorScan Overview',

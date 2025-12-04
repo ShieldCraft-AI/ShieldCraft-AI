@@ -131,19 +131,19 @@ export const SiteFooter: React.FC = () => {
             <div style={{ marginTop: '3rem', borderTop: panelBorder, paddingTop: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', fontSize: '.75rem', color: textColor, maxWidth: 1480, marginLeft: 'auto', marginRight: 'auto' }}>
                 <span>© {new Date().getFullYear()} ShieldCraft AI. All rights reserved.</span>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-                    <a href="https://aws.amazon.com/certification/certified-solutions-architect-associate/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified Solutions Architect - Associate">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <a href="https://www.credly.com/badges/aece6ebf-489a-454c-a66a-0c34412574ea/public_url" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified Solutions Architect - Associate - View Credential">
                         <picture>
                             <source srcSet={`${awsSolutionsAvifSm} 1x, ${awsSolutionsAvifLg} 2x`} type="image/avif" />
                             <source srcSet={`${awsSolutionsWebpSm} 1x, ${awsSolutionsWebpLg} 2x`} type="image/webp" />
-                            <img src={awsSolutionsPng} alt="AWS Certified Solutions Architect - Associate" title="AWS Certified Solutions Architect - Associate" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} loading="lazy" />
+                            <img src={awsSolutionsPng} alt="AWS Certified Solutions Architect - Associate" title="AWS Certified Solutions Architect - Associate" style={{ height: 80, width: 'auto', opacity: 1, borderRadius: 6, transition: 'transform 0.2s ease', cursor: 'pointer' }} loading="lazy" onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} />
                         </picture>
                     </a>
-                    <a href="https://aws.amazon.com/certification/certified-ai-practitioner/" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified AI Practitioner">
+                    <a href="https://www.credly.com/badges/effc7f36-41df-427d-ba8a-33e147a24f0d/public_url" target="_blank" rel="noopener noreferrer" aria-label="AWS Certified AI Practitioner - View Credential">
                         <picture>
                             <source srcSet={`${awsAiAvifSm} 1x, ${awsAiAvifLg} 2x`} type="image/avif" />
                             <source srcSet={`${awsAiWebpSm} 1x, ${awsAiWebpLg} 2x`} type="image/webp" />
-                            <img src={awsAiPng} alt="AWS Certified AI Practitioner" title="AWS Certified AI Practitioner" style={{ height: 40, width: 'auto', opacity: 1, filter: 'grayscale(20%)', borderRadius: 3 }} loading="lazy" />
+                            <img src={awsAiPng} alt="AWS Certified AI Practitioner" title="AWS Certified AI Practitioner" style={{ height: 80, width: 'auto', opacity: 1, borderRadius: 6, transition: 'transform 0.2s ease', cursor: 'pointer' }} loading="lazy" onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} />
                         </picture>
                     </a>
                 </div>

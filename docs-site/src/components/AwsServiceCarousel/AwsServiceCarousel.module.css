@@ -1,0 +1,288 @@
+/* Grid layout showing ALL services at once */
+
+.gridContainer {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.gridHeader {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.gridTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.98);
+    margin: 0 0 8px;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+:global(html[data-theme='light']) .gridTitle {
+    color: rgb(17, 23, 40);
+}
+
+.gridSubtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+}
+
+:global(html[data-theme='light']) .gridSubtitle {
+    color: rgb(45, 55, 72);
+}
+
+/* Compact grid for sidebar - 4x4 layout */
+.servicesGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+/* Individual service card - compact for sidebar */
+.serviceCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 12px;
+    min-height: 100px;
+    background: rgba(16, 18, 28, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+:global(html[data-theme='light']) .serviceCard {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(17, 23, 40, 0.15);
+    box-shadow:
+        0 4px 12px rgba(17, 23, 40, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.serviceCard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(143, 123, 255, 0.12), transparent 65%);
+    opacity: 0;
+    transition: opacity 220ms ease;
+    pointer-events: none;
+}
+
+.serviceCard:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(143, 123, 255, 0.5);
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(143, 123, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+:global(html[data-theme='light']) .serviceCard:hover {
+    box-shadow:
+        0 16px 40px rgba(17, 23, 40, 0.18),
+        0 0 0 1px rgba(143, 123, 255, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.serviceCard:hover::before {
+    opacity: 1;
+}
+
+.serviceCard:active {
+    transform: translateY(-1px);
+}
+
+/* Focus state for keyboard navigation */
+.serviceCard:focus-visible {
+    outline: none;
+    border-color: rgba(143, 123, 255, 0.6);
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.4),
+        0 0 0 3px rgba(143, 123, 255, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Selected state */
+.selected {
+    background: linear-gradient(135deg,
+            rgba(143, 123, 255, 0.25) 0%,
+            rgba(143, 123, 255, 0.15) 100%);
+    border-color: rgba(143, 123, 255, 0.8);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+        0 20px 56px rgba(143, 123, 255, 0.35),
+        0 0 0 2px rgba(143, 123, 255, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 0 32px rgba(143, 123, 255, 0.1);
+    z-index: 10;
+}
+
+:global(html[data-theme='light']) .selected {
+    background: linear-gradient(135deg,
+            rgba(143, 123, 255, 0.2) 0%,
+            rgba(143, 123, 255, 0.12) 100%);
+    border-color: rgba(143, 123, 255, 0.7);
+    box-shadow:
+        0 20px 56px rgba(143, 123, 255, 0.3),
+        0 0 0 2px rgba(143, 123, 255, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 0 32px rgba(143, 123, 255, 0.08);
+}
+
+.selected::before {
+    opacity: 1;
+}
+
+.selected .icon {
+    filter: drop-shadow(0 0 12px rgba(143, 123, 255, 0.6));
+    transform: scale(1.1);
+}
+
+.selected .cardTitle {
+    color: rgba(255, 255, 255, 1);
+    font-weight: 700;
+}
+
+/* Icon wrapper - compact size */
+.iconWrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.serviceCard:hover .iconWrapper {
+    background: rgba(143, 123, 255, 0.2);
+    transform: scale(1.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 4px 12px rgba(143, 123, 255, 0.2);
+}
+
+.selected .iconWrapper {
+    background: rgba(143, 123, 255, 0.3);
+    box-shadow:
+        inset 0 0 0 1px rgba(143, 123, 255, 0.5),
+        0 8px 16px rgba(143, 123, 255, 0.25);
+}
+
+/* Icon */
+.icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    transition: all 240ms ease;
+    filter: brightness(0.95);
+}
+
+.serviceCard:hover .icon {
+    filter: brightness(1.1);
+}
+
+/* Card title */
+.cardTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    line-height: 1.4;
+    transition: all 260ms ease;
+    letter-spacing: -0.01em;
+}
+
+:global(html[data-theme='light']) .cardTitle {
+    color: rgb(26, 32, 44);
+}
+
+:global(html[data-theme='light']) .selected .cardTitle {
+    color: rgb(17, 23, 40);
+    font-weight: 700;
+}
+
+/* Scroll hint */
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .servicesGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .serviceCard {
+        padding: 14px 10px;
+        min-height: 90px;
+    }
+
+    .iconWrapper {
+        width: 44px;
+        height: 44px;
+    }
+
+    .icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .cardTitle {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .servicesGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .serviceCard {
+        padding: 12px 8px;
+        min-height: 85px;
+    }
+
+    .iconWrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .cardTitle {
+        font-size: 0.7rem;
+    }
+
+    .gridTitle {
+        font-size: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .serviceCard,
+    .icon,
+    .iconWrapper,
+    .cardTitle {
+        transition: none;
+    }
+}

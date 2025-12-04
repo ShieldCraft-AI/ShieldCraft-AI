@@ -47,7 +47,7 @@ export default function Hero() {
 
                     <div className="vs-hero__ctas">
                         <Link className="button button--primary" to="https://github.com/deonprinsloo/guardsuite/releases">Start Free Trial</Link>
-                        <Link className="button button--secondary" to="/docs">Explore Documentation</Link>
+                        <Link className="button button--secondary" to="/intro">Explore Documentation</Link>
                     </div>
 
                     <div className="vs-hero__trust">

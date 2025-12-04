@@ -1,7 +1,7 @@
 ---
 title: GuardSuite Documentation Index
 description: Index of GuardSuite documentation topics required by the GuardSuite Master Spec.
-slug: /guard-suite/index
+slug: /guard-suite
 ---
 
 The GuardSuite docs below now satisfy the Section 7 requirements from the GuardSuite Master Spec. Each page ties the static marketing routes (`/products/vectorscan`, `/products/vectorguard`, `/launch/vectorscan`) back to executable guidance so analysts can trace every CTA to a deterministic workflow.

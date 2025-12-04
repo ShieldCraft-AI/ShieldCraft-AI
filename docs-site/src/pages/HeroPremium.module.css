@@ -36,6 +36,13 @@
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+:global(html[data-theme='light']) .logoMark {
+    background: linear-gradient(180deg, rgba(111, 96, 255, 0.12), rgba(111, 96, 255, 0.08));
+    box-shadow: 0 4px 12px rgba(111, 96, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(111, 96, 255, 0.25);
+    color: rgb(79, 70, 229);
+}
+
 .brandName {
     font-weight: 760;
     color: var(--sc-text-strong);
@@ -66,6 +73,12 @@
     overflow: visible;
 }
 
+:global(html[data-theme='light']) .heroSurface {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+    border: 1px solid rgba(111, 96, 255, 0.15);
+    box-shadow: 0 16px 48px rgba(17, 23, 40, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
 .heroSurface::before {
     content: "";
     position: absolute;
@@ -88,6 +101,10 @@
     line-height: 1.04;
 }
 
+:global(html[data-theme='light']) .heroTitle {
+    color: rgb(17, 23, 40);
+}
+
 .heroSubtitle {
     margin: 0 0 18px 0;
     color: var(--sc-text-body);
@@ -96,17 +113,8 @@
     max-width: 900px;
 }
 
-.heroActions {
-    display: flex;
-    gap: 14px;
-    margin-top: 8px;
-    align-items: center;
-}
-
-.heroActions :global(.primaryCTA) {
-    padding: 12px 22px;
-    border-radius: 12px;
-    box-shadow: 0 8px 26px rgba(123, 108, 255, 0.22);
+:global(html[data-theme='light']) .heroSubtitle {
+    color: rgb(55, 65, 81);
 }
 
 .heroNote {
@@ -114,6 +122,10 @@
     font-size: 0.88rem;
     color: var(--sc-text-body);
     opacity: 0.78;
+}
+
+:global(html[data-theme='light']) .heroNote {
+    color: rgb(75, 85, 99);
 }
 
 @media (max-width: 900px) {

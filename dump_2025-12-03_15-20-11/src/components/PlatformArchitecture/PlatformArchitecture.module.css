@@ -1,0 +1,121 @@
+.archRoot {
+    all: revert;
+    all: unset;
+    all: revert-layer;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+}
+
+.archRoot :global(*) {
+    box-sizing: border-box;
+}
+
+.archGrid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.archLeft {
+    position: relative;
+    z-index: 3;
+}
+
+.archRight {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+}
+
+.blueprintPanel {
+    background: rgba(14, 16, 26, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: var(--sc-shadow-soft);
+    backdrop-filter: blur(16px);
+}
+
+.blueprintHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.badge {
+    padding: 4px 10px;
+    background: rgba(143, 123, 255, 0.22);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.implCard {
+    background: rgba(14, 16, 26, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.implTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.implList {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.implList li {
+    font-size: 0.95rem;
+    opacity: 0.92;
+}
+
+/* Defensive overrides - place at bottom of file so they load last */
+:global([data-arch-escape="true"]) {
+    /* Force full-flow layout regardless of parent wrappers */
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Additional global fallbacks in case pages still use other layout classes */
+:global(.theme-doc-markdown[data-theme]),
+:global(.theme-doc-page),
+:global(.theme-doc-markdown),
+:global(.container),
+:global(.scContainerWide),
+:global(.markdown) {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+
+/* FORCE docusaurus containers open for this block */
+:global(.theme-doc-markdown) {
+    max-width: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+}

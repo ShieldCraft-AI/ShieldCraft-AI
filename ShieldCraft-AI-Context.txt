@@ -4,7 +4,7 @@ ShieldCraft AI - Comprehensive Context (Updated 2025-10-10)
 - **Mission**: unify multi-source security telemetry, governed data pipelines, and GenAI reasoning into a single AWS-native platform with strict guardrails.
 - **Scope**: end-to-end architecture spanning ingestion, governance, retrieval, AI inference, evaluation, and documentation. Everything is environment-aware (dev/staging/prod) and cost-controlled.
 - **Status**: implementation sits at **82% complete** (see `docs-site/docs/github/checklist.md`); progress is tracked automatically via `scripts/checklist_lite_review.py`.
-- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`—no AWS calls or deployments; **multi-provider OAuth authentication system** implemented with AWS Cognito supporting Google, Amazon, Microsoft, and GitHub identity providers via professional UI components with conditional navigation, auth state management, and comprehensive debugging infrastructure.
+- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`-no AWS calls or deployments; **multi-provider OAuth authentication system** implemented with AWS Cognito supporting Google, Amazon, Microsoft, and GitHub identity providers via professional UI components with conditional navigation, auth state management, and comprehensive debugging infrastructure.
 
 ----------------------------------------------------------------------
 Purpose: add a short, dated assistant-authored summary of the recent interaction (Oct 9–10, 2025) and a concise, machine-friendly snapshot of the repository state immediately after the recent edit/revert activity. Use this block when opening a new conversation so the assistant can resume with the most relevant, recent facts.
@@ -13,7 +13,7 @@ Purpose: add a short, dated assistant-authored summary of the recent interaction
 - You requested UI changes and a move of the infrastructure blueprint out of `pricing.tsx` into a dedicated `/infrastructure` page. The work included extracting rendering pieces into a new `InfraBlueprint` component and creating `docs-site/src/pages/infrastructure.tsx`.
 - During refactors, some runtime regressions appeared (missing constants, ReferenceError/TypeError) and the VPC/AZ/subnet topology visual disappeared from the new `/infrastructure` page.
 - I iterated: added defensive loading of a build-time `INFRA_BLUEPRINT`, derived a fallback blueprint from `static/data/architecture_discovery.json` when needed, and restored VPC/AZ/subnet markup to `InfraRegionMap` so the topology would render.
-- You asked to revert the changes — I restored tracked files to the last commit (HEAD) and removed several untracked files I had added locally: the new `InfraBlueprint` directory, the `infrastructure.tsx` page, `header-live.css`, `header-live-prod.css`, and a `scripts/scan_secrets.py` script. I reported that the `pricing.tsx` inline blueprint was present again.
+- You asked to revert the changes - I restored tracked files to the last commit (HEAD) and removed several untracked files I had added locally: the new `InfraBlueprint` directory, the `infrastructure.tsx` page, `header-live.css`, `header-live-prod.css`, and a `scripts/scan_secrets.py` script. I reported that the `pricing.tsx` inline blueprint was present again.
 - You then reported manual edits were made to a set of files (listed below). You also reported frustrations about Amazon IdP and Plugins behavior. You asked to stop writing code and instead produce a fresh, comprehensive prompt/context and an updated text document describing the current state.
 
 2) Key actions the assistant took (timeline)
@@ -24,13 +24,13 @@ Purpose: add a short, dated assistant-authored summary of the recent interaction
 - After topology disappeared, derived VPC/AZ/subnet topology from `docs-site/static/data/architecture_discovery.json` and restored rendering logic into the `InfraRegionMap`.
 - On your revert request, ran `git restore --source=HEAD -- .` and `git clean -fd` to restore tracked files and remove the untracked files created during the refactor.
 
-3) Current repository snapshot (state as of 2025-10-10 — please consider this a near-term snapshot you should verify locally)
-- Pricing page: `docs-site/src/pages/pricing.tsx` — contains the original, inline `INFRA_BLUEPRINT` and the full multi-AZ VPC/AZ/subnet blueprint rendering. This is the canonical place for the infra blueprint in the current committed HEAD state.
-- Dedicated infrastructure page: `docs-site/src/pages/infrastructure.tsx` — was created during the refactor but is not present in the repository (it was removed as an untracked file during the revert). If you want it preserved/committed, re-add it and I will implement a careful migration plan.
-- InfraBlueprint component: `docs-site/src/components/InfraBlueprint/` — was added during refactor but removed as an untracked directory during the revert. The project currently relies on the inline blueprint in `pricing.tsx`.
-- Header and auth components: `docs-site/src/components/UniversalHeader/index.tsx` and `docs-site/src/components/MultiProviderLogin/index.tsx` — these files were edited during the work (theme-aware styles, provider dropdown, Amazon provider). Per your later manual edits, please verify these files in your working tree; you indicated you made manual edits after my revert — those manual edits are authoritative and must be reviewed by you.
-- CSS: `docs-site/src/pages/pricing.module.css` — contains infra visuals CSS and a recent `.infrastructure-page` scoped compression block that was added during the refactor. Confirm whether you want this kept (it is safe when the dedicated page exists; it was written to be scoped so pricing visual layout wouldn't be affected).
-- Static discovery: `docs-site/static/data/architecture_discovery.json` — contains networking discovery data (VPC/subnet definitions) used by the fallback derivation logic when a build-time `INFRA_BLUEPRINT` is absent.
+3) Current repository snapshot (state as of 2025-10-10 - please consider this a near-term snapshot you should verify locally)
+- Pricing page: `docs-site/src/pages/pricing.tsx` - contains the original, inline `INFRA_BLUEPRINT` and the full multi-AZ VPC/AZ/subnet blueprint rendering. This is the canonical place for the infra blueprint in the current committed HEAD state.
+- Dedicated infrastructure page: `docs-site/src/pages/infrastructure.tsx` - was created during the refactor but is not present in the repository (it was removed as an untracked file during the revert). If you want it preserved/committed, re-add it and I will implement a careful migration plan.
+- InfraBlueprint component: `docs-site/src/components/InfraBlueprint/` - was added during refactor but removed as an untracked directory during the revert. The project currently relies on the inline blueprint in `pricing.tsx`.
+- Header and auth components: `docs-site/src/components/UniversalHeader/index.tsx` and `docs-site/src/components/MultiProviderLogin/index.tsx` - these files were edited during the work (theme-aware styles, provider dropdown, Amazon provider). Per your later manual edits, please verify these files in your working tree; you indicated you made manual edits after my revert - those manual edits are authoritative and must be reviewed by you.
+- CSS: `docs-site/src/pages/pricing.module.css` - contains infra visuals CSS and a recent `.infrastructure-page` scoped compression block that was added during the refactor. Confirm whether you want this kept (it is safe when the dedicated page exists; it was written to be scoped so pricing visual layout wouldn't be affected).
+- Static discovery: `docs-site/static/data/architecture_discovery.json` - contains networking discovery data (VPC/subnet definitions) used by the fallback derivation logic when a build-time `INFRA_BLUEPRINT` is absent.
 - Untracked/removed items (assistant-created and now removed):
 	- `docs-site/src/components/InfraBlueprint/` (removed)
 	- `docs-site/src/pages/infrastructure.tsx` (removed)
@@ -50,7 +50,7 @@ Purpose: add a short, dated assistant-authored summary of the recent interaction
 
 5) Immediate recommendations (short list)
 - Pause large, cross-cutting refactors that touch both shared components and page-level data flows until we lock the source-of-truth for the infra blueprint (either: keep inline `INFRA_BLUEPRINT` in `pricing.tsx` or move it to a committed, shared component/file and update imports everywhere in a single commit).
-- When moving UI across pages, commit the new page and shared component first, verify build locally (run docs dev server), then remove legacy references — this avoids broken visual regressions.
+- When moving UI across pages, commit the new page and shared component first, verify build locally (run docs dev server), then remove legacy references - this avoids broken visual regressions.
 - If you want the `/infrastructure` page restored as a committed page with parity to the pricing inline blueprint, I will draft a safe migration plan and a short test matrix (dev smoke test + a11y + simple snapshot) before making changes.
 
 6) Where to pick up safely (if you want me to continue working)
@@ -62,7 +62,7 @@ Purpose: add a short, dated assistant-authored summary of the recent interaction
 - **Mission**: unify multi-source security telemetry, governed data pipelines, and GenAI reasoning into a single AWS-native platform with strict guardrails.
 - **Scope**: end-to-end architecture spanning ingestion, governance, retrieval, AI inference, evaluation, and documentation. Everything is environment-aware (dev/staging/prod) and cost-controlled.
 - **Status**: implementation sits at **71 % complete** (see `docs-site/docs/github/checklist.md`); progress is tracked automatically via `scripts/checklist_lite_review.py`.
-- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`—no AWS calls or deployments.
+- **Recent highlights** (Q4 2025): portal theme parity fixes (all tooltips and dropdowns are theme-aware), expanded context scanning for infrastructure domains, refreshed CI hygiene, multi-AZ blueprint visuals on the pricing page, a reimagined deployment playbook section with AWS/on-prem narratives, transparent pricing backdrops aligned with the hero treatment, an MDX typography refresh (Neue Haas Grotesk stack with indigo accent palette), a Plugins hub with summary navigation plus stat-rich cards for Threat-Classifier, Seq2Seq Answer Architect, Resource Forecaster, and Access Anomaly Detector, and new plugin detail views that showcase ML-task specific telemetry (regression envelopes, RAG latency vs SLO, anomaly risk deltas) alongside guardrail metrics; additionally, Proton PaS scaffolding was added locally with versioned templates, an Infra overview card listing available templates, and a local bundler (`scripts/proton_bundle.py`) that zips to `dist/proton/` and emits a `manifest.json`-no AWS calls or deployments.
 
 ## 2. Problem → Platform → Outcomes
 - **Problem**: Security data is fragmented across SaaS, network, endpoint, and identity sources. Manual consolidation slows detection, drives up risk, and creates audit gaps.
@@ -200,13 +200,13 @@ This file is a living, machine- and human-friendly snapshot of the repository st
 - Reverted an earlier UI refactor that moved the infra blueprint into a dedicated page/component; the canonical inline `INFRA_BLUEPRINT` still lives in `docs-site/src/pages/pricing.tsx` in HEAD. The experimental `infra` page and `InfraBlueprint` component were local/untracked and removed during the revert.
 
 ## Repo layout (primary folders)
-- `infra/` — CDK v2 Python app and domain stacks (networking, identity, data platform, ML, security, orchestration, finops). See `infra/app.py`.
-- `ai_core/` — model loader, chunking, embedding utilities, vector store (pgvector) integration.
-- `data_prep/` — ingestion pipeline scaffolding for telemetry (many source-specific folders present).
-- `docs-site/` — Docusaurus v3 docs, MDX/React pages, components. `pricing.tsx` contains the inline infra blueprint.
-- `proton/` — local Proton PaS templates; `scripts/proton_bundle.py` packages templates into `dist/proton/manifest.json`.
-- `scripts/` — developer helpers, scanners, demo scripts. Notable: `check-secrets.js`, `scan-secrets.json`, `commit-script.sh`, `update_checklist_progress.py`, `documentation_baseline_review.py`.
-- `tests/` — pytest suites for infra, config, utilities and contract checks.
+- `infra/` - CDK v2 Python app and domain stacks (networking, identity, data platform, ML, security, orchestration, finops). See `infra/app.py`.
+- `ai_core/` - model loader, chunking, embedding utilities, vector store (pgvector) integration.
+- `data_prep/` - ingestion pipeline scaffolding for telemetry (many source-specific folders present).
+- `docs-site/` - Docusaurus v3 docs, MDX/React pages, components. `pricing.tsx` contains the inline infra blueprint.
+- `proton/` - local Proton PaS templates; `scripts/proton_bundle.py` packages templates into `dist/proton/manifest.json`.
+- `scripts/` - developer helpers, scanners, demo scripts. Notable: `check-secrets.js`, `scan-secrets.json`, `commit-script.sh`, `update_checklist_progress.py`, `documentation_baseline_review.py`.
+- `tests/` - pytest suites for infra, config, utilities and contract checks.
 
 ## Scanner & triage (technical notes)
 - File: `scripts/check-secrets.js` (Node.js)
@@ -264,12 +264,12 @@ If you want, I can generate the exact `git filter-repo` command and a short, saf
 - Quick syntax checks performed during recent edits: `node --check scripts/check-secrets.js` (no syntax errors), `bash -n scripts/commit-script.sh` (no syntax errors).
 
 ## Where to look (evidence)
-- `infra/` — CDK stacks and `infra/app.py`
-- `docs-site/docs/github/checklist.md` — project checklist and progress
-- `docs-site/src/pages/pricing.tsx` — canonical inline infra blueprint
-- `scripts/check-secrets.js` and `scripts/scan-secrets.json` — scanner + latest report
-- `scripts/commit-script.sh` — commit helper that runs the scanner
-- `scripts/documentation_baseline_review.py` & `scripts/update_checklist_progress.py` — checklist automation utilities
+- `infra/` - CDK stacks and `infra/app.py`
+- `docs-site/docs/github/checklist.md` - project checklist and progress
+- `docs-site/src/pages/pricing.tsx` - canonical inline infra blueprint
+- `scripts/check-secrets.js` and `scripts/scan-secrets.json` - scanner + latest report
+- `scripts/commit-script.sh` - commit helper that runs the scanner
+- `scripts/documentation_baseline_review.py` & `scripts/update_checklist_progress.py` - checklist automation utilities
 
 ---
 

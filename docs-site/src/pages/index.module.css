@@ -8,6 +8,12 @@
   position: relative;
 }
 
+:global(html[data-theme='light']) .page {
+  background:
+    radial-gradient(1600px 900px at 50% -10%, rgba(111, 96, 255, 0.06), transparent 70%),
+    linear-gradient(180deg, #fafbfc 0%, #f5f7fa 100%);
+}
+
 .page::before {
   content: "";
   position: absolute;
@@ -67,18 +73,61 @@
 }
 
 .heroSurface {
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(18, 18, 32, 0.25));
-  padding: clamp(32px, 5vw, 64px);
-  box-shadow: 0 36px 84px rgba(0, 0, 0, 0.65), inset 0 -8px 22px rgba(0, 0, 0, 0.62);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(18, 18, 32, 0.3));
+  padding: clamp(40px, 5.5vw, 72px);
+  box-shadow:
+    0 40px 90px rgba(0, 0, 0, 0.7),
+    0 20px 50px rgba(123, 108, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -8px 22px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.heroSurface:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 50px 100px rgba(0, 0, 0, 0.75),
+    0 25px 60px rgba(123, 108, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -8px 22px rgba(0, 0, 0, 0.5);
+}
+
+:global(html[data-theme='light']) .heroSurface {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 1), rgba(250, 250, 254, 0.98));
+  border: 1px solid rgba(111, 96, 255, 0.2);
+  box-shadow:
+    0 24px 64px rgba(17, 23, 40, 0.1),
+    0 12px 32px rgba(111, 96, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+:global(html[data-theme='light']) .heroSurface:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 32px 80px rgba(17, 23, 40, 0.12),
+    0 16px 40px rgba(111, 96, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 820;
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.85));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-wrap: balance;
+}
+
+:global(html[data-theme='light']) .heroTitle {
+  background: linear-gradient(135deg, rgb(17, 23, 40), rgb(55, 65, 81));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sectionSurface {
@@ -90,6 +139,13 @@
   box-shadow: 0 38px 88px rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(18px);
   padding: clamp(36px, 5vw, 64px);
+}
+
+:global(html[data-theme='light']) .sectionSurface {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(111, 96, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(17, 23, 40, 0.08);
+  backdrop-filter: blur(24px);
 }
 
 .sectionSurface::after {
@@ -117,44 +173,108 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(var(--sc-space-2), 2vw, var(--sc-space-3));
-  max-width: 900px;
-  margin: 0 auto clamp(40px, 5vw, 72px);
+  gap: clamp(16px, 2.5vw, 20px);
+  max-width: 920px;
+  margin: 0 auto clamp(48px, 6vw, 80px);
+}
+
+.contextIntro p {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+:global(html[data-theme='light']) .contextIntro p {
+  color: rgb(17, 23, 40) !important;
+}
+
+.contextIntro h2 {
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+:global(html[data-theme='light']) .contextIntro h2 {
+  color: rgb(17, 23, 40) !important;
 }
 
 .contextGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(18px, 3vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(20px, 3.5vw, 36px);
   width: 100%;
 }
 
 .contextCard {
-  background: rgba(16, 18, 28, 0.92) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: var(--sc-card-radius);
-  padding: clamp(20px, 3vw, 26px);
-  box-shadow: var(--sc-shadow-soft);
+  background: rgba(45, 50, 70, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 18px;
+  padding: clamp(24px, 3.5vw, 32px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: var(--sc-space-2);
+  gap: clamp(10px, 2vw, 14px);
   min-height: 100%;
-  transition: var(--sc-card-transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  outline: 3px solid red !important;
+  /* DEBUG: If you see red, THIS file is being used */
+}
+
+.contextCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(143, 123, 255, 0.08), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+:global(html[data-theme='light']) .contextCard {
+  background: rgba(255, 255, 255, 1) !important;
+  border: 1px solid rgba(111, 96, 255, 0.18) !important;
+  box-shadow:
+    0 6px 20px rgba(17, 23, 40, 0.08),
+    0 2px 8px rgba(111, 96, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
 }
 
 .contextCard h3 {
   margin: 0;
-  font-size: var(--font-md);
-  font-weight: 640;
-  letter-spacing: var(--tracking-card-title);
-  color: #ffffff;
+  font-size: clamp(1.05rem, 2vw, 1.15rem);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #ffffff !important;
+  line-height: 1.3;
+  transition: color 0.2s ease;
+}
+
+.contextCard:hover h3 {
+  color: #ffffff !important;
+}
+
+:global(html[data-theme='light']) .contextCard h3 {
+  color: #000000 !important;
+  font-weight: 660;
 }
 
 .contextCard p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.92);
-  line-height: 1.48;
-  letter-spacing: var(--tracking-body);
+  color: #ffffff !important;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  font-size: clamp(0.92rem, 1.5vw, 0.98rem);
+  transition: color 0.2s ease;
+}
+
+.contextCard:hover p {
+  color: #ffffff !important;
+}
+
+:global(html[data-theme='light']) .contextCard p {
+  color: #000000 !important;
+  font-weight: 450;
 }
 
 .heroSubtitle,
@@ -163,17 +283,70 @@
   opacity: 1 !important;
 }
 
+:global(html[data-theme='light']) .heroSubtitle {
+  color: rgb(17, 23, 40) !important;
+}
+
+:global(html[data-theme='light']) .heroNote {
+  color: rgb(17, 23, 40) !important;
+}
+
 .contextEyebrow {
-  color: rgba(255, 255, 255, 0.82) !important;
+  color: rgba(143, 123, 255, 0.9) !important;
   opacity: 1 !important;
+  font-size: clamp(0.72rem, 1.5vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contextEyebrow::before,
+.contextEyebrow::after {
+  content: "";
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(143, 123, 255, 0.4), transparent);
+}
+
+:global(html[data-theme='light']) .contextEyebrow {
+  color: rgb(111, 96, 255) !important;
+  font-weight: 700;
+}
+
+:global(html[data-theme='light']) .contextEyebrow::before,
+:global(html[data-theme='light']) .contextEyebrow::after {
+  background: linear-gradient(90deg, transparent, rgba(111, 96, 255, 0.3), transparent);
 }
 
 .contextCard:hover,
 .contextCard:focus-within {
-  background: rgba(18, 20, 32, 0.96);
-  border-color: rgba(143, 123, 255, 0.28);
-  transform: translateZ(0) translateY(-3px);
-  box-shadow: var(--sc-shadow-soft);
+  background: rgba(55, 60, 82, 0.98) !important;
+  border-color: rgba(143, 123, 255, 0.35) !important;
+  transform: translateZ(0) translateY(-4px) scale(1.01);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    0 8px 20px rgba(143, 123, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.contextCard:hover::before,
+.contextCard:focus-within::before {
+  opacity: 1;
+}
+
+:global(html[data-theme='light']) .contextCard:hover,
+:global(html[data-theme='light']) .contextCard:focus-within {
+  background: rgba(255, 255, 255, 1) !important;
+  border-color: rgba(111, 96, 255, 0.4) !important;
+  transform: translateZ(0) translateY(-4px) scale(1.01);
+  box-shadow:
+    0 12px 32px rgba(17, 23, 40, 0.12),
+    0 6px 16px rgba(111, 96, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
 }
 
 .dpGrid {
@@ -189,8 +362,8 @@
 
 .scCardSm {
   composes: scCardHighlight from '../styles/sc-architecture.css';
-  background: rgba(16, 18, 28, 0.92) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(45, 50, 70, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
   padding: clamp(18px, 2.8vw, 22px);
   border-radius: var(--sc-card-radius);
   width: 100%;
@@ -235,12 +408,20 @@
   margin: 0 0 2px;
 }
 
+:global(html[data-theme='light']) .scCardSmTitle {
+  color: rgb(17, 23, 40);
+}
+
 .scCardSmBody {
   font-size: clamp(0.86rem, 1.05vw, 0.9rem);
   font-weight: var(--weight-card-body);
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.48;
   letter-spacing: var(--tracking-body);
+}
+
+:global(html[data-theme='light']) .scCardSmBody {
+  color: rgb(55, 65, 81);
 }
 
 .coreOpsDesc {
@@ -259,8 +440,8 @@
 }
 
 .coreOpsCard {
-  background: rgba(16, 18, 28, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(45, 50, 70, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: var(--sc-radius-card-xl, 18px);
   padding: clamp(22px, 4vw, 28px) clamp(24px, 5vw, 32px);
   box-shadow: var(--sc-shadow-soft);
@@ -269,6 +450,12 @@
   margin: 0 auto clamp(32px, 4vw, 48px);
   transform: translateZ(0);
   color: rgba(255, 255, 255, 0.92);
+}
+
+:global(html[data-theme='light']) .coreOpsCard {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(111, 96, 255, 0.15);
+  color: rgb(55, 65, 81);
 }
 
 .coreOpsCard:hover,
@@ -325,20 +512,39 @@
 }
 
 .sectionTitle {
-  font-size: clamp(1.8rem, 3.6vw, 2.8rem);
-  font-weight: 780;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: 800;
   color: rgba(255, 255, 255, 0.99) !important;
-  margin-bottom: clamp(12px, 2vw, 18px);
-  letter-spacing: -0.02em;
+  margin-bottom: clamp(14px, 2.5vw, 20px);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+:global(html[data-theme='light']) .sectionTitle {
+  color: rgb(17, 23, 40) !important;
 }
 
 .sectionSubtitle {
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
-  color: rgba(255, 255, 255, 0.92) !important;
-  max-width: 760px;
-  margin: 0 auto clamp(28px, 4vw, 48px);
+  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.88) !important;
+  max-width: 800px;
+  margin: 0 auto clamp(32px, 5vw, 56px);
   opacity: 1 !important;
   text-align: center;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+:global(html[data-theme='light']) .sectionSubtitle {
+  color: rgb(75, 85, 99) !important;
+  font-weight: 450;
+}
+
+:global(html[data-theme='light']) .sectionSubtitle {
+  color: rgb(17, 23, 40) !important;
 }
 
 .archDiagramAnchor {

@@ -40,10 +40,17 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: undefined,
         },
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
         theme: {
           customCss: [
             require.resolve('./src/css/custom.css'),
             require.resolve('./src/css/docs-theme.css'),
+            require.resolve('./src/styles/typography.css'),
             require.resolve('./static/css/shieldcraft-docs.css'),
             require.resolve('./static/css/shieldcraft-docs-dark.css'),
             require.resolve('./src/css/customTheme.css'),
@@ -64,6 +71,7 @@ const config: Config = {
     require.resolve('./src/clientModules/closeNavOnRoute.ts'),
     require.resolve('./src/clientModules/viewportDiagnostics.ts'),
     require.resolve('./src/clientModules/testModule.ts'),
+    require.resolve('./src/clientModules/ensureThemeAttribute.ts'),
   ],
 
   scripts: [
@@ -110,7 +118,9 @@ const config: Config = {
       ],
     },
     colorMode: {
+      defaultMode: 'dark',
       disableSwitch: false,
+      respectPrefersColorScheme: true,
     },
     prism: {
       theme: prismThemes.github,
@@ -130,6 +140,8 @@ const config: Config = {
     // tags are present in the generated HTML without using the top-level
     // `metadata` field (which is rejected by the current config validator).
     require.resolve('./plugins/og-meta'),
+    // Inject JSON-LD structured data for enhanced SEO
+    require.resolve('./plugins/structured-data'),
   ],
 };
 

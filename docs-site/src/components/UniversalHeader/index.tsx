@@ -552,152 +552,153 @@ export default function UniversalHeader({ height = '60px' }: UniversalHeaderProp
                             </button>
                         )}
 
-                        <div style={{ display: 'flex', gap: isMobile ? '0.75rem' : '1.5rem', alignItems: 'center' }}>
-                            {hydrated && (
-                                <div ref={dropdownRef} className="user-dropdown" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: isMobile ? '0.4rem' : '0.7rem' }}>
-                                    <button
-                                        onClick={handleLoginToggle}
-                                        className="sc-nav-pill"
-                                        style={{
-                                            ...navBaseStyle,
-                                            fontSize: '1.01rem',
-                                            // keep login button label non-bold
-                                            fontWeight: 500,
-                                            background: isDarkMode ? 'rgba(30,41,59,0.18)' : 'rgba(255,255,255,0.82)',
-                                            color: isDarkMode ? '#e5e7eb' : '#1e293b',
-                                            border: 'none', // Removed border
-                                            borderRadius: 8,
-                                            boxShadow: 'none', // Removed box-shadow
-                                            cursor: 'pointer',
-                                            minWidth: isMobile ? 'auto' : 110,
-                                            padding: '0.22rem 0.82rem',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem',
-                                            transition: 'background .18s, color .18s, box-shadow .18s',
-                                        }}
-                                        aria-label={effectiveAuth ? 'User menu' : 'Login'}
-                                    >
-                                        {effectiveAuth ? (
-                                            <>
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                                    <circle cx="12" cy="7" r="4" />
-                                                </svg>
-                                                {userFirstName && <span style={{ marginLeft: '0.5rem' }}>{userFirstName}</span>}
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: -2 }}>
-                                                    <polyline points={dropdownOpen ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
-                                                </svg>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                                                    <polyline points="10 17 15 12 10 7" />
-                                                    <line x1="15" y1="12" x2="3" y2="12" />
-                                                </svg>
-                                                <span>Login</span>
-                                            </>
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={handleColorModeToggle}
-                                        aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
-                                        style={{
-                                            background: isDarkMode ? 'rgba(30,41,59,0.18)' : 'rgba(255,255,255,0.82)',
-                                            border: 'none', // Removed border
-                                            borderRadius: 8,
-                                            width: 38,
-                                            height: 38,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: isDarkMode ? '#e5e7eb' : '#1e293b',
-                                            fontSize: '1.18rem',
-                                            marginLeft: 0,
-                                            boxShadow: 'none', // Removed box-shadow
-                                            cursor: 'pointer',
-                                            transition: 'background .18s, color .18s, box-shadow .18s',
-                                        }}
-                                    >
-                                        {isDarkMode ? '☀️' : '🌙'}
-                                    </button>
-                                    {dropdownOpen && (
-                                        <div
+                        {hydrated && (
+                            <button
+                                onClick={handleLoginToggle}
+                                className="sc-nav-pill"
+                                style={{
+                                    ...navBaseStyle,
+                                    fontSize: '1.01rem',
+                                    fontWeight: 500,
+                                    background: isDarkMode ? 'rgba(30,41,59,0.18)' : 'rgba(255,255,255,0.82)',
+                                    color: isDarkMode ? '#e5e7eb' : '#1e293b',
+                                    border: 'none',
+                                    borderRadius: 8,
+                                    boxShadow: 'none',
+                                    cursor: 'pointer',
+                                    minWidth: isMobile ? 'auto' : 110,
+                                    padding: '0.22rem 0.82rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    transition: 'background .18s, color .18s, box-shadow .18s',
+                                    marginRight: isMobile ? '0.5rem' : '0.75rem',
+                                    position: 'relative',
+                                }}
+                                aria-label={effectiveAuth ? 'User menu' : 'Login'}
+                            >
+                                {effectiveAuth ? (
+                                    <>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                            <circle cx="12" cy="7" r="4" />
+                                        </svg>
+                                        {userFirstName && <span style={{ marginLeft: '0.5rem' }}>{userFirstName}</span>}
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: -2 }}>
+                                            <polyline points={dropdownOpen ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+                                        </svg>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                            <polyline points="10 17 15 12 10 7" />
+                                            <line x1="15" y1="12" x2="3" y2="12" />
+                                        </svg>
+                                        <span>Login</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
+
+                        {hydrated && dropdownOpen && (
+                            <div
+                                ref={dropdownRef}
+                                style={{
+                                    position: 'absolute',
+                                    top: 'calc(100% + 0.5rem)',
+                                    right: isMobile ? '0.5rem' : '3.5rem',
+                                    marginTop: 0,
+                                    background: isDarkMode
+                                        ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
+                                        : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                    border: isDarkMode
+                                        ? '1px solid rgba(165, 180, 252, 0.3)'
+                                        : '1px solid rgba(100, 116, 139, 0.3)',
+                                    borderRadius: 8,
+                                    boxShadow: isDarkMode
+                                        ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                                        : '0 8px 32px rgba(0, 0, 0, 0.15)',
+                                    minWidth: 220,
+                                    overflow: 'hidden',
+                                    zIndex: 1001
+                                }}
+                            >
+                                {effectiveAuth ? (
+                                    <div>
+                                        {[
+                                            { to: '/dashboard', label: 'Security Console' },
+                                            { to: '/monitoring', label: 'Mission Control' },
+                                            { to: '/alerts', label: 'Threat Alerts' },
+                                            { to: '/threat-feed', label: 'Intelligence Feed' },
+                                            { to: '/system-status', label: 'Platform Health' },
+                                            { to: '/recent-activity', label: 'Activity Monitor' }
+                                        ].map(({ to, label }) => (
+                                            <Link
+                                                key={to}
+                                                to={to}
+                                                style={{
+                                                    display: 'block',
+                                                    padding: '0.75rem 1rem',
+                                                    color: isDarkMode ? '#ffffff' : '#1e293b',
+                                                    textDecoration: 'none',
+                                                    borderBottom: isDarkMode
+                                                        ? '1px solid rgba(165, 180, 252, 0.12)'
+                                                        : '1px solid rgba(100, 116, 139, 0.12)'
+                                                }}
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                {label}
+                                            </Link>
+                                        ))}
+                                        <button
+                                            onClick={handleLogout}
                                             style={{
-                                                position: 'absolute',
-                                                top: '100%',
-                                                right: 0,
-                                                marginTop: '0.5rem',
-                                                background: isDarkMode
-                                                    ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
-                                                    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                                border: isDarkMode
-                                                    ? '1px solid rgba(165, 180, 252, 0.3)'
-                                                    : '1px solid rgba(100, 116, 139, 0.3)',
-                                                borderRadius: 8,
-                                                boxShadow: isDarkMode
-                                                    ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                                                    : '0 8px 32px rgba(0, 0, 0, 0.15)',
-                                                minWidth: 220,
-                                                overflow: 'hidden',
-                                                zIndex: 1001
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                color: '#ef4444',
+                                                background: 'transparent',
+                                                border: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                fontSize: '1rem'
                                             }}
                                         >
-                                            {effectiveAuth ? (
-                                                <div>
-                                                    {[
-                                                        { to: '/dashboard', label: 'Security Console' },
-                                                        { to: '/monitoring', label: 'Mission Control' },
-                                                        { to: '/alerts', label: 'Threat Alerts' },
-                                                        { to: '/threat-feed', label: 'Intelligence Feed' },
-                                                        { to: '/system-status', label: 'Platform Health' },
-                                                        { to: '/recent-activity', label: 'Activity Monitor' }
-                                                    ].map(({ to, label }) => (
-                                                        <Link
-                                                            key={to}
-                                                            to={to}
-                                                            style={{
-                                                                display: 'block',
-                                                                padding: '0.75rem 1rem',
-                                                                color: isDarkMode ? '#ffffff' : '#1e293b',
-                                                                textDecoration: 'none',
-                                                                borderBottom: isDarkMode
-                                                                    ? '1px solid rgba(165, 180, 252, 0.12)'
-                                                                    : '1px solid rgba(100, 116, 139, 0.12)'
-                                                            }}
-                                                            onClick={() => setDropdownOpen(false)}
-                                                        >
-                                                            {label}
-                                                        </Link>
-                                                    ))}
-                                                    <button
-                                                        onClick={handleLogout}
-                                                        style={{
-                                                            display: 'block',
-                                                            width: '100%',
-                                                            padding: '0.75rem 1rem',
-                                                            color: '#ef4444',
-                                                            background: 'transparent',
-                                                            border: 'none',
-                                                            textAlign: 'left',
-                                                            cursor: 'pointer',
-                                                            fontSize: '1rem'
-                                                        }}
-                                                    >
-                                                        Logout
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div style={{ padding: '0.75rem' }}>
-                                                    <MultiProviderLogin vertical={true} className="provider-dropdown" onLogin={() => setDropdownOpen(false)} />
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                                            Logout
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div style={{ padding: '0.75rem' }}>
+                                        <MultiProviderLogin vertical={true} className="provider-dropdown" onLogin={() => setDropdownOpen(false)} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {hydrated && (
+                            <button
+                                onClick={handleColorModeToggle}
+                                aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+                                style={{
+                                    background: isDarkMode ? 'rgba(30,41,59,0.18)' : 'rgba(255,255,255,0.82)',
+                                    border: 'none',
+                                    borderRadius: 8,
+                                    width: 38,
+                                    height: 38,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: isDarkMode ? '#e5e7eb' : '#1e293b',
+                                    fontSize: '1.18rem',
+                                    boxShadow: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'background .18s, color .18s, box-shadow .18s',
+                                }}
+                            >
+                                {isDarkMode ? '☀️' : '🌙'}
+                            </button>
+                        )}
                     </div> {/* Close headerRowStyle div */}
                 </div>
             </header>
